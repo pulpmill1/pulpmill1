@@ -460,6 +460,64 @@
     }
     .tb-search.force-open input{width:100%; max-width:100%;}
   }
+
+  /* ===== Yield · Chip Characteristics — Monitor blocks ===== */
+  .mon-group{margin-bottom:22px;}
+  .mon-group-head{display:flex;align-items:baseline;gap:9px;margin:0 2px 10px;flex-wrap:wrap;}
+  .mon-group-head .gi{font-size:13px;opacity:.75;}
+  .mon-group-head .gt{font-size:12px;font-weight:800;letter-spacing:.09em;color:var(--ink-2);text-transform:uppercase;}
+  .mon-group-head .gs{font-size:11px;color:var(--ink-3);margin-left:auto;}
+  .mon-tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(216px,1fr));gap:12px;}
+  .mon-tile{position:relative;background:var(--surface);border:1px solid var(--border);border-top:3px solid var(--mon-rail,#7C4DFF);
+    border-radius:12px;padding:13px 14px 12px;cursor:pointer;box-shadow:var(--shadow);transition:transform .1s,box-shadow .12s;overflow:hidden;}
+  .mon-tile:hover{transform:translateY(-1px);box-shadow:0 2px 4px rgba(18,34,38,.08),0 12px 28px rgba(18,34,38,.10);}
+  .mon-tile:focus-visible{outline:2px solid var(--accent);outline-offset:1px;}
+  .mon-tile.sel{background:#12202e;border-color:#12202e;border-top-color:var(--mon-rail,#7C4DFF);}
+  .mon-tile.sel .mt-name,.mon-tile.sel .mt-val{color:#eef4f7;}
+  .mon-tile.sel .mt-unit,.mon-tile.sel .mt-sub{color:#9fb2bd;}
+  .mt-top{display:flex;align-items:center;gap:7px;}
+  .mt-ico{font-size:12px;opacity:.75;flex-shrink:0;}
+  .mt-name{font-size:12px;font-weight:600;color:var(--ink-2);line-height:1.25;min-width:0;}
+  .mt-dot{width:7px;height:7px;border-radius:50%;margin-left:auto;flex-shrink:0;background:var(--ink-3);}
+  .mt-dot.ok{background:#12a150;}.mt-dot.warn{background:#e0a000;}.mt-dot.bad{background:#d4342c;}
+  .mt-val{font-family:"IBM Plex Mono",monospace;font-size:22px;font-weight:700;color:var(--ink);margin-top:6px;line-height:1;}
+  .mt-unit{font-size:11px;color:var(--ink-3);font-weight:500;margin-left:3px;}
+  .mt-row3{display:flex;align-items:flex-end;justify-content:space-between;gap:8px;margin-top:9px;}
+  .mt-sub{font-size:10.5px;color:var(--ink-2);font-family:"IBM Plex Mono",monospace;white-space:nowrap;}
+  .mt-sub .up{color:#12a150;}.mt-sub .down{color:#d4342c;}.mt-sub .flat{color:var(--ink-3);}
+  .mt-spark{width:78px;height:26px;flex-shrink:0;}
+  .mon-detail{background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);padding:16px 18px;margin-top:12px;}
+  .mon-detail[hidden]{display:none;}
+  .md-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:2px;}
+  .md-title{font-size:15px;font-weight:800;color:var(--ink);}
+  .md-title .u{color:var(--ink-2);font-weight:600;}
+  .md-pills{margin-left:auto;display:flex;gap:6px;flex-wrap:wrap;}
+  .md-pill{font-size:10.5px;font-weight:600;color:var(--ink-2);background:var(--surface-2);border:1px solid var(--border);border-radius:20px;padding:4px 10px;}
+  .md-sub{font-size:11px;color:var(--ink-3);margin-bottom:12px;}
+  .md-target{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:9px 12px;margin-bottom:12px;}
+  .md-target .lbl{font-size:10.5px;font-weight:800;letter-spacing:.05em;color:var(--ink-2);text-transform:uppercase;}
+  .md-target .fld{display:flex;align-items:center;gap:5px;font-size:11.5px;color:var(--ink-2);}
+  .md-target input{font:inherit;font-family:"IBM Plex Mono",monospace;font-size:12px;width:66px;text-align:right;
+    background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:5px 7px;color:var(--ink);}
+  .md-target input:focus-visible{outline:2px solid var(--accent);outline-offset:1px;}
+  .md-target .note{font-size:10.5px;color:var(--ink-3);}
+  .md-strip{display:grid;grid-template-columns:repeat(7,1fr);border:1px solid var(--box-border);border-radius:9px;overflow:hidden;margin-bottom:14px;}
+  .md-cell{padding:8px 9px;border-right:1px solid var(--box-border);background:var(--surface);min-width:0;}
+  .md-cell:last-child{border-right:none;}
+  .md-cell.hero{background:var(--accent-soft);}
+  .md-cell .ck{font-size:9px;font-weight:700;letter-spacing:.03em;color:var(--ink-2);text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .md-cell .cv{font-family:"IBM Plex Mono",monospace;font-size:15px;font-weight:700;color:var(--ink);margin-top:3px;}
+  .md-cell .cv small{font-size:10px;font-weight:500;color:var(--ink-3);}
+  .md-cell .cs{font-size:9px;color:var(--ink-3);margin-top:2px;line-height:1.3;}
+  .md-cell .cv.pos{color:#12a150;}.md-cell .cv.neg{color:#d4342c;}
+  .md-track{position:relative;height:6px;background:var(--surface-2);border-radius:4px;margin-top:7px;}
+  .md-track .z{position:absolute;top:-2px;bottom:-2px;width:1px;background:var(--ink-3);left:50%;}
+  .md-track .m{position:absolute;top:-3px;width:9px;height:9px;border-radius:50%;background:var(--accent);transform:translate(-50%,-1px);}
+  .md-track .m.out{background:#d4342c;}
+  @media (max-width:860px){ .md-strip{grid-template-columns:repeat(3,1fr);} .md-cell{border-bottom:1px solid var(--box-border);} }
+  .md-chart-wrap{position:relative;height:250px;margin-top:4px;}
+  .md-assess{font-size:11.5px;line-height:1.7;color:var(--ink-2);background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:11px 13px;margin-top:12px;}
+  .md-assess b{color:var(--ink);}
 </style>
 
 <div class="app">
@@ -1160,10 +1218,26 @@
         </section>
 
         <section class="page" data-page="yield" hidden>
-          <div class="empty-state">
-            <div class="icon">🌲</div>
-            <h2>Yield Dashboard</h2>
-            <p>หน้านี้ยังไม่มีข้อมูล — รอเชื่อมต่อแหล่งข้อมูล Wood Consumption / Yield รายวันจาก Google Sheets<br>แจ้งลิงก์ชีทและชื่อแท็บที่ต้องการดึงข้อมูลได้เลยครับ จะเพิ่มกราฟให้ในรูปแบบเดียวกันกับหน้า Production</p>
+          <div class="section-divider"><h2>Chip Characteristics — คุณลักษณะของชิ้นไม้สับ (โรงเยื่อ 1)</h2></div>
+          <div id="chipMonHost">
+            <div class="mon-group">
+              <div class="mon-group-head"><span class="gi">⚙</span><span class="gt">ค่าพื้นฐานของชิ้นไม้สับ</span><span class="gs">4 ค่า · คลิกที่บล็อกเพื่อดูประวัติและ control band</span></div>
+              <div class="mon-tiles" id="chipTiles_bulk"></div>
+              <div class="mon-detail" id="chipDetail_bulk" hidden></div>
+            </div>
+            <div class="mon-group">
+              <div class="mon-group-head"><span class="gi">🔻</span><span class="gt">การกระจายขนาดชิ้นไม้สับ (Chip Screen)</span><span class="gs">8 ค่า · คลิกที่บล็อกเพื่อดูประวัติและ control band</span></div>
+              <div class="mon-tiles" id="chipTiles_screen"></div>
+              <div class="mon-detail" id="chipDetail_screen" hidden></div>
+            </div>
+          </div>
+          <button type="button" class="foot-toggle" data-target="chipMonFoot" aria-expanded="false" aria-controls="chipMonFoot">ดูรายละเอียด</button>
+          <div class="foot" id="chipMonFoot" hidden>
+            ที่มา: Google Sheets tab <code>gid=632351488</code> บล็อก "Pulp 1" (คอลัมน์ AA–AL) · วันที่คอลัมน์ B รูปแบบ D/M/YYYY (วันก่อนเดือน)<br>
+            Moisture คำนวณจาก 100 − Dryness (ชีตต้นทางไม่ได้บันทึกคอลัมน์ Moisture) · ค่าเปอร์เซ็นต์นอกช่วง 0–100 ถือเป็นการบันทึกผิดและไม่นำมาคิด<br>
+            สถิติใช้วิธี robust: median + MAD × 1.4826 · baseline = 180 วันที่จบก่อนสัปดาห์ล่าสุด · control band = median ± 3σ<br>
+            Est. สิ้นเดือน = (ผลรวมค่าที่บันทึกในเดือนนี้ + จำนวนวันที่เหลือ × ค่าเฉลี่ย 7 วันล่าสุด) ÷ (จำนวนวันที่บันทึก + จำนวนวันที่เหลือ) · Bulk density / Bulk density × Dryness แสดงไว้อ้างอิงแต่ไม่ให้คะแนน<br>
+            เส้นประเทา = เกณฑ์ Tappi Std. / JPN Rqs. จากชีต · เส้นประม่วง = control band (±3σ, median) · Target Low/High ตั้งเองเก็บในเบราว์เซอร์
           </div>
         </section>
 
@@ -1251,7 +1325,7 @@ const DAYS_IN_MONTH = [31,28,31,30,31,30,31,31,30,31,30,31];
    Daily (Act) gid=0, Daily (BG) gid=1682718600, Daily (Plan) gid=3664159, Daily (Loss) gid=786133815
    Monthly (Act) gid=1448795576, Monthly (Budget) gid=1872828527 */
 const SHEET_ID = '1dStWwliEd6YhSOL3oT8JNyWHZOuII5F-QVeubIrBS50';
-const SHEET_GIDS = { dailyAct:0, dailyBg:1682718600, dailyPlan:3664159, dailyLoss:786133815, monthlyAct:1448795576, monthlyBudget:1872828527 };
+const SHEET_GIDS = { dailyAct:0, dailyBg:1682718600, dailyPlan:3664159, dailyLoss:786133815, monthlyAct:1448795576, monthlyBudget:1872828527, chipWood:632351488 };
 function sheetCsvUrl(gid){ return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${gid}`; }
 
 // robust CSV parser: handles quoted fields, embedded commas, embedded newlines, doubled-quote escaping
@@ -1345,9 +1419,9 @@ function parseMonthlySheet(rows, labelWord){
   return byYear;
 }
 
-const [dailyActRows, dailyBgRows, dailyPlanRows, dailyLossRows, monthlyActRows, monthlyBudgetRows] = await Promise.all([
+const [dailyActRows, dailyBgRows, dailyPlanRows, dailyLossRows, monthlyActRows, monthlyBudgetRows, chipWoodRows] = await Promise.all([
   fetchSheetCsv(SHEET_GIDS.dailyAct), fetchSheetCsv(SHEET_GIDS.dailyBg), fetchSheetCsv(SHEET_GIDS.dailyPlan), fetchSheetCsv(SHEET_GIDS.dailyLoss),
-  fetchSheetCsv(SHEET_GIDS.monthlyAct), fetchSheetCsv(SHEET_GIDS.monthlyBudget),
+  fetchSheetCsv(SHEET_GIDS.monthlyAct), fetchSheetCsv(SHEET_GIDS.monthlyBudget), fetchSheetCsv(SHEET_GIDS.chipWood),
 ]);
 
 const dailyActParsed = parseDailySheet(dailyActRows, {numeric:true});
@@ -3824,7 +3898,7 @@ const PAGE_META = {
   'production-pm1':{th:'Pulp mill 1', en:'Pulp mill 1', hasData:true},
   'production-pm2':{th:'Pulp mill 2', en:'Pulp mill 2', hasData:true},
   'production-pm12':{th:'Pulp mill 1+2', en:'Pulp mill 1+2', hasData:true},
-  yield:{th:'Yield', en:'Yield', hasData:false},
+  yield:{th:'Yield', en:'Yield', hasData:true},
   'cost-bu21':{th:'BU21 Cost', en:'BU21 Cost', hasData:false},
   'cost-productive':{th:'Productive Cost', en:'Productive Cost', hasData:false},
   'quality-lab':{th:'Lab Results', en:'Lab Results', hasData:false},
@@ -4195,6 +4269,331 @@ if(document.getElementById('summaryBody1')){
 }
 
 /* initial language + page render, now that every toolbar function above exists */
+
+/* ===================== Yield · Chip Characteristics — Monitor blocks (โรงเยื่อ 1) =====================
+   Source: Google Sheet tab gid=632351488, "Pulp 1" chip block. Date col B, D/M/YYYY (day-first).
+   Robust stats: median + MAD×1.4826; baseline = the 180 days ending one week before the latest reading.
+   Percentage values outside 0-100 are treated as bad entries and dropped. */
+const CHIP_MON_META = [
+  {key:'bulkDensity',    col:26, th:'Bulk density',              unit:'kg/m³', dec:1, grp:'bulk',   scored:false, spec:[300,350]},
+  {key:'bulkDensityDry', col:27, th:'Bulk density × Dryness',    unit:'kg/m³', dec:1, grp:'bulk',   scored:false},
+  {key:'dryness',        col:28, th:'Dryness',                   unit:'%',     dec:2, grp:'bulk',   scored:true,  dir:'lower',  specHi:54},
+  {key:'moisture',       col:null,th:'Moisture (= 100 − Dryness)',unit:'%',    dec:2, grp:'bulk',   scored:true,  dir:'neutral', derived:true},
+  {key:'fine',           col:30, th:'Fine < 4.8 mm.',            unit:'%',     dec:2, grp:'screen', scored:true,  dir:'lower',  specHi:5},
+  {key:'pin',            col:31, th:'Pin 9.5–4.8 mm.',           unit:'%',     dec:2, grp:'screen', scored:true,  dir:'band',   specLo:17.5, specHi:28.5},
+  {key:'accept2',        col:32, th:'Accept 2  22.2–9.5 mm.',    unit:'%',     dec:2, grp:'screen', scored:true,  dir:'higher', specLo:55},
+  {key:'accept1',        col:33, th:'Accept 1  28.6–22.2 mm.',   unit:'%',     dec:2, grp:'screen', scored:true,  dir:'band',   specLo:10, specHi:17.5},
+  {key:'overThick',      col:34, th:'Over Thick  45.0–28.6 mm.', unit:'%',     dec:2, grp:'screen', scored:true,  dir:'lower',  specHi:5},
+  {key:'overSize',       col:35, th:'Over size > 45.0 mm.',      unit:'%',     dec:2, grp:'screen', scored:true,  dir:'lower',  specHi:1.5},
+  {key:'accPin',         col:36, th:'Acc 1+2+Pin  28.6–4.8 mm.', unit:'%',     dec:2, grp:'screen', scored:true,  dir:'higher', specLo:90},
+  {key:'bark',           col:37, th:'Bark',                      unit:'%',     dec:2, grp:'screen', scored:true,  dir:'lower',  specHi:1},
+];
+const CHIP_MON_GROUPS = [
+  {id:'bulk',   ico:'⚙', th:'ค่าพื้นฐานของชิ้นไม้สับ', rail:'#7C4DFF'},
+  {id:'screen', ico:'🔻', th:'การกระจายขนาดชิ้นไม้สับ (Chip Screen)', rail:'#E0417A'},
+];
+
+const chipMonDre = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/;
+const CHIP_MON_ROWS = [];
+for(let cmi=6; cmi<chipWoodRows.length; cmi++){
+  const cr = chipWoodRows[cmi];
+  const cm = chipMonDre.exec(String((cr && cr[1]) || '').trim());
+  if(!cm) continue;
+  CHIP_MON_ROWS.push({ y:+cm[3], mi:(+cm[2])-1, d:+cm[1], ts:new Date(+cm[3],(+cm[2])-1,+cm[1]).getTime(), r:cr });
+}
+const chipMonPct = v => { const n = parseSheetNum(v); return (n==null || n<0 || n>100) ? null : n; };
+function chipMonVal(rec, meta){
+  if(meta.derived){ const dry = chipMonPct(rec.r[28]); return dry==null ? null : Math.round((100-dry)*100)/100; }
+  return meta.unit === '%' ? chipMonPct(rec.r[meta.col]) : parseSheetNum(rec.r[meta.col]);
+}
+const CHIP_MON_SERIES = {};
+CHIP_MON_META.forEach(m=> {
+  CHIP_MON_SERIES[m.key] = CHIP_MON_ROWS.map(rc=> ({ ts:rc.ts, y:rc.y, mi:rc.mi, d:rc.d, v:chipMonVal(rc, m) }))
+    .filter(x=> x.v!=null).sort((a,b)=> a.ts-b.ts);
+});
+const DAY_MS = 86400000;
+const chipMonMean = a => a.length ? a.reduce((p,c)=> p+c, 0)/a.length : null;
+const chipMonMed = a => { if(!a.length) return null; const s=a.slice().sort((x,y)=>x-y); const n=s.length; return n%2 ? s[(n-1)/2] : (s[n/2-1]+s[n/2])/2; };
+
+function chipMonAnalyse(key, meta){
+  const s = CHIP_MON_SERIES[key];
+  if(s.length < 2) return null;
+  const anchor = s[s.length-1];
+  const prev = s[s.length-2];
+  // robust baseline: 180 days ending 7 days before the latest reading
+  const base = s.filter(x=> x.ts >= anchor.ts - 187*DAY_MS && x.ts < anchor.ts - 7*DAY_MS).map(x=> x.v);
+  const median = chipMonMed(base);
+  const mad = median==null ? null : chipMonMed(base.map(v=> Math.abs(v-median)));
+  const sigma = mad==null ? null : (mad*1.4826 || 0.0001);
+  const bandLo = (median!=null && sigma) ? median - 3*sigma : null;
+  const bandHi = (median!=null && sigma) ? median + 3*sigma : null;
+  const dev = sigma ? (anchor.v - median)/sigma : null;
+  // 30-day (by date) linear regression -> flat vs drift
+  const rw = s.filter(x=> x.ts >= anchor.ts - 30*DAY_MS);
+  let r2 = null, slope = null;
+  if(rw.length >= 5){
+    const xs = rw.map(x=> (x.ts - rw[0].ts)/DAY_MS), ys = rw.map(x=> x.v), n = xs.length;
+    const sx = xs.reduce((a,b)=> a+b, 0), sy = ys.reduce((a,b)=> a+b, 0);
+    const sxx = xs.reduce((a,b)=> a+b*b, 0), sxy = xs.reduce((a,b,i)=> a+b*ys[i], 0);
+    const den = n*sxx - sx*sx;
+    slope = den ? (n*sxy - sx*sy)/den : 0;
+    const b0 = (sy - slope*sx)/n, my = sy/n;
+    const ssTot = ys.reduce((a,b)=> a+(b-my)**2, 0);
+    const ssRes = ys.reduce((a,b,i)=> a+(b-(b0+slope*xs[i]))**2, 0);
+    r2 = ssTot ? Math.max(0, 1 - ssRes/ssTot) : 0;
+  }
+  // calendar periods, anchored on the metric's own latest logged day
+  const monV = (y,mi) => s.filter(x=> x.y===y && x.mi===mi).map(x=> x.v);
+  const pmi = anchor.mi===0 ? 11 : anchor.mi-1, py = anchor.mi===0 ? anchor.y-1 : anchor.y;
+  const curMon = monV(anchor.y, anchor.mi);
+  const last7 = s.slice(-7).map(x=> x.v);
+  const yrVals = s.filter(x=> x.y===anchor.y).map(x=> x.v);
+  // month-end estimate: (Σ this month + remaining calendar days × 7-day mean) ÷ (logged days + remaining)
+  const dim = new Date(anchor.y, anchor.mi+1, 0).getDate();
+  const remaining = Math.max(0, dim - anchor.d);
+  const rate = chipMonMean(last7);
+  const est = (curMon.length >= 3 && rate!=null)
+    ? (curMon.reduce((p,c)=> p+c, 0) + remaining*rate) / (curMon.length + remaining)
+    : null;
+  // health (scored metrics only)
+  let health = null;
+  if(meta.scored && sigma){
+    const recentMean = chipMonMean(s.slice(-7).map(x=> x.v));
+    const worst = Math.max(Math.abs(dev||0), Math.abs((recentMean-median)/sigma));
+    const blended = 0.7*Math.abs((recentMean-median)/sigma) + 0.3*worst;
+    health = Math.max(0, Math.min(100, Math.round(100 - Math.max(0, blended-1)*28)));
+  }
+  return { anchor, prev, median, mad, sigma, bandLo, bandHi, dev, r2, slope, baseN:base.length,
+    curMon, prevMon:monV(py,pmi), last7, yrVals, est, remaining, dim, pmi, py, health };
+}
+
+/* ---- target store (per metric, browser-local) ---- */
+function chipMonTarget(key){
+  try{ const raw = JSON.parse(localStorage.getItem('fl1_chip_target_'+key) || '{}'); return {lo:raw.lo??null, hi:raw.hi??null}; }
+  catch(e){ return {lo:null, hi:null}; }
+}
+function chipMonSetTarget(key, lo, hi){
+  try{ localStorage.setItem('fl1_chip_target_'+key, JSON.stringify({lo, hi})); }catch(e){}
+}
+
+/* ---- state ---- */
+const CHIP_MON_STATE = { bulk:null, screen:null };       // selected metric key per group
+const chipMonCharts = {};                                 // detail chart per group
+const chipMonSparks = {};                                 // sparkline chart per tile key
+
+function chipMonFmt(v, dec){ return v==null ? '—' : v.toLocaleString('en-US', {minimumFractionDigits:dec, maximumFractionDigits:dec}); }
+function chipMonMonthLabel(mi, y){ return `${MONTH_ABBR_TH[mi]} ${String(y).slice(2)}`; }
+
+/* ---- tiles ---- */
+function chipMonRenderTiles(grp){
+  const wrap = document.getElementById('chipTiles_'+grp.id);
+  const metas = CHIP_MON_META.filter(m=> m.grp===grp.id);
+  wrap.innerHTML = metas.map(m=> {
+    const a = chipMonAnalyse(m.key, m);
+    const val = a ? chipMonFmt(a.anchor.v, m.dec) : '—';
+    let sub = '<span class="flat">— ไม่มีข้อมูล</span>', dot = '';
+    if(a){
+      const d = a.anchor.v - a.prev.v;
+      const dcls = Math.abs(d) < 0.005 ? 'flat' : d > 0 ? 'up' : 'down';
+      const arrow = Math.abs(d) < 0.005 ? '–' : d > 0 ? '↑' : '↓';
+      sub = `<span class="${dcls}">${arrow} ${chipMonFmt(Math.abs(d), m.dec)}</span>  7d ${chipMonFmt(chipMonMean(a.last7), m.dec)}`;
+      if(m.scored && a.dev!=null){
+        const ad = Math.abs(a.dev);
+        dot = ad <= 2 ? 'ok' : ad <= 3 ? 'warn' : 'bad';
+      }
+    }
+    return `<div class="mon-tile" role="button" tabindex="0" data-grp="${grp.id}" data-key="${m.key}" style="--mon-rail:${grp.rail}">
+      <div class="mt-top"><span class="mt-ico">${grp.ico}</span><span class="mt-name">${m.th}</span><span class="mt-dot ${dot}"></span></div>
+      <div class="mt-val">${val}<span class="mt-unit">${m.unit}</span></div>
+      <div class="mt-row3"><span class="mt-sub">${sub}</span><canvas class="mt-spark" id="chipSpark_${m.key}"></canvas></div>
+    </div>`;
+  }).join('');
+  // sparklines: last ~30 logged points
+  metas.forEach(m=> {
+    const s = CHIP_MON_SERIES[m.key].slice(-30);
+    if(!s.length) return;
+    const cv = document.getElementById('chipSpark_'+m.key);
+    const cfg = { type:'line', data:{ labels:s.map(()=> ''), datasets:[{ data:s.map(x=> x.v), borderColor:grp.rail, borderWidth:1.4, pointRadius:0, tension:.3, fill:false }] },
+      options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}, tooltip:{enabled:false}, datalabels:{display:false}},
+        scales:{ x:{display:false}, y:{display:false} }, elements:{line:{borderJoinStyle:'round'}} } };
+    if(chipMonSparks[m.key]){ chipMonSparks[m.key].data = cfg.data; chipMonSparks[m.key].update(); }
+    else chipMonSparks[m.key] = new Chart(cv.getContext('2d'), cfg);
+  });
+}
+
+/* ---- detail panel ---- */
+function chipMonRenderDetail(grpId){
+  const grp = CHIP_MON_GROUPS.find(g=> g.id===grpId);
+  const key = CHIP_MON_STATE[grpId];
+  const panel = document.getElementById('chipDetail_'+grpId);
+  if(!key){ panel.hidden = true; return; }
+  const m = CHIP_MON_META.find(x=> x.key===key);
+  const a = chipMonAnalyse(key, m);
+  panel.hidden = false;
+  document.querySelectorAll(`.mon-tile[data-grp="${grpId}"]`).forEach(t=> t.classList.toggle('sel', t.dataset.key===key));
+  if(!a){ panel.innerHTML = `<div class="md-sub">ยังไม่มีข้อมูลของค่านี้ในชีต</div>`; return; }
+
+  const tgt = chipMonTarget(key);
+  const anchorDate = `${a.anchor.d} ${MONTH_ABBR_TH[a.anchor.mi]} ${a.anchor.y}`;
+  const curLbl = chipMonMonthLabel(a.anchor.mi, a.anchor.y);
+  const prevLbl = chipMonMonthLabel(a.pmi, a.py);
+  const specTxt = m.specLo!=null && m.specHi!=null ? `Tappi/JPN ${m.specLo}–${m.specHi}`
+    : m.specHi!=null ? `เกณฑ์ ≤ ${m.specHi}` : m.specLo!=null ? `เกณฑ์ ≥ ${m.specLo}`
+    : m.spec ? `เกณฑ์ ${m.spec[0]}–${m.spec[1]}` : 'ไม่มีเกณฑ์ในชีต';
+  const devTrackPct = a.dev==null ? 50 : Math.max(2, Math.min(98, 50 + (a.dev/3)*50));
+  const devOut = a.dev!=null && Math.abs(a.dev) > 3;
+
+  panel.innerHTML = `
+    <div class="md-head">
+      <span class="md-title">${m.th} <span class="u">· ${m.unit}</span></span>
+      <span class="md-pills">
+        <span class="md-pill">ข้อมูลล่าสุด ${anchorDate}</span>
+        <span class="md-pill">${m.scored ? `health ${a.health}/100` : 'reported · not scored'}</span>
+      </span>
+    </div>
+    <div class="md-sub">${grp.th} · baseline ${a.baseN} วัน (180 วันก่อนสัปดาห์ล่าสุด) · ${specTxt}</div>
+
+    <div class="md-target">
+      <span class="lbl">${m.th} target</span>
+      <span class="fld">LOW <input type="number" step="any" id="chipTgtLo_${grpId}" value="${tgt.lo??''}" placeholder="—"> ${m.unit}</span>
+      <span class="fld">HIGH <input type="number" step="any" id="chipTgtHi_${grpId}" value="${tgt.hi??''}" placeholder="—"> ${m.unit}</span>
+      <span class="note">ตั้ง Low / High เพื่อวางเส้นเป้าบนกราฟ · ${specTxt !== 'ไม่มีเกณฑ์ในชีต' ? 'ค่าเกณฑ์จากชีต (เส้นประเทา) แสดงอยู่แล้ว' : 'ชีตไม่มีเกณฑ์ของค่านี้'}</span>
+    </div>
+
+    <div class="md-strip">
+      <div class="md-cell hero"><div class="ck">Latest</div><div class="cv">${chipMonFmt(a.anchor.v, m.dec)}<small> ${m.unit}</small></div><div class="cs">${anchorDate}</div></div>
+      <div class="md-cell"><div class="ck">7 วัน</div><div class="cv">${chipMonFmt(chipMonMean(a.last7), m.dec)}</div><div class="cs">ค่าเฉลี่ย ${a.last7.length} วันล่าสุด</div></div>
+      <div class="md-cell"><div class="ck">${curLbl}</div><div class="cv">${chipMonFmt(chipMonMean(a.curMon), m.dec)}</div><div class="cs">เฉลี่ย ${a.curMon.length} วันที่บันทึก</div></div>
+      <div class="md-cell"><div class="ck">${prevLbl}</div><div class="cv">${chipMonFmt(chipMonMean(a.prevMon), m.dec)}</div><div class="cs">เฉลี่ย ${a.prevMon.length} วันที่บันทึก</div></div>
+      <div class="md-cell"><div class="ck">${a.anchor.y}</div><div class="cv">${chipMonFmt(chipMonMean(a.yrVals), m.dec)}</div><div class="cs">เฉลี่ย ${a.yrVals.length} วันที่บันทึก</div></div>
+      <div class="md-cell"><div class="ck">Est. ${MONTH_ABBR_TH[a.anchor.mi]} สิ้นเดือน</div><div class="cv">${a.est==null ? '—' : chipMonFmt(a.est, m.dec)}</div><div class="cs">${a.est==null ? 'ต้องมี ≥ 3 วัน' : `${a.curMon.length} วันจริง + ${a.remaining} วันที่อัตรา 7 วัน`}</div></div>
+      <div class="md-cell"><div class="ck">Deviation</div><div class="cv ${a.dev==null?'':a.dev<0?'neg':'pos'}">${a.dev==null?'—':(a.dev>=0?'+':'')+a.dev.toFixed(1)+'σ'}</div>
+        <div class="md-track"><span class="z"></span><span class="m ${devOut?'out':''}" style="left:${devTrackPct}%"></span></div></div>
+    </div>
+
+    <div class="md-chart-wrap"><canvas id="chipDetailChart_${grpId}"></canvas></div>
+
+    <div class="md-assess">${chipMonAssess(m, a, tgt)}</div>
+  `;
+
+  // wire target inputs
+  const loEl = document.getElementById('chipTgtLo_'+grpId), hiEl = document.getElementById('chipTgtHi_'+grpId);
+  const onTgt = () => {
+    const lo = loEl.value.trim()==='' ? null : +loEl.value;
+    const hi = hiEl.value.trim()==='' ? null : +hiEl.value;
+    chipMonSetTarget(key, lo, hi);
+    chipMonDrawDetailChart(grpId, m, a, {lo, hi});
+    panel.querySelector('.md-assess').innerHTML = chipMonAssess(m, a, {lo, hi});
+  };
+  loEl.addEventListener('change', onTgt);
+  hiEl.addEventListener('change', onTgt);
+
+  chipMonDrawDetailChart(grpId, m, a, tgt);
+}
+
+function chipMonDrawDetailChart(grpId, m, a, tgt){
+  const grp = CHIP_MON_GROUPS.find(g=> g.id===grpId);
+  // show the anchor month + the two months before it
+  const s = CHIP_MON_SERIES[m.key];
+  const fromTs = new Date(a.py, a.pmi-1 < 0 ? 11 : a.pmi-1, 1).getTime();
+  const win = s.filter(x=> x.ts >= fromTs);
+  const rows = win.length >= 8 ? win : s.slice(-70);
+  const labels = rows.map(x=> `${x.d}/${x.mi+1}`);
+  const c = { ink2:cssVar('--ink-2'), grid:cssVar('--grid'), surface:cssVar('--surface'), border:cssVar('--border'), ink:cssVar('--ink') };
+
+  const flat = (v, col, dash, lab) => ({ type:'line', label:lab, data:labels.map(()=> v), borderColor:col, borderWidth:1.4,
+    borderDash:dash, pointRadius:0, fill:false, tension:0, order:5, datalabels:{display:false} });
+  const refs = [];
+  if(a.bandLo!=null){ refs.push(flat(a.bandHi, 'rgba(124,77,255,.45)', [2,3], '+3σ')); refs.push(flat(a.bandLo, 'rgba(124,77,255,.45)', [2,3], '−3σ')); refs.push(flat(a.median, 'rgba(124,77,255,.7)', [6,4], 'median')); }
+  if(m.specHi!=null) refs.push(flat(m.specHi, '#8a8a8a', [5,4], `เกณฑ์ ${m.specHi}`));
+  if(m.specLo!=null && m.specLo!==m.specHi) refs.push(flat(m.specLo, '#8a8a8a', [5,4], `เกณฑ์ ${m.specLo}`));
+  if(m.spec){ refs.push(flat(m.spec[0], '#8a8a8a', [5,4], `${m.spec[0]}`)); refs.push(flat(m.spec[1], '#8a8a8a', [5,4], `${m.spec[1]}`)); }
+  if(tgt.lo!=null) refs.push(flat(tgt.lo, '#12a150', [7,3], `Target Low ${tgt.lo}`));
+  if(tgt.hi!=null) refs.push(flat(tgt.hi, '#d4342c', [7,3], `Target High ${tgt.hi}`));
+
+  const vals = rows.map(x=> x.v);
+  const scaleVals = vals.concat(refs.map(r=> r.data[0])).filter(v=> v!=null);
+  let lo = Math.min(...scaleVals), hi = Math.max(...scaleVals);
+  const pad = (hi-lo)*0.12 || 1;
+  const range = (hi+pad)-(lo-pad);
+  const step = range > 250 ? 50 : range > 100 ? 20 : range > 40 ? 10 : range > 12 ? 5 : range > 4 ? 2 : 0.5;
+  lo = Math.max(0, Math.floor((lo-pad)/step)*step); hi = Math.ceil((hi+pad)/step)*step;
+
+  const cfg = {
+    data:{ labels, datasets:[
+      { type:'bar', label:m.th, data:vals, backgroundColor:grp.rail, borderColor:c.surface, borderWidth:0.5,
+        borderRadius:2, barPercentage:0.92, categoryPercentage:0.9, order:2, datalabels:{display:false} },
+      ...refs
+    ]},
+    options:{ responsive:true, maintainAspectRatio:false, layout:{padding:{top:6}},
+      interaction:{mode:'index', intersect:false},
+      scales:{
+        x:{ grid:{display:false}, ticks:{color:c.ink2, font:{family:'IBM Plex Mono', size:10}, maxRotation:0, autoSkip:true, maxTicksLimit:14} },
+        y:{ min:lo, max:hi, grid:{color:c.grid}, ticks:{color:c.ink2, font:{family:'IBM Plex Mono', size:10.5}} }
+      },
+      plugins:{ legend:{display:false},
+        tooltip:{ backgroundColor:c.surface, titleColor:c.ink, bodyColor:c.ink2, borderColor:c.border, borderWidth:1, padding:9,
+          callbacks:{ label:(x)=> `${x.dataset.label}: ${x.parsed.y==null?'—':x.parsed.y.toLocaleString('en-US',{minimumFractionDigits:m.dec, maximumFractionDigits:m.dec})} ${m.unit}` } } }
+    }
+  };
+  const cv = document.getElementById('chipDetailChart_'+grpId);
+  if(chipMonCharts[grpId]){ chipMonCharts[grpId].destroy(); }
+  chipMonCharts[grpId] = new Chart(cv.getContext('2d'), cfg);
+}
+
+function chipMonAssess(m, a, tgt){
+  const f = v => v==null ? '—' : v.toLocaleString('en-US', {minimumFractionDigits:m.dec, maximumFractionDigits:m.dec});
+  if(!m.scored){
+    return `<b>วิธีประเมิน.</b> ค่านี้เป็นปริมาณ/ข้อมูลกระบวนการ ไม่ใช่ค่าคุณภาพ จึงแสดงไว้อ้างอิงแต่ไม่ให้คะแนนและไม่แจ้งเตือน ` +
+      (a.median!=null ? `ช่วงอ้างอิง (median ± 3σ) จากข้อมูล 180 วันก่อนสัปดาห์ล่าสุด = ${f(a.bandLo)} – ${f(a.bandHi)} (${a.baseN} ค่า)` : `ยังมีข้อมูลไม่พอสร้างช่วงอ้างอิง`) + '.';
+  }
+  if(a.median==null) return `<b>วิธีประเมิน.</b> ยังมีข้อมูลไม่พอ (ต้องมีอย่างน้อย ~180 วัน) จึงยังสร้าง control band ไม่ได้.`;
+  const inBand = a.dev!=null && Math.abs(a.dev) <= 3;
+  const drift = a.r2!=null && a.r2 >= 0.25 && a.slope!=null;
+  let s = `<b>วิธีประเมิน.</b> ในช่วง 180 วันที่จบก่อนสัปดาห์ล่าสุด ค่านี้อยู่ที่ราว <b>${f(a.median)} ${m.unit}</b> ` +
+    `โดยมี robust σ ≈ ${f(a.sigma)} จาก ${a.baseN} ค่า ได้ control band ±3σ = <b>${f(a.bandLo)} – ${f(a.bandHi)} ${m.unit}</b>. ` +
+    `ค่าล่าสุดอยู่ที่ ${a.dev>=0?'+':''}${a.dev.toFixed(1)}σ จากจุดกลาง — ${inBand ? '<b>อยู่ในเกณฑ์</b>' : '<b>หลุดเกณฑ์</b>'}. `;
+  s += drift
+    ? `แนวโน้ม 30 วัน<b>กำลังเคลื่อน</b> (R² ${a.r2.toFixed(2)}, ~${(a.slope>=0?'+':'')}${(a.slope).toFixed(3)}/วัน). `
+    : `แนวโน้ม 30 วันค่อนข้างนิ่ง (R² ${(a.r2||0).toFixed(2)}) การแกว่งล่าสุดจึงเป็น noise มากกว่าการเลื่อนระดับ. `;
+  if(tgt.lo!=null || tgt.hi!=null){
+    const okLo = tgt.lo==null || a.anchor.v >= tgt.lo;
+    const okHi = tgt.hi==null || a.anchor.v <= tgt.hi;
+    s += `เทียบเป้าที่ตั้งไว้ (${tgt.lo==null?'—':f(tgt.lo)} / ${tgt.hi==null?'—':f(tgt.hi)}) ค่าล่าสุด ${okLo&&okHi ? '<b>อยู่ในเป้า</b>' : '<b>อยู่นอกเป้า</b>'}. `;
+  }
+  return s;
+}
+
+/* ---- init ---- */
+function initChipMon(){
+  if(!CHIP_MON_ROWS.length) return;
+  CHIP_MON_GROUPS.forEach(grp=> {
+    chipMonRenderTiles(grp);
+    // default selection = first metric of the group that has data
+    const firstWithData = CHIP_MON_META.filter(m=> m.grp===grp.id).find(m=> CHIP_MON_SERIES[m.key].length >= 2);
+    CHIP_MON_STATE[grp.id] = firstWithData ? firstWithData.key : null;
+    chipMonRenderDetail(grp.id);
+  });
+  const host = document.getElementById('chipMonHost');
+  host.addEventListener('click', (e)=> {
+    const tile = e.target.closest('.mon-tile'); if(!tile) return;
+    CHIP_MON_STATE[tile.dataset.grp] = tile.dataset.key;
+    chipMonRenderDetail(tile.dataset.grp);
+    document.getElementById('chipDetail_'+tile.dataset.grp).scrollIntoView({behavior:'smooth', block:'nearest'});
+  });
+  host.addEventListener('keydown', (e)=> {
+    if(e.key!=='Enter' && e.key!==' ') return;
+    const tile = e.target.closest('.mon-tile'); if(!tile) return;
+    e.preventDefault();
+    CHIP_MON_STATE[tile.dataset.grp] = tile.dataset.key;
+    chipMonRenderDetail(tile.dataset.grp);
+  });
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', ()=> {
+    CHIP_MON_GROUPS.forEach(grp=> { chipMonRenderTiles(grp); chipMonRenderDetail(grp.id); });
+  });
+}
+if(document.getElementById('chipMonHost')) initChipMon();
+
 applyLang(currentLang);
 showPage('production-pm1');
 }catch(err){
