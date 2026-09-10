@@ -471,23 +471,21 @@
   .mon-group-head .gt{font-size:12px;font-weight:800;letter-spacing:.09em;color:var(--ink-2);text-transform:uppercase;}
   .mon-group-head .gs{font-size:11px;color:var(--ink-3);margin-left:auto;}
   .mon-tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(216px,1fr));gap:12px;}
-  .mon-tile{position:relative;background:var(--surface);border:1px solid var(--border);border-top:3px solid var(--mon-rail,#7C4DFF);
-    border-radius:12px;padding:13px 14px 12px;cursor:pointer;box-shadow:var(--shadow);transition:transform .1s,box-shadow .12s;overflow:hidden;}
-  .mon-tile:hover{transform:translateY(-1px);box-shadow:0 2px 4px rgba(18,34,38,.08),0 12px 28px rgba(18,34,38,.10);}
+  .mon-tile{position:relative;background:linear-gradient(168deg,#123a63 0%,#0d2c4d 55%,#0b2242 100%);border:1px solid rgba(255,255,255,.13);border-top:3px solid var(--mon-rail,#7C4DFF);
+    border-radius:12px;padding:13px 14px 12px;cursor:pointer;box-shadow:0 2px 5px rgba(8,20,40,.22),0 12px 26px rgba(8,20,40,.20);transition:transform .1s,box-shadow .12s;overflow:hidden;}
+  .mon-tile:hover{transform:translateY(-1px);box-shadow:0 3px 7px rgba(8,20,40,.3),0 16px 34px rgba(8,20,40,.28);}
   .mon-tile:focus-visible{outline:2px solid var(--accent);outline-offset:1px;}
-  .mon-tile.sel{background:#12202e;border-color:#12202e;border-top-color:var(--mon-rail,#7C4DFF);}
-  .mon-tile.sel .mt-name,.mon-tile.sel .mt-val{color:#eef4f7;}
-  .mon-tile.sel .mt-unit,.mon-tile.sel .mt-sub{color:#9fb2bd;}
+  .mon-tile.sel{background:linear-gradient(168deg,#1a4f7d 0%,#123a63 60%,#0e2e52 100%);border-color:rgba(255,255,255,.42);}
   .mt-top{display:flex;align-items:center;gap:7px;}
-  .mt-ico{font-size:12px;opacity:.75;flex-shrink:0;}
-  .mt-name{font-size:12px;font-weight:600;color:var(--ink-2);line-height:1.25;min-width:0;}
-  .mt-dot{width:7px;height:7px;border-radius:50%;margin-left:auto;flex-shrink:0;background:var(--ink-3);}
-  .mt-dot.ok{background:#12a150;}.mt-dot.warn{background:#e0a000;}.mt-dot.bad{background:#d4342c;}
-  .mt-val{font-family:"IBM Plex Mono",monospace;font-size:22px;font-weight:700;color:var(--ink);margin-top:6px;line-height:1;}
-  .mt-unit{font-size:11px;color:var(--ink-3);font-weight:500;margin-left:3px;}
+  .mt-ico{font-size:12px;opacity:.9;flex-shrink:0;}
+  .mt-name{font-size:12px;font-weight:600;color:#B7C6DA;line-height:1.25;min-width:0;}
+  .mt-dot{width:7px;height:7px;border-radius:50%;margin-left:auto;flex-shrink:0;background:#7f97b3;}
+  .mt-dot.ok{background:#3fd07d;}.mt-dot.warn{background:#f0b429;}.mt-dot.bad{background:#f4675e;}
+  .mt-val{font-family:"IBM Plex Mono",monospace;font-size:22px;font-weight:700;color:#fff;margin-top:6px;line-height:1;}
+  .mt-unit{font-size:11px;color:#8098B7;font-weight:500;margin-left:3px;}
   .mt-row3{display:flex;align-items:flex-end;justify-content:space-between;gap:8px;margin-top:9px;}
-  .mt-sub{font-size:10.5px;color:var(--ink-2);font-family:"IBM Plex Mono",monospace;white-space:nowrap;}
-  .mt-sub .up{color:#12a150;}.mt-sub .down{color:#d4342c;}.mt-sub .flat{color:var(--ink-3);}
+  .mt-sub{font-size:10.5px;color:#9FB4CE;font-family:"IBM Plex Mono",monospace;white-space:nowrap;}
+  .mt-sub .up{color:#4ade80;}.mt-sub .down{color:#f87171;}.mt-sub .flat{color:#8098B7;}
   .mt-spark{width:78px;height:26px;flex-shrink:0;}
   .mon-detail{background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);padding:16px 18px;margin-top:12px;}
   .mon-detail[hidden]{display:none;}
@@ -1233,7 +1231,6 @@
         </section>
 
         <section class="page" data-page="yield" hidden>
-          <div class="section-divider"><h2>Chip Characteristics — คุณลักษณะของชิ้นไม้สับ (โรงเยื่อ 1)</h2></div>
           <div id="chipMonHost">
             <div class="mon-group">
               <div class="mon-group-head"><span class="gi">⚙</span><span class="gt">ค่าพื้นฐานของชิ้นไม้สับ</span><span class="gs">4 ค่า · คลิกที่บล็อกเพื่อดูประวัติและ control band</span></div>
@@ -1246,9 +1243,14 @@
               <div class="mon-detail" id="chipDetail_screen" hidden></div>
             </div>
             <div class="mon-group">
-              <div class="mon-group-head"><span class="gi">🍲</span><span class="gt">Kappa การต้ม &amp; Knot / White reject</span><span class="gs">4 ค่า · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
+              <div class="mon-group-head"><span class="gi">🍲</span><span class="gt">Cooking Kappa</span><span class="gs">2 ค่า · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
               <div class="mon-tiles" id="chipTiles_cook"></div>
               <div class="mon-detail" id="chipDetail_cook" hidden></div>
+            </div>
+            <div class="mon-group">
+              <div class="mon-group-head"><span class="gi">🧹</span><span class="gt">Knot / White reject</span><span class="gs">2 ค่า · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
+              <div class="mon-tiles" id="chipTiles_reject"></div>
+              <div class="mon-detail" id="chipDetail_reject" hidden></div>
             </div>
             <div class="mon-group">
               <div class="mon-group-head"><span class="gi">📊</span><span class="gt">End Production / Diff. prod. balance wetlap</span><span class="gs">3 ค่า · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
@@ -3995,8 +3997,9 @@ const TX_EN = {
   'การกระจายขนาดชิ้นไม้สับ (Chip Screen)':'Chip size distribution (Chip Screen)',
   '4 ค่า · คลิกที่บล็อกเพื่อดูประวัติและ control band':'4 metrics · click a tile for its history and control band',
   '8 ค่า · คลิกที่บล็อกเพื่อดูประวัติและ control band':'8 metrics · click a tile for its history and control band',
-  'Kappa การต้ม & Knot / White reject':'Cooking Kappa & Knot / White reject',
-  '4 ค่า · คลิกที่บล็อกเพื่อดูประวัติ':'4 metrics · click a tile for its history',
+  'Cooking Kappa':'Cooking Kappa',
+  'Knot / White reject':'Knot / White reject',
+  '2 ค่า · คลิกที่บล็อกเพื่อดูประวัติ':'2 metrics · click a tile for its history',
   'น้ำเสียเข้าระบบบำบัด (ETP)':'Effluent to the ETP',
   '5 ค่า · คลิกที่บล็อกเพื่อดูประวัติ':'5 metrics · click a tile for its history',
   '3 ค่า · คลิกที่บล็อกเพื่อดูประวัติ':'3 metrics · click a tile for its history',
@@ -4623,8 +4626,8 @@ const CHIP_MON_META = [
   {key:'bark',           col:37, th:'Bark',                      unit:'%',     dec:2, pct01:true, grp:'screen', scored:true,  dir:'lower',  specHi:1},
   {key:'kappaCook',    col:64, th:'Kappa cooking',                 unit:'',        dec:2, grp:'cook', scored:true,  dir:'band'},
   {key:'sdKappa',      col:65, th:'SD Kappa cooking',              unit:'',        dec:2, grp:'cook', scored:true,  dir:'lower'},
-  {key:'kwReject',     col:67, th:'Knot + White reject',           unit:'kg',      dec:0, grp:'cook', scored:false},
-  {key:'kwRejectAdt',  col:67, perAdt:true, th:'Knot + White reject / ADt', unit:'kg/ADt', dec:2, grp:'cook', scored:false},
+  {key:'kwReject',     col:67, th:'Knot + White reject',           unit:'kg',      dec:0, grp:'reject', scored:false},
+  {key:'kwRejectAdt',  col:67, perAdt:true, th:'Knot + White reject / ADt', unit:'kg/ADt', dec:2, grp:'reject', scored:false},
   {key:'diffBalance',  col:66, th:'Diff. prod. balance wetlap',    unit:'%',       dec:2, grp:'endprod', scored:true, dir:'band'},
   {key:'endProd',      col:76, th:'End Prod.',                     unit:'Adt/day', dec:0, grp:'endprod', scored:false},
   {key:'endProdBal',   col:77, th:'End Prod. Balance',             unit:'Adt/day', dec:0, grp:'endprod', scored:false},
@@ -4635,7 +4638,8 @@ const CHIP_MON_META = [
 const CHIP_MON_GROUPS = [
   {id:'bulk',    ico:'⚙', th:'ค่าพื้นฐานของชิ้นไม้สับ', rail:'#7C4DFF'},
   {id:'screen',  ico:'🔻', th:'การกระจายขนาดชิ้นไม้สับ (Chip Screen)', rail:'#E0417A'},
-  {id:'cook',    ico:'🍲', th:'Kappa การต้ม & Knot / White reject', rail:'#0E7C86'},
+  {id:'cook',    ico:'🍲', th:'Cooking Kappa', rail:'#0E7C86'},
+  {id:'reject',  ico:'🧹', th:'Knot / White reject', rail:'#C9A227'},
   {id:'endprod', ico:'📊', th:'End Production / Diff. prod. balance wetlap', rail:'#B25C00'},
   {id:'etp',     ico:'💧', th:'น้ำเสียเข้าระบบบำบัด (ETP)', rail:'#0B7A28'},
 ];
@@ -4931,7 +4935,7 @@ function chipMonDrawDetailChart(grpId, m, a, tgt){
         borderRadius:2, barPercentage:0.9, categoryPercentage:0.9, order:2,
         datalabels:{ display:(x)=> x.dataset.data[x.dataIndex]!=null, anchor:'end', align:'end', offset:2,
           rotation: nBars > 14 ? -90 : 0, color:c.ink2,
-          font:{ family:'IBM Plex Mono', size: nBars > 22 ? 7.5 : nBars > 14 ? 8.5 : 10, weight:'600' },
+          font:{ family:'IBM Plex Mono', size:10.5, weight:'600' },
           formatter:(v)=> v==null ? '' : v.toLocaleString('en-US', {minimumFractionDigits:0, maximumFractionDigits:m.dec}) } },
       ...refs
     ]},
