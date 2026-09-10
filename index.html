@@ -1246,9 +1246,14 @@
               <div class="mon-detail" id="chipDetail_screen" hidden></div>
             </div>
             <div class="mon-group">
-              <div class="mon-group-head"><span class="gi">🍲</span><span class="gt">Kappa การต้ม &amp; Knot / White reject</span><span class="gs">5 ค่า · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
+              <div class="mon-group-head"><span class="gi">🍲</span><span class="gt">Kappa การต้ม &amp; Knot / White reject</span><span class="gs">4 ค่า · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
               <div class="mon-tiles" id="chipTiles_cook"></div>
               <div class="mon-detail" id="chipDetail_cook" hidden></div>
+            </div>
+            <div class="mon-group">
+              <div class="mon-group-head"><span class="gi">📊</span><span class="gt">End Production / Diff. prod. balance wetlap</span><span class="gs">3 ค่า · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
+              <div class="mon-tiles" id="chipTiles_endprod"></div>
+              <div class="mon-detail" id="chipDetail_endprod" hidden></div>
             </div>
             <div class="mon-group">
               <div class="mon-group-head"><span class="gi">💧</span><span class="gt">น้ำเสียเข้าระบบบำบัด (ETP)</span><span class="gs">3 ค่า · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
@@ -3991,6 +3996,7 @@ const TX_EN = {
   '4 ค่า · คลิกที่บล็อกเพื่อดูประวัติและ control band':'4 metrics · click a tile for its history and control band',
   '8 ค่า · คลิกที่บล็อกเพื่อดูประวัติและ control band':'8 metrics · click a tile for its history and control band',
   'Kappa การต้ม & Knot / White reject':'Cooking Kappa & Knot / White reject',
+  '4 ค่า · คลิกที่บล็อกเพื่อดูประวัติ':'4 metrics · click a tile for its history',
   'น้ำเสียเข้าระบบบำบัด (ETP)':'Effluent to the ETP',
   '5 ค่า · คลิกที่บล็อกเพื่อดูประวัติ':'5 metrics · click a tile for its history',
   '3 ค่า · คลิกที่บล็อกเพื่อดูประวัติ':'3 metrics · click a tile for its history',
@@ -4615,20 +4621,23 @@ const CHIP_MON_META = [
   {key:'overSize',       col:35, th:'Over size > 45.0 mm.',      unit:'%',     dec:2, pct01:true, grp:'screen', scored:true,  dir:'lower',  specHi:1.5},
   {key:'accPin',         col:36, th:'Acc 1+2+Pin  28.6–4.8 mm.', unit:'%',     dec:2, pct01:true, grp:'screen', scored:true,  dir:'higher', specLo:90},
   {key:'bark',           col:37, th:'Bark',                      unit:'%',     dec:2, pct01:true, grp:'screen', scored:true,  dir:'lower',  specHi:1},
-  {key:'kappaCook',    col:64, th:'Kappa cooking',                 unit:'',       dec:2, grp:'cook', scored:true,  dir:'band'},
-  {key:'sdKappa',      col:65, th:'SD Kappa cooking',              unit:'',       dec:2, grp:'cook', scored:true,  dir:'lower'},
-  {key:'diffBalance',  col:66, th:'Diff. prod. balance wetlap',    unit:'%',      dec:2, grp:'cook', scored:true,  dir:'band'},
-  {key:'kwReject',     col:67, th:'Knot + White reject',           unit:'kg',     dec:0, grp:'cook', scored:false},
+  {key:'kappaCook',    col:64, th:'Kappa cooking',                 unit:'',        dec:2, grp:'cook', scored:true,  dir:'band'},
+  {key:'sdKappa',      col:65, th:'SD Kappa cooking',              unit:'',        dec:2, grp:'cook', scored:true,  dir:'lower'},
+  {key:'kwReject',     col:67, th:'Knot + White reject',           unit:'kg',      dec:0, grp:'cook', scored:false},
   {key:'kwRejectAdt',  col:67, perAdt:true, th:'Knot + White reject / ADt', unit:'kg/ADt', dec:2, grp:'cook', scored:false},
-  {key:'tssEtp',       col:73, th:'TSS to ETP',                    unit:'mg/l',   dec:0, grp:'etp',  scored:false},
-  {key:'volEtp',       col:71, th:'Volume to ETP',                 unit:'m³/day', dec:0, grp:'etp',  scored:false},
+  {key:'diffBalance',  col:66, th:'Diff. prod. balance wetlap',    unit:'%',       dec:2, grp:'endprod', scored:true, dir:'band'},
+  {key:'endProd',      col:76, th:'End Prod.',                     unit:'Adt/day', dec:0, grp:'endprod', scored:false},
+  {key:'endProdBal',   col:77, th:'End Prod. Balance',             unit:'Adt/day', dec:0, grp:'endprod', scored:false},
+  {key:'tssEtp',       col:73, th:'TSS to ETP',                    unit:'mg/l',    dec:0, grp:'etp',  scored:false},
+  {key:'volEtp',       col:71, th:'Volume to ETP',                 unit:'m³/day',  dec:0, grp:'etp',  scored:false},
   {key:'volEtpAdt',    col:71, perAdt:true, th:'Volume to ETP / ADt', unit:'m³/ADt', dec:3, grp:'etp', scored:false},
 ];
 const CHIP_MON_GROUPS = [
-  {id:'bulk',   ico:'⚙', th:'ค่าพื้นฐานของชิ้นไม้สับ', rail:'#7C4DFF'},
-  {id:'screen', ico:'🔻', th:'การกระจายขนาดชิ้นไม้สับ (Chip Screen)', rail:'#E0417A'},
-  {id:'cook',   ico:'🍲', th:'Kappa การต้ม & Knot / White reject', rail:'#0E7C86'},
-  {id:'etp',    ico:'💧', th:'น้ำเสียเข้าระบบบำบัด (ETP)', rail:'#0B7A28'},
+  {id:'bulk',    ico:'⚙', th:'ค่าพื้นฐานของชิ้นไม้สับ', rail:'#7C4DFF'},
+  {id:'screen',  ico:'🔻', th:'การกระจายขนาดชิ้นไม้สับ (Chip Screen)', rail:'#E0417A'},
+  {id:'cook',    ico:'🍲', th:'Kappa การต้ม & Knot / White reject', rail:'#0E7C86'},
+  {id:'endprod', ico:'📊', th:'End Production / Diff. prod. balance wetlap', rail:'#B25C00'},
+  {id:'etp',     ico:'💧', th:'น้ำเสียเข้าระบบบำบัด (ETP)', rail:'#0B7A28'},
 ];
 
 const chipMonDre = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/;
@@ -4648,7 +4657,7 @@ function chipMonVal(rec, meta){
   if(meta.derived){ const dry = chipMonPct(rec.r[28]); return dry==null ? null : Math.round((100-dry)*100)/100; }
   if(meta.perAdt){
     const src = chipMonRaw(rec.r[meta.col]);
-    const p = PROD_BY_DATE[rec.y+'-'+rec.mi+'-'+rec.d];
+    const p = chipMonRaw(rec.r[76]);
     return (src==null || p==null || p<=0) ? null : Math.round((src/p)*1000)/1000;
   }
   const raw = chipMonRaw(rec.r[meta.col]);
@@ -4995,9 +5004,8 @@ function initChipMon(){
   if(!CHIP_MON_ROWS.length) return;
   CHIP_MON_GROUPS.forEach(grp=> {
     chipMonRenderTiles(grp);
-    // default selection = first metric of the group that has data
-    const firstWithData = CHIP_MON_META.filter(m=> m.grp===grp.id).find(m=> CHIP_MON_SERIES[m.key].length >= 2);
-    CHIP_MON_STATE[grp.id] = firstWithData ? firstWithData.key : null;
+    // start with every detail panel collapsed — tiles only
+    CHIP_MON_STATE[grp.id] = null;
     chipMonRenderDetail(grp.id);
   });
   const host = document.getElementById('chipMonHost');
