@@ -1252,6 +1252,11 @@
               <div class="mon-detail" id="chipDetail_screen" hidden></div>
             </div>
             <div class="mon-group">
+              <div class="mon-group-head"><span class="gi">🌲</span><span class="gt">สายพันธุ์ไม้สับ (โรงเยื่อ 1 Actual)</span><span class="gs">5 ค่า · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
+              <div class="mon-tiles" id="chipTiles_wood"></div>
+              <div class="mon-detail" id="chipDetail_wood" hidden></div>
+            </div>
+            <div class="mon-group">
               <div class="mon-group-head"><span class="gi">🍲</span><span class="gt">Cooking Kappa</span><span class="gs">2 ค่า · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
               <div class="mon-tiles" id="chipTiles_cook"></div>
               <div class="mon-detail" id="chipDetail_cook" hidden></div>
@@ -4010,6 +4015,7 @@ const TX_EN = {
   'Knot / White reject':'Knot / White reject',
   '2 ค่า · คลิกที่บล็อกเพื่อดูประวัติ':'2 metrics · click a tile for its history',
   'น้ำเสียเข้าระบบบำบัด (ETP)':'Effluent to the ETP',
+  'สายพันธุ์ไม้สับ (โรงเยื่อ 1 Actual)':'Wood species (Fiberline 1 actual)',
   '5 ค่า · คลิกที่บล็อกเพื่อดูประวัติ':'5 metrics · click a tile for its history',
   '3 ค่า · คลิกที่บล็อกเพื่อดูประวัติ':'3 metrics · click a tile for its history',
   'โรงเยื่อ 1+2 (รวมทั้งโรงงาน)':'Fiberline 1+2 (whole mill)',
@@ -4633,13 +4639,18 @@ const CHIP_MON_META = [
   {key:'overSize',       col:35, th:'Over size > 45.0 mm.',      unit:'%',     dec:2, pct01:true, grp:'screen', scored:true,  dir:'lower',  specHi:1.5},
   {key:'accPin',         col:36, th:'Acc 1+2+Pin  28.6–4.8 mm.', unit:'%',     dec:2, pct01:true, grp:'screen', scored:true,  dir:'higher', specLo:90},
   {key:'bark',           col:37, th:'Bark',                      unit:'%',     dec:2, pct01:true, grp:'screen', scored:true,  dir:'lower',  specHi:1},
+  {key:'woodK7',    col:54, th:'K7',       unit:'%', dec:1, pct01:true, grp:'wood', scored:false},
+  {key:'woodK58',   col:55, th:'K58',      unit:'%', dec:1, pct01:true, grp:'wood', scored:false},
+  {key:'woodSeed',  col:56, th:'Seed',     unit:'%', dec:1, pct01:true, grp:'wood', scored:false},
+  {key:'woodOther', col:57, th:'Other',    unit:'%', dec:1, pct01:true, grp:'wood', scored:false},
+  {key:'woodSt1m',  col:58, th:'St > 1 m', unit:'%', dec:1, pct01:true, grp:'wood', scored:false},
   {key:'kappaCook',    col:64, th:'Kappa cooking',                 unit:'',        dec:2, grp:'cook', scored:true,  dir:'band'},
   {key:'sdKappa',      col:65, th:'SD Kappa cooking',              unit:'',        dec:2, grp:'cook', scored:true,  dir:'lower'},
   {key:'kwReject',     col:67, th:'Knot + White reject',           unit:'kg',      dec:0, grp:'reject', scored:false, zeroIsMissing:true},
   {key:'kwRejectAdt',  col:67, perAdt:true, th:'Knot + White reject / ADt', unit:'kg/ADt', dec:2, grp:'reject', scored:false, zeroIsMissing:true},
   {key:'diffBalance',  col:66, th:'Diff. prod. balance wetlap',    unit:'%',       dec:2, grp:'endprod', scored:true, dir:'band'},
   {key:'endProd',      col:76, th:'End Prod.',                     unit:'Adt/day', dec:0, grp:'endprod', scored:false, zeroIsMissing:true},
-  {key:'endProdBal',   col:77, th:'End Prod. Balance',             unit:'Adt/day', dec:0, grp:'endprod', scored:false},
+  {key:'endProdBal',   col:77, th:'End Prod. Balance',             unit:'Adt/day', dec:0, grp:'endprod', scored:false, zeroIsMissing:true},
   {key:'tssEtp',       col:73, th:'TSS to ETP',                    unit:'mg/l',    dec:0, grp:'etp',  scored:false},
   {key:'volEtp',       col:71, th:'Volume to ETP',                 unit:'m³/day',  dec:0, grp:'etp',  scored:false, zeroIsMissing:true},
   {key:'volEtpAdt',    col:71, perAdt:true, th:'Volume to ETP / ADt', unit:'m³/ADt', dec:3, grp:'etp', scored:false, zeroIsMissing:true},
@@ -4647,6 +4658,7 @@ const CHIP_MON_META = [
 const CHIP_MON_GROUPS = [
   {id:'bulk',    ico:'⚙', th:'ค่าพื้นฐานของชิ้นไม้สับ', rail:'#7C4DFF'},
   {id:'screen',  ico:'🔻', th:'การกระจายขนาดชิ้นไม้สับ (Chip Screen)', rail:'#E0417A'},
+  {id:'wood',    ico:'🌲', th:'สายพันธุ์ไม้สับ (โรงเยื่อ 1 Actual)', rail:'#5B8C2A'},
   {id:'cook',    ico:'🍲', th:'Cooking Kappa', rail:'#0E7C86'},
   {id:'reject',  ico:'🧹', th:'Knot / White reject', rail:'#C9A227'},
   {id:'endprod', ico:'📊', th:'End Production / Diff. prod. balance wetlap', rail:'#B25C00'},
@@ -4684,7 +4696,7 @@ function chipMonVal(rec, meta){
 const chipMonCeil = (()=>{
   let mx = 0;
   for(const rc of CHIP_MON_ROWS){
-    if(chipMonRaw(rc.r[64])!=null || chipMonRaw(rc.r[66])!=null || chipMonRaw(rc.r[73])!=null) mx = Math.max(mx, rc.ts);
+    if([54,55,56,57,64,66,73].some(c=> chipMonRaw(rc.r[c])!=null)) mx = Math.max(mx, rc.ts);
   }
   return mx || Number.MAX_SAFE_INTEGER;
 })();
