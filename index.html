@@ -496,6 +496,8 @@
   .md-title .u{color:var(--ink-2);font-weight:600;}
   .md-pills{margin-left:auto;display:flex;gap:6px;flex-wrap:wrap;}
   .md-pill{font-size:10.5px;font-weight:600;color:var(--ink-2);background:var(--surface-2);border:1px solid var(--border);border-radius:20px;padding:4px 10px;}
+  .md-range{font:inherit;font-size:10.5px;font-weight:600;color:var(--ink);background:var(--surface-2);border:1px solid var(--border);border-radius:20px;padding:4px 24px 4px 10px;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6'><path d='M0 0L5 6L10 0Z' fill='%2384949A'/></svg>");background-repeat:no-repeat;background-position:right 9px center;}
+  .md-range:focus-visible{outline:2px solid var(--accent);outline-offset:1px;}
   .md-sub{font-size:11px;color:var(--ink-3);margin-bottom:12px;}
   .md-target{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:9px 12px;margin-bottom:12px;}
   .md-target .lbl{font-size:10.5px;font-weight:800;letter-spacing:.05em;color:var(--ink-2);text-transform:uppercase;}
@@ -4680,11 +4682,24 @@ function chipMonSetTarget(key, lo, hi){
 
 /* ---- state ---- */
 const CHIP_MON_STATE = { bulk:null, screen:null };       // selected metric key per group
+const CHIP_MON_RANGE = { bulk:'recent', screen:'recent' }; // detail-chart window per group: 'recent' or 'YYYY-M'
 const chipMonCharts = {};                                 // detail chart per group
 const chipMonSparks = {};                                 // sparkline chart per tile key
 
 function chipMonFmt(v, dec){ return v==null ? '—' : v.toLocaleString('en-US', {minimumFractionDigits:dec, maximumFractionDigits:dec}); }
-function chipMonMonthLabel(mi, y){ return `${MONTH_ABBR_TH[mi]} ${String(y).slice(2)}`; }
+function chipMonMonthLabel(mi, y){ return `${currentLang==='en'?(MONTH_ABBR_EN?MONTH_ABBR_EN[mi]:mi):MONTH_ABBR_TH[mi]} ${String(y).slice(2)}`; }
+function chipMonRangeOptions(m, grpId){
+  const cur = CHIP_MON_RANGE[grpId] || 'recent';
+  const recentLbl = currentLang==='en' ? 'Last 30 days' : '30 วันล่าสุด';
+  const seen = new Set(), months = [];
+  for(let i=CHIP_MON_SERIES[m.key].length-1; i>=0; i--){
+    const x = CHIP_MON_SERIES[m.key][i], k = x.y+'-'+x.mi;
+    if(seen.has(k)) continue; seen.add(k); months.push([x.y, x.mi, k]);
+  }
+  const monLbl = mi => currentLang==='en' ? (TX_MONTH_MAP[MONTH_NAMES[mi]]||MONTH_NAMES[mi]) : MONTH_NAMES[mi];
+  return `<option value="recent"${cur==='recent'?' selected':''}>${recentLbl}</option>`
+    + months.map(([y,mi,k])=> `<option value="${k}"${cur===k?' selected':''}>${monLbl(mi)} ${y}</option>`).join('');
+}
 
 /* ---- tiles ---- */
 function chipMonRenderTiles(grp){
@@ -4714,7 +4729,7 @@ function chipMonRenderTiles(grp){
   metas.forEach(m=> {
     const _full = CHIP_MON_SERIES[m.key];
     const _aTs = _full.length ? _full[_full.length-1].ts : 0;
-    const s = _full.filter(x=> x.ts > _aTs - 32*86400000);
+    const s = _full.filter(x=> x.ts >= _aTs - 30*86400000);
     if(!s.length) return;
     const cv = document.getElementById('chipSpark_'+m.key);
     const cfg = { type:'line', data:{ labels:s.map(()=> ''), datasets:[{ data:s.map(x=> x.v), borderColor:grp.rail, borderWidth:1.4, pointRadius:0, tension:.3, fill:false }] },
@@ -4751,6 +4766,7 @@ function chipMonRenderDetail(grpId){
     <div class="md-head">
       <span class="md-title">${m.th} <span class="u">· ${m.unit}</span></span>
       <span class="md-pills">
+        <select class="md-range" id="chipRange_${grpId}" aria-label="${currentLang==='en'?'Chart range':'ช่วงข้อมูลของกราฟ'}">${chipMonRangeOptions(m, grpId)}</select>
         <span class="md-pill">ข้อมูลล่าสุด ${anchorDate}</span>
         <span class="md-pill">${m.scored ? `health ${a.health}/100` : 'reported · not scored'}</span>
       </span>
@@ -4791,16 +4807,25 @@ function chipMonRenderDetail(grpId){
   };
   loEl.addEventListener('change', onTgt);
   hiEl.addEventListener('change', onTgt);
+  const rngEl = document.getElementById('chipRange_'+grpId);
+  if(rngEl) rngEl.addEventListener('change', ()=>{ CHIP_MON_RANGE[grpId] = rngEl.value; chipMonDrawDetailChart(grpId, m, a, chipMonTarget(key)); });
 
   chipMonDrawDetailChart(grpId, m, a, tgt);
 }
 
 function chipMonDrawDetailChart(grpId, m, a, tgt){
   const grp = CHIP_MON_GROUPS.find(g=> g.id===grpId);
-  // show the last ~1 month of readings, ending at the latest one (same window as the tile sparkline)
+  // default: the last 30 days ending at the latest reading (same window as the tile sparkline).
+  // the range selector can switch to a specific month-year instead.
   const s = CHIP_MON_SERIES[m.key];
-  const win = s.filter(x=> x.ts > a.anchor.ts - 32*86400000);
-  const rows = win.length >= 4 ? win : s.slice(-31);
+  const rng = CHIP_MON_RANGE[grpId] || 'recent';
+  let rows = null;
+  if(rng !== 'recent' && /^\d+-\d+$/.test(rng)){
+    const rp = rng.split('-').map(Number);
+    rows = s.filter(x=> x.y===rp[0] && x.mi===rp[1]);
+  }
+  if(!rows || rows.length < 2) rows = s.filter(x=> x.ts >= a.anchor.ts - 30*86400000);
+  if(rows.length < 2) rows = s.slice(-30);
   const labels = rows.map(x=> `${x.d}/${x.mi+1}`);
   const c = { ink2:cssVar('--ink-2'), grid:cssVar('--grid'), surface:cssVar('--surface'), border:cssVar('--border'), ink:cssVar('--ink') };
 
@@ -4896,6 +4921,7 @@ function initChipMon(){
   const host = document.getElementById('chipMonHost');
   const chipMonToggle = (g, k)=> {
     if(CHIP_MON_STATE[g] === k){ CHIP_MON_STATE[g] = null; chipMonRenderDetail(g); return; }
+    if(CHIP_MON_STATE[g] !== k) CHIP_MON_RANGE[g] = 'recent';
     CHIP_MON_STATE[g] = k;
     chipMonRenderDetail(g);
     document.getElementById('chipDetail_'+g).scrollIntoView({behavior:'smooth', block:'nearest'});
