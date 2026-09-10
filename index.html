@@ -45,6 +45,9 @@
 
   /* app shell: sidebar + main */
   .app{display:flex; align-items:stretch; min-height:100vh;}
+  /* enlarge the whole dashboard ~30% for readability on meeting screens (skip narrow phones) */
+  @media (min-width:700px){ .app{ zoom:1.3; } .sidebar{ height:auto; min-height:100vh; } }
+  @supports not (zoom:1){ @media (min-width:700px){ .app{ transform:scale(1.3); transform-origin:top left; width:76.923%; } } }
 
   .sidebar{
     width:222px; flex-shrink:0; border-right:1px solid var(--border);
@@ -3813,20 +3816,21 @@ function summaryDiffSpan(v){
   return `<span class="${cls}">${fmtDiffSigned(v)}</span>`;
 }
 function buildSummaryLines(curTotal, budgetAnnual, pool, yearLabel){
-  if(curTotal==null) return '<div>ไม่มีข้อมูล</div>';
+  const EN = currentLang==='en';
+  if(curTotal==null) return `<div>${EN?'no data':'ไม่มีข้อมูล'}</div>`;
   const lines = [];
   const diffBudget = curTotal - budgetAnnual;
-  lines.push(`<div>- LE YE ${yearLabel} ที่ ${fmt0(curTotal)} Adt (Update Act. ${lastDataStr('en')})</div>`);
-  lines.push(`<div>- ${summaryDiffSpan(diffBudget)} เทียบ BG ${fmt0(budgetAnnual)} Adt</div>`);
+  lines.push(`<div>- LE YE ${yearLabel} ${EN?'at':'ที่'} ${fmt0(curTotal)} Adt (Update Act. ${lastDataStr(EN?'en':'th')})</div>`);
+  lines.push(`<div>- ${summaryDiffSpan(diffBudget)} ${EN?'vs BG':'เทียบ BG'} ${fmt0(budgetAnnual)} Adt</div>`);
   const best = pool[0] || null;
   if(best){
     const diffBest = curTotal - best.value;
-    lines.push(`<div>- ${summaryDiffSpan(diffBest)} เทียบ 1st Best ${best.year} ที่ ${fmt0(best.value)} Adt</div>`);
+    lines.push(`<div>- ${summaryDiffSpan(diffBest)} ${EN?'vs 1st Best':'เทียบ 1st Best'} ${best.year} ${EN?'at':'ที่'} ${fmt0(best.value)} Adt</div>`);
     const rank = 1 + pool.filter(p=> p.value > curTotal).length;
     if(rank <= 3){
       const rankLabelMap = {1:'1st Best Record', 2:'2nd Best Record', 3:'3rd Best Record'};
       const newRecordNote = rank===1 ? ' <span class="new-record-badge">NEW RECORD</span>' : '';
-      lines.push(`<div>- ผลผลิตประมาณการจบปี ${yearLabel} จัดอยู่ใน ${rankLabelMap[rank]}${newRecordNote}</div>`);
+      lines.push(`<div>- ${EN?`year-end estimate for ${yearLabel} ranks`:`ผลผลิตประมาณการจบปี ${yearLabel} จัดอยู่ใน`} ${rankLabelMap[rank]}${newRecordNote}</div>`);
     }
   }
   return lines.join('');
@@ -3946,6 +3950,299 @@ const I18N = {
 let currentLang = 'th';
 try{ currentLang = localStorage.getItem('fl1_lang') || 'th'; }catch(e){}
 function t(key){ return (I18N[currentLang] && I18N[currentLang][key]) || I18N.th[key] || key; }
+
+/* ===================== Full TH ⇄ EN for page descriptions =====================
+   Thai is authored inline; when the EN toggle is on, a MutationObserver over the
+   main pane swaps every known descriptive string to English (and restores on TH). */
+const TX_MONTH_MAP = {
+  'มกราคม':'January','กุมภาพันธ์':'February','มีนาคม':'March','เมษายน':'April','พฤษภาคม':'May','มิถุนายน':'June',
+  'กรกฎาคม':'July','สิงหาคม':'August','กันยายน':'September','ตุลาคม':'October','พฤศจิกายน':'November','ธันวาคม':'December',
+  'ม.ค.':'Jan','ก.พ.':'Feb','มี.ค.':'Mar','เม.ย.':'Apr','พ.ค.':'May','มิ.ย.':'Jun','ก.ค.':'Jul','ส.ค.':'Aug','ก.ย.':'Sep','ต.ค.':'Oct','พ.ย.':'Nov','ธ.ค.':'Dec'
+};
+const TX_MONTH = s => { let o = String(s); for(const [th,en] of Object.entries(TX_MONTH_MAP)) o = o.split(th).join(en); return o; };
+
+const TX_EN = {
+  // section dividers / group heads
+  'Chip Characteristics — คุณลักษณะของชิ้นไม้สับ (โรงเยื่อ 1)':'Chip Characteristics — wood-chip quality (Fiberline 1)',
+  'ค่าพื้นฐานของชิ้นไม้สับ':'Wood-chip basics',
+  'การกระจายขนาดชิ้นไม้สับ (Chip Screen)':'Chip size distribution (Chip Screen)',
+  '4 ค่า · คลิกที่บล็อกเพื่อดูประวัติและ control band':'4 metrics · click a tile for its history and control band',
+  '8 ค่า · คลิกที่บล็อกเพื่อดูประวัติและ control band':'8 metrics · click a tile for its history and control band',
+  'โรงเยื่อ 1+2 (รวมทั้งโรงงาน)':'Fiberline 1+2 (whole mill)',
+  'โรงเยื่อ 2 (Fiberline 2)':'Fiberline 2',
+  // chart titles
+  'ผลผลิตรายเดือนโรงเยื่อ 1 เทียบ Budget':'Fiberline 1 monthly production vs budget',
+  'ผลผลิตรายเดือนโรงเยื่อ 2 เทียบ Budget':'Fiberline 2 monthly production vs budget',
+  'ผลผลิตรายเดือนโรงเยื่อ 1+2 เทียบ Budget':'Fiberline 1+2 monthly production vs budget',
+  'ผลผลิตรายปีโรงเยื่อ 1':'Fiberline 1 annual production',
+  'ผลผลิตรายปีโรงเยื่อ 2':'Fiberline 2 annual production',
+  'ผลผลิตรายปีโรงเยื่อ 1+2':'Fiberline 1+2 annual production',
+  'ผลผลิตจริงรายปี (ข้อมูลจริงครบปี)':'Actual annual production (full-year data)',
+  'Top 10 Production (Monthly) — โรงเยื่อ 1':'Top 10 Production (Monthly) — Fiberline 1',
+  'Top 10 Production (Monthly) — โรงเยื่อ 2':'Top 10 Production (Monthly) — Fiberline 2',
+  'Top 10 Production (Monthly) — โรงเยื่อ 1+2':'Top 10 Production (Monthly) — Fiberline 1+2',
+  'ผลผลิตรายเดือนโรงเยื่อ 1':'Fiberline 1 monthly production',
+  'ผลผลิตรายเดือนโรงเยื่อ 2':'Fiberline 2 monthly production',
+  // best-record table titles
+  'สถิติผลผลิตรายเดือนโรงเยื่อ 1 (Best Record)':'Fiberline 1 monthly production record (Best Record)',
+  'สถิติผลผลิตรายเดือนโรงเยื่อ 2 (Best Record)':'Fiberline 2 monthly production record (Best Record)',
+  'สถิติผลผลิตรายเดือนโรงเยื่อ 1+2 (Best Record)':'Fiberline 1+2 monthly production record (Best Record)',
+  'สถิติผลผลิตรายปีโรงเยื่อ 1 (Best Record)':'Fiberline 1 annual production record (Best Record)',
+  'สถิติผลผลิตรายปีโรงเยื่อ 2 (Best Record)':'Fiberline 2 annual production record (Best Record)',
+  'สถิติผลผลิตรายปีโรงเยื่อ 1+2 (Best Record)':'Fiberline 1+2 annual production record (Best Record)',
+  // summary overview
+  'สรุปภาพรวมผลผลิตโรงเยื่อ 1':'Fiberline 1 production summary',
+  'สรุปภาพรวมผลผลิตโรงเยื่อ 2':'Fiberline 2 production summary',
+  'สรุปภาพรวมผลผลิตโรงเยื่อ 1+2':'Fiberline 1+2 production summary',
+  // toolbar / selectors
+  'เลือกปี':'Select year','เลือกเดือน':'Select month','ปีเริ่มต้น':'From year','ปีสิ้นสุด':'To year','ค่าที่แสดง':'Metric shown',
+  'เลือกช่วงปีที่ต้องการแสดงในกราฟแท่งด้านล่าง':'Choose the year range for the bar chart below',
+  'ดูรายละเอียด':'Show details','ซ่อนรายละเอียด':'Hide details','ดูรายละเอียด →':'Show details →',
+  // table headers
+  'วันที่':'Date','สถานะ':'Status','รายละเอียด Loss รายวัน':'Daily loss detail','ตารางข้อมูลรายวัน — เดือนที่เลือก':'Daily data table — selected month',
+  // hints / legends
+  'Y axis: 0–1,250 Adt/d · เส้นประ = Target รายวัน (Daily Plan) · เส้นทึบ = Budget รายวัน (Daily BG)':'Y axis: 0–1,250 Adt/d · dashed = daily Target (Daily Plan) · solid = daily Budget (Daily BG)',
+  'กราฟแท่ง = ผลผลิตเกิดจริงรายเดือน (Actual) · กราฟเส้น = ผลผลิต Budget รายเดือน · เกณฑ์สีแท่งอิงตาม Budget ของแต่ละเดือน':'Bars = actual monthly production · line = monthly budget · bar colour is judged against each month’s budget',
+  'กราฟแท่ง = ผลผลิตเกิดจริงรายเดือนรวมโรงเยื่อ 1+2 (Actual) · กราฟเส้น = ผลผลิต Budget รายเดือนรวมโรงเยื่อ 1+2 · สีแท่งแยกตามโรงเยื่อ':'Bars = actual combined Fiberline 1+2 monthly production · line = combined monthly budget · bar colour by fiberline',
+  'Budget รายเดือน (Adt)':'Monthly budget (Adt)','Budget รายเดือนรวม (Adt)':'Combined monthly budget (Adt)',
+  'แท่งสีอ่อน = ประมาณการ (เดือนยังไม่ปิดข้อมูลจริงครบเดือน)':'Pale bar = estimate (month not yet fully logged)',
+  'แท่งสีอ่อน = ปีปัจจุบัน (คาดการณ์จบปี — มีค่าประมาณการบางเดือน)':'Pale bar = current year (year-end forecast — some months are estimated)',
+  'Actual 70–99.9% ของ Budget':'Actual 70–99.9% of budget',
+  'Actual < 70% ของ Budget, Loss >30%':'Actual < 70% of budget, loss >30%',
+  'Actual < 70% ของ Budget (Loss >30%)':'Actual < 70% of budget (loss >30%)',
+  'โรงเยื่อ 1':'Fiberline 1','โรงเยื่อ 2':'Fiberline 2','โรงเยื่อ 1+2 (รวม)':'Fiberline 1+2 (total)',
+  'ผลผลิตรายเดือน 10 อันดับสูงสุดนับตั้งแต่เริ่มเดินเครื่องผลิต เรียงจากมากไปน้อย':'Top 10 highest monthly production since start-up, largest first',
+  'ผลผลิตรายเดือน 10 อันดับสูงสุดนับตั้งแต่เริ่มเดินเครื่องผลิต เรียงจากมากไปน้อย (รวมโรงเยื่อ 1+2)':'Top 10 highest monthly production since start-up, largest first (Fiberline 1+2 combined)',
+  'จัดอันดับผลผลิตจริงรายเดือน เทียบเฉพาะ "เดือนเดียวกันข้ามปี" เท่านั้น (ไม่นำเดือนอื่นมารวม) จากข้อมูล Actual ทั้งหมดที่มี':'Ranks actual monthly production comparing the same calendar month across years only (no other months mixed in), from all available Actual data',
+  'จัดอันดับผลผลิตจริงรายเดือนรวมโรงเยื่อ 1+2 เทียบเฉพาะ "เดือนเดียวกันข้ามปี" เท่านั้น (ไม่นำเดือนอื่นมารวม) จากข้อมูล Actual ทั้งหมดที่มี':'Ranks actual combined Fiberline 1+2 monthly production comparing the same calendar month across years only, from all available Actual data',
+  'จัดอันดับผลผลิตจริงรวมทั้งปี เทียบกับทุกปีที่มีข้อมูล จากข้อมูล Actual ทั้งหมดที่มี':'Ranks actual full-year production against every year with data, from all available Actual data',
+  'จัดอันดับผลผลิตจริงรวมทั้งปีของโรงเยื่อ 1+2 เทียบกับทุกปีที่มีข้อมูล จากข้อมูล Actual ทั้งหมดที่มี':'Ranks actual full-year Fiberline 1+2 production against every year with data, from all available Actual data',
+  // empty states
+  'หน้านี้ยังไม่มีข้อมูล — รอเชื่อมต่อแหล่งข้อมูลต้นทุน BU21 รายวัน/รายเดือนจาก Google Sheets':'No data yet — awaiting a daily/monthly BU21 cost source from Google Sheets',
+  'หน้านี้ยังไม่มีข้อมูล — รอเชื่อมต่อแหล่งข้อมูล Productive Cost จาก Google Sheets':'No data yet — awaiting a Productive Cost source from Google Sheets',
+  'หน้านี้ยังไม่มีข้อมูล — รอเชื่อมต่อแหล่งข้อมูลผลตรวจ Lab รายวัน/รายกะจาก Google Sheets':'No data yet — awaiting a daily/per-shift Lab results source from Google Sheets',
+  'หน้านี้ยังไม่มีข้อมูล — รอเชื่อมต่อแหล่งข้อมูลผล OPT Tuning จาก Google Sheets':'No data yet — awaiting an OPT Tuning results source from Google Sheets',
+  'แจ้งลิงก์ชีทและชื่อแท็บที่ต้องการดึงข้อมูลได้เลยครับ':'Send the sheet link and the tab name you want to pull from.',
+  // avg7 badge
+  'ค่าเฉลี่ย 7 วันย้อนหลัง (Adt/day)':'Trailing 7-day mean (Adt/day)',
+  // chip monitor — group + tile + strip labels
+  'Latest':'Latest','Deviation':'Deviation','7 วัน':'7 days',
+  'ค่าเฉลี่ย 7 วันล่าสุด':'mean of the last 7 days',
+  'ต้องมี ≥ 3 วัน':'needs ≥ 3 days',
+  'ไม่มีข้อมูล':'no data','— ไม่มีข้อมูล':'— no data',
+  'ยังไม่มีข้อมูลของค่านี้ในชีต':'This metric has no data in the sheet yet',
+  'reported · not scored':'reported · not scored',
+  'ตั้ง Low / High เพื่อวางเส้นเป้าบนกราฟ · ค่าเกณฑ์จากชีต (เส้นประเทา) แสดงอยู่แล้ว':'Set Low / High to draw target lines on the chart · the sheet limits (grey dashed) are already shown',
+  'ตั้ง Low / High เพื่อวางเส้นเป้าบนกราฟ · ชีตไม่มีเกณฑ์ของค่านี้':'Set Low / High to draw target lines on the chart · the sheet has no limit for this metric',
+  'ไม่มีเกณฑ์ในชีต':'no limit in the sheet',
+  'ต้องมี ≥ 3 วัน':'needs ≥ 3 days',
+  // chip monitor — the collapsible footnote
+  'บล็อก "Pulp 1" (คอลัมน์ AA–AL) · วันที่คอลัมน์ B รูปแบบ D/M/YYYY (วันก่อนเดือน)':'"Pulp 1" block (columns AA–AL) · date in column B, D/M/YYYY (day before month)',
+  'Moisture คำนวณจาก 100 − Dryness (ชีตต้นทางไม่ได้บันทึกคอลัมน์ Moisture) · ค่าเปอร์เซ็นต์นอกช่วง 0–100 ถือเป็นการบันทึกผิดและไม่นำมาคิด':'Moisture is derived as 100 − Dryness (the source sheet has no Moisture column) · percentage values outside 0–100 are treated as bad entries and ignored',
+  'สถิติใช้วิธี robust: median + MAD × 1.4826 · baseline = 180 วันที่จบก่อนสัปดาห์ล่าสุด · control band = median ± 3σ':'Robust statistics: median + MAD × 1.4826 · baseline = the 180 days ending one week before the latest reading · control band = median ± 3σ',
+  'Est. สิ้นเดือน = (ผลรวมค่าที่บันทึกในเดือนนี้ + จำนวนวันที่เหลือ × ค่าเฉลี่ย 7 วันล่าสุด) ÷ (จำนวนวันที่บันทึก + จำนวนวันที่เหลือ) · Bulk density / Bulk density × Dryness แสดงไว้อ้างอิงแต่ไม่ให้คะแนน':'Month-end estimate = (sum of this month’s logged values + remaining days × 7-day mean) ÷ (logged days + remaining days) · Bulk density / Bulk density × Dryness are shown for reference but not scored',
+  'เส้นประเทา = เกณฑ์ Tappi Std. / JPN Rqs. จากชีต · เส้นประม่วง = control band (±3σ, median) · Target Low/High ตั้งเองเก็บในเบราว์เซอร์':'Grey dashed = Tappi Std. / JPN Rqs. limits from the sheet · purple dashed = control band (±3σ, median) · Target Low/High are set by you and stored in the browser',
+  'ที่มา: Google Sheets tab':'Source: Google Sheets tab',
+  // misc toolbar (also in I18N dict, kept for the observer)
+  'ข้อมูลล่าสุด ณ':'Data as of',
+  'Role View เปลี่ยนเฉพาะมุมมองการแสดงผล ไม่เปลี่ยนสิทธิ์การเข้าถึงข้อมูล':'Role View changes only what is shown, not data-access permissions',
+  // legend / colour-rule labels
+  '≥ Target (เขียว)':'≥ Target (green)','≥ Budget (เขียว)':'≥ Budget (green)',
+  '588–839 (ส้ม)':'588–839 (orange)','< 588, Loss >30% (แดง)':'< 588, loss >30% (red)',
+  '70–99.9% ของ Budget':'70–99.9% of budget','70–99.9% ของ Budget (ส้ม)':'70–99.9% of budget (orange)',
+  '< 70% ของ Budget, Loss >30%':'< 70% of budget, loss >30%','< 70% ของ Budget, Loss >30% (แดง)':'< 70% of budget, loss >30% (red)',
+  'Actual 70–99.9% ของ Budget':'Actual 70–99.9% of budget','Actual < 70% ของ Budget, Loss >30%':'Actual < 70% of budget, loss >30%',
+  'Actual < 70% ของ Budget (Loss >30%)':'Actual < 70% of budget (loss >30%)',
+  'Budget รายเดือน (Adt)':'Monthly budget (Adt)','Budget รายเดือนรวม (Adt)':'Combined monthly budget (Adt)',
+  // day-group ranking sub-section
+  'จำนวนเดือนที่นำมาเปรียบเทียบ':'Months compared','ช่วงข้อมูล':'Data range',
+  'เดือนปีเริ่มต้น':'From month-year','เดือนปีสิ้นสุด':'To month-year','เรียงลำดับ':'Sort',
+  'ผลผลิตมากไปน้อย':'Production, high to low','ตามเดือนปี (เก่า → ใหม่)':'By month-year (old → new)',
+  'ผลผลิตจริงรายเดือน (ปิดข้อมูลจริงครบเดือนแล้ว)':'Actual monthly production (fully-logged months)',
+  'เรียงตามตัวเลือกด้านบน (ค่าเริ่มต้น: Top 10 มากไปน้อย)':'Ordered by the choice above (default: Top 10, high to low)',
+  'ค่าเริ่มต้นแสดงเฉพาะ Top 10 เดือนที่ผลผลิตสูงสุด':'By default only the Top 10 highest-production months are shown',
+  'ค่าเริ่มต้นแสดง Top 10 เดือนที่ผลผลิตสูงสุด — เลือกช่วงเดือนปีเองเพื่อดูข้อมูลทั้งหมดในช่วงที่เลือก':'By default the Top 10 highest-production months are shown — pick a month-year range to see everything in it',
+  'ปีปัจจุบัน (คาดการณ์จบปี — มีค่าประมาณการบางเดือน)':'Current year (year-end forecast — some months are estimated)',
+  'Diff เทียบ 1st Best Record':'Diff vs 1st Best Record','ประมาณการ':'estimate',
+  'ผลผลิตประมาณการจบปี':'Year-end estimate',
+  // search index labels
+  'กราฟผลผลิตรายวัน':'Daily production chart','สรุป Budget / Actual / Diff':'Budget / Actual / Diff summary','ตารางข้อมูลรายวัน':'Daily data table',
+  // role names
+  'ประธานเจ้าหน้าที่บริหาร':'Chief Executive Officer','ผู้จัดการโรงงาน':'Mill Manager','ศูนย์ควบคุมและประสานงานการเดินโรงงาน':'Mill Control & Coordination Centre',
+  'ผู้จัดการสายการผลิตเยื่อ':'Fiber Line Manager','ผู้จัดการโรงงานเคมี':'Chemical Plant Manager','วิศวกรกระบวนการ':'Process Engineer',
+  'หัวหน้ากะ':'Shift Supervisor','พนักงานควบคุมเครื่อง':'Panel Operator','ประกันและควบคุมคุณภาพ':'Quality Assurance & Control','วิจัยและพัฒนา':'Research & Development',
+  // pm2 note about start year
+  'โรงเยื่อ 2 เริ่มมีข้อมูลการผลิตตั้งแต่ปี 2004 เป็นต้นมา':'Fiberline 2 has production data from 2004 onward',
+  // day-group ranking hints
+  'จัดอันดับผลผลิตจริงรายเดือน เทียบเฉพาะ "เดือนที่มีจำนวน 31 วันเดียวกัน" ข้ามปีทั้งหมด (ม.ค., มี.ค., พ.ค., ก.ค., ส.ค., ต.ค., ธ.ค. ของทุกปีที่มีข้อมูลจริง นำมารวมจัดอันดับร่วมกันเป็นกลุ่มเดียว ไม่จำกัดเฉพาะเดือนปฏิทินเดียวกัน)':'Ranks actual monthly production comparing all 31-day months across every year (Jan, Mar, May, Jul, Aug, Oct, Dec of every year with real data are pooled into one group — not restricted to the same calendar month)',
+  'จัดอันดับผลผลิตจริงรายเดือน เทียบเฉพาะ "เดือนที่มีจำนวน 30 วันเดียวกัน" ข้ามปีทั้งหมด (เม.ย., มิ.ย., ก.ย., พ.ย. ของทุกปีที่มีข้อมูลจริง นำมารวมจัดอันดับร่วมกันเป็นกลุ่มเดียว ไม่จำกัดเฉพาะเดือนปฏิทินเดียวกัน)':'Ranks actual monthly production comparing all 30-day months across every year (Apr, Jun, Sep, Nov of every year with real data are pooled into one group — not restricted to the same calendar month)',
+  'จัดอันดับผลผลิตจริงเดือน ก.พ. เทียบเฉพาะปีอธิกสุรทิน (Leap Year, ก.พ. มี 29 วัน) ด้วยกันเท่านั้น ไม่นำ ก.พ. ปีปกติ (28 วัน) มารวมจัดอันดับ':'Ranks actual February production comparing leap years only (Feb has 29 days); non-leap Februaries (28 days) are not included',
+  'จัดอันดับผลผลิตจริงเดือน ก.พ. เทียบเฉพาะปีปกติ (ก.พ. มี 28 วัน) ด้วยกันเท่านั้น ไม่นำ ก.พ. ปีอธิกสุรทิน (29 วัน) มารวมจัดอันดับ':'Ranks actual February production comparing non-leap years only (Feb has 28 days); leap-year Februaries (29 days) are not included',
+  'จัดอันดับผลผลิตจริงรายเดือนรวมโรงเยื่อ 1+2 เทียบเฉพาะ "เดือนเดียวกันข้ามปี" เท่านั้น (ไม่นำเดือนอื่นมารวม) จากข้อมูล Actual ทั้งหมดที่มี':'Ranks actual combined Fiberline 1+2 monthly production comparing the same calendar month across years only (no other months mixed in), from all available Actual data',
+  // static foot notes (behind "Show details")
+  'ข้อมูลผลผลิตรายวันดึงจาก Google Sheets "Data Base Fiberline 1" (Pulp Mill 1) ณ วันที่ 7 กันยายน 2026 — เป็นข้อมูล snapshot ที่ดึงมา ณ เวลาจัดทำหน้านี้ ไม่ได้เชื่อมต่อสด (live) กับชีตต้นทาง หากต้องการข้อมูลล่าสุด โปรดแจ้งให้ดึงข้อมูลใหม่':'Daily production data is read from the Google Sheet "Data Base Fiberline 1" (Pulp Mill 1). Reload the page to pull the latest.',
+  'Actual รายวัน: ชีต Daily (Act) (gid=0) · Budget รายวัน (เส้นทึบสีเทา): ชีต Daily (BG) (gid=1682718600) คอลัมน์ B · Target รายวัน (เส้นประสีน้ำเงิน): ชีต Daily (Plan) (gid=3664159) คอลัมน์ B — เป็นข้อมูลรายวันคนละชุดกับ Budget โดยตรง จึงมีค่าต่างกันในแต่ละวัน · รายละเอียด Loss รายวัน: ชีต Daily (Loss) (gid=786133815) คอลัมน์ B · Budget รายเดือน/รายปีในกรอบสถิติ อ้างอิงจากแถว "Budget 2026" คอลัมน์ Pulp 1 ในชีตเดียวกัน · เกณฑ์สีแท่งกราฟใช้ค่าคงที่ 840 / 588 Adt/d ตามที่กำหนด':'Daily Actual: Daily (Act) tab (gid=0) · Daily Budget (solid grey line): Daily (BG) tab (gid=1682718600) column B · Daily Target (blue dashed line): Daily (Plan) tab (gid=3664159) column B — a separate daily series from Budget, so the two differ day to day · Daily loss detail: Daily (Loss) tab (gid=786133815) column B · Monthly/annual budget in the stat boxes comes from the "Budget 2026" row, Pulp 1 column, of the same sheet · Bar colour thresholds use the fixed 840 / 588 Adt/d values.',
+};
+
+// interpolated / pattern strings
+const TX_ABBR_RE = /^(ม\.ค\.|ก\.พ\.|มี\.ค\.|เม\.ย\.|พ\.ค\.|มิ\.ย\.|ก\.ค\.|ส\.ค\.|ก\.ย\.|ต\.ค\.|พ\.ย\.|ธ\.ค\.)( \d{2})$/;
+const TX_PAT = [
+  [/^ผลผลิตเยื่อน้ำโรงเยื่อ 1 เดือน (.+?)\s*$/, m => `Fiberline 1 water-pulp production, ${TX_MONTH(m[1])}`],
+  [TX_ABBR_RE, m => `${TX_MONTH_MAP[m[1]]}${m[2]}`],
+  [/^(\d{1,2}) (ม\.ค\.|ก\.พ\.|มี\.ค\.|เม\.ย\.|พ\.ค\.|มิ\.ย\.|ก\.ค\.|ส\.ค\.|ก\.ย\.|ต\.ค\.|พ\.ย\.|ธ\.ค\.) (\d{4})$/, m => `${m[1]} ${TX_MONTH_MAP[m[2]]} ${m[3]}`],
+  [/^เฉลี่ย (\d+) วันที่บันทึก$/, m => `mean of ${m[1]} logged days`],
+  [/^ค่าเฉลี่ย (\d+) วันล่าสุด$/, m => `mean of the last ${m[1]} days`],
+  [/^(\d+) วันจริง \+ (\d+) วันที่อัตรา 7 วัน$/, m => `${m[1]} actual days + ${m[2]} at the 7-day rate`],
+  [/^ข้อมูลล่าสุด (.+)$/, m => `latest ${TX_MONTH(m[1])}`],
+  [/^Est\. (.+?) สิ้นเดือน$/, m => `Est. ${TX_MONTH(m[1])} month-end`],
+  [/^(.+?) · baseline (\d+) วัน \(180 วันก่อนสัปดาห์ล่าสุด\) · (.+)$/, m => {
+    const p3 = m[3].replace(/^เกณฑ์ ≤ /, 'limit ≤ ').replace(/^เกณฑ์ ≥ /, 'limit ≥ ').replace(/^เกณฑ์ (\d)/, 'limit $1');
+    return `${TX_EN[m[1]]||m[1]} · baseline ${m[2]} days (180 days before the latest week) · ${p3 === m[3] ? (TX_EN[m[3]]||m[3]) : p3}`;
+  }],
+  [/^เกณฑ์ ≤ (.+)$/, m => `limit ≤ ${m[1]}`],
+  [/^เกณฑ์ ≥ (.+)$/, m => `limit ≥ ${m[1]}`],
+  [/^เกณฑ์ (\d.*)$/, m => `limit ${m[1]}`],
+  [/^(มกราคม|กุมภาพันธ์|มีนาคม|เมษายน|พฤษภาคม|มิถุนายน|กรกฎาคม|สิงหาคม|กันยายน|ตุลาคม|พฤศจิกายน|ธันวาคม) (\d{4})$/, m => `${TX_MONTH_MAP[m[1]]} ${m[2]}`],
+  [/^(\d+) เดือน$/, m => `${m[1]} months`],
+  [/^ปีปัจจุบัน \(คาดการณ์จบปี (\d{4})\)$/, m => `Current year (year-end forecast, ${m[1]})`],
+  [/^\(เดือนที่มี 31 วัน\)$/, () => '(31-day months)'],
+  [/^\(เดือนที่มี 30 วัน\)$/, () => '(30-day months)'],
+  [/^\(เดือน ก\.พ\. 29 วัน\)$/, () => '(Feb, 29 days)'],
+  [/^\(เดือน ก\.พ\. 28 วัน\)$/, () => '(Feb, 28 days)'],
+  [/^ผลผลิตรายเดือนโรงเยื่อ (1|2) (\(.+?\)) — เรียงมากไปน้อย$/, m => {
+    const tag = { '(เดือนที่มี 31 วัน)':'(31-day months)','(เดือนที่มี 30 วัน)':'(30-day months)','(เดือน ก.พ. 29 วัน)':'(Feb, 29 days)','(เดือน ก.พ. 28 วัน)':'(Feb, 28 days)' }[m[2]] || m[2];
+    return `Fiberline ${m[1]} monthly production ${tag} — high to low`;
+  }],
+  [/^สถิติผลผลิตรายเดือนโรงเยื่อ (1|2) (\(.+?\)) \(Best Record\)$/, m => {
+    const tag = { '(เดือนที่มี 31 วัน)':'(31-day months)','(เดือนที่มี 30 วัน)':'(30-day months)','(เดือน ก.พ. 29 วัน)':'(Feb, 29 days)','(เดือน ก.พ. 28 วัน)':'(Feb, 28 days)' }[m[2]] || m[2];
+    return `Fiberline ${m[1]} monthly production record ${tag} (Best Record)`;
+  }],
+  [/^หมายเหตุ: ตั้งแต่เดือน (.+?) เป็นต้นไป ตัวเลข Actual รายเดือนที่ดึงจากชีตเป็นค่าประมาณการ\/แผนการผลิตล่วงหน้า.*$/, m =>
+    `Note: from ${TX_MONTH(m[1])} onward the monthly Actual figures pulled from the sheet are estimates / forward plan; the pale bars and any "estimate" tags mark them, and they are excluded from the Best Record statistics.`],
+  [/^\* เดือน (.+?) เป็นต้นไป เป็นค่าประมาณการ.*$/, m =>
+    `* From ${TX_MONTH(m[1])} onward the figures are estimates — the month is not yet fully logged — so they are not counted in the Best Record statistics and are not ranked.`],
+  [/^\* ปี (\d{4}) ยอดรวมทั้งปี.*$/, m =>
+    `* The ${m[1]} full-year total includes estimated figures from the incomplete months onward (the year is not yet fully logged), so it is not counted in the Best Record statistics and is not ranked.`],
+  [/^หมายเหตุ: ปี (\d{4}) ยอดรวมทั้งปี.*$/, m =>
+    `Note: the ${m[1]} full-year total includes estimated figures for the incomplete months onward (the year is not yet fully logged).`],
+  [/^ผลผลิตจริงรายเดือน 10 อันดับสูงสุดของโรงเยื่อ (.+?) นับตั้งแต่เริ่มเดินเครื่องผลิต \(ปี (\d{4})[–-](\d{4})\)$/, m =>
+    `Top 10 highest monthly production for Fiberline ${m[1].replace('รวมทั้งโรงงาน','whole mill').replace('(','(' )} since start-up (years ${m[2]}–${m[3]})`],
+];
+
+/* last-resort phrase substitution for the long, heavily-interpolated methodology
+   footnotes (behind "Show details"). Longest phrases first so they win. */
+const TX_PHRASES = [
+  ['เป็นต้นไป เป็นค่าประมาณการ ยังไม่ปิดข้อมูลจริงครบเดือน จึงไม่นำมานับในสถิติ Best Record และไม่จัดอันดับให้','onward are estimates (months not yet fully logged), so they are excluded from the Best Record statistics and not ranked'],
+  ['เป็นค่าประมาณการ ไม่นำมานับในสถิติ Best Record และไม่จัดอันดับให้','are estimates — excluded from the Best Record statistics and not ranked'],
+  ['รายเดือนยังว่างเปล่า จึงยังไม่เปิดให้เลือกเปรียบเทียบ','have empty monthly rows, so they are not offered for comparison'],
+  ['ปีที่มีข้อมูลครบสำหรับเปรียบเทียบในขณะนี้','years with complete data for comparison right now'],
+  ['เดือนที่ยังไม่ปิดข้อมูลจริงครบเดือนของปี','not-yet-fully-logged months of'],
+  ['ไม่นำเดือนอื่นมารวมในการจัดอันดับ','other months are not pooled into the ranking'],
+  ['เปรียบเทียบผลผลิตจริงเฉพาะ','compares actual production only for'],
+  ['ทุกเดือน-ปีที่ปิดข้อมูลจริงครบเดือนแล้ว','for every month-year that is fully logged'],
+  ['นำผลผลิตจริงของ','pools the actual production of'],
+  ['เดือนที่มีจำนวนวันเท่ากันทั้งหมด','all months with the same number of days'],
+  ['ในทุกปีที่มีข้อมูลจริงมารวมเป็นกลุ่มเดียว','across every year with real data into one group'],
+  ['ไม่จำกัดเฉพาะเดือนปฏิทินเดียวกัน','not restricted to the same calendar month'],
+  ['แล้วจัดอันดับร่วมกันทั้งกลุ่ม','then ranks them together as one group'],
+  ['ข้อมูลย้อนหลังที่ใช้','history used'],
+  ['ผลผลิตเกิดจริงรายเดือนรวมทั้งโรงงาน','combined whole-mill actual monthly production'],
+  ['ผลผลิตเกิดจริงรายเดือน','actual monthly production'],
+  ['ผลผลิต Budget รายเดือน','monthly budget'],
+  ['ผลรวมโรงเยื่อ 1 + โรงเยื่อ 2','sum of Fiberline 1 + Fiberline 2'],
+  ['สีแท่งแยกตามโรงเยื่อ','bar colour by fiberline'],
+  ['แท่งสีอ่อนลง = เดือนที่ยังเป็นค่าประมาณการ','paler bar = month still an estimate'],
+  ['ไม่รวมเดือนของปีปัจจุบันที่ยังไม่ปิดข้อมูลจริงครบเดือน','current-year months that are not yet fully logged are excluded'],
+  ['นับตั้งแต่เริ่มเดินเครื่องผลิต','since start-up'],
+  ['เรียงจากผลผลิตมากไปน้อย','sorted from highest production to lowest'],
+  ['จัดอันดับผลผลิตจริงรวมทั้งโรงงาน','ranks the combined whole-mill actual production'],
+  ['จัดอันดับผลผลิตจริงรวมทั้งปีของโรงเยื่อ','ranks the full-year actual production of Fiberline'],
+  ['เทียบกับทุกปีที่มีข้อมูล','against every year with data'],
+  ['กราฟนี้แสดงผลผลิตจริงของเดือนในกลุ่ม','This chart shows the actual production of the months in the group'],
+  ['กราฟนี้แสดง','This chart shows'],
+  ['วิธีจัดอันดับ','Ranking method'],
+  ['ปีที่เข้าเกณฑ์','qualifying years'],
+  ['รวมทั้งโรงงาน','whole mill'],
+  ['โรงเยื่อ','Fiberline'],
+  ['เดือนเดียวกันข้ามปี','the same calendar month across years'],
+  ['เดือนที่มี 31 วัน','31-day months'],['เดือนที่มี 30 วัน','30-day months'],
+  ['เดือน ก.พ. 29 วัน','Feb, 29 days'],['เดือน ก.พ. 28 วัน','Feb, 28 days'],
+  ['ปีอื่นในชีตต้นทาง','other years in the source sheet'],
+  ['เป็นต้นไป','onward'],['เท่านั้น','only'],['ทั้งหมด','all'],['รายการ','entries'],
+  ['เดือน-ปี','month-year'],['รายเดือน','monthly'],['ทั้งปี','full-year'],
+  ['เดือน','months'],['ชีต','tab'],['แถว','row'],['คอลัมน์','column'],['รวม','total'],['ปี','years'],['จาก','from'],['เช่น','e.g.'],['และ','and'],
+];
+function i18nPhrase(str){
+  let out = str;
+  for(const [th, en] of TX_PHRASES) if(out.includes(th)) out = out.split(th).join(en);
+  return /[฀-๿]/.test(out) ? null : out;   // only accept if fully de-Thai'd
+}
+
+let i18nObs = null;
+function i18nTX(key){
+  let en = TX_EN[key];
+  if(en == null){
+    for(const [re, fn] of TX_PAT){
+      const mm = key.match(re);
+      if(mm){ try{ en = typeof fn === 'function' ? fn(mm) : key.replace(re, fn); }catch(e){ en = null; } break; }
+    }
+  }
+  if(en == null && key.length > 40) en = i18nPhrase(key);
+  return en;
+}
+function i18nTextNode(n){
+  if(currentLang !== 'en') return;
+  const raw = n.nodeValue; if(!raw) return;
+  const key = raw.trim();
+  if(!key || !/[฀-๿]/.test(key)) return;
+  const en = i18nTX(key);
+  if(en == null) return;
+  if(n.__i18n_th == null) n.__i18n_th = raw;
+  n.nodeValue = raw.replace(key, en);
+}
+function i18nRestore(n){ if(n.__i18n_th != null){ n.nodeValue = n.__i18n_th; n.__i18n_th = null; } }
+const I18N_ATTRS = ['title','placeholder','aria-label'];
+function i18nWalk(root, textFn){
+  if(root.nodeType === 3){ textFn(root); return; }
+  const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+  const arr = []; while(w.nextNode()) arr.push(w.currentNode);
+  arr.forEach(textFn);
+  const els = root.nodeType === 1 ? [root, ...root.querySelectorAll('*')] : [...root.querySelectorAll('*')];
+  els.forEach(el=>{
+    I18N_ATTRS.forEach(at=>{
+      const cur = el.getAttribute && el.getAttribute(at); if(cur == null) return;
+      const store = 'i18nAt' + at.replace('-','');
+      if(textFn === i18nRestore){ if(el.dataset[store] != null){ el.setAttribute(at, el.dataset[store]); delete el.dataset[store]; } return; }
+      if(!/[฀-๿]/.test(cur)) return;
+      const en = i18nTX(cur.trim()); if(en == null) return;
+      if(el.dataset[store] == null) el.dataset[store] = cur;
+      el.setAttribute(at, en);
+    });
+  });
+}
+function i18nApplyPage(){
+  const root = document.querySelector('.main'); if(!root) return;
+  if(currentLang === 'en'){
+    i18nWalk(root, i18nTextNode);
+    if(!i18nObs){
+      i18nObs = new MutationObserver(muts=>{
+        if(currentLang !== 'en') return;
+        for(const mu of muts){
+          if(mu.type === 'characterData'){ i18nTextNode(mu.target); }
+          else mu.addedNodes.forEach(node=>{
+            if(node.nodeType === 3) i18nTextNode(node);
+            else if(node.nodeType === 1) i18nWalk(node, i18nTextNode);
+          });
+        }
+      });
+    }
+    i18nObs.observe(root, {childList:true, subtree:true, characterData:true});
+  } else {
+    if(i18nObs){ i18nObs.disconnect(); }
+    i18nWalk(root, i18nRestore);
+  }
+}
+
 
 /* ---- sidebar collapse ---- */
 const appEl = document.querySelector('.app');
@@ -4168,6 +4465,11 @@ function applyLang(lang){
   buildSearchIndex();
   updateToolbarForPage(currentPageId);
   renderAvg7();
+  if(typeof renderSummaryOverview === 'function' && document.getElementById('summaryBody1')) renderSummaryOverview();
+  if(typeof chipMonRenderTiles === 'function' && document.getElementById('chipMonHost')){
+    CHIP_MON_GROUPS.forEach(g=>{ chipMonRenderTiles(g); chipMonRenderDetail(g.id); });
+  }
+  if(typeof i18nApplyPage === 'function') i18nApplyPage();
 }
 
 /* ---- page title / status shown in the sticky header ---- */
@@ -4542,26 +4844,42 @@ function chipMonDrawDetailChart(grpId, m, a, tgt){
 }
 
 function chipMonAssess(m, a, tgt){
+  const EN = currentLang === 'en';
   const f = v => v==null ? '—' : v.toLocaleString('en-US', {minimumFractionDigits:m.dec, maximumFractionDigits:m.dec});
   if(!m.scored){
+    if(EN) return `<b>How this is assessed.</b> This is a quantity / process figure, not a quality measurement, so it is shown for reference but not scored and never raises an alert. ` +
+      (a.median!=null ? `Reference range (median ± 3σ) from the 180 days before the latest week = ${f(a.bandLo)} – ${f(a.bandHi)} (${a.baseN} readings)` : `Not enough data yet to build a reference range`) + '.';
     return `<b>วิธีประเมิน.</b> ค่านี้เป็นปริมาณ/ข้อมูลกระบวนการ ไม่ใช่ค่าคุณภาพ จึงแสดงไว้อ้างอิงแต่ไม่ให้คะแนนและไม่แจ้งเตือน ` +
       (a.median!=null ? `ช่วงอ้างอิง (median ± 3σ) จากข้อมูล 180 วันก่อนสัปดาห์ล่าสุด = ${f(a.bandLo)} – ${f(a.bandHi)} (${a.baseN} ค่า)` : `ยังมีข้อมูลไม่พอสร้างช่วงอ้างอิง`) + '.';
   }
-  if(a.median==null) return `<b>วิธีประเมิน.</b> ยังมีข้อมูลไม่พอ (ต้องมีอย่างน้อย ~180 วัน) จึงยังสร้าง control band ไม่ได้.`;
+  if(a.median==null) return EN
+    ? `<b>How this is assessed.</b> Not enough data yet (needs ~180 days) to build a control band.`
+    : `<b>วิธีประเมิน.</b> ยังมีข้อมูลไม่พอ (ต้องมีอย่างน้อย ~180 วัน) จึงยังสร้าง control band ไม่ได้.`;
   const inBand = a.dev!=null && Math.abs(a.dev) <= 3;
   const drift = a.r2!=null && a.r2 >= 0.25 && a.slope!=null;
-  let s = `<b>วิธีประเมิน.</b> ในช่วง 180 วันที่จบก่อนสัปดาห์ล่าสุด ค่านี้อยู่ที่ราว <b>${f(a.median)} ${m.unit}</b> ` +
+  let out;
+  if(EN){
+    out = `<b>How this is assessed.</b> Over the 180 days ending a week ago this metric ran at <b>${f(a.median)} ${m.unit}</b> with a robust σ ≈ ${f(a.sigma)} across ${a.baseN} readings, giving a ±3σ control band of <b>${f(a.bandLo)} – ${f(a.bandHi)} ${m.unit}</b>. The latest reading sits ${a.dev>=0?'+':''}${a.dev.toFixed(1)}σ from centre — ${inBand ? '<b>in band</b>' : '<b>out of band</b>'}. `;
+    out += drift
+      ? `The 30-day trend <b>is moving</b> (R² ${a.r2.toFixed(2)}, ~${(a.slope>=0?'+':'')}${a.slope.toFixed(3)}/day). `
+      : `The 30-day trend is flat (R² ${(a.r2||0).toFixed(2)}), so recent movement is noise rather than drift. `;
+    if(tgt.lo!=null || tgt.hi!=null){
+      const ok = (tgt.lo==null || a.anchor.v>=tgt.lo) && (tgt.hi==null || a.anchor.v<=tgt.hi);
+      out += `Against the target set (${tgt.lo==null?'—':f(tgt.lo)} / ${tgt.hi==null?'—':f(tgt.hi)}) the latest reading is ${ok?'<b>on target</b>':'<b>off target</b>'}. `;
+    }
+    return out;
+  }
+  out = `<b>วิธีประเมิน.</b> ในช่วง 180 วันที่จบก่อนสัปดาห์ล่าสุด ค่านี้อยู่ที่ราว <b>${f(a.median)} ${m.unit}</b> ` +
     `โดยมี robust σ ≈ ${f(a.sigma)} จาก ${a.baseN} ค่า ได้ control band ±3σ = <b>${f(a.bandLo)} – ${f(a.bandHi)} ${m.unit}</b>. ` +
     `ค่าล่าสุดอยู่ที่ ${a.dev>=0?'+':''}${a.dev.toFixed(1)}σ จากจุดกลาง — ${inBand ? '<b>อยู่ในเกณฑ์</b>' : '<b>หลุดเกณฑ์</b>'}. `;
-  s += drift
-    ? `แนวโน้ม 30 วัน<b>กำลังเคลื่อน</b> (R² ${a.r2.toFixed(2)}, ~${(a.slope>=0?'+':'')}${(a.slope).toFixed(3)}/วัน). `
+  out += drift
+    ? `แนวโน้ม 30 วัน<b>กำลังเคลื่อน</b> (R² ${a.r2.toFixed(2)}, ~${(a.slope>=0?'+':'')}${a.slope.toFixed(3)}/วัน). `
     : `แนวโน้ม 30 วันค่อนข้างนิ่ง (R² ${(a.r2||0).toFixed(2)}) การแกว่งล่าสุดจึงเป็น noise มากกว่าการเลื่อนระดับ. `;
   if(tgt.lo!=null || tgt.hi!=null){
-    const okLo = tgt.lo==null || a.anchor.v >= tgt.lo;
-    const okHi = tgt.hi==null || a.anchor.v <= tgt.hi;
-    s += `เทียบเป้าที่ตั้งไว้ (${tgt.lo==null?'—':f(tgt.lo)} / ${tgt.hi==null?'—':f(tgt.hi)}) ค่าล่าสุด ${okLo&&okHi ? '<b>อยู่ในเป้า</b>' : '<b>อยู่นอกเป้า</b>'}. `;
+    const ok = (tgt.lo==null || a.anchor.v>=tgt.lo) && (tgt.hi==null || a.anchor.v<=tgt.hi);
+    out += `เทียบเป้าที่ตั้งไว้ (${tgt.lo==null?'—':f(tgt.lo)} / ${tgt.hi==null?'—':f(tgt.hi)}) ค่าล่าสุด ${ok ? '<b>อยู่ในเป้า</b>' : '<b>อยู่นอกเป้า</b>'}. `;
   }
-  return s;
+  return out;
 }
 
 /* ---- init ---- */
