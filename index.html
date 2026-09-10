@@ -1,7 +1,7 @@
 <!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"><style>:root{color-scheme:light}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found]){display:none!important}</style></head><body>
-<div id="dashLoadingOverlay" style="position:fixed;inset:0;background:#faf9f5;display:flex;align-items:center;justify-content:center;z-index:99999;font-family:'IBM Plex Sans Thai',-apple-system,sans-serif;font-size:16px;color:#141413;">กำลังโหลดข้อมูลจาก Google Sheets...</div>
+<div id="dashLoadingOverlay" style="position:fixed;inset:0;background:#faf9f5;display:flex;align-items:center;justify-content:center;z-index:99999;font-family:'Anuphan',-apple-system,sans-serif;font-size:16px;color:#141413;">กำลังโหลดข้อมูลจาก Google Sheets...</div>
 <title>Pulpmill1 Dashboard</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anuphan:wght@400;500;600;700&family=Noto+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
 <style>
   :root{
     --bg:#F2F5F6; --surface:#FFFFFF; --surface-2:#EAF0F1; --border:#DBE3E5;
@@ -36,7 +36,7 @@
   *{box-sizing:border-box;}
   body{
     margin:0; background:var(--bg); color:var(--ink);
-    font-family:"IBM Plex Sans Thai","Noto Sans Thai",system-ui,sans-serif;
+    font-family:"Anuphan","Noto Sans","Noto Sans Thai",system-ui,sans-serif;
     font-size:14px; line-height:1.5;
   }
   .mono{font-family:"IBM Plex Mono",ui-monospace,monospace; font-variant-numeric:tabular-nums;}
@@ -46,14 +46,14 @@
   /* app shell: sidebar + main */
   .app{display:flex; align-items:stretch; min-height:100vh;}
   /* enlarge the whole dashboard ~30% for readability on meeting screens (skip narrow phones) */
-  @media (min-width:700px){ .app{ zoom:1.3; } .sidebar{ height:auto; min-height:100vh; } }
-  @supports not (zoom:1){ @media (min-width:700px){ .app{ transform:scale(1.3); transform-origin:top left; width:76.923%; } } }
+  @media (min-width:700px){ .app{ zoom:1.04; } .sidebar{ height:auto; min-height:100vh; } }
+  @supports not (zoom:1){ @media (min-width:700px){ .app{ transform:scale(1.04); transform-origin:top left; width:96.15%; } } }
 
   .sidebar{
     width:222px; flex-shrink:0; border-right:1px solid var(--border);
     padding:18px 12px; position:sticky; top:0; align-self:flex-start; height:100vh; overflow-y:auto;
     display:flex; flex-direction:column; gap:16px;
-    background:#0A2E55;
+    background-color:#0d2c4d;background-image:linear-gradient(180deg,#0b1f3b 0%,rgba(18,58,99,.92) 46%,rgba(22,64,107,.5) 68%,rgba(13,44,77,.3) 100%),url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNDAiIGhlaWdodD0iMzMwIiB2aWV3Qm94PSIwIDAgMjQwIDMzMCI+IDwhLS0gRmFpbnQgcHVscC1taWxsIHNreWxpbmUgZm9yIHRoZSBib3R0b20gb2YgdGhlIHNpZGViYXI6IHRhbmtzLCBzaWxvcywgdHdvIHRhbGwgc3RhY2tzLCBwbHVzIGEgZGltIG1pcnJvciByZWZsZWN0aW9uIHVuZGVyIGEgd2F0ZXJsaW5lLiBTaXRzIG92ZXIgdGhlIENTUyBibHVlIGdyYWRpZW50OyB0cmFuc3BhcmVudCBlbHNld2hlcmUuIEV2b2tlcyB0aGUgc2VudCBwaG90byB3aXRob3V0IGEgYml0bWFwLiAtLT4gPGRlZnM+IDxnIGlkPSJtIj4gPHJlY3QgeD0iNiIgeT0iNzAiIHdpZHRoPSIzNCIgaGVpZ2h0PSIzMCIvPiA8cmVjdCB4PSIxMCIgeT0iNTUiIHdpZHRoPSI4IiBoZWlnaHQ9IjE1Ii8+IDxyZWN0IHg9IjQ0IiB5PSI0NiIgd2lkdGg9IjIwIiBoZWlnaHQ9IjU0Ii8+PGNpcmNsZSBjeD0iNTQiIGN5PSI0NiIgcj0iMTAiLz4gPHJlY3QgeD0iNjYiIHk9IjU1IiB3aWR0aD0iMTYiIGhlaWdodD0iNDUiLz48Y2lyY2xlIGN4PSI3NCIgY3k9IjU1IiByPSI4Ii8+IDxyZWN0IHg9Ijg2IiB5PSI2NCIgd2lkdGg9IjcyIiBoZWlnaHQ9IjM2Ii8+IDxyZWN0IHg9IjEyMCIgeT0iNDUiIHdpZHRoPSIzMCIgaGVpZ2h0PSIxOSIvPiA8cmVjdCB4PSIxNTAiIHk9IjI0IiB3aWR0aD0iMjYiIGhlaWdodD0iNzYiLz48cmVjdCB4PSIxNDkiIHk9IjE3IiB3aWR0aD0iMjgiIGhlaWdodD0iNyIvPiA8cmVjdCB4PSIxODAiIHk9IjU3IiB3aWR0aD0iMzAiIGhlaWdodD0iNDMiLz4gPHJlY3QgeD0iMjEwIiB5PSI3MCIgd2lkdGg9IjI0IiBoZWlnaHQ9IjMwIi8+PGNpcmNsZSBjeD0iMjIyIiBjeT0iNzAiIHI9IjEyIi8+IDxyZWN0IHg9IjEzMSIgeT0iLTU4IiB3aWR0aD0iNiIgaGVpZ2h0PSIxNTgiLz4gPHJlY3QgeD0iMTY3IiB5PSItNDQiIHdpZHRoPSI2IiBoZWlnaHQ9IjE0NCIvPiA8L2c+IDwvZGVmcz4gPCEtLSBza3lsaW5lIC0tPiA8ZyBmaWxsPSIjZmZmZmZmIiBmaWxsLW9wYWNpdHk9IjAuMDgiPjx1c2UgaHJlZj0iI20iIHRyYW5zZm9ybT0idHJhbnNsYXRlKDAsMTUwKSIvPjwvZz4gPCEtLSB3YXRlcmxpbmUgLS0+IDxyZWN0IHg9IjAiIHk9IjI1MiIgd2lkdGg9IjI0MCIgaGVpZ2h0PSIxLjUiIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4xMCIvPiA8IS0tIHJlZmxlY3Rpb24gLS0+IDxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4wMzUiPjx1c2UgaHJlZj0iI20iIHRyYW5zZm9ybT0idHJhbnNsYXRlKDAsMzU2KSBzY2FsZSgxLC0xKSIvPjwvZz4gPC9zdmc+");background-repeat:no-repeat,no-repeat;background-position:top center,bottom center;background-size:100% 100%,100% auto;
   }
 .sidebar,.sidebar .sidebar-brand{border-color:rgba(255,255,255,.12)}
 .sidebar .sidebar-brand .mark{background:rgba(255,255,255,.13);color:#DCE9F7}
@@ -226,10 +226,10 @@
     padding:8px; text-align:center; border-bottom:1px dotted var(--border);
     font-family:"IBM Plex Mono",monospace; font-variant-numeric:tabular-nums;
   }
-  table.rank-table td.rt-month{font-family:"IBM Plex Sans Thai",inherit; font-weight:700;}
-  table.rank-table td.rt-rank{font-family:"IBM Plex Sans Thai",inherit; font-weight:600;}
+  table.rank-table td.rt-month{font-family:"Anuphan",inherit; font-weight:700;}
+  table.rank-table td.rt-rank{font-family:"Anuphan",inherit; font-weight:600;}
   table.rank-table td.rt-rank .gold{color:#00a927; font-weight:700;}
-  table.rank-table .rt-forecast{color:var(--ink-3); font-style:italic; font-family:"IBM Plex Sans Thai",inherit;}
+  table.rank-table .rt-forecast{color:var(--ink-3); font-style:italic; font-family:"Anuphan",inherit;}
   table.rank-table tbody tr:nth-child(even){background:var(--surface-2);}
 
   /* Top 10 Production (Monthly) — table + chart side-by-side, สีไล่โทนตามค่าผลผลิต (heat scale) */
@@ -244,7 +244,7 @@
     padding:7px 6px; text-align:center; border:1px solid var(--border);
     font-family:"IBM Plex Mono",monospace; font-variant-numeric:tabular-nums; font-weight:700; color:#1a1a1a;
   }
-  table.top10-table td.t10-month{font-family:"IBM Plex Sans Thai",inherit; font-weight:700; color:var(--ink); background:var(--surface) !important;}
+  table.top10-table td.t10-month{font-family:"Anuphan",inherit; font-weight:700; color:var(--ink); background:var(--surface) !important;}
   table.top10-table td.t10-year{color:var(--ink); background:var(--surface) !important;}
   .top10-chart-wrap{flex:1 1 380px; min-width:0; height:270px;}
   @media (max-width:700px){ .top10-layout{flex-direction:column;} .top10-table-wrap{flex-basis:auto;} .top10-chart-wrap{height:250px;} }
@@ -261,7 +261,7 @@
   #summaryOverviewCard .summary-block:first-child{padding-top:2px;}
   .new-record-badge{
     display:inline-block; margin-left:5px; padding:1.5px 10px; border-radius:20px;
-    font-family:"IBM Plex Sans Thai",inherit; font-size:10.5px; font-weight:800; letter-spacing:.04em;
+    font-family:"Anuphan",inherit; font-size:10.5px; font-weight:800; letter-spacing:.04em;
     color:#4a2e00; background:linear-gradient(135deg,#FFE082,#F5A623);
     border:1px solid rgba(0,0,0,0.08); box-shadow:0 1px 3px rgba(0,0,0,0.15);
     vertical-align:1px; animation:newRecordPulse 1.4s ease-in-out infinite;
@@ -1622,7 +1622,7 @@ function render(mi){
           position:'cursorOffset',
           backgroundColor:surfaceColor, titleColor:inkColor, bodyColor:inkColor2,
           borderColor:borderColor, borderWidth:1, padding:10, displayColors:true,
-          titleFont:{family:"IBM Plex Sans Thai", weight:'700'}, bodyFont:{family:"IBM Plex Mono"},
+          titleFont:{family:"Anuphan", weight:'700'}, bodyFont:{family:"IBM Plex Mono"},
           callbacks:{
             title:(items)=> `วันที่ ${items[0].label}/${YEAR}`,
             label:(item)=>{
@@ -1784,7 +1784,7 @@ function renderMonthly(year){
           position:'cursorOffset',
           backgroundColor:surfaceColor, titleColor:inkColor, bodyColor:inkColor2,
           borderColor:borderColor, borderWidth:1, padding:10, displayColors:true,
-          titleFont:{family:"IBM Plex Sans Thai", weight:'700'}, bodyFont:{family:"IBM Plex Mono"},
+          titleFont:{family:"Anuphan", weight:'700'}, bodyFont:{family:"IBM Plex Mono"},
           callbacks:{
             title:(items)=> `${MONTH_NAMES[items[0].dataIndex]} ${year}`,
             label:(item)=>{
@@ -2016,7 +2016,7 @@ function renderAnnualChart(){
           position:'cursorOffset',
           backgroundColor:surfaceColor, titleColor:inkColor, bodyColor:inkColor2,
           borderColor:borderColor, borderWidth:1, padding:10, displayColors:true,
-          titleFont:{family:"IBM Plex Sans Thai", weight:'700'}, bodyFont:{family:"IBM Plex Mono"},
+          titleFont:{family:"Anuphan", weight:'700'}, bodyFont:{family:"IBM Plex Mono"},
           callbacks:{
             title:(items)=> `ปี ${items[0].label}`,
             label:(item)=>{
@@ -2177,7 +2177,7 @@ function renderMonthly2(year){
           position:'cursorOffset',
           backgroundColor:surfaceColor, titleColor:inkColor, bodyColor:inkColor2,
           borderColor:borderColor, borderWidth:1, padding:10, displayColors:true,
-          titleFont:{family:"IBM Plex Sans Thai", weight:'700'}, bodyFont:{family:"IBM Plex Mono"},
+          titleFont:{family:"Anuphan", weight:'700'}, bodyFont:{family:"IBM Plex Mono"},
           callbacks:{
             title:(items)=> `${MONTH_NAMES[items[0].dataIndex]} ${year}`,
             label:(item)=>{
@@ -2365,7 +2365,7 @@ function renderAnnualChart2(){
           position:'cursorOffset',
           backgroundColor:surfaceColor, titleColor:inkColor, bodyColor:inkColor2,
           borderColor:borderColor, borderWidth:1, padding:10, displayColors:true,
-          titleFont:{family:"IBM Plex Sans Thai", weight:'700'}, bodyFont:{family:"IBM Plex Mono"},
+          titleFont:{family:"Anuphan", weight:'700'}, bodyFont:{family:"IBM Plex Mono"},
           callbacks:{
             title:(items)=> `ปี ${items[0].label}`,
             label:(item)=>{
@@ -2566,7 +2566,7 @@ function renderMonthlyTot(year){
           position:'cursorOffset',
           backgroundColor:surfaceColor, titleColor:inkColor, bodyColor:inkColor2,
           borderColor:borderColor, borderWidth:1, padding:10, displayColors:true,
-          titleFont:{family:"IBM Plex Sans Thai", weight:'700'}, bodyFont:{family:"IBM Plex Mono"},
+          titleFont:{family:"Anuphan", weight:'700'}, bodyFont:{family:"IBM Plex Mono"},
           callbacks:{
             title:(items)=> `${MONTH_NAMES[items[0].dataIndex]} ${year}`,
             label:(item)=>{
@@ -2847,7 +2847,7 @@ function renderAnnualChartTot(){
           position:'cursorOffset',
           backgroundColor:surfaceColor, titleColor:inkColor, bodyColor:inkColor2,
           borderColor:borderColor, borderWidth:1, padding:10, displayColors:true,
-          titleFont:{family:"IBM Plex Sans Thai", weight:'700'}, bodyFont:{family:"IBM Plex Mono"},
+          titleFont:{family:"Anuphan", weight:'700'}, bodyFont:{family:"IBM Plex Mono"},
           callbacks:{
             title:(items)=> `ปี ${items[0].label}`,
             label:(item)=>{
@@ -3078,7 +3078,7 @@ function renderDayGroupChart(key){
           position:'cursorOffset',
           backgroundColor:surfaceColor, titleColor:inkColor, bodyColor:inkColor2,
           borderColor:borderColor, borderWidth:1, padding:10, displayColors:true,
-          titleFont:{family:"IBM Plex Sans Thai", weight:'700'}, bodyFont:{family:"IBM Plex Mono"},
+          titleFont:{family:"Anuphan", weight:'700'}, bodyFont:{family:"IBM Plex Mono"},
           callbacks:{
             title:(items)=> labels[items[0].dataIndex],
             label:(item)=>{
@@ -3331,7 +3331,7 @@ function renderDayGroupChart2(key){
           position:'cursorOffset',
           backgroundColor:surfaceColor, titleColor:inkColor, bodyColor:inkColor2,
           borderColor:borderColor, borderWidth:1, padding:10, displayColors:true,
-          titleFont:{family:"IBM Plex Sans Thai", weight:'700'}, bodyFont:{family:"IBM Plex Mono"},
+          titleFont:{family:"Anuphan", weight:'700'}, bodyFont:{family:"IBM Plex Mono"},
           callbacks:{
             title:(items)=> labels[items[0].dataIndex],
             label:(item)=>{
@@ -3536,7 +3536,7 @@ function top10ChartConfig(top10, labels, dataArr, barColor){
           position:'cursorOffset',
           backgroundColor:surfaceColor, titleColor:inkColor, bodyColor:inkColor2,
           borderColor:borderColor, borderWidth:1, padding:10, displayColors:false,
-          titleFont:{family:"IBM Plex Sans Thai", weight:'700'}, bodyFont:{family:"IBM Plex Mono"},
+          titleFont:{family:"Anuphan", weight:'700'}, bodyFont:{family:"IBM Plex Mono"},
           callbacks:{
             title:(items)=> labels[items[0].dataIndex],
             label:(item)=> `Actual: ${fmt0(item.raw)} Adt — อันดับที่ ${item.dataIndex+1}`
@@ -4710,16 +4710,18 @@ function chipMonRenderTiles(grp){
       <div class="mt-row3"><span class="mt-sub">${sub}</span><canvas class="mt-spark" id="chipSpark_${m.key}"></canvas></div>
     </div>`;
   }).join('');
-  // sparklines: last ~30 logged points
+  // sparklines: the last ~1 month of readings (same window as the expanded chart)
   metas.forEach(m=> {
-    const s = CHIP_MON_SERIES[m.key].slice(-30);
+    const _full = CHIP_MON_SERIES[m.key];
+    const _aTs = _full.length ? _full[_full.length-1].ts : 0;
+    const s = _full.filter(x=> x.ts > _aTs - 32*86400000);
     if(!s.length) return;
     const cv = document.getElementById('chipSpark_'+m.key);
     const cfg = { type:'line', data:{ labels:s.map(()=> ''), datasets:[{ data:s.map(x=> x.v), borderColor:grp.rail, borderWidth:1.4, pointRadius:0, tension:.3, fill:false }] },
       options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}, tooltip:{enabled:false}, datalabels:{display:false}},
         scales:{ x:{display:false}, y:{display:false} }, elements:{line:{borderJoinStyle:'round'}} } };
-    if(chipMonSparks[m.key]){ chipMonSparks[m.key].data = cfg.data; chipMonSparks[m.key].update(); }
-    else chipMonSparks[m.key] = new Chart(cv.getContext('2d'), cfg);
+    if(chipMonSparks[m.key]){ try{ chipMonSparks[m.key].destroy(); }catch(e){} }
+    chipMonSparks[m.key] = new Chart(cv.getContext('2d'), cfg);
   });
 }
 
@@ -4728,7 +4730,7 @@ function chipMonRenderDetail(grpId){
   const grp = CHIP_MON_GROUPS.find(g=> g.id===grpId);
   const key = CHIP_MON_STATE[grpId];
   const panel = document.getElementById('chipDetail_'+grpId);
-  if(!key){ panel.hidden = true; return; }
+  if(!key){ panel.hidden = true; document.querySelectorAll('.mon-tile[data-grp="'+grpId+'"]').forEach(t=> t.classList.remove('sel')); return; }
   const m = CHIP_MON_META.find(x=> x.key===key);
   const a = chipMonAnalyse(key, m);
   panel.hidden = false;
@@ -4795,11 +4797,10 @@ function chipMonRenderDetail(grpId){
 
 function chipMonDrawDetailChart(grpId, m, a, tgt){
   const grp = CHIP_MON_GROUPS.find(g=> g.id===grpId);
-  // show the anchor month + the two months before it
+  // show the last ~1 month of readings, ending at the latest one (same window as the tile sparkline)
   const s = CHIP_MON_SERIES[m.key];
-  const fromTs = new Date(a.py, a.pmi-1 < 0 ? 11 : a.pmi-1, 1).getTime();
-  const win = s.filter(x=> x.ts >= fromTs);
-  const rows = win.length >= 8 ? win : s.slice(-70);
+  const win = s.filter(x=> x.ts > a.anchor.ts - 32*86400000);
+  const rows = win.length >= 4 ? win : s.slice(-31);
   const labels = rows.map(x=> `${x.d}/${x.mi+1}`);
   const c = { ink2:cssVar('--ink-2'), grid:cssVar('--grid'), surface:cssVar('--surface'), border:cssVar('--border'), ink:cssVar('--ink') };
 
@@ -4893,18 +4894,21 @@ function initChipMon(){
     chipMonRenderDetail(grp.id);
   });
   const host = document.getElementById('chipMonHost');
+  const chipMonToggle = (g, k)=> {
+    if(CHIP_MON_STATE[g] === k){ CHIP_MON_STATE[g] = null; chipMonRenderDetail(g); return; }
+    CHIP_MON_STATE[g] = k;
+    chipMonRenderDetail(g);
+    document.getElementById('chipDetail_'+g).scrollIntoView({behavior:'smooth', block:'nearest'});
+  };
   host.addEventListener('click', (e)=> {
     const tile = e.target.closest('.mon-tile'); if(!tile) return;
-    CHIP_MON_STATE[tile.dataset.grp] = tile.dataset.key;
-    chipMonRenderDetail(tile.dataset.grp);
-    document.getElementById('chipDetail_'+tile.dataset.grp).scrollIntoView({behavior:'smooth', block:'nearest'});
+    chipMonToggle(tile.dataset.grp, tile.dataset.key);
   });
   host.addEventListener('keydown', (e)=> {
     if(e.key!=='Enter' && e.key!==' ') return;
     const tile = e.target.closest('.mon-tile'); if(!tile) return;
     e.preventDefault();
-    CHIP_MON_STATE[tile.dataset.grp] = tile.dataset.key;
-    chipMonRenderDetail(tile.dataset.grp);
+    chipMonToggle(tile.dataset.grp, tile.dataset.key);
   });
   window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', ()=> {
     CHIP_MON_GROUPS.forEach(grp=> { chipMonRenderTiles(grp); chipMonRenderDetail(grp.id); });
