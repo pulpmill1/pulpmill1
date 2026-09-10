@@ -498,6 +498,16 @@
   .md-pill{font-size:10.5px;font-weight:600;color:var(--ink-2);background:var(--surface-2);border:1px solid var(--border);border-radius:20px;padding:4px 10px;}
   .md-range{font:inherit;font-size:10.5px;font-weight:600;color:var(--ink);background:var(--surface-2);border:1px solid var(--border);border-radius:20px;padding:4px 24px 4px 10px;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6'><path d='M0 0L5 6L10 0Z' fill='%2384949A'/></svg>");background-repeat:no-repeat;background-position:right 9px center;}
   .md-range:focus-visible{outline:2px solid var(--accent);outline-offset:1px;}
+  .md-viewbtn{font:inherit;font-size:10.5px;font-weight:700;color:var(--ink-2);background:var(--surface-2);border:1px solid var(--border);border-radius:20px;padding:4px 11px;cursor:pointer;}
+  .md-viewbtn.on{background:var(--accent-soft);color:var(--accent-ink);border-color:var(--accent-soft);}
+  .md-viewbtn:focus-visible{outline:2px solid var(--accent);outline-offset:1px;}
+  .md-body{margin-top:4px;}
+  .md-tablewrap{max-height:280px;overflow:auto;border:1px solid var(--border);border-radius:10px;}
+  table.md-table{width:100%;border-collapse:collapse;font-size:12px;}
+  table.md-table th{position:sticky;top:0;background:var(--accent-soft);color:var(--accent-ink);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.02em;padding:7px 10px;text-align:left;}
+  table.md-table td{padding:6px 10px;border-bottom:1px solid var(--border);}
+  table.md-table td.num{font-family:"IBM Plex Mono",monospace;text-align:right;}
+  table.md-table tbody tr:nth-child(2n){background:var(--surface-2);}
   .md-sub{font-size:11px;color:var(--ink-3);margin-bottom:12px;}
   .md-target{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:9px 12px;margin-bottom:12px;}
   .md-target .lbl{font-size:10.5px;font-weight:800;letter-spacing:.05em;color:var(--ink-2);text-transform:uppercase;}
@@ -1234,6 +1244,16 @@
               <div class="mon-group-head"><span class="gi">🔻</span><span class="gt">การกระจายขนาดชิ้นไม้สับ (Chip Screen)</span><span class="gs">8 ค่า · คลิกที่บล็อกเพื่อดูประวัติและ control band</span></div>
               <div class="mon-tiles" id="chipTiles_screen"></div>
               <div class="mon-detail" id="chipDetail_screen" hidden></div>
+            </div>
+            <div class="mon-group">
+              <div class="mon-group-head"><span class="gi">🍲</span><span class="gt">Kappa การต้ม &amp; Knot / White reject</span><span class="gs">5 ค่า · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
+              <div class="mon-tiles" id="chipTiles_cook"></div>
+              <div class="mon-detail" id="chipDetail_cook" hidden></div>
+            </div>
+            <div class="mon-group">
+              <div class="mon-group-head"><span class="gi">💧</span><span class="gt">น้ำเสียเข้าระบบบำบัด (ETP)</span><span class="gs">3 ค่า · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
+              <div class="mon-tiles" id="chipTiles_etp"></div>
+              <div class="mon-detail" id="chipDetail_etp" hidden></div>
             </div>
           </div>
           <button type="button" class="foot-toggle" data-target="chipMonFoot" aria-expanded="false" aria-controls="chipMonFoot">ดูรายละเอียด</button>
@@ -3970,6 +3990,10 @@ const TX_EN = {
   'การกระจายขนาดชิ้นไม้สับ (Chip Screen)':'Chip size distribution (Chip Screen)',
   '4 ค่า · คลิกที่บล็อกเพื่อดูประวัติและ control band':'4 metrics · click a tile for its history and control band',
   '8 ค่า · คลิกที่บล็อกเพื่อดูประวัติและ control band':'8 metrics · click a tile for its history and control band',
+  'Kappa การต้ม & Knot / White reject':'Cooking Kappa & Knot / White reject',
+  'น้ำเสียเข้าระบบบำบัด (ETP)':'Effluent to the ETP',
+  '5 ค่า · คลิกที่บล็อกเพื่อดูประวัติ':'5 metrics · click a tile for its history',
+  '3 ค่า · คลิกที่บล็อกเพื่อดูประวัติ':'3 metrics · click a tile for its history',
   'โรงเยื่อ 1+2 (รวมทั้งโรงงาน)':'Fiberline 1+2 (whole mill)',
   'โรงเยื่อ 2 (Fiberline 2)':'Fiberline 2',
   // chart titles
@@ -4581,20 +4605,30 @@ if(document.getElementById('summaryBody1')){
 const CHIP_MON_META = [
   {key:'bulkDensity',    col:26, th:'Bulk density',              unit:'kg/m³', dec:1, grp:'bulk',   scored:false, spec:[300,350]},
   {key:'bulkDensityDry', col:27, th:'Bulk density × Dryness',    unit:'kg/m³', dec:1, grp:'bulk',   scored:false},
-  {key:'dryness',        col:28, th:'Dryness',                   unit:'%',     dec:2, grp:'bulk',   scored:true,  dir:'lower',  specHi:54},
+  {key:'dryness',        col:28, th:'Dryness',                   unit:'%',     dec:2, pct01:true, grp:'bulk',   scored:true,  dir:'lower',  specHi:54},
   {key:'moisture',       col:null,th:'Moisture (= 100 − Dryness)',unit:'%',    dec:2, grp:'bulk',   scored:true,  dir:'neutral', derived:true},
-  {key:'fine',           col:30, th:'Fine < 4.8 mm.',            unit:'%',     dec:2, grp:'screen', scored:true,  dir:'lower',  specHi:5},
-  {key:'pin',            col:31, th:'Pin 9.5–4.8 mm.',           unit:'%',     dec:2, grp:'screen', scored:true,  dir:'band',   specLo:17.5, specHi:28.5},
-  {key:'accept2',        col:32, th:'Accept 2  22.2–9.5 mm.',    unit:'%',     dec:2, grp:'screen', scored:true,  dir:'higher', specLo:55},
-  {key:'accept1',        col:33, th:'Accept 1  28.6–22.2 mm.',   unit:'%',     dec:2, grp:'screen', scored:true,  dir:'band',   specLo:10, specHi:17.5},
-  {key:'overThick',      col:34, th:'Over Thick  45.0–28.6 mm.', unit:'%',     dec:2, grp:'screen', scored:true,  dir:'lower',  specHi:5},
-  {key:'overSize',       col:35, th:'Over size > 45.0 mm.',      unit:'%',     dec:2, grp:'screen', scored:true,  dir:'lower',  specHi:1.5},
-  {key:'accPin',         col:36, th:'Acc 1+2+Pin  28.6–4.8 mm.', unit:'%',     dec:2, grp:'screen', scored:true,  dir:'higher', specLo:90},
-  {key:'bark',           col:37, th:'Bark',                      unit:'%',     dec:2, grp:'screen', scored:true,  dir:'lower',  specHi:1},
+  {key:'fine',           col:30, th:'Fine < 4.8 mm.',            unit:'%',     dec:2, pct01:true, grp:'screen', scored:true,  dir:'lower',  specHi:5},
+  {key:'pin',            col:31, th:'Pin 9.5–4.8 mm.',           unit:'%',     dec:2, pct01:true, grp:'screen', scored:true,  dir:'band',   specLo:17.5, specHi:28.5},
+  {key:'accept2',        col:32, th:'Accept 2  22.2–9.5 mm.',    unit:'%',     dec:2, pct01:true, grp:'screen', scored:true,  dir:'higher', specLo:55},
+  {key:'accept1',        col:33, th:'Accept 1  28.6–22.2 mm.',   unit:'%',     dec:2, pct01:true, grp:'screen', scored:true,  dir:'band',   specLo:10, specHi:17.5},
+  {key:'overThick',      col:34, th:'Over Thick  45.0–28.6 mm.', unit:'%',     dec:2, pct01:true, grp:'screen', scored:true,  dir:'lower',  specHi:5},
+  {key:'overSize',       col:35, th:'Over size > 45.0 mm.',      unit:'%',     dec:2, pct01:true, grp:'screen', scored:true,  dir:'lower',  specHi:1.5},
+  {key:'accPin',         col:36, th:'Acc 1+2+Pin  28.6–4.8 mm.', unit:'%',     dec:2, pct01:true, grp:'screen', scored:true,  dir:'higher', specLo:90},
+  {key:'bark',           col:37, th:'Bark',                      unit:'%',     dec:2, pct01:true, grp:'screen', scored:true,  dir:'lower',  specHi:1},
+  {key:'kappaCook',    col:64, th:'Kappa cooking',                 unit:'',       dec:2, grp:'cook', scored:true,  dir:'band'},
+  {key:'sdKappa',      col:65, th:'SD Kappa cooking',              unit:'',       dec:2, grp:'cook', scored:true,  dir:'lower'},
+  {key:'diffBalance',  col:66, th:'Diff. prod. balance wetlap',    unit:'%',      dec:2, grp:'cook', scored:true,  dir:'band'},
+  {key:'kwReject',     col:67, th:'Knot + White reject',           unit:'kg',     dec:0, grp:'cook', scored:false},
+  {key:'kwRejectAdt',  col:67, perAdt:true, th:'Knot + White reject / ADt', unit:'kg/ADt', dec:2, grp:'cook', scored:false},
+  {key:'tssEtp',       col:73, th:'TSS to ETP',                    unit:'mg/l',   dec:0, grp:'etp',  scored:false},
+  {key:'volEtp',       col:71, th:'Volume to ETP',                 unit:'m³/day', dec:0, grp:'etp',  scored:false},
+  {key:'volEtpAdt',    col:71, perAdt:true, th:'Volume to ETP / ADt', unit:'m³/ADt', dec:3, grp:'etp', scored:false},
 ];
 const CHIP_MON_GROUPS = [
   {id:'bulk',   ico:'⚙', th:'ค่าพื้นฐานของชิ้นไม้สับ', rail:'#7C4DFF'},
   {id:'screen', ico:'🔻', th:'การกระจายขนาดชิ้นไม้สับ (Chip Screen)', rail:'#E0417A'},
+  {id:'cook',   ico:'🍲', th:'Kappa การต้ม & Knot / White reject', rail:'#0E7C86'},
+  {id:'etp',    ico:'💧', th:'น้ำเสียเข้าระบบบำบัด (ETP)', rail:'#0B7A28'},
 ];
 
 const chipMonDre = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/;
@@ -4606,9 +4640,20 @@ for(let cmi=6; cmi<chipWoodRows.length; cmi++){
   CHIP_MON_ROWS.push({ y:+cm[3], mi:(+cm[2])-1, d:+cm[1], ts:new Date(+cm[3],(+cm[2])-1,+cm[1]).getTime(), r:cr });
 }
 const chipMonPct = v => { const n = parseSheetNum(v); return (n==null || n<0 || n>100) ? null : n; };
+const chipMonRaw = v => parseSheetNum(String(v==null?'':v).replace(/%/g,''));
+/* daily Fiberline-1 production (ADt/day) by date, from the Daily (Act) sheet — for per-ADt ratios */
+const PROD_BY_DATE = {};
+try{ (dailyActParsed.entries||[]).forEach(e=>{ if(e.val!=null) PROD_BY_DATE[e.y+'-'+e.mi+'-'+e.d] = e.val; }); }catch(e){}
 function chipMonVal(rec, meta){
   if(meta.derived){ const dry = chipMonPct(rec.r[28]); return dry==null ? null : Math.round((100-dry)*100)/100; }
-  return meta.unit === '%' ? chipMonPct(rec.r[meta.col]) : parseSheetNum(rec.r[meta.col]);
+  if(meta.perAdt){
+    const src = chipMonRaw(rec.r[meta.col]);
+    const p = PROD_BY_DATE[rec.y+'-'+rec.mi+'-'+rec.d];
+    return (src==null || p==null || p<=0) ? null : Math.round((src/p)*1000)/1000;
+  }
+  const raw = chipMonRaw(rec.r[meta.col]);
+  if(meta.pct01) return (raw==null || raw<0 || raw>100) ? null : raw;
+  return raw;
 }
 const CHIP_MON_SERIES = {};
 CHIP_MON_META.forEach(m=> {
@@ -4682,7 +4727,8 @@ function chipMonSetTarget(key, lo, hi){
 
 /* ---- state ---- */
 const CHIP_MON_STATE = { bulk:null, screen:null };       // selected metric key per group
-const CHIP_MON_RANGE = { bulk:'recent', screen:'recent' }; // detail-chart window per group: 'recent' or 'YYYY-M'
+const CHIP_MON_RANGE = {}; // detail-chart window per group: 'recent' or 'YYYY-M'
+const CHIP_MON_VIEW = {};  // detail body per group: 'chart' or 'table'
 const chipMonCharts = {};                                 // detail chart per group
 const chipMonSparks = {};                                 // sparkline chart per tile key
 
@@ -4767,8 +4813,8 @@ function chipMonRenderDetail(grpId){
       <span class="md-title">${m.th} <span class="u">· ${m.unit}</span></span>
       <span class="md-pills">
         <select class="md-range" id="chipRange_${grpId}" aria-label="${currentLang==='en'?'Chart range':'ช่วงข้อมูลของกราฟ'}">${chipMonRangeOptions(m, grpId)}</select>
-        <span class="md-pill">ข้อมูลล่าสุด ${anchorDate}</span>
-        <span class="md-pill">${m.scored ? `health ${a.health}/100` : 'reported · not scored'}</span>
+        <button type="button" class="md-viewbtn" data-view="chart">${currentLang==='en'?'Chart':'กราฟ'}</button>
+        <button type="button" class="md-viewbtn" data-view="table">${currentLang==='en'?'Table':'ตาราง'}</button>
       </span>
     </div>
     <div class="md-sub">${grp.th} · baseline ${a.baseN} วัน (180 วันก่อนสัปดาห์ล่าสุด) · ${specTxt}</div>
@@ -4777,7 +4823,7 @@ function chipMonRenderDetail(grpId){
       <span class="lbl">${m.th} target</span>
       <span class="fld">LOW <input type="number" step="any" id="chipTgtLo_${grpId}" value="${tgt.lo??''}" placeholder="—"> ${m.unit}</span>
       <span class="fld">HIGH <input type="number" step="any" id="chipTgtHi_${grpId}" value="${tgt.hi??''}" placeholder="—"> ${m.unit}</span>
-      <span class="note">ตั้ง Low / High เพื่อวางเส้นเป้าบนกราฟ · ${specTxt !== 'ไม่มีเกณฑ์ในชีต' ? 'ค่าเกณฑ์จากชีต (เส้นประเทา) แสดงอยู่แล้ว' : 'ชีตไม่มีเกณฑ์ของค่านี้'}</span>
+      <span class="note">ตั้ง Low / High เพื่อวางเส้นเป้าบนกราฟ${specTxt !== 'ไม่มีเกณฑ์ในชีต' ? ` · เกณฑ์อ้างอิงในชีต: ${specTxt}` : ''}</span>
     </div>
 
     <div class="md-strip">
@@ -4791,7 +4837,7 @@ function chipMonRenderDetail(grpId){
         <div class="md-track"><span class="z"></span><span class="m ${devOut?'out':''}" style="left:${devTrackPct}%"></span></div></div>
     </div>
 
-    <div class="md-chart-wrap"><canvas id="chipDetailChart_${grpId}"></canvas></div>
+    <div class="md-body" id="chipDetailBody_${grpId}"></div>
 
     <div class="md-assess">${chipMonAssess(m, a, tgt)}</div>
   `;
@@ -4802,21 +4848,19 @@ function chipMonRenderDetail(grpId){
     const lo = loEl.value.trim()==='' ? null : +loEl.value;
     const hi = hiEl.value.trim()==='' ? null : +hiEl.value;
     chipMonSetTarget(key, lo, hi);
-    chipMonDrawDetailChart(grpId, m, a, {lo, hi});
+    chipMonRenderDetailBody(grpId, m, a, {lo, hi});
     panel.querySelector('.md-assess').innerHTML = chipMonAssess(m, a, {lo, hi});
   };
   loEl.addEventListener('change', onTgt);
   hiEl.addEventListener('change', onTgt);
   const rngEl = document.getElementById('chipRange_'+grpId);
-  if(rngEl) rngEl.addEventListener('change', ()=>{ CHIP_MON_RANGE[grpId] = rngEl.value; chipMonDrawDetailChart(grpId, m, a, chipMonTarget(key)); });
+  if(rngEl) rngEl.addEventListener('change', ()=>{ CHIP_MON_RANGE[grpId] = rngEl.value; chipMonRenderDetailBody(grpId, m, a, chipMonTarget(key)); });
+  panel.querySelectorAll('.md-viewbtn').forEach(b=> b.addEventListener('click', ()=>{ CHIP_MON_VIEW[grpId] = b.dataset.view; chipMonRenderDetailBody(grpId, m, a, chipMonTarget(key)); }));
 
-  chipMonDrawDetailChart(grpId, m, a, tgt);
+  chipMonRenderDetailBody(grpId, m, a, tgt);
 }
 
-function chipMonDrawDetailChart(grpId, m, a, tgt){
-  const grp = CHIP_MON_GROUPS.find(g=> g.id===grpId);
-  // default: the last 30 days ending at the latest reading (same window as the tile sparkline).
-  // the range selector can switch to a specific month-year instead.
+function chipMonDetailRows(grpId, m, a){
   const s = CHIP_MON_SERIES[m.key];
   const rng = CHIP_MON_RANGE[grpId] || 'recent';
   let rows = null;
@@ -4826,38 +4870,67 @@ function chipMonDrawDetailChart(grpId, m, a, tgt){
   }
   if(!rows || rows.length < 2) rows = s.filter(x=> x.ts >= a.anchor.ts - 30*86400000);
   if(rows.length < 2) rows = s.slice(-30);
+  return rows;
+}
+function chipMonRenderDetailBody(grpId, m, a, tgt){
+  const body = document.getElementById('chipDetailBody_'+grpId);
+  if(!body) return;
+  const view = CHIP_MON_VIEW[grpId] || 'chart';
+  document.querySelectorAll('#chipDetail_'+grpId+' .md-viewbtn').forEach(b=> b.classList.toggle('on', b.dataset.view===view));
+  if(chipMonCharts[grpId]){ chipMonCharts[grpId].destroy(); chipMonCharts[grpId] = null; }
+  if(view === 'table'){
+    const rows = chipMonDetailRows(grpId, m, a);
+    const f = v => v==null ? '—' : v.toLocaleString('en-US', {minimumFractionDigits:m.dec, maximumFractionDigits:m.dec});
+    const dcol = currentLang==='en' ? 'Date' : 'วันที่';
+    body.innerHTML = '<div class="md-tablewrap"><table class="md-table"><thead><tr><th>'+dcol+'</th><th>'+m.th+' ('+(m.unit||'—')+')</th></tr></thead><tbody>'
+      + rows.map(x=> '<tr><td>'+x.d+'/'+(x.mi+1)+'/'+x.y+'</td><td class="num">'+f(x.v)+'</td></tr>').join('')
+      + '</tbody></table></div>';
+  } else {
+    body.innerHTML = '<div class="md-chart-wrap"><canvas id="chipDetailChart_'+grpId+'"></canvas></div><div class="legend-row" id="chipDetailLegend_'+grpId+'"></div>';
+    chipMonDrawDetailChart(grpId, m, a, tgt);
+  }
+}
+function chipMonDrawDetailChart(grpId, m, a, tgt){
+  const grp = CHIP_MON_GROUPS.find(g=> g.id===grpId);
+  const rows = chipMonDetailRows(grpId, m, a);
   const labels = rows.map(x=> `${x.d}/${x.mi+1}`);
-  const c = { ink2:cssVar('--ink-2'), grid:cssVar('--grid'), surface:cssVar('--surface'), border:cssVar('--border'), ink:cssVar('--ink') };
-
-  const flat = (v, col, dash, lab) => ({ type:'line', label:lab, data:labels.map(()=> v), borderColor:col, borderWidth:1.4,
-    borderDash:dash, pointRadius:0, fill:false, tension:0, order:5, datalabels:{display:false} });
-  const refs = [];
-  if(a.bandLo!=null){ refs.push(flat(a.bandHi, 'rgba(124,77,255,.45)', [2,3], '+3σ')); refs.push(flat(a.bandLo, 'rgba(124,77,255,.45)', [2,3], '−3σ')); refs.push(flat(a.median, 'rgba(124,77,255,.7)', [6,4], 'median')); }
-  if(m.specHi!=null) refs.push(flat(m.specHi, '#8a8a8a', [5,4], `เกณฑ์ ${m.specHi}`));
-  if(m.specLo!=null && m.specLo!==m.specHi) refs.push(flat(m.specLo, '#8a8a8a', [5,4], `เกณฑ์ ${m.specLo}`));
-  if(m.spec){ refs.push(flat(m.spec[0], '#8a8a8a', [5,4], `${m.spec[0]}`)); refs.push(flat(m.spec[1], '#8a8a8a', [5,4], `${m.spec[1]}`)); }
-  if(tgt.lo!=null) refs.push(flat(tgt.lo, '#12a150', [7,3], `Target Low ${tgt.lo}`));
-  if(tgt.hi!=null) refs.push(flat(tgt.hi, '#d4342c', [7,3], `Target High ${tgt.hi}`));
-
   const vals = rows.map(x=> x.v);
-  const scaleVals = vals.concat(refs.map(r=> r.data[0])).filter(v=> v!=null);
-  let lo = Math.min(...scaleVals), hi = Math.max(...scaleVals);
-  const pad = (hi-lo)*0.12 || 1;
-  const range = (hi+pad)-(lo-pad);
-  const step = range > 250 ? 50 : range > 100 ? 20 : range > 40 ? 10 : range > 12 ? 5 : range > 4 ? 2 : 0.5;
-  lo = Math.max(0, Math.floor((lo-pad)/step)*step); hi = Math.ceil((hi+pad)/step)*step;
+  const c = { ink2:cssVar('--ink-2'), grid:cssVar('--grid'), surface:cssVar('--surface'), border:cssVar('--border'), ink:cssVar('--ink') };
+  const EN = currentLang==='en';
+  const actualLbl = EN ? 'Actual' : 'ข้อมูลเกิดจริง';
 
+  const flat = (v, col, lab) => ({ type:'line', label:lab, data:labels.map(()=> v), borderColor:col, borderWidth:1.6,
+    borderDash:[7,3], pointRadius:0, fill:false, tension:0, order:5, datalabels:{display:false} });
+  const refs = [];
+  if(tgt.lo!=null) refs.push(flat(tgt.lo, '#12a150', `Target Low ${tgt.lo}`));
+  if(tgt.hi!=null) refs.push(flat(tgt.hi, '#d4342c', `Target High ${tgt.hi}`));
+
+  const scaleVals = vals.concat(refs.map(r=> r.data[0])).filter(v=> v!=null);
+  let lo = scaleVals.length ? Math.min(...scaleVals) : 0;
+  let hi = scaleVals.length ? Math.max(...scaleVals) : 1;
+  const pad = (hi-lo)*0.16 || 1;
+  const rr = (hi+pad) - (lo-pad);
+  const step = rr>50000 ? 10000 : rr>5000 ? 1000 : rr>500 ? 100 : rr>100 ? 20 : rr>40 ? 10 : rr>12 ? 5 : rr>4 ? 2 : 0.5;
+  lo = Math.floor((lo-pad)/step)*step;
+  if(lo > 0 && !vals.some(v=> v!=null && v<0)) lo = 0;
+  hi = Math.ceil((hi+pad)/step)*step;
+
+  const nBars = vals.filter(v=> v!=null).length;
   const cfg = {
     data:{ labels, datasets:[
-      { type:'bar', label:m.th, data:vals, backgroundColor:grp.rail, borderColor:c.surface, borderWidth:0.5,
-        borderRadius:2, barPercentage:0.92, categoryPercentage:0.9, order:2, datalabels:{display:false} },
+      { type:'bar', label:actualLbl, data:vals, backgroundColor:grp.rail, borderColor:c.surface, borderWidth:0.5,
+        borderRadius:2, barPercentage:0.9, categoryPercentage:0.9, order:2,
+        datalabels:{ display:(x)=> x.dataset.data[x.dataIndex]!=null, anchor:'end', align:'end', offset:2,
+          rotation: nBars > 14 ? -90 : 0, color:c.ink2,
+          font:{ family:'IBM Plex Mono', size: nBars > 22 ? 7.5 : nBars > 14 ? 8.5 : 10, weight:'600' },
+          formatter:(v)=> v==null ? '' : v.toLocaleString('en-US', {minimumFractionDigits:0, maximumFractionDigits:m.dec}) } },
       ...refs
     ]},
-    options:{ responsive:true, maintainAspectRatio:false, layout:{padding:{top:6}},
+    options:{ responsive:true, maintainAspectRatio:false, layout:{padding:{top: nBars > 14 ? 30 : 16}},
       interaction:{mode:'index', intersect:false},
       scales:{
         x:{ grid:{display:false}, ticks:{color:c.ink2, font:{family:'IBM Plex Mono', size:10}, maxRotation:0, autoSkip:true, maxTicksLimit:14} },
-        y:{ min:lo, max:hi, grid:{color:c.grid}, ticks:{color:c.ink2, font:{family:'IBM Plex Mono', size:10.5}} }
+        y:{ min:lo, max:hi, grid:{color:c.grid}, ticks:{color:c.ink2, font:{family:'IBM Plex Mono', size:10.5}, callback:(v)=> v.toLocaleString('en-US') } }
       },
       plugins:{ legend:{display:false},
         tooltip:{ backgroundColor:c.surface, titleColor:c.ink, bodyColor:c.ink2, borderColor:c.border, borderWidth:1, padding:9,
@@ -4865,8 +4938,17 @@ function chipMonDrawDetailChart(grpId, m, a, tgt){
     }
   };
   const cv = document.getElementById('chipDetailChart_'+grpId);
+  if(!cv) return;
   if(chipMonCharts[grpId]){ chipMonCharts[grpId].destroy(); }
   chipMonCharts[grpId] = new Chart(cv.getContext('2d'), cfg);
+
+  const leg = document.getElementById('chipDetailLegend_'+grpId);
+  if(leg){
+    const items = [`<span class="item"><span class="box" style="background:${grp.rail}"></span>${actualLbl}</span>`];
+    if(tgt.lo!=null) items.push(`<span class="item"><span class="sw dashed" style="border-color:#12a150"></span>Target Low ${tgt.lo}</span>`);
+    if(tgt.hi!=null) items.push(`<span class="item"><span class="sw dashed" style="border-color:#d4342c"></span>Target High ${tgt.hi}</span>`);
+    leg.innerHTML = items.join('');
+  }
 }
 
 function chipMonAssess(m, a, tgt){
