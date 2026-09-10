@@ -4671,11 +4671,10 @@ function chipMonVal(rec, meta){
   if(meta.perAdt){
     const src = chipMonRaw(rec.r[meta.col]);
     const p = chipMonRaw(rec.r[76]);
-    if(src==null || (meta.zeroIsMissing && src===0) || p==null || p<=0) return null;
+    if(src==null || p==null || p<=0) return null;
     return Math.round((src/p)*1000)/1000;
   }
   const raw = chipMonRaw(rec.r[meta.col]);
-  if(meta.zeroIsMissing && raw===0) return null;
   if(meta.pct01) return (raw==null || raw<0 || raw>100) ? null : raw;
   return raw;
 }
@@ -4691,8 +4690,10 @@ const chipMonCeil = (()=>{
 })();
 const CHIP_MON_SERIES = {};
 CHIP_MON_META.forEach(m=> {
-  CHIP_MON_SERIES[m.key] = CHIP_MON_ROWS.map(rc=> ({ ts:rc.ts, y:rc.y, mi:rc.mi, d:rc.d, v:chipMonVal(rc, m) }))
+  const ser = CHIP_MON_ROWS.map(rc=> ({ ts:rc.ts, y:rc.y, mi:rc.mi, d:rc.d, v:chipMonVal(rc, m) }))
     .filter(x=> x.v!=null && x.ts <= chipMonCeil).sort((a,b)=> a.ts-b.ts);
+  if(m.zeroIsMissing){ while(ser.length && ser[ser.length-1].v === 0) ser.pop(); }
+  CHIP_MON_SERIES[m.key] = ser;
 });
 const DAY_MS = 86400000;
 const chipMonMean = a => a.length ? a.reduce((p,c)=> p+c, 0)/a.length : null;
