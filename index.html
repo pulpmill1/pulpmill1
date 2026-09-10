@@ -467,25 +467,34 @@
   /* ===== Yield · Chip Characteristics — Monitor blocks ===== */
   .mon-group{margin-bottom:22px;}
   .mon-group-head{display:flex;align-items:baseline;gap:9px;margin:0 2px 10px;flex-wrap:wrap;}
-  .mon-group-head .gi{font-size:13px;opacity:.75;}
-  .mon-group-head .gt{font-size:12px;font-weight:800;letter-spacing:.09em;color:var(--ink-2);text-transform:uppercase;}
+  .mon-group-head .gi{font-size:16px;opacity:.95;}
+  .mon-group-head .gt{font-size:14.5px;font-weight:800;letter-spacing:.015em;color:var(--ink);}
   .mon-group-head .gs{font-size:11px;color:var(--ink-3);margin-left:auto;}
   .mon-tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(216px,1fr));gap:12px;}
-  .mon-tile{position:relative;background:linear-gradient(168deg,#123a63 0%,#0d2c4d 55%,#0b2242 100%);border:1px solid rgba(255,255,255,.13);border-top:3px solid var(--mon-rail,#7C4DFF);
-    border-radius:12px;padding:13px 14px 12px;cursor:pointer;box-shadow:0 2px 5px rgba(8,20,40,.22),0 12px 26px rgba(8,20,40,.20);transition:transform .1s,box-shadow .12s;overflow:hidden;}
-  .mon-tile:hover{transform:translateY(-1px);box-shadow:0 3px 7px rgba(8,20,40,.3),0 16px 34px rgba(8,20,40,.28);}
+  .mon-tile{position:relative;background:var(--surface);border:1px solid var(--border);border-top:3px solid var(--mon-rail,#7C4DFF);
+    border-radius:12px;padding:13px 14px 12px;cursor:pointer;box-shadow:var(--shadow);transition:transform .1s,box-shadow .12s;overflow:hidden;}
+  .mon-tile:hover{transform:translateY(-1px);box-shadow:0 2px 4px rgba(18,34,38,.08),0 12px 28px rgba(18,34,38,.10);}
   .mon-tile:focus-visible{outline:2px solid var(--accent);outline-offset:1px;}
-  .mon-tile.sel{background:linear-gradient(168deg,#1a4f7d 0%,#123a63 60%,#0e2e52 100%);border-color:rgba(255,255,255,.42);}
+  .mon-tile.sel{background:linear-gradient(168deg,#123a63 0%,#0d2c4d 55%,#0b2242 100%);border-color:rgba(255,255,255,.28);border-top-color:var(--mon-rail,#7C4DFF);}
+  .mon-tile.sel .mt-name{color:#B7C6DA;}
+  .mon-tile.sel .mt-val{color:#fff;}
+  .mon-tile.sel .mt-unit{color:#8098B7;}
+  .mon-tile.sel .mt-sub{color:#9FB4CE;}
+  .mon-tile.sel .mt-sub .up{color:#4ade80;}
+  .mon-tile.sel .mt-sub .down{color:#f87171;}
+  .mon-tile.sel .mt-sub .flat{color:#8098B7;}
+  .mon-tile.sel .mt-ico{opacity:.95;}
+  .mon-tile.sel .mt-dot{background:#7f97b3;}
   .mt-top{display:flex;align-items:center;gap:7px;}
-  .mt-ico{font-size:12px;opacity:.9;flex-shrink:0;}
-  .mt-name{font-size:12px;font-weight:600;color:#B7C6DA;line-height:1.25;min-width:0;}
-  .mt-dot{width:7px;height:7px;border-radius:50%;margin-left:auto;flex-shrink:0;background:#7f97b3;}
-  .mt-dot.ok{background:#3fd07d;}.mt-dot.warn{background:#f0b429;}.mt-dot.bad{background:#f4675e;}
-  .mt-val{font-family:"IBM Plex Mono",monospace;font-size:22px;font-weight:700;color:#fff;margin-top:6px;line-height:1;}
-  .mt-unit{font-size:11px;color:#8098B7;font-weight:500;margin-left:3px;}
+  .mt-ico{font-size:12px;opacity:.75;flex-shrink:0;}
+  .mt-name{font-size:12px;font-weight:600;color:var(--ink-2);line-height:1.25;min-width:0;}
+  .mt-dot{width:7px;height:7px;border-radius:50%;margin-left:auto;flex-shrink:0;background:var(--ink-3);}
+  .mt-dot.ok{background:#12a150;}.mt-dot.warn{background:#e0a000;}.mt-dot.bad{background:#d4342c;}
+  .mt-val{font-family:"IBM Plex Mono",monospace;font-size:22px;font-weight:700;color:var(--ink);margin-top:6px;line-height:1;}
+  .mt-unit{font-size:11px;color:var(--ink-3);font-weight:500;margin-left:3px;}
   .mt-row3{display:flex;align-items:flex-end;justify-content:space-between;gap:8px;margin-top:9px;}
-  .mt-sub{font-size:10.5px;color:#9FB4CE;font-family:"IBM Plex Mono",monospace;white-space:nowrap;}
-  .mt-sub .up{color:#4ade80;}.mt-sub .down{color:#f87171;}.mt-sub .flat{color:#8098B7;}
+  .mt-sub{font-size:10.5px;color:var(--ink-2);font-family:"IBM Plex Mono",monospace;white-space:nowrap;}
+  .mt-sub .up{color:#12a150;}.mt-sub .down{color:#d4342c;}.mt-sub .flat{color:var(--ink-3);}
   .mt-spark{width:78px;height:26px;flex-shrink:0;}
   .mon-detail{background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);padding:16px 18px;margin-top:12px;}
   .mon-detail[hidden]{display:none;}
@@ -4626,14 +4635,14 @@ const CHIP_MON_META = [
   {key:'bark',           col:37, th:'Bark',                      unit:'%',     dec:2, pct01:true, grp:'screen', scored:true,  dir:'lower',  specHi:1},
   {key:'kappaCook',    col:64, th:'Kappa cooking',                 unit:'',        dec:2, grp:'cook', scored:true,  dir:'band'},
   {key:'sdKappa',      col:65, th:'SD Kappa cooking',              unit:'',        dec:2, grp:'cook', scored:true,  dir:'lower'},
-  {key:'kwReject',     col:67, th:'Knot + White reject',           unit:'kg',      dec:0, grp:'reject', scored:false},
-  {key:'kwRejectAdt',  col:67, perAdt:true, th:'Knot + White reject / ADt', unit:'kg/ADt', dec:2, grp:'reject', scored:false},
+  {key:'kwReject',     col:67, th:'Knot + White reject',           unit:'kg',      dec:0, grp:'reject', scored:false, zeroIsMissing:true},
+  {key:'kwRejectAdt',  col:67, perAdt:true, th:'Knot + White reject / ADt', unit:'kg/ADt', dec:2, grp:'reject', scored:false, zeroIsMissing:true},
   {key:'diffBalance',  col:66, th:'Diff. prod. balance wetlap',    unit:'%',       dec:2, grp:'endprod', scored:true, dir:'band'},
-  {key:'endProd',      col:76, th:'End Prod.',                     unit:'Adt/day', dec:0, grp:'endprod', scored:false},
+  {key:'endProd',      col:76, th:'End Prod.',                     unit:'Adt/day', dec:0, grp:'endprod', scored:false, zeroIsMissing:true},
   {key:'endProdBal',   col:77, th:'End Prod. Balance',             unit:'Adt/day', dec:0, grp:'endprod', scored:false},
   {key:'tssEtp',       col:73, th:'TSS to ETP',                    unit:'mg/l',    dec:0, grp:'etp',  scored:false},
-  {key:'volEtp',       col:71, th:'Volume to ETP',                 unit:'m³/day',  dec:0, grp:'etp',  scored:false},
-  {key:'volEtpAdt',    col:71, perAdt:true, th:'Volume to ETP / ADt', unit:'m³/ADt', dec:3, grp:'etp', scored:false},
+  {key:'volEtp',       col:71, th:'Volume to ETP',                 unit:'m³/day',  dec:0, grp:'etp',  scored:false, zeroIsMissing:true},
+  {key:'volEtpAdt',    col:71, perAdt:true, th:'Volume to ETP / ADt', unit:'m³/ADt', dec:3, grp:'etp', scored:false, zeroIsMissing:true},
 ];
 const CHIP_MON_GROUPS = [
   {id:'bulk',    ico:'⚙', th:'ค่าพื้นฐานของชิ้นไม้สับ', rail:'#7C4DFF'},
@@ -4662,16 +4671,28 @@ function chipMonVal(rec, meta){
   if(meta.perAdt){
     const src = chipMonRaw(rec.r[meta.col]);
     const p = chipMonRaw(rec.r[76]);
-    return (src==null || p==null || p<=0) ? null : Math.round((src/p)*1000)/1000;
+    if(src==null || (meta.zeroIsMissing && src===0) || p==null || p<=0) return null;
+    return Math.round((src/p)*1000)/1000;
   }
   const raw = chipMonRaw(rec.r[meta.col]);
+  if(meta.zeroIsMissing && raw===0) return null;
   if(meta.pct01) return (raw==null || raw<0 || raw>100) ? null : raw;
   return raw;
 }
+// the sheet carries placeholder / plan rows (mostly zeros) past the last real data —
+// cap every series at the latest date where an always-measured process metric
+// (Kappa cooking c64 / Diff. prod. balance c66 / TSS to ETP c73) has a reading
+const chipMonCeil = (()=>{
+  let mx = 0;
+  for(const rc of CHIP_MON_ROWS){
+    if(chipMonRaw(rc.r[64])!=null || chipMonRaw(rc.r[66])!=null || chipMonRaw(rc.r[73])!=null) mx = Math.max(mx, rc.ts);
+  }
+  return mx || Number.MAX_SAFE_INTEGER;
+})();
 const CHIP_MON_SERIES = {};
 CHIP_MON_META.forEach(m=> {
   CHIP_MON_SERIES[m.key] = CHIP_MON_ROWS.map(rc=> ({ ts:rc.ts, y:rc.y, mi:rc.mi, d:rc.d, v:chipMonVal(rc, m) }))
-    .filter(x=> x.v!=null).sort((a,b)=> a.ts-b.ts);
+    .filter(x=> x.v!=null && x.ts <= chipMonCeil).sort((a,b)=> a.ts-b.ts);
 });
 const DAY_MS = 86400000;
 const chipMonMean = a => a.length ? a.reduce((p,c)=> p+c, 0)/a.length : null;
@@ -4791,7 +4812,7 @@ function chipMonRenderTiles(grp){
     const s = _full.filter(x=> x.ts >= _aTs - 30*86400000);
     if(!s.length) return;
     const cv = document.getElementById('chipSpark_'+m.key);
-    const cfg = { type:'line', data:{ labels:s.map(()=> ''), datasets:[{ data:s.map(x=> x.v), borderColor:grp.rail, borderWidth:1.4, pointRadius:0, tension:.3, fill:false }] },
+    const cfg = { type:'line', data:{ labels:s.map(()=> ''), datasets:[{ data:s.map(x=> x.v), borderColor:grp.rail, borderWidth:1.4, pointRadius:s.map((_,i)=> i===s.length-1 ? 2.6 : 0), pointBackgroundColor:grp.rail, pointBorderColor:grp.rail, pointHoverRadius:0, tension:.3, fill:false }] },
       options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}, tooltip:{enabled:false}, datalabels:{display:false}},
         scales:{ x:{display:false}, y:{display:false} }, elements:{line:{borderJoinStyle:'round'}} } };
     if(chipMonSparks[m.key]){ try{ chipMonSparks[m.key].destroy(); }catch(e){} }
