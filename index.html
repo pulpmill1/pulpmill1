@@ -1160,51 +1160,11 @@
         </section>
 
         <section class="page" data-page="yield" hidden>
-          <div class="section-divider"><h2>Chip Characteristics — คุณลักษณะของชิ้นไม้สับ (โรงเยื่อ 1)</h2></div>
-
-          <div class="card" id="chipCard">
-            <div class="toolbar">
-              <div class="field"><label for="chipYearSelect">เลือกปี</label><select id="chipYearSelect"></select></div>
-              <div class="field"><label for="chipMonthSelect">เลือกเดือน</label><select id="chipMonthSelect"></select></div>
-              <div class="field"><label for="chipMetricSelect">ค่าที่แสดง</label><select id="chipMetricSelect"></select></div>
-            </div>
-            <div class="chart-head">
-              <div class="chart-title" id="chipChartTitle"></div>
-              <div class="stat-row stat-row-3" id="chipStatRow"></div>
-            </div>
-            <div class="chart-wrap"><canvas id="chipChart"></canvas></div>
-            <div class="legend-row" id="chipLegend"></div>
+          <div class="empty-state">
+            <div class="icon">🌲</div>
+            <h2>Yield Dashboard</h2>
+            <p>หน้านี้ยังไม่มีข้อมูล — รอเชื่อมต่อแหล่งข้อมูล Wood Consumption / Yield รายวันจาก Google Sheets<br>แจ้งลิงก์ชีทและชื่อแท็บที่ต้องการดึงข้อมูลได้เลยครับ จะเพิ่มกราฟให้ในรูปแบบเดียวกันกับหน้า Production</p>
           </div>
-
-          <details class="dtable" id="chipTableDetails">
-            <summary><span class="dtable-label">ตารางข้อมูลรายวัน — Chip Characteristics เดือนที่เลือก</span></summary>
-            <div class="tbl-wrap"><table id="chipTable" style="min-width:1180px"><thead id="chipTableHead"></thead><tbody id="chipTableBody"></tbody></table></div>
-          </details>
-          <button type="button" class="foot-toggle" data-target="chipFoot" aria-expanded="false" aria-controls="chipFoot">ดูรายละเอียด</button>
-          <div class="foot" id="chipFoot" hidden></div>
-
-          <div class="section-divider"><h2>Wood Species — สายพันธุ์ไม้ที่ใช้ผลิตเยื่อ (โรงเยื่อ 1)</h2></div>
-
-          <div class="card" id="woodCard">
-            <div class="toolbar">
-              <div class="field"><label for="woodYearSelect">เลือกปี</label><select id="woodYearSelect"></select></div>
-              <div class="field"><label for="woodMonthSelect">เลือกเดือน</label><select id="woodMonthSelect"></select></div>
-              <div class="hint">แท่งเรียงเป็นสัดส่วน K58 / K7 / Seed / Other รวม ~100% ต่อวัน · เส้น = St&gt;1 m. (%)</div>
-            </div>
-            <div class="chart-head">
-              <div class="chart-title" id="woodChartTitle"></div>
-              <div class="stat-row" id="woodStatRow"></div>
-            </div>
-            <div class="chart-wrap"><canvas id="woodChart"></canvas></div>
-            <div class="legend-row" id="woodLegend"></div>
-          </div>
-
-          <details class="dtable" id="woodTableDetails">
-            <summary><span class="dtable-label">ตารางข้อมูลรายวัน — Wood Species เดือนที่เลือก</span></summary>
-            <div class="tbl-wrap"><table id="woodTable" style="min-width:620px"><thead><tr><th>วันที่</th><th>K58 (%)</th><th>K7 (%)</th><th>Seed (%)</th><th>Other (%)</th><th>St&gt;1 m. (%)</th><th>รวม K58+K7+Seed+Other</th></tr></thead><tbody id="woodTableBody"></tbody></table></div>
-          </details>
-          <button type="button" class="foot-toggle" data-target="woodFoot" aria-expanded="false" aria-controls="woodFoot">ดูรายละเอียด</button>
-          <div class="foot" id="woodFoot" hidden></div>
         </section>
 
         <section class="page" data-page="cost-bu21" hidden>
@@ -1291,7 +1251,7 @@ const DAYS_IN_MONTH = [31,28,31,30,31,30,31,31,30,31,30,31];
    Daily (Act) gid=0, Daily (BG) gid=1682718600, Daily (Plan) gid=3664159, Daily (Loss) gid=786133815
    Monthly (Act) gid=1448795576, Monthly (Budget) gid=1872828527 */
 const SHEET_ID = '1dStWwliEd6YhSOL3oT8JNyWHZOuII5F-QVeubIrBS50';
-const SHEET_GIDS = { dailyAct:0, dailyBg:1682718600, dailyPlan:3664159, dailyLoss:786133815, monthlyAct:1448795576, monthlyBudget:1872828527, chipWood:632351488 };
+const SHEET_GIDS = { dailyAct:0, dailyBg:1682718600, dailyPlan:3664159, dailyLoss:786133815, monthlyAct:1448795576, monthlyBudget:1872828527 };
 function sheetCsvUrl(gid){ return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${gid}`; }
 
 // robust CSV parser: handles quoted fields, embedded commas, embedded newlines, doubled-quote escaping
@@ -1385,9 +1345,9 @@ function parseMonthlySheet(rows, labelWord){
   return byYear;
 }
 
-const [dailyActRows, dailyBgRows, dailyPlanRows, dailyLossRows, monthlyActRows, monthlyBudgetRows, chipWoodRows] = await Promise.all([
+const [dailyActRows, dailyBgRows, dailyPlanRows, dailyLossRows, monthlyActRows, monthlyBudgetRows] = await Promise.all([
   fetchSheetCsv(SHEET_GIDS.dailyAct), fetchSheetCsv(SHEET_GIDS.dailyBg), fetchSheetCsv(SHEET_GIDS.dailyPlan), fetchSheetCsv(SHEET_GIDS.dailyLoss),
-  fetchSheetCsv(SHEET_GIDS.monthlyAct), fetchSheetCsv(SHEET_GIDS.monthlyBudget), fetchSheetCsv(SHEET_GIDS.chipWood),
+  fetchSheetCsv(SHEET_GIDS.monthlyAct), fetchSheetCsv(SHEET_GIDS.monthlyBudget),
 ]);
 
 const dailyActParsed = parseDailySheet(dailyActRows, {numeric:true});
@@ -3864,7 +3824,7 @@ const PAGE_META = {
   'production-pm1':{th:'Pulp mill 1', en:'Pulp mill 1', hasData:true},
   'production-pm2':{th:'Pulp mill 2', en:'Pulp mill 2', hasData:true},
   'production-pm12':{th:'Pulp mill 1+2', en:'Pulp mill 1+2', hasData:true},
-  yield:{th:'Yield', en:'Yield', hasData:true},
+  yield:{th:'Yield', en:'Yield', hasData:false},
   'cost-bu21':{th:'BU21 Cost', en:'BU21 Cost', hasData:false},
   'cost-productive':{th:'Productive Cost', en:'Productive Cost', hasData:false},
   'quality-lab':{th:'Lab Results', en:'Lab Results', hasData:false},
@@ -4235,297 +4195,6 @@ if(document.getElementById('summaryBody1')){
 }
 
 /* initial language + page render, now that every toolbar function above exists */
-
-/* ===================== Yield · Chip Characteristics & Wood Species (โรงเยื่อ 1) =====================
-   Source: Google Sheet tab gid=632351488 — "Pulp 1" chip block + "สายพันธุ์ไม้โรงเยื่อ 1 Actual".
-   Date in col B (D/M/YYYY, day-first). Header rows 1-6, data from row 7.
-   % metrics: values outside [0,100] are dropped as invalid entries (counted in the note). */
-const YIELD_CHIP_META = [
-  {key:'bulkDensity',    col:26,  th:'Bulk density',               unit:'kg/m³',  dec:1, band:[300,350]},
-  {key:'bulkDensityDry', col:27,  th:'Bulk density × Dryness',     unit:'Bkg/m³', dec:1},
-  {key:'dryness',        col:28,  th:'Dryness',                    unit:'%', dec:2, pct:true, hi:54},
-  {key:'moisture',       col:null,th:'Moisture (= 100 − Dryness)', unit:'%', dec:2, pct:true, derived:true},
-  {key:'fine',           col:30,  th:'Fine < 4.8 mm.',             unit:'%', dec:2, pct:true, hi:5},
-  {key:'pin',            col:31,  th:'Pin 9.5–4.8 mm.',            unit:'%', dec:2, pct:true, tappi:17.5, jpn:28.5},
-  {key:'accept2',        col:32,  th:'Accept 2  22.2–9.5 mm.',     unit:'%', dec:2, pct:true, lo:55},
-  {key:'accept1',        col:33,  th:'Accept 1  28.6–22.2 mm.',    unit:'%', dec:2, pct:true, tappi:17.5, jpn:10},
-  {key:'overThick',      col:34,  th:'Over Thick  45.0–28.6 mm.',  unit:'%', dec:2, pct:true, tappi:5, jpn:1.5},
-  {key:'overSize',       col:35,  th:'Over size > 45.0 mm.',       unit:'%', dec:2, pct:true, tappi:5, jpn:1.5},
-  {key:'accPin',         col:36,  th:'Acc 1+2+Pin  28.6–4.8 mm.',  unit:'%', dec:2, pct:true, lo:90},
-  {key:'bark',           col:37,  th:'Bark',                       unit:'%', dec:2, pct:true, hi:1},
-];
-const YIELD_WOOD_META = [
-  {key:'k58',  col:55, bcol:51,   th:'K58',        color:'#1f6fce'},
-  {key:'k7',   col:54, bcol:50,   th:'K7',         color:'#d1521c'},
-  {key:'seed', col:56, bcol:52,   th:'Seed',       color:'#0f8f66'},
-  {key:'other',col:57, bcol:53,   th:'Other',      color:'#b9820b'},
-  {key:'st1',  col:58, bcol:null, th:'St > 1 m.',  color:'#cf5286'},
-];
-
-const yieldDre = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/;
-const YIELD_RECS = [];
-for(let yi=6; yi<chipWoodRows.length; yi++){
-  const yr = chipWoodRows[yi];
-  const ym = yieldDre.exec(String((yr && yr[1]) || '').trim());
-  if(!ym) continue;
-  YIELD_RECS.push({ y:+ym[3], mi:(+ym[2])-1, d:+ym[1], r:yr });
-}
-const yPct = v => { const n = parseSheetNum(v); return (n==null || n<0 || n>100) ? null : n; };
-function yieldCell(rec, meta){
-  if(meta.derived){ const dry = yPct(rec.r[28]); return dry==null ? null : Math.round((100-dry)*100)/100; }
-  return meta.pct ? yPct(rec.r[meta.col]) : parseSheetNum(rec.r[meta.col]);
-}
-function yieldMonths(kind){
-  const set = new Set();
-  const metas = kind==='chip' ? YIELD_CHIP_META : YIELD_WOOD_META.slice(0,4);
-  for(const rec of YIELD_RECS){ if(metas.some(mt=> yieldCell(rec, mt)!=null)) set.add(rec.y+'-'+rec.mi); }
-  return [...set].map(s=> s.split('-').map(Number)).sort((a,b)=> a[0]-b[0] || a[1]-b[1]);
-}
-const CHIP_MONTHS = yieldMonths('chip');
-const WOOD_MONTHS = yieldMonths('wood');
-const yieldRowsFor = (y,mi,metas) => {
-  let rr = YIELD_RECS.filter(x=> x.y===y && x.mi===mi).sort((a,b)=> a.d-b.d);
-  if(metas && metas.length) rr = rr.filter(rec=> metas.some(mt=> yieldCell(rec, mt)!=null));
-  return rr;
-};
-function yieldNiceRange(lo, hi){
-  const range = hi - lo || 1;
-  const step = range > 250 ? 50 : range > 100 ? 20 : range > 40 ? 10 : range > 12 ? 5 : range > 4 ? 2 : 0.5;
-  return [Math.max(0, Math.floor(lo/step)*step), Math.ceil(hi/step)*step];
-}
-const yieldInvalidCount = () => {
-  let n = 0;
-  for(const rec of YIELD_RECS){
-    for(const m of YIELD_CHIP_META){ if(!m.pct || m.col==null) continue; const raw = parseSheetNum(rec.r[m.col]); if(raw!=null && (raw<0 || raw>100)) n++; }
-    for(const m of YIELD_WOOD_META){ const raw = parseSheetNum(rec.r[m.col]); if(raw!=null && (raw<0 || raw>100)) n++; }
-  }
-  return n;
-};
-
-function yieldFillYearMonth(yearSel, monthSel, months){
-  const years = [...new Set(months.map(m=> m[0]))].sort((a,b)=> a-b);
-  yearSel.innerHTML = years.map(y=> `<option value="${y}">${y}</option>`).join('');
-  const latest = months[months.length-1];
-  yearSel.value = latest[0];
-  const fillMonths = () => {
-    const y = +yearSel.value;
-    const ms = months.filter(m=> m[0]===y).map(m=> m[1]);
-    monthSel.innerHTML = ms.map(mi=> `<option value="${mi}">${MONTH_NAMES[mi]}</option>`).join('');
-    monthSel.value = (y===latest[0]) ? latest[1] : ms[ms.length-1];
-  };
-  fillMonths();
-  return fillMonths;
-}
-
-function yieldChartAxisColors(){
-  return { ink:cssVar('--ink'), ink2:cssVar('--ink-2'), grid:cssVar('--grid'), surface:cssVar('--surface'), border:cssVar('--border') };
-}
-
-/* ---- Chip Characteristics ---- */
-let chipChart = null;
-function renderChipChart(){
-  const y = +document.getElementById('chipYearSelect').value;
-  const mi = +document.getElementById('chipMonthSelect').value;
-  const metaKey = document.getElementById('chipMetricSelect').value;
-  const meta = YIELD_CHIP_META.find(m=> m.key===metaKey) || YIELD_CHIP_META[0];
-  const recs = yieldRowsFor(y, mi, YIELD_CHIP_META);
-  const labels = recs.map(r=> `${r.d}/${mi+1}`);
-  const data = recs.map(r=> yieldCell(r, meta));
-  const vals = data.filter(v=> v!=null);
-  const c = yieldChartAxisColors();
-
-  document.getElementById('chipChartTitle').innerHTML =
-    `${meta.th} <span class="yr">(${meta.unit}) · ${MONTH_NAMES[mi]} ${y}</span>`;
-
-  // spec reference lines
-  const refs = [];
-  if(meta.band){ refs.push({v:meta.band[0], t:`ต่ำสุด ${meta.band[0]}`, col:'#8a8a8a'}); refs.push({v:meta.band[1], t:`สูงสุด ${meta.band[1]}`, col:'#8a8a8a'}); }
-  if(meta.hi!=null) refs.push({v:meta.hi, t:`เกณฑ์ ≤ ${meta.hi}`, col:'#c0392f'});
-  if(meta.lo!=null) refs.push({v:meta.lo, t:`เกณฑ์ ≥ ${meta.lo}`, col:'#0f8f66'});
-  if(meta.tappi!=null) refs.push({v:meta.tappi, t:`Tappi Std. ${meta.tappi}`, col:'#8a8a8a'});
-  if(meta.jpn!=null && meta.jpn!==meta.tappi) refs.push({v:meta.jpn, t:`JPN Rqs. ${meta.jpn}`, col:'#b9820b'});
-
-  const refData = refs.map(rf => ({
-    type:'line', label:rf.t, data:labels.map(()=> rf.v),
-    borderColor:rf.col, borderWidth:1.5, borderDash:[6,4], pointRadius:0, fill:false,
-    tension:0, order:5, datalabels:{display:false}
-  }));
-
-  const allForScale = vals.concat(refs.map(r=> r.v));
-  let yMin = allForScale.length ? Math.min(...allForScale) : 0;
-  let yMax = allForScale.length ? Math.max(...allForScale) : 100;
-  const pad = (yMax - yMin) * 0.12 || 1;
-  [yMin, yMax] = yieldNiceRange(yMin - pad, yMax + pad);
-
-  const cfg = {
-    data:{ labels, datasets:[
-      { type:'line', label:meta.th, data, borderColor:'#1f6fce', backgroundColor:'rgba(31,111,206,.10)',
-        borderWidth:2, pointRadius:2, pointBackgroundColor:'#1f6fce', fill:false, tension:0, spanGaps:true,
-        order:1, datalabels:{display:false} },
-      ...refData
-    ]},
-    options:{
-      responsive:true, maintainAspectRatio:false,
-      layout:{padding:{top:8}},
-      interaction:{mode:'index', intersect:false},
-      scales:{
-        x:{ grid:{display:false}, ticks:{color:c.ink2, font:{family:'IBM Plex Mono', size:10.5}, maxRotation:0, autoSkip:true, maxTicksLimit:16} },
-        y:{ min:yMin, max:yMax, grid:{color:c.grid}, ticks:{color:c.ink2, font:{family:'IBM Plex Mono', size:11}} }
-      },
-      plugins:{
-        legend:{display:false},
-        tooltip:{ backgroundColor:c.surface, titleColor:c.ink, bodyColor:c.ink2, borderColor:c.border, borderWidth:1, padding:10,
-          callbacks:{ label:(x)=> `${x.dataset.label}: ${x.parsed.y==null?'—':x.parsed.y.toLocaleString('en-US',{minimumFractionDigits:meta.dec, maximumFractionDigits:meta.dec})} ${meta.unit}` } }
-      }
-    }
-  };
-  if(chipChart){ chipChart.data = cfg.data; chipChart.options = cfg.options; chipChart.update(); }
-  else { chipChart = new Chart(document.getElementById('chipChart').getContext('2d'), cfg); }
-
-  // stat row
-  const mean = vals.length ? vals.reduce((a,b)=> a+b,0)/vals.length : null;
-  const mn = vals.length ? Math.min(...vals) : null;
-  const mx = vals.length ? Math.max(...vals) : null;
-  const f = v => v==null ? '—' : v.toLocaleString('en-US',{minimumFractionDigits:meta.dec, maximumFractionDigits:meta.dec});
-  let inSpecTxt = '—';
-  if(vals.length){
-    let ok = null;
-    if(meta.band) ok = vals.filter(v=> v>=meta.band[0] && v<=meta.band[1]).length;
-    else if(meta.hi!=null) ok = vals.filter(v=> v<=meta.hi).length;
-    else if(meta.lo!=null) ok = vals.filter(v=> v>=meta.lo).length;
-    else if(meta.jpn!=null) ok = vals.filter(v=> v<=meta.jpn).length;
-    if(ok!=null) inSpecTxt = `${Math.round(ok/vals.length*100)}%  (${ok}/${vals.length} วัน)`;
-  }
-  document.getElementById('chipStatRow').innerHTML = `
-    <div class="stat"><div class="k">ค่าเฉลี่ยเดือน</div><div class="v">${f(mean)}</div></div>
-    <div class="stat"><div class="k">Min – Max</div><div class="v">${f(mn)} – ${f(mx)}</div></div>
-    <div class="stat"><div class="k">อยู่ในเกณฑ์</div><div class="v">${inSpecTxt}</div></div>`;
-
-  // legend
-  const legItems = [`<span class="item"><span class="sw" style="border-color:#1f6fce"></span>${meta.th} (Actual รายวัน)</span>`]
-    .concat(refs.map(rf=> `<span class="item"><span class="sw dashed" style="border-color:${rf.col}"></span>${rf.t}</span>`));
-  document.getElementById('chipLegend').innerHTML = legItems.join('');
-
-  renderChipTable(y, mi);
-}
-function renderChipTable(y, mi){
-  const recs = yieldRowsFor(y, mi, YIELD_CHIP_META);
-  const head = `<tr><th>วันที่</th>${YIELD_CHIP_META.map(m=> `<th>${m.th}<br><span style="font-weight:400">(${m.unit})</span></th>`).join('')}</tr>`;
-  document.getElementById('chipTableHead').innerHTML = head;
-  document.getElementById('chipTableBody').innerHTML = recs.map(r=> {
-    const tds = YIELD_CHIP_META.map(m=> { const v = yieldCell(r, m); return `<td class="num">${v==null?'—':v.toLocaleString('en-US',{minimumFractionDigits:m.dec, maximumFractionDigits:m.dec})}</td>`; }).join('');
-    return `<tr><td>${r.d}/${mi+1}/${y}</td>${tds}</tr>`;
-  }).join('') || `<tr><td colspan="${YIELD_CHIP_META.length+1}" style="color:var(--ink-3)">ไม่มีข้อมูลในเดือนที่เลือก</td></tr>`;
-}
-
-/* ---- Wood Species ---- */
-let woodChart = null;
-function renderWoodChart(){
-  const y = +document.getElementById('woodYearSelect').value;
-  const mi = +document.getElementById('woodMonthSelect').value;
-  const stack = YIELD_WOOD_META.slice(0,4);
-  const recs = yieldRowsFor(y, mi, YIELD_WOOD_META.slice(0,4));
-  const labels = recs.map(r=> `${r.d}/${mi+1}`);
-  const c = yieldChartAxisColors();
-
-  document.getElementById('woodChartTitle').innerHTML =
-    `สัดส่วนสายพันธุ์ไม้รายวัน <span class="yr">(%) · ${MONTH_NAMES[mi]} ${y}</span>`;
-
-  const barDs = stack.map(m=> ({
-    type:'bar', label:m.th, data:recs.map(r=> yieldCell(r, m)),
-    backgroundColor:m.color, borderColor:c.surface, borderWidth:1, stack:'wood',
-    barPercentage:0.8, categoryPercentage:0.9, order:2, datalabels:{display:false}
-  }));
-  const stackMax = Math.max(100, ...recs.map(r=> stack.reduce((a,m)=> a + (yieldCell(r,m)||0), 0)));
-  const woodYMax = Math.min(150, Math.ceil(stackMax/10)*10);
-  const st1 = YIELD_WOOD_META[4];
-  const st1Vals = recs.map(r=> yieldCell(r, st1));
-  const hasSt1 = st1Vals.some(v=> v!=null && v>0);
-  const lineDs = hasSt1 ? [{
-    type:'line', label:st1.th, data:st1Vals, borderColor:st1.color, backgroundColor:st1.color,
-    borderWidth:2, pointRadius:2, fill:false, tension:0, spanGaps:true, order:1, yAxisID:'y', datalabels:{display:false}
-  }] : [];
-
-  const cfg = {
-    data:{ labels, datasets:[...barDs, ...lineDs] },
-    options:{
-      responsive:true, maintainAspectRatio:false,
-      layout:{padding:{top:8}},
-      interaction:{mode:'index', intersect:false},
-      scales:{
-        x:{ stacked:true, grid:{display:false}, ticks:{color:c.ink2, font:{family:'IBM Plex Mono', size:10.5}, maxRotation:0, autoSkip:true, maxTicksLimit:16} },
-        y:{ stacked:true, min:0, max:woodYMax, grid:{color:c.grid}, ticks:{color:c.ink2, font:{family:'IBM Plex Mono', size:11}, stepSize:25, callback:v=> v+'%' } }
-      },
-      plugins:{
-        legend:{display:false},
-        tooltip:{ backgroundColor:c.surface, titleColor:c.ink, bodyColor:c.ink2, borderColor:c.border, borderWidth:1, padding:10,
-          callbacks:{ label:(x)=> `${x.dataset.label}: ${x.parsed.y==null?'—':x.parsed.y.toLocaleString('en-US',{maximumFractionDigits:1})}%` } }
-      }
-    }
-  };
-  if(woodChart){ woodChart.data = cfg.data; woodChart.options = cfg.options; woodChart.update(); }
-  else { woodChart = new Chart(document.getElementById('woodChart').getContext('2d'), cfg); }
-
-  // stat row: month-average composition
-  const avg = m => { const v = recs.map(r=> yieldCell(r,m)).filter(x=> x!=null); return v.length ? v.reduce((a,b)=> a+b,0)/v.length : null; };
-  const cells = YIELD_WOOD_META.map(m=> {
-    const a = avg(m);
-    return `<div class="stat"><div class="k">${m.th}</div><div class="v" style="color:${m.color}">${a==null?'—':a.toLocaleString('en-US',{maximumFractionDigits:1})+'%'}</div></div>`;
-  }).join('');
-  document.getElementById('woodStatRow').innerHTML = cells;
-
-  document.getElementById('woodLegend').innerHTML =
-    stack.map(m=> `<span class="item"><span class="box" style="background:${m.color}"></span>${m.th}</span>`).join('') +
-    (hasSt1 ? `<span class="item"><span class="sw" style="border-color:${st1.color}"></span>${st1.th}</span>` : '');
-
-  renderWoodTable(y, mi);
-}
-function renderWoodTable(y, mi){
-  const recs = yieldRowsFor(y, mi, YIELD_WOOD_META.slice(0,4));
-  document.getElementById('woodTableBody').innerHTML = recs.map(r=> {
-    const c = YIELD_WOOD_META.map(m=> { const v = yieldCell(r,m); return `<td class="num">${v==null?'—':v.toLocaleString('en-US',{maximumFractionDigits:2})}</td>`; }).join('');
-    const sum = YIELD_WOOD_META.slice(0,4).reduce((a,m)=> { const v = yieldCell(r,m); return a + (v==null?0:v); }, 0);
-    return `<tr><td>${r.d}/${mi+1}/${y}</td>${c}<td class="num">${sum? sum.toLocaleString('en-US',{maximumFractionDigits:1}) : '—'}</td></tr>`;
-  }).join('') || `<tr><td colspan="7" style="color:var(--ink-3)">ไม่มีข้อมูลในเดือนที่เลือก</td></tr>`;
-}
-
-/* ---- init ---- */
-function initYield(){
-  if(!CHIP_MONTHS.length && !WOOD_MONTHS.length) return;
-  const chipYearSel = document.getElementById('chipYearSelect');
-  const chipMonthSel = document.getElementById('chipMonthSelect');
-  const chipMetricSel = document.getElementById('chipMetricSelect');
-  const woodYearSel = document.getElementById('woodYearSelect');
-  const woodMonthSel = document.getElementById('woodMonthSelect');
-
-  chipMetricSel.innerHTML = YIELD_CHIP_META.map(m=> `<option value="${m.key}">${m.th}</option>`).join('');
-  const chipFillMonths = yieldFillYearMonth(chipYearSel, chipMonthSel, CHIP_MONTHS);
-  const woodFillMonths = yieldFillYearMonth(woodYearSel, woodMonthSel, WOOD_MONTHS);
-
-  chipYearSel.addEventListener('change', ()=> { chipFillMonths(); renderChipChart(); });
-  chipMonthSel.addEventListener('change', renderChipChart);
-  chipMetricSel.addEventListener('change', renderChipChart);
-  woodYearSel.addEventListener('change', ()=> { woodFillMonths(); renderWoodChart(); });
-  woodMonthSel.addEventListener('change', renderWoodChart);
-
-  const inv = yieldInvalidCount();
-  const chipLast = CHIP_MONTHS.length ? `${MONTH_NAMES[CHIP_MONTHS[CHIP_MONTHS.length-1][1]]} ${CHIP_MONTHS[CHIP_MONTHS.length-1][0]}` : '—';
-  const woodLast = WOOD_MONTHS.length ? `${MONTH_NAMES[WOOD_MONTHS[WOOD_MONTHS.length-1][1]]} ${WOOD_MONTHS[WOOD_MONTHS.length-1][0]}` : '—';
-  document.getElementById('chipFoot').innerHTML =
-    `ที่มา: Google Sheets tab <code>gid=632351488</code> บล็อก "Pulp 1" (คอลัมน์ AA–AL) · วันที่คอลัมน์ B รูปแบบ D/M/YYYY · ข้อมูลล่าสุด ${chipLast}<br>` +
-    `Moisture คำนวณจาก 100 − Dryness (ชีตต้นทางไม่ได้บันทึกคอลัมน์ Moisture) · เกณฑ์เส้นประอ้างอิงแถว "Tappi Std." / "JPN Rqs." ในชีต · ` +
-    `ค่าเปอร์เซ็นต์ที่อยู่นอกช่วง 0–100 (${inv} จุด) ถือเป็นการบันทึกผิดและไม่นำมาแสดง`;
-  document.getElementById('woodFoot').innerHTML =
-    `ที่มา: Google Sheets tab <code>gid=632351488</code> กลุ่ม "สายพันธุ์ไม้โรงเยื่อ 1 Actual" (K7 / K58 / Seed / Other / St&gt;1 m.) · ข้อมูลล่าสุด ${woodLast}<br>` +
-    `แต่ละวันแท่งรวม K58+K7+Seed+Other ≈ 100% · St&gt;1 m. เป็นตัวชี้วัดแยก แสดงเป็นเส้น`;
-
-  renderChipChart();
-  renderWoodChart();
-  const yl = window.matchMedia('(prefers-color-scheme: dark)');
-  yl.addEventListener('change', ()=> { renderChipChart(); renderWoodChart(); });
-}
-if(document.getElementById('chipChart')) initYield();
-
 applyLang(currentLang);
 showPage('production-pm1');
 }catch(err){
