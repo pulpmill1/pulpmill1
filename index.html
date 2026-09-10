@@ -495,7 +495,12 @@
   .mt-row3{display:flex;align-items:flex-end;justify-content:space-between;gap:8px;margin-top:9px;}
   .mt-sub{font-size:10.5px;color:var(--ink-2);font-family:"IBM Plex Mono",monospace;white-space:nowrap;}
   .mt-sub .up{color:#12a150;}.mt-sub .down{color:#d4342c;}.mt-sub .flat{color:var(--ink-3);}
-  .mt-spark{width:78px;height:26px;flex-shrink:0;}
+  .mt-spark-wrap{position:relative;width:88px;height:30px;flex-shrink:0;}
+  .mt-spark{width:88px;height:30px;display:block;}
+  .spark-live{position:absolute;width:5px;height:5px;border-radius:50%;background:var(--mon-rail,#7C4DFF);box-shadow:0 0 3px var(--mon-rail,#7C4DFF);transform:translate(-50%,-50%);pointer-events:none;z-index:2;}
+  .spark-live::after{content:"";position:absolute;left:50%;top:50%;width:5px;height:5px;margin:-2.5px 0 0 -2.5px;border-radius:50%;border:1.5px solid var(--mon-rail,#7C4DFF);animation:sparkLivePulse 1.5s ease-out infinite;}
+  @keyframes sparkLivePulse{0%{opacity:.75;transform:scale(.55);}70%{opacity:0;transform:scale(2.8);}100%{opacity:0;transform:scale(2.8);}}
+  @media (prefers-reduced-motion:reduce){.spark-live::after{animation:none;}}
   .mon-detail{background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);padding:16px 18px;margin-top:12px;}
   .mon-detail[hidden]{display:none;}
   .md-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:2px;}
@@ -4815,7 +4820,7 @@ function chipMonRenderTiles(grp){
     return `<div class="mon-tile" role="button" tabindex="0" data-grp="${grp.id}" data-key="${m.key}" style="--mon-rail:${grp.rail}">
       <div class="mt-top"><span class="mt-ico">${grp.ico}</span><span class="mt-name">${m.th}</span><span class="mt-dot ${dot}"></span></div>
       <div class="mt-val">${val}<span class="mt-unit">${m.unit}</span></div>
-      <div class="mt-row3"><span class="mt-sub">${sub}</span><canvas class="mt-spark" id="chipSpark_${m.key}"></canvas></div>
+      <div class="mt-row3"><span class="mt-sub">${sub}</span><span class="mt-spark-wrap"><canvas class="mt-spark" id="chipSpark_${m.key}"></canvas><i class="spark-live" id="chipLive_${m.key}" hidden></i></span></div>
     </div>`;
   }).join('');
   // sparklines: the last ~1 month of readings (same window as the expanded chart)
@@ -4825,11 +4830,24 @@ function chipMonRenderTiles(grp){
     const s = _full.filter(x=> x.ts >= _aTs - 30*86400000);
     if(!s.length) return;
     const cv = document.getElementById('chipSpark_'+m.key);
-    const cfg = { type:'line', data:{ labels:s.map(()=> ''), datasets:[{ data:s.map(x=> x.v), borderColor:grp.rail, borderWidth:1.4, pointRadius:s.map((_,i)=> i===s.length-1 ? 2.6 : 0), pointBackgroundColor:grp.rail, pointBorderColor:grp.rail, pointHoverRadius:0, tension:.3, fill:false }] },
-      options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}, tooltip:{enabled:false}, datalabels:{display:false}},
-        scales:{ x:{display:false}, y:{display:false} }, elements:{line:{borderJoinStyle:'round'}} } };
+    const live = document.getElementById('chipLive_'+m.key);
+    const ys = s.map(x=> x.v);
+    let lo = Math.min.apply(null, ys), hi = Math.max.apply(null, ys);
+    if(!(hi > lo)){ const b = Math.abs(hi) || 1; lo = hi - b*0.1; hi = hi + b*0.1; }
+    const padY = (hi - lo) * 0.14;   // tight bounds -> day-to-day wiggle fills the sparkline height
+    const placeLive = ch=> {
+      if(!live) return;
+      try{ const mt = ch.getDatasetMeta(0), p = mt.data[mt.data.length-1];
+        if(p && isFinite(p.x) && isFinite(p.y)){ live.style.left = p.x+'px'; live.style.top = p.y+'px'; live.hidden = false; } }catch(e){}
+    };
+    const cfg = { type:'line', data:{ labels:s.map(()=> ''), datasets:[{ data:ys, borderColor:grp.rail, borderWidth:1.7, pointRadius:s.map((_,i)=> i===s.length-1 ? 2.2 : 0), pointBackgroundColor:grp.rail, pointBorderColor:grp.rail, pointHoverRadius:0, tension:.28, fill:false }] },
+      options:{ responsive:true, maintainAspectRatio:false, animation:false, plugins:{legend:{display:false}, tooltip:{enabled:false}, datalabels:{display:false}},
+        scales:{ x:{display:false}, y:{display:false, min:lo-padY, max:hi+padY} }, elements:{line:{borderJoinStyle:'round'}} },
+      plugins:[{ id:'sparkLiveDot', afterDraw:placeLive }] };
     if(chipMonSparks[m.key]){ try{ chipMonSparks[m.key].destroy(); }catch(e){} }
     chipMonSparks[m.key] = new Chart(cv.getContext('2d'), cfg);
+    placeLive(chipMonSparks[m.key]);
+    requestAnimationFrame(()=> { const c = chipMonSparks[m.key]; if(c) placeLive(c); });
   });
 }
 
