@@ -254,11 +254,8 @@
   .summary-body .diff-pos{color:#00a927; font-weight:700;}
   .summary-body .diff-neg{color:#C0392F; font-weight:700;}
 
-  /* Pulp mill 1+2 page: monthly chart (left) + summary overview box (right), side-by-side */
-  .pm12-top-row{display:flex; gap:16px; align-items:stretch; flex-wrap:wrap;}
-  .pm12-top-row #monthlyCardTot{flex:1 1 60%; min-width:320px; margin-bottom:0;}
-  .pm12-top-row #summaryOverviewCard{flex:1 1 300px; max-width:380px; margin-bottom:0;}
-  @media (max-width:860px){ .pm12-top-row{flex-direction:column;} .pm12-top-row #summaryOverviewCard{max-width:100%;} }
+  /* Pulp mill 1+2 page: the summary overview card sits above the annual Best Record table */
+  #summaryOverviewCard .summary-block:first-child{padding-top:2px;}
   .new-record-badge{
     display:inline-block; margin-left:5px; padding:1.5px 10px; border-radius:20px;
     font-family:"IBM Plex Sans Thai",inherit; font-size:10.5px; font-weight:800; letter-spacing:.04em;
@@ -976,7 +973,6 @@
         <section class="page" data-page="production-pm12" hidden>
           <div class="section-divider"><h2>โรงเยื่อ 1+2 (รวมทั้งโรงงาน)</h2></div>
 
-          <div class="pm12-top-row">
           <div class="card" id="monthlyCardTot">
             <div class="toolbar">
               <div class="field">
@@ -1006,21 +1002,6 @@
             </div>
           </div>
 
-          <div class="card" id="summaryOverviewCard">
-            <div class="summary-block">
-              <div class="summary-title">สรุปภาพรวมผลผลิตโรงเยื่อ 1</div>
-              <div class="summary-body" id="summaryBody1"></div>
-            </div>
-            <div class="summary-block">
-              <div class="summary-title">สรุปภาพรวมผลผลิตโรงเยื่อ 2</div>
-              <div class="summary-body" id="summaryBody2"></div>
-            </div>
-            <div class="summary-block">
-              <div class="summary-title">สรุปภาพรวมผลผลิตโรงเยื่อ 1+2</div>
-              <div class="summary-body" id="summaryBodyTot"></div>
-            </div>
-          </div>
-          </div>
 
           <button type="button" class="foot-toggle" data-target="monthlyFootTot" aria-expanded="false" aria-controls="monthlyFootTot">ดูรายละเอียด</button>
           <div class="foot" id="monthlyFootTot" hidden></div>
@@ -1122,6 +1103,21 @@
 
           <button type="button" class="foot-toggle" data-target="annualFootTot" aria-expanded="false" aria-controls="annualFootTot">ดูรายละเอียด</button>
           <div class="foot" id="annualFootTot" hidden></div>
+
+          <div class="card" id="summaryOverviewCard">
+            <div class="summary-block">
+              <div class="summary-title">สรุปภาพรวมผลผลิตโรงเยื่อ 1</div>
+              <div class="summary-body" id="summaryBody1"></div>
+            </div>
+            <div class="summary-block">
+              <div class="summary-title">สรุปภาพรวมผลผลิตโรงเยื่อ 2</div>
+              <div class="summary-body" id="summaryBody2"></div>
+            </div>
+            <div class="summary-block">
+              <div class="summary-title">สรุปภาพรวมผลผลิตโรงเยื่อ 1+2</div>
+              <div class="summary-body" id="summaryBodyTot"></div>
+            </div>
+          </div>
 
           <details class="dtable" id="annualRankTableDetailsTot">
             <summary>
