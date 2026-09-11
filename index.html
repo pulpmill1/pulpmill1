@@ -613,6 +613,7 @@
   table.ya-table td.ya-label{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:left;}
   table.ya-table td.num{font-family:"IBM Plex Mono",monospace;text-align:right;color:var(--ink-3);overflow:hidden;text-overflow:ellipsis;}
   table.ya-table td.ya-unit{color:var(--ink-3);font-size:11px;text-align:center;white-space:nowrap;}
+  table.ya-table td.ya-remark{color:var(--ink-2);font-size:11px;text-align:left;white-space:normal;}
   table.ya-table tr.ya-major td{background:var(--surface-2);}
   table.ya-table tr.ya-major td.ya-label{font-weight:800;color:var(--ink);cursor:pointer;user-select:none;}
   table.ya-table tr.ya-major td.ya-label .yc{display:inline-block;width:12px;font-size:9px;color:var(--ink-3);transition:transform .15s;}
@@ -1401,7 +1402,7 @@
               <div class="ya-wrap">
                 <table class="ya-table">
                   <colgroup>
-                    <col style="width:260px"><col style="width:72px"><col style="width:72px"><col style="width:72px"><col style="width:72px"><col style="width:72px">
+                    <col style="width:260px"><col style="width:72px"><col style="width:72px"><col style="width:72px"><col style="width:72px"><col style="width:72px"><col style="width:160px">
                   </colgroup>
                   <thead>
                     <tr>
@@ -1410,6 +1411,7 @@
                       <th rowspan="2" id="yaColPrev">Aug 2026</th>
                       <th rowspan="2" id="yaColCur">Sep 2026</th>
                       <th colspan="2">Diff. Effect</th>
+                      <th rowspan="2">REMARK</th>
                     </tr>
                     <tr>
                       <th>Bdt/Adt</th>
@@ -1417,42 +1419,42 @@
                     </tr>
                   </thead>
                   <tbody>
-                    <tr class="ya-major"><td class="ya-label">Actual Yield</td><td class="ya-unit">Bdt/Adt</td><td class="num" id="yaCell_yieldBdt_prev"></td><td class="num" id="yaCell_yieldBdt_cur"></td><td class="num"></td><td class="num"></td></tr>
-                    <tr class="ya-major" data-ya-group="g1"><td class="ya-label"><span class="yc">▾</span>1. Effect Chip Weight</td><td class="ya-unit">Bdt/Adt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td></tr>
-                    <tr class="ya-sub" data-ya-in="g1"><td class="ya-label">- Diff Chip Weight (ทอ Cal.)</td><td class="ya-unit">Bdt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td></tr>
-                    <tr class="ya-major" data-ya-group="g2"><td class="ya-label"><span class="yc">▾</span>2. Effect Moisture</td><td class="ya-unit">Bdt/Adt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td></tr>
-                    <tr class="ya-sub" data-ya-in="g2"><td class="ya-label">- Chip moisture (Lab)</td><td class="ya-unit">%</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td></tr>
-                    <tr class="ya-sub" data-ya-in="g2"><td class="ya-label">- Chip moisture (Online)</td><td class="ya-unit">%</td><td class="num" id="yaCell_moisture_prev"></td><td class="num" id="yaCell_moisture_cur"></td><td class="num"></td><td class="num"></td></tr>
-                    <tr class="ya-major" data-ya-group="g3"><td class="ya-label"><span class="yc">▾</span>3. Effect Wood species</td><td class="ya-unit">Bdt/Adt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td></tr>
-                    <tr class="ya-sub" data-ya-in="g3"><td class="ya-label">- K58</td><td class="ya-unit">%</td><td class="num" id="yaCell_woodK58_prev"></td><td class="num" id="yaCell_woodK58_cur"></td><td class="num"></td><td class="num"></td></tr>
-                    <tr class="ya-sub" data-ya-in="g3"><td class="ya-label">- K7</td><td class="ya-unit">%</td><td class="num" id="yaCell_woodK7_prev"></td><td class="num" id="yaCell_woodK7_cur"></td><td class="num"></td><td class="num"></td></tr>
-                    <tr class="ya-sub" data-ya-in="g3"><td class="ya-label">- Seed</td><td class="ya-unit">%</td><td class="num" id="yaCell_woodSeed_prev"></td><td class="num" id="yaCell_woodSeed_cur"></td><td class="num"></td><td class="num"></td></tr>
-                    <tr class="ya-sub" data-ya-in="g3"><td class="ya-label">- Other</td><td class="ya-unit">%</td><td class="num" id="yaCell_woodOther_prev"></td><td class="num" id="yaCell_woodOther_cur"></td><td class="num"></td><td class="num"></td></tr>
-                    <tr class="ya-sub" data-ya-in="g3"><td class="ya-label">- St&gt;1 m</td><td class="ya-unit">%</td><td class="num" id="yaCell_woodSt1m_prev"></td><td class="num" id="yaCell_woodSt1m_cur"></td><td class="num"></td><td class="num"></td></tr>
-                    <tr class="ya-major" data-ya-group="g4"><td class="ya-label"><span class="yc">▾</span>4. Effect Chip size</td><td class="ya-unit">Bdt/Adt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td></tr>
-                    <tr class="ya-sub" data-ya-in="g4"><td class="ya-label">- ไม้สับขนาด 8-10 mm</td><td class="ya-unit">%</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td></tr>
-                    <tr class="ya-major" data-ya-group="g5"><td class="ya-label"><span class="yc">▾</span>5. Effect Bark</td><td class="ya-unit">Bdt/Adt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td></tr>
-                    <tr class="ya-sub" data-ya-in="g5"><td class="ya-label">- Bark</td><td class="ya-unit">%</td><td class="num" id="yaCell_bark_prev"></td><td class="num" id="yaCell_bark_cur"></td><td class="num"></td><td class="num"></td></tr>
-                    <tr class="ya-major" data-ya-group="g6"><td class="ya-label"><span class="yc">▾</span>6. Effect Kappa no.</td><td class="ya-unit">Bdt/Adt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td></tr>
-                    <tr class="ya-sub" data-ya-in="g6"><td class="ya-label">- Kappa no.</td><td class="ya-unit">-</td><td class="num" id="yaCell_kappaCook_prev"></td><td class="num" id="yaCell_kappaCook_cur"></td><td class="num"></td><td class="num"></td></tr>
-                    <tr class="ya-sub" data-ya-in="g6"><td class="ya-label">- SD</td><td class="ya-unit">%</td><td class="num" id="yaCell_sdKappa_prev"></td><td class="num" id="yaCell_sdKappa_cur"></td><td class="num"></td><td class="num"></td></tr>
-                    <tr class="ya-sub" data-ya-in="g6"><td class="ya-label">- CV</td><td class="ya-unit">%</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td></tr>
-                    <tr class="ya-major" data-ya-group="g7"><td class="ya-label"><span class="yc">▾</span>7. Effect Sulphidity</td><td class="ya-unit">Bdt/Adt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td></tr>
-                    <tr class="ya-sub" data-ya-in="g7"><td class="ya-label">- Sulphidity</td><td class="ya-unit">-</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td></tr>
-                    <tr class="ya-major" data-ya-group="g8"><td class="ya-label"><span class="yc">▾</span>8. Effect Diff. prod. balance</td><td class="ya-unit">Bdt/Adt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td></tr>
-                    <tr class="ya-sub" data-ya-in="g8"><td class="ya-label">- %Diff. production</td><td class="ya-unit">-</td><td class="num" id="yaCell_diffBalance_prev"></td><td class="num" id="yaCell_diffBalance_cur"></td><td class="num"></td><td class="num"></td></tr>
-                    <tr class="ya-major" data-ya-group="g9"><td class="ya-label"><span class="yc">▾</span>9. Effect เยื่อสะสมในถัง</td><td class="ya-unit">Bdt/Adt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td></tr>
-                    <tr class="ya-sub" data-ya-in="g9"><td class="ya-label">- เยื่อสะสมในถัง</td><td class="ya-unit">Adt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td></tr>
-                    <tr class="ya-major" data-ya-group="g10"><td class="ya-label"><span class="yc">▾</span>10. Effect Waste</td><td class="ya-unit">Bdt/Adt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td></tr>
-                    <tr class="ya-sub2" data-ya-in="g10"><td class="ya-label">Effect (Knot+White)</td><td class="ya-unit">Bdt/Adt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td></tr>
-                    <tr class="ya-sub3" data-ya-in="g10"><td class="ya-label">Knot + White reject</td><td class="ya-unit">kg/ADT</td><td class="num" id="yaCell_kwRejectAdt_prev"></td><td class="num" id="yaCell_kwRejectAdt_cur"></td><td class="num"></td><td class="num"></td></tr>
-                    <tr class="ya-sub3" data-ya-in="g10"><td class="ya-label">Knot + White reject</td><td class="ya-unit">kg</td><td class="num" id="yaCell_kwReject_prev"></td><td class="num" id="yaCell_kwReject_cur"></td><td class="num"></td><td class="num"></td></tr>
-                    <tr class="ya-sub2" data-ya-in="g10"><td class="ya-label">Effect (TSS)</td><td class="ya-unit">Bdt/Adt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td></tr>
-                    <tr class="ya-sub3" data-ya-in="g10"><td class="ya-label">Volume to ETP</td><td class="ya-unit">m3</td><td class="num" id="yaCell_volEtp_prev"></td><td class="num" id="yaCell_volEtp_cur"></td><td class="num"></td><td class="num"></td></tr>
-                    <tr class="ya-sub3" data-ya-in="g10"><td class="ya-label">TSS (- Base Target 300 mg/l)</td><td class="ya-unit">mg/l</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td></tr>
-                    <tr class="ya-sub3" data-ya-in="g10"><td class="ya-label">TSS</td><td class="ya-unit">mg/l</td><td class="num" id="yaCell_tssEtp_prev"></td><td class="num" id="yaCell_tssEtp_cur"></td><td class="num"></td><td class="num"></td></tr>
-                    <tr class="ya-sub3" data-ya-in="g10"><td class="ya-label">Excess Fiber to ETP</td><td class="ya-unit">ADT</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td></tr>
-                    <tr class="ya-major"><td class="ya-label">11. Unknow</td><td class="ya-unit">Bdt/Adt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td></tr>
+                    <tr class="ya-major"><td class="ya-label">Actual Yield</td><td class="ya-unit">Bdt/Adt</td><td class="num" id="yaCell_yieldBdt_prev"></td><td class="num" id="yaCell_yieldBdt_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-major" data-ya-group="g1"><td class="ya-label"><span class="yc">▾</span>1. Effect Chip Weight</td><td class="ya-unit">Bdt/Adt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-sub" data-ya-in="g1"><td class="ya-label">- Diff Chip Weight (ทอ Cal.)</td><td class="ya-unit">Bdt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-major" data-ya-group="g2"><td class="ya-label"><span class="yc">▾</span>2. Effect Moisture</td><td class="ya-unit">Bdt/Adt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-sub" data-ya-in="g2"><td class="ya-label">- Chip moisture (Lab)</td><td class="ya-unit">%</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-sub" data-ya-in="g2"><td class="ya-label">- Chip moisture (Online)</td><td class="ya-unit">%</td><td class="num" id="yaCell_moisture_prev"></td><td class="num" id="yaCell_moisture_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-major" data-ya-group="g3"><td class="ya-label"><span class="yc">▾</span>3. Effect Wood species</td><td class="ya-unit">Bdt/Adt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-sub" data-ya-in="g3"><td class="ya-label">- K58</td><td class="ya-unit">%</td><td class="num" id="yaCell_woodK58_prev"></td><td class="num" id="yaCell_woodK58_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-sub" data-ya-in="g3"><td class="ya-label">- K7</td><td class="ya-unit">%</td><td class="num" id="yaCell_woodK7_prev"></td><td class="num" id="yaCell_woodK7_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-sub" data-ya-in="g3"><td class="ya-label">- Seed</td><td class="ya-unit">%</td><td class="num" id="yaCell_woodSeed_prev"></td><td class="num" id="yaCell_woodSeed_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-sub" data-ya-in="g3"><td class="ya-label">- Other</td><td class="ya-unit">%</td><td class="num" id="yaCell_woodOther_prev"></td><td class="num" id="yaCell_woodOther_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-sub" data-ya-in="g3"><td class="ya-label">- St&gt;1 m</td><td class="ya-unit">%</td><td class="num" id="yaCell_woodSt1m_prev"></td><td class="num" id="yaCell_woodSt1m_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-major" data-ya-group="g4"><td class="ya-label"><span class="yc">▾</span>4. Effect Chip size</td><td class="ya-unit">Bdt/Adt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-sub" data-ya-in="g4"><td class="ya-label">- ไม้สับขนาด 8-10 mm</td><td class="ya-unit">%</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-major" data-ya-group="g5"><td class="ya-label"><span class="yc">▾</span>5. Effect Bark</td><td class="ya-unit">Bdt/Adt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-sub" data-ya-in="g5"><td class="ya-label">- Bark</td><td class="ya-unit">%</td><td class="num" id="yaCell_bark_prev"></td><td class="num" id="yaCell_bark_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-major" data-ya-group="g6"><td class="ya-label"><span class="yc">▾</span>6. Effect Kappa no.</td><td class="ya-unit">Bdt/Adt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-sub" data-ya-in="g6"><td class="ya-label">- Kappa no.</td><td class="ya-unit">-</td><td class="num" id="yaCell_kappaCook_prev"></td><td class="num" id="yaCell_kappaCook_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-sub" data-ya-in="g6"><td class="ya-label">- SD</td><td class="ya-unit">%</td><td class="num" id="yaCell_sdKappa_prev"></td><td class="num" id="yaCell_sdKappa_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-sub" data-ya-in="g6"><td class="ya-label">- CV</td><td class="ya-unit">%</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-major" data-ya-group="g7"><td class="ya-label"><span class="yc">▾</span>7. Effect Sulphidity</td><td class="ya-unit">Bdt/Adt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-sub" data-ya-in="g7"><td class="ya-label">- Sulphidity</td><td class="ya-unit">-</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-major" data-ya-group="g8"><td class="ya-label"><span class="yc">▾</span>8. Effect Diff. prod. balance</td><td class="ya-unit">Bdt/Adt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-sub" data-ya-in="g8"><td class="ya-label">- %Diff. production</td><td class="ya-unit">-</td><td class="num" id="yaCell_diffBalance_prev"></td><td class="num" id="yaCell_diffBalance_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-major" data-ya-group="g9"><td class="ya-label"><span class="yc">▾</span>9. Effect เยื่อสะสมในถัง</td><td class="ya-unit">Bdt/Adt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-sub" data-ya-in="g9"><td class="ya-label">- เยื่อสะสมในถัง</td><td class="ya-unit">Adt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-major" data-ya-group="g10"><td class="ya-label"><span class="yc">▾</span>10. Effect Waste</td><td class="ya-unit">Bdt/Adt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-sub2" data-ya-in="g10"><td class="ya-label">Effect (Knot+White)</td><td class="ya-unit">Bdt/Adt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-sub3" data-ya-in="g10"><td class="ya-label">Knot + White reject</td><td class="ya-unit">kg/ADT</td><td class="num" id="yaCell_kwRejectAdt_prev"></td><td class="num" id="yaCell_kwRejectAdt_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-sub3" data-ya-in="g10"><td class="ya-label">Knot + White reject</td><td class="ya-unit">kg</td><td class="num" id="yaCell_kwReject_prev"></td><td class="num" id="yaCell_kwReject_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-sub2" data-ya-in="g10"><td class="ya-label">Effect (TSS)</td><td class="ya-unit">Bdt/Adt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-sub3" data-ya-in="g10"><td class="ya-label">Volume to ETP</td><td class="ya-unit">m3</td><td class="num" id="yaCell_volEtp_prev"></td><td class="num" id="yaCell_volEtp_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-sub3" data-ya-in="g10"><td class="ya-label">TSS (- Base Target 300 mg/l)</td><td class="ya-unit">mg/l</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-sub3" data-ya-in="g10"><td class="ya-label">TSS</td><td class="ya-unit">mg/l</td><td class="num" id="yaCell_tssEtp_prev"></td><td class="num" id="yaCell_tssEtp_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-sub3" data-ya-in="g10"><td class="ya-label">Excess Fiber to ETP</td><td class="ya-unit">ADT</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-major"><td class="ya-label">11. Unknow</td><td class="ya-unit">Bdt/Adt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
                   </tbody>
                 </table>
               </div>
