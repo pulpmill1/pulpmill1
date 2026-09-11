@@ -4020,11 +4020,11 @@ function buildSummaryLines(curTotal, budgetAnnual, pool, yearLabel){
   const lines = [];
   const diffBudget = curTotal - budgetAnnual;
   lines.push(`<div>- LE YE ${yearLabel} ${EN?'at':'ที่'} ${fmt0(curTotal)} Adt (Update Act. ${lastDataStr(EN?'en':'th')})</div>`);
-  lines.push(`<div>- ${summaryDiffSpan(diffBudget)} ${EN?'vs BG':'เทียบ BG'} ${fmt0(budgetAnnual)} Adt</div>`);
+  lines.push(`<div>${summaryDiffSpan(diffBudget)} ${EN?'vs BG':'เทียบ BG'} ${fmt0(budgetAnnual)} Adt</div>`);
   const best = pool[0] || null;
   if(best){
     const diffBest = curTotal - best.value;
-    lines.push(`<div>- ${summaryDiffSpan(diffBest)} ${EN?'vs 1st Best':'เทียบ 1st Best'} ${best.year} ${EN?'at':'ที่'} ${fmt0(best.value)} Adt</div>`);
+    lines.push(`<div>${summaryDiffSpan(diffBest)} ${EN?'vs 1st Best':'เทียบ 1st Best'} ${best.year} ${EN?'at':'ที่'} ${fmt0(best.value)} Adt</div>`);
     const rank = 1 + pool.filter(p=> p.value > curTotal).length;
     if(rank <= 3){
       const rankLabelMap = {1:'1st Best Record', 2:'2nd Best Record', 3:'3rd Best Record'};
@@ -4855,7 +4855,7 @@ const CHIP_MON_META = [
   {key:'bulkDensity',    col:26, th:'Bulk density',              unit:'kg/m³', dec:1, grp:'bulk',   scored:false, spec:[300,350]},
   {key:'bulkDensityDry', col:27, th:'Bulk density × Dryness',    unit:'kg/m³', dec:1, grp:'bulk',   scored:false},
   {key:'dryness',        col:28, th:'Dryness',                   unit:'%',     dec:2, pct01:true, grp:'bulk',   scored:true,  dir:'lower',  specHi:54},
-  {key:'moisture',       col:null,th:'Chip Moisture (Wood Lab)',unit:'%',    dec:2, grp:'bulk',   scored:true,  dir:'neutral', derived:true},
+  {key:'moisture',       col:null,th:'Chip Moisture',unit:'%',    dec:2, grp:'bulk',   scored:true,  dir:'neutral', derived:true},
   {key:'fine',           col:30, th:'Fine < 4.8 mm.',            unit:'%',     dec:2, pct01:true, grp:'screen', scored:true,  dir:'lower',  specHi:5},
   {key:'pin',            col:31, th:'Pin 9.5–4.8 mm.',           unit:'%',     dec:2, pct01:true, grp:'screen', scored:true,  dir:'band',   specLo:17.5, specHi:28.5},
   {key:'accept2',        col:32, th:'Accept 2  22.2–9.5 mm.',    unit:'%',     dec:2, pct01:true, grp:'screen', scored:true,  dir:'higher', specLo:55},
