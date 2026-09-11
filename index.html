@@ -93,6 +93,13 @@
   .nav-children .nav-item{font-size:12px; font-weight:500; padding:7.5px 10px;}
   .nav-children .nav-item::before{content:"–"; margin-right:6px; color:var(--ink-3);}
 
+  .sidebar-foot{margin-top:auto; padding-top:10px; border-top:1px solid rgba(255,255,255,.12);}
+  .nav-source-link{display:flex; align-items:center; gap:8px; width:100%; text-decoration:none;
+    font-size:12px; font-weight:600; color:#B7C6DA; padding:9px 10px; border-radius:8px; transition:background .12s,color .12s;}
+  .nav-source-link:hover{background:rgba(255,255,255,.08); color:#fff;}
+  .nav-source-link .nsl-text{flex:1; min-width:0;}
+  .nav-source-link .nsl-ext{font-size:10px; color:#8098B7; flex-shrink:0;}
+
   .main{flex:1; min-width:0;}
   .shell{max-width:1320px; margin:0 auto; padding:20px 22px 44px;}
 
@@ -438,6 +445,34 @@
   .tb-more-row{display:flex; align-items:center; justify-content:space-between; gap:8px; padding:6px 9px;}
   .tb-more-row .tb-lang{margin-left:auto;}
 
+  /* ---- Notification Centre ---- */
+  .tb-notif{position:relative; flex-shrink:0;}
+  .tb-notif-menu{position:absolute; top:calc(100% + 6px); right:0; width:300px; max-width:88vw; max-height:380px; overflow-y:auto;
+    background:var(--surface); border:1px solid var(--border); border-radius:10px; box-shadow:var(--shadow); padding:6px; z-index:30;}
+  .notif-empty{padding:16px 9px; font-size:12px; color:var(--ink-3); text-align:center;}
+  .notif-item{display:flex; align-items:flex-start; gap:8px; width:100%; text-align:left; background:none; border:none;
+    border-bottom:1px solid var(--border); font:inherit; padding:9px 8px; border-radius:8px; cursor:pointer; color:var(--ink);}
+  .notif-item:last-child{border-bottom:none;}
+  .notif-item:hover{background:var(--surface-2);}
+  .notif-item .ni-dot{width:8px; height:8px; border-radius:50%; background:var(--mon-rail,#d4342c); margin-top:4px; flex-shrink:0;}
+  .notif-item .ni-body{display:flex; flex-direction:column; gap:2px; min-width:0;}
+  .notif-item .ni-name{font-size:12.5px; font-weight:700; color:var(--ink);}
+  .notif-item .ni-val{font-size:11.5px; font-family:"IBM Plex Mono",monospace; color:var(--ink-2);}
+  .notif-item .ni-dev{color:#d4342c; font-weight:700;}
+  .notif-item .ni-date{font-size:10px; color:var(--ink-3); margin-top:1px;}
+
+  /* ---- Export menu ---- */
+  .tb-export{position:relative; flex-shrink:0;}
+  .tb-export-menu{position:absolute; top:calc(100% + 6px); right:0; width:230px; background:var(--surface);
+    border:1px solid var(--border); border-radius:10px; box-shadow:var(--shadow); padding:6px; z-index:30;}
+
+  @media print{
+    .sidebar, .app-toolbar, .foot-toggle, .mon-tiles, .md-target, .md-pills, .tb-search-panel{display:none !important;}
+    .main{margin-left:0 !important;}
+    body, .shell{background:#fff !important;}
+    .mon-detail, .card{box-shadow:none !important; border-color:#ccc !important;}
+  }
+
   .tb-more{display:none;}
 
   @media (max-width:1180px){
@@ -478,23 +513,29 @@
   .mon-group-head .gs{font-size:11px;color:var(--ink-3);margin-left:auto;}
   .mon-tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(216px,1fr));gap:12px;}
 
-  .exec-kpi-panel{background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);padding:16px 18px;margin-bottom:18px;}
-  .exec-kpi-head{display:flex;align-items:center;gap:8px;margin-bottom:12px;}
-  .exec-kpi-head .ek-icon{font-size:17px;}
-  .exec-kpi-head .ek-title{font-size:15px;font-weight:800;color:var(--ink);letter-spacing:.01em;}
-  .exec-kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;}
-  .ek-card{position:relative;background:var(--surface);border:1px solid var(--border);border-top:3px solid var(--ek-rail,#7C4DFF);border-radius:12px;padding:13px 14px 12px;overflow:hidden;}
+  /* Executive KPI panel: one unified dark-navy surface (same recipe as the sidebar /
+     .mon-tile.sel accent) instead of separate white card boxes — deliberately fixed
+     dark in both themes, it's the dashboard's "hero" accent, not paper. */
+  .exec-kpi-panel{background:linear-gradient(168deg,#123a63 0%,#0d2c4d 55%,#0b2242 100%);
+    border:1px solid rgba(255,255,255,.14);border-radius:14px;
+    box-shadow:0 2px 5px rgba(8,20,40,.22),0 12px 26px rgba(8,20,40,.20);padding:17px 20px;margin-bottom:18px;}
+  .exec-kpi-head{display:flex;align-items:center;gap:8px;margin-bottom:14px;}
+  .exec-kpi-head .ek-icon{font-size:17px;opacity:.95;}
+  .exec-kpi-head .ek-title{font-size:15px;font-weight:800;color:#fff;letter-spacing:.01em;}
+  .exec-kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0;}
+  .ek-card{position:relative;background:transparent;border:none;border-radius:0;padding:2px 18px;overflow:hidden;}
+  .ek-card + .ek-card{border-left:1px solid rgba(255,255,255,.14);}
   .ek-top{display:flex;align-items:center;gap:7px;}
-  .ek-ico{font-size:13px;}
-  .ek-name{font-size:12.5px;font-weight:700;color:var(--ink-2);}
-  .ek-val{font-family:"IBM Plex Mono",monospace;font-size:24.2px;font-weight:800;color:var(--ink);margin-top:6px;line-height:1;}
-  .ek-unit{font-size:11.5px;color:var(--ink-3);font-weight:500;margin-left:4px;}
-  .ek-sub{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:9px;font-size:11.55px;color:var(--ink-2);font-family:"IBM Plex Mono",monospace;flex-wrap:wrap;}
-  .ek-arrow.up{color:#12a150;}.ek-arrow.down{color:#d4342c;}.ek-arrow.flat{color:var(--ink-3);}
-  .ek-spark-wrap{position:relative;display:block;width:100%;height:34px;margin-top:9px;}
+  .ek-ico{font-size:13px;opacity:.9;}
+  .ek-name{font-size:11.5px;font-weight:700;color:#8098B7;letter-spacing:.04em;text-transform:uppercase;}
+  .ek-val{font-family:"IBM Plex Mono",monospace;font-size:26px;font-weight:800;color:#fff;margin-top:8px;line-height:1;}
+  .ek-unit{font-size:12px;color:#8098B7;font-weight:500;margin-left:4px;}
+  .ek-sub{display:flex;align-items:center;gap:9px;margin-top:9px;font-size:11.55px;color:#9FB4CE;font-family:"IBM Plex Mono",monospace;flex-wrap:wrap;}
+  .ek-arrow.up{color:#4ade80;}.ek-arrow.down{color:#f87171;}.ek-arrow.flat{color:#8098B7;}
+  .ek-spark-wrap{position:relative;display:block;width:100%;height:34px;margin-top:12px;}
   .ek-spark{width:100%;height:34px;display:block;}
-  .ek-date{font-size:10.5px;color:var(--ink-3);margin-top:7px;}
-  .ek-nodata{font-size:12px;color:var(--ink-3);margin-top:10px;}
+  .ek-date{font-size:10.5px;color:#7690AF;margin-top:8px;}
+  .ek-nodata{font-size:12px;color:#8098B7;margin-top:10px;}
   .mon-tile{position:relative;background:var(--surface);border:1px solid var(--border);border-top:3px solid var(--mon-rail,#7C4DFF);
     border-radius:12px;padding:13px 14px 12px;cursor:pointer;box-shadow:var(--shadow);transition:transform .1s,box-shadow .12s;overflow:hidden;}
   .mon-tile:hover{transform:translateY(-1px);box-shadow:0 2px 4px rgba(18,34,38,.08),0 12px 28px rgba(18,34,38,.10);}
@@ -562,6 +603,9 @@
   .md-cell .cv small{font-size:10px;font-weight:500;color:var(--ink-3);}
   .md-cell .cs{font-size:9px;color:var(--ink-3);margin-top:2px;line-height:1.3;}
   .md-cell .cv.pos{color:#12a150;}.md-cell .cv.neg{color:#d4342c;}
+  .md-cell .cv .tr-good{color:#12a150;font-weight:800;}
+  .md-cell .cv .tr-bad{color:#d4342c;font-weight:800;}
+  .md-cell .cv .tr-flat{color:var(--ink-3);font-weight:800;}
   .md-track{position:relative;height:6px;background:var(--surface-2);border-radius:4px;margin-top:7px;}
   .md-track .z{position:absolute;top:-2px;bottom:-2px;width:1px;background:var(--ink-3);left:50%;}
   .md-track .m{position:absolute;top:-3px;width:9px;height:9px;border-radius:50%;background:var(--accent);transform:translate(-50%,-1px);}
@@ -615,6 +659,11 @@
         </div>
       </div>
     </nav>
+    <div class="sidebar-foot">
+      <a class="nav-source-link" href="https://docs.google.com/spreadsheets/d/1dStWwliEd6YhSOL3oT8JNyWHZOuII5F-QVeubIrBS50/edit" target="_blank" rel="noopener noreferrer" title="เปิด Google Sheet ต้นทางที่ Dashboard นี้ดึงข้อมูลมา">
+        <span class="nav-ico">📄</span><span class="nsl-text">Open source Google Sheet</span><span class="nsl-ext">↗</span>
+      </a>
+    </div>
   </aside>
 
   <div class="main">
@@ -634,10 +683,6 @@
 
       <div class="tb-spacer"></div>
 
-      <div class="tb-visits" id="tbVisits" title="จำนวนครั้งที่เข้าชม Dashboard นี้ (นับ 1 ครั้งต่อเซสชันเบราว์เซอร์)">
-        <span class="tv-ico">👁</span><span class="tv-count" id="tbVisitCount">—</span>
-      </div>
-
       <div class="tb-lang" id="tbLang">
         <button class="tb-lang-btn active" data-lang="th" type="button">TH</button>
         <button class="tb-lang-btn" data-lang="en" type="button">EN</button>
@@ -647,9 +692,22 @@
         <span class="tb-icon-refresh">⟳</span>
       </button>
 
-      <button class="tb-btn" id="notifBtn" type="button" disabled title="การแจ้งเตือน — ยังไม่มีระบบรองรับในขณะนี้">🔔</button>
+      <div class="tb-notif" id="tbNotif">
+        <button class="tb-btn" id="notifBtn" type="button" aria-haspopup="true" aria-expanded="false" title="ศูนย์แจ้งเตือน — ค่าที่ผิดปกติในเมนู Yield">🔔</button>
+        <div class="tb-notif-menu" id="tbNotifMenu" hidden>
+          <div class="tb-menu-label" id="notifCentreLabel">การแจ้งเตือน — ค่าผิดปกติ (เมนู Yield)</div>
+          <div id="notifList"></div>
+        </div>
+      </div>
 
-      <button class="tb-btn" id="exportBtn" type="button" disabled title="กำลังตรวจสอบระบบดาวน์โหลดไฟล์…">⬇</button>
+      <div class="tb-export" id="tbExportWrap">
+        <button class="tb-btn" id="exportBtn" type="button" aria-haspopup="true" aria-expanded="false" title="ส่งออกข้อมูล (PDF / CSV)">⬇</button>
+        <div class="tb-export-menu" id="tbExportMenu" hidden>
+          <div class="tb-menu-label" id="exportMenuLabel">ส่งออกข้อมูล</div>
+          <button class="tb-menu-item" id="exportPdfBtn" type="button">🖨️ พิมพ์ / บันทึกเป็น PDF</button>
+          <button class="tb-menu-item" id="exportCsvBtn" type="button">📄 ส่งออก CSV (เปิดได้ใน Excel)</button>
+        </div>
+      </div>
 
       <div class="tb-user" id="tbUser">
         <button class="tb-user-btn" id="tbUserBtn" type="button" aria-haspopup="listbox" aria-expanded="false">
@@ -666,6 +724,10 @@
           <div class="tb-menu-sep"></div>
           <div class="tb-menu-label" id="roleNoteText" style="font-weight:400; text-transform:none; font-size:10.5px; line-height:1.5; padding:2px 9px 4px;">Role View เปลี่ยนเฉพาะมุมมองการแสดงผล ไม่เปลี่ยนสิทธิ์การเข้าถึงข้อมูล</div>
         </div>
+      </div>
+
+      <div class="tb-visits" id="tbVisits" title="จำนวนครั้งที่เข้าชม Dashboard นี้ (นับ 1 ครั้งต่อเซสชันเบราว์เซอร์)">
+        <span class="tv-ico">👁</span><span class="tv-count" id="tbVisitCount">—</span>
       </div>
 
       <button class="tb-btn tb-more" id="tbMoreBtn" type="button" aria-label="เมนูเพิ่มเติม" title="เมนูเพิ่มเติม">⋯</button>
@@ -1281,8 +1343,8 @@
           </div>
           <div id="chipMonHost">
             <div class="mon-group">
-              <div class="mon-group-head"><span class="gi">📈</span><span class="gt">Yield (BDt/ADt)</span><span class="gs">Yield + Yield Balance Tank · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
-              <div class="mon-tiles" id="chipTiles_yield"></div>
+              <div class="mon-group-head"><span class="gi">📈</span><span class="gt">Yield (BDt/ADt)</span><span class="gs">Yield + Yield Balance Tank</span></div>
+              <div class="mon-tiles" id="chipTiles_yield" hidden></div>
               <div class="mon-detail" id="chipDetail_yield" hidden></div>
             </div>
             <div class="mon-group">
@@ -4003,13 +4065,13 @@ const I18N = {
     searchPlaceholder:'ค้นหา KPI (Search metrics)',
     lastDataAt:'ข้อมูลล่าสุด ณ', noDataYet:'ยังไม่เชื่อมต่อแหล่งข้อมูล',
     refreshTitle:'รีเฟรชข้อมูลล่าสุด (โหลดหน้าใหม่ — ดึงข้อมูลสดจาก Google Sheets ทันที)',
-    notifTitle:'การแจ้งเตือน — ยังไม่มีระบบรองรับในขณะนี้',
-    exportTitle:'ดาวน์โหลดข้อมูลตารางของหน้านี้ (CSV)',
-    exportDisabledNoData:'หน้านี้ยังไม่มีข้อมูลให้ดาวน์โหลด',
-    exportDisabledNoCap:'ปุ่มดาวน์โหลดไฟล์ยังไม่รองรับ เนื่องจากหน้านี้เป็นหน้าที่แชร์แบบสาธารณะ (public link) — ระบบดาวน์โหลดไฟล์ของ Claude ใช้ไม่ได้กับหน้าที่แชร์สาธารณะ',
+    notifTitle:'ศูนย์แจ้งเตือน — ค่าผิดปกติในเมนู Yield',
+    exportTitle:'ส่งออกข้อมูล (PDF / CSV)',
+    exportDisabledNoData:'หน้านี้ยังไม่มีข้อมูลให้ส่งออก',
+    exportDisabledNoCap:'',
     roleViewLabel:'Role View',
     roleNote:'Role View เปลี่ยนเฉพาะมุมมองการแสดงผล ไม่เปลี่ยนสิทธิ์การเข้าถึงข้อมูล',
-    moreLabel:'เพิ่มเติม', moreRefresh:'รีเฟรชข้อมูล', moreExport:'ดาวน์โหลดข้อมูล (CSV)', moreNotif:'การแจ้งเตือน (ยังไม่เปิดใช้งาน)',
+    moreLabel:'เพิ่มเติม', moreRefresh:'รีเฟรชข้อมูล', moreExport:'ส่งออกข้อมูล (PDF / CSV)', moreNotif:'การแจ้งเตือน',
     searchEmpty:'ไม่พบ KPI ที่ตรงกับคำค้นหา', searchToggle:'ค้นหา KPI',
     sidebarToggle:'พับ/ขยายเมนูด้านซ้าย', moreBtn:'เมนูเพิ่มเติม',
     dashLabel:'Dashboard',
@@ -4021,13 +4083,13 @@ const I18N = {
     searchPlaceholder:'Search metrics',
     lastDataAt:'Latest data as of', noDataYet:'No data source connected yet',
     refreshTitle:'Refresh latest data (reloads the page — fetches live data directly from Google Sheets)',
-    notifTitle:'Notifications — not yet supported',
-    exportTitle:"Download this page's table data (CSV)",
+    notifTitle:'Notification Centre — anomalies on the Yield page',
+    exportTitle:'Export (PDF / CSV)',
     exportDisabledNoData:'No data available to export on this page',
-    exportDisabledNoCap:"File download isn't supported on a publicly shared page — Claude's file-download capability doesn't work on public links",
+    exportDisabledNoCap:'',
     roleViewLabel:'Role View',
     roleNote:'Role View only changes the display perspective — it does not change data access.',
-    moreLabel:'More', moreRefresh:'Refresh data', moreExport:'Download data (CSV)', moreNotif:'Notifications (not yet enabled)',
+    moreLabel:'More', moreRefresh:'Refresh data', moreExport:'Export (PDF / CSV)', moreNotif:'Notifications',
     searchEmpty:'No KPIs match your search', searchToggle:'Search KPI',
     sidebarToggle:'Collapse/expand sidebar', moreBtn:'More menu',
     dashLabel:'Dashboard',
@@ -4060,9 +4122,14 @@ const TX_EN = {
   '2 ค่า · คลิกที่บล็อกเพื่อดูประวัติ':'2 metrics · click a tile for its history',
   'น้ำเสียเข้าระบบบำบัด (ETP)':'Effluent to the ETP',
   'สายพันธุ์ไม้สับ (โรงเยื่อ 1 Actual)':'Wood species (Fiberline 1 actual)',
-  'Yield + Yield Balance Tank · คลิกที่บล็อกเพื่อดูประวัติ':'Yield + Yield Balance Tank · click the tile for its history',
   'สรุปตัวชี้วัดสำคัญ (Executive KPI Summary)':'Executive KPI Summary',
   'ผู้เข้าชม':'Visits',
+  '👁 ผู้เข้าชม':'👁 Visits',
+  'การแจ้งเตือน — ค่าผิดปกติ (เมนู Yield)':'Notifications — anomalies (Yield page)',
+  'ส่งออกข้อมูล':'Export',
+  '🖨️ พิมพ์ / บันทึกเป็น PDF':'🖨️ Print / Save as PDF',
+  '📄 ส่งออก CSV (เปิดได้ใน Excel)':'📄 Export CSV (opens in Excel)',
+  'ยังไม่พบค่าผิดปกติในขณะนี้':'No anomalies detected right now.',
   '5 ค่า · คลิกที่บล็อกเพื่อดูประวัติ':'5 metrics · click a tile for its history',
   '3 ค่า · คลิกที่บล็อกเพื่อดูประวัติ':'3 metrics · click a tile for its history',
   'โรงเยื่อ 1+2 (รวมทั้งโรงงาน)':'Fiberline 1+2 (whole mill)',
@@ -4353,32 +4420,54 @@ if(sidebarToggleBtn){
   try{ if(localStorage.getItem('fl1_sidebar_collapsed')==='1') setSidebarCollapsed(true); }catch(e){}
 }
 
-/* ---- export (uses the "downloads" runtime capability — a real, viewer-consented
-   file save; if this view cannot run it the button stays honestly disabled) ---- */
-let downloadsCap = null;
-let downloadsChecked = false;
-(async function initDownloads(){
-  try{
-    if(window.claude && typeof window.claude.use === 'function'){
-      downloadsCap = await window.claude.use('downloads');
-    }
-  }catch(e){ downloadsCap = null; }
-  downloadsChecked = true;
-  setExportState();
-})();
-
-function setExportState(){
-  const meta = PAGE_META[currentPageId] || PAGE_META['production-pm1'];
-  const canExport = meta.hasData && !!downloadsCap;
-  [document.getElementById('exportBtn'), document.getElementById('moreExportBtn')].forEach(b=>{
-    if(!b) return;
-    b.disabled = !canExport;
-    if(!meta.hasData) b.title = t('exportDisabledNoData');
-    else if(!downloadsCap) b.title = downloadsChecked ? t('exportDisabledNoCap') : t('exportTitle');
-    else b.title = t('exportTitle');
+/* ---- export: real, working, browser-native — no server, no special capability.
+   PDF = the browser's own print dialog (Save as PDF); CSV = a Blob + <a download>,
+   which every real browser (not just this one) supports out of the box. ---- */
+function closeAllTbMenus(){
+  ['tbUserMenu','tbMoreMenu','tbSearchPanel','tbNotifMenu','tbExportMenu'].forEach(function(id){
+    const el = document.getElementById(id);
+    if(el) el.hidden = true;
   });
 }
-
+function downloadTextFile(filename, text, mime){
+  try{
+    const blob = new Blob([text], {type: mime || 'text/csv;charset=utf-8;'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename; a.style.display = 'none';
+    document.body.appendChild(a); a.click();
+    setTimeout(()=>{ document.body.removeChild(a); URL.revokeObjectURL(url); }, 1500);
+  }catch(e){ /* nothing more we can do */ }
+}
+function setExportState(){
+  const meta = PAGE_META[currentPageId] || PAGE_META['production-pm1'];
+  const csvBtn = document.getElementById('exportCsvBtn');
+  if(csvBtn){
+    csvBtn.disabled = !meta.hasData;
+    csvBtn.title = meta.hasData ? '' : t('exportDisabledNoData');
+  }
+}
+function buildYieldCsv(){
+  const EN = currentLang==='en';
+  const sections = [];
+  if(typeof CHIP_MON_GROUPS !== 'undefined'){
+    CHIP_MON_GROUPS.forEach(function(grp){
+      const key = CHIP_MON_STATE[grp.id];
+      if(!key) return;
+      const m = CHIP_MON_META.find(function(x){ return x.key===key; });
+      if(!m) return;
+      const a = chipMonAnalyse(key, m);
+      if(!a) return;
+      const rows = chipMonDetailRows(grp.id, m, a);
+      const lines = [m.th + ' (' + (m.unit||'-') + ')', 'Date,Value'];
+      rows.forEach(function(x){ lines.push(x.d+'/'+(x.mi+1)+'/'+x.y+','+(x.v==null?'':x.v)); });
+      sections.push(lines.join('\r\n'));
+    });
+  }
+  const csv = sections.length ? sections.join('\r\n\r\n')
+    : (EN ? 'Open a metric on the Yield page first, then export.' : 'เปิดดูกราฟตัวใดตัวหนึ่งในเมนู Yield ก่อน แล้วค่อยส่งออก');
+  return { filename:'pulpmill1-yield-export-'+Date.now()+'.csv', csv:'﻿'+csv };
+}
 function buildProductionCsv(){
   const mi = +sel.value;
   const days = DAYS_IN_MONTH[mi];
@@ -4408,18 +4497,31 @@ function buildProductionCsv(){
   }).join(',')).join('\r\n');
   return { filename:`fiberline1-production-${MONTH_NAMES_EN[mi]}-${YEAR}.csv`, csv:'﻿'+csv };
 }
-async function triggerExport(){
-  const btn = document.getElementById('exportBtn');
-  if(!btn || btn.disabled || !downloadsCap) return;
-  if(currentPageId !== 'production-pm1') return;
-  const { filename, csv } = buildProductionCsv();
-  try{ await downloadsCap.save({ filename, data: csv }); }
-  catch(err){ /* viewer declined, rate-limited, or capability unavailable — nothing more to do */ }
+function triggerCsvExport(){
+  const built = currentPageId === 'production-pm1' ? buildProductionCsv()
+    : currentPageId === 'yield' ? buildYieldCsv()
+    : null;
+  if(!built) return;
+  downloadTextFile(built.filename, built.csv);
 }
+function triggerPdfExport(){ window.print(); }
 const exportBtnEl = document.getElementById('exportBtn');
 const moreExportBtnEl = document.getElementById('moreExportBtn');
-if(exportBtnEl) exportBtnEl.addEventListener('click', triggerExport);
-if(moreExportBtnEl) moreExportBtnEl.addEventListener('click', triggerExport);
+const tbExportMenu = document.getElementById('tbExportMenu');
+const exportPdfBtnEl = document.getElementById('exportPdfBtn');
+const exportCsvBtnEl = document.getElementById('exportCsvBtn');
+if(exportPdfBtnEl) exportPdfBtnEl.addEventListener('click', ()=>{ if(tbExportMenu) tbExportMenu.hidden = true; triggerPdfExport(); });
+if(exportCsvBtnEl) exportCsvBtnEl.addEventListener('click', ()=>{ if(tbExportMenu) tbExportMenu.hidden = true; triggerCsvExport(); });
+if(exportBtnEl && tbExportMenu){
+  exportBtnEl.addEventListener('click', (e)=>{
+    e.stopPropagation();
+    const willOpen = tbExportMenu.hidden;
+    closeAllTbMenus();
+    tbExportMenu.hidden = !willOpen;
+    exportBtnEl.setAttribute('aria-expanded', String(willOpen));
+  });
+}
+if(moreExportBtnEl) moreExportBtnEl.addEventListener('click', ()=>{ const mm = document.getElementById('tbMoreMenu'); if(mm) mm.hidden = true; if(exportBtnEl) exportBtnEl.click(); });
 
 /* ---- refresh: shows a real loading state, then reloads the page, which re-runs
    boot() and re-fetches live data directly from Google Sheets on every load ---- */
@@ -4513,6 +4615,7 @@ if(tbUserBtn && tbUserMenu){
   tbUserBtn.addEventListener('click', (e)=>{
     e.stopPropagation();
     const willOpen = tbUserMenu.hidden;
+    closeAllTbMenus();
     tbUserMenu.hidden = !willOpen;
     tbUserBtn.setAttribute('aria-expanded', String(willOpen));
     if(willOpen){
@@ -4545,15 +4648,19 @@ applyRoleView(currentRoleCode);
 document.addEventListener('keydown', (e)=>{
   if(e.key !== 'Escape') return;
   if(tbUserMenu && !tbUserMenu.hidden){ tbUserMenu.hidden = true; if(tbUserBtn){ tbUserBtn.setAttribute('aria-expanded','false'); tbUserBtn.focus(); } }
-  if(tbMoreMenu && !tbMoreMenu.hidden) tbMoreMenu.hidden = true;
-  if(tbSearchPanel && !tbSearchPanel.hidden) tbSearchPanel.hidden = true;
+  closeAllTbMenus();
 });
 
 /* ---- overflow "more" menu (responsive) ---- */
 const tbMoreBtn = document.getElementById('tbMoreBtn');
 const tbMoreMenu = document.getElementById('tbMoreMenu');
 if(tbMoreBtn && tbMoreMenu){
-  tbMoreBtn.addEventListener('click', (e)=>{ e.stopPropagation(); tbMoreMenu.hidden = !tbMoreMenu.hidden; });
+  tbMoreBtn.addEventListener('click', (e)=>{
+    e.stopPropagation();
+    const willOpen = tbMoreMenu.hidden;
+    closeAllTbMenus();
+    tbMoreMenu.hidden = !willOpen;
+  });
 }
 
 /* ---- language toggle ---- */
@@ -4591,6 +4698,7 @@ function applyLang(lang){
   if(typeof chipMonRenderTiles === 'function' && document.getElementById('chipMonHost')){
     if(typeof renderExecKpiPanel === 'function') renderExecKpiPanel();
     CHIP_MON_GROUPS.forEach(g=>{ chipMonRenderTiles(g); chipMonRenderDetail(g.id); });
+    if(typeof renderNotifCentre === 'function') renderNotifCentre();
   }
   if(typeof i18nApplyPage === 'function') i18nApplyPage();
 }
@@ -4676,6 +4784,10 @@ document.addEventListener('click', (e)=>{
   if(tbMoreMenu && !tbMoreMenu.hidden && !document.getElementById('tbMoreBtn').contains(e.target) && !tbMoreMenu.contains(e.target)) tbMoreMenu.hidden = true;
   const tbSearchEl = document.getElementById('tbSearch');
   if(tbSearchPanel && !tbSearchPanel.hidden && tbSearchEl && !tbSearchEl.contains(e.target)) tbSearchPanel.hidden = true;
+  const notifWrap = document.getElementById('tbNotif'), notifMenu = document.getElementById('tbNotifMenu');
+  if(notifMenu && !notifMenu.hidden && notifWrap && !notifWrap.contains(e.target)) notifMenu.hidden = true;
+  const exportWrap = document.getElementById('tbExportWrap');
+  if(tbExportMenu && !tbExportMenu.hidden && exportWrap && !exportWrap.contains(e.target)) tbExportMenu.hidden = true;
 });
 
 /* ปุ่ม "ดูรายละเอียด" / "ซ่อนรายละเอียด" — ซ่อนคำอธิบาย/หมายเหตุ/แหล่งที่มาใต้กราฟและตารางเป็นค่าเริ่มต้น กดดูได้ทีละกล่อง */
@@ -4700,7 +4812,7 @@ if(document.getElementById('summaryBody1')){
    Robust stats: median + MAD×1.4826; baseline = the 180 days ending one week before the latest reading.
    Percentage values outside 0-100 are treated as bad entries and dropped. */
 const CHIP_MON_META = [
-  {key:'yieldBdt',     col:78, th:'Yield',               unit:'BDt/ADt', dec:3, grp:'yield', scored:false},
+  {key:'yieldBdt',     col:78, th:'Yield',               unit:'BDt/ADt', dec:3, grp:'yield', scored:false, hideTile:true},
   {key:'yieldBalTank', col:79, th:'Yield Balance Tank',   unit:'BDt/ADt', dec:3, grp:'yield', scored:false, hideTile:true},
   {key:'chipWeightGT', col:74, th:'Chip weight',          unit:'GT/day',  dec:0, grp:'yield', scored:false, zeroIsMissing:true, hideTile:true},
   {key:'bulkDensity',    col:26, th:'Bulk density',              unit:'kg/m³', dec:1, grp:'bulk',   scored:false, spec:[300,350]},
@@ -4860,6 +4972,19 @@ const chipMonCharts = {};                                 // detail chart per gr
 const chipMonSparks = {};                                 // sparkline chart per tile key
 
 function chipMonFmt(v, dec){ return v==null ? '—' : v.toLocaleString('en-US', {minimumFractionDigits:dec, maximumFractionDigits:dec}); }
+/* colored up/down arrow for a stat-strip cell: latest reading vs. that cell's own period value.
+   Green/red only when the metric has a known "good direction" (dir:'higher'/'lower'); otherwise
+   a neutral-colored arrow that still shows direction without implying good/bad. */
+function chipMonTrendArrow(latest, ref, dir){
+  if(latest==null || ref==null || !isFinite(latest) || !isFinite(ref)) return '';
+  const diff = latest - ref;
+  if(Math.abs(diff) < 1e-9) return '<span class="tr-flat">–</span>';
+  const up = diff > 0;
+  let cls = 'tr-flat';
+  if(dir==='higher') cls = up ? 'tr-good' : 'tr-bad';
+  else if(dir==='lower') cls = up ? 'tr-bad' : 'tr-good';
+  return '<span class="'+cls+'">'+(up?'↑':'↓')+'</span>';
+}
 function chipMonMonthLabel(mi, y){ return `${currentLang==='en'?(MONTH_ABBR_EN?MONTH_ABBR_EN[mi]:mi):MONTH_ABBR_TH[mi]} ${String(y).slice(2)}`; }
 function chipMonRangeOptions(m, grpId){
   const cur = CHIP_MON_RANGE[grpId] || 'recent';
@@ -4877,23 +5002,24 @@ function chipMonRangeOptions(m, grpId){
 /* ---- tiles ---- */
 /* ---- Executive KPI Summary panel (top of the Yield page) ---- */
 const EXEC_KPI = [
-  {key:'yieldBdt',     ico:'📈', rail:'#1565C0'},
-  {key:'chipWeightGT', ico:'🪵', rail:'#7C4DFF'},
-  {key:'moisture',     ico:'💧', rail:'#0E7C86'},
-  {key:'endProd',      ico:'📦', rail:'#B25C00'},
+  {key:'yieldBdt',     ico:'📈'},
+  {key:'chipWeightGT', ico:'🪵'},
+  {key:'moisture',     ico:'💧'},
+  {key:'endProd',      ico:'📦'},
 ];
+const EK_ACCENT = '#7FB3E8'; // one shared sparkline/dot colour — the panel is a single unified surface, not per-metric accents
 const execKpiSparks = {};
 function renderExecKpiPanel(){
   const grid = document.getElementById('execKpiGrid');
   if(!grid) return;
   const EN = currentLang==='en';
   const noData = EN ? 'No data yet' : 'ยังไม่มีข้อมูล';
-  const avgLbl = EN ? '7d avg (prior)' : 'เฉลี่ย 7 วันก่อนหน้า';
+  const avgLbl = '7d';
   grid.innerHTML = EXEC_KPI.map(k=> {
     const m = CHIP_MON_META.find(x=> x.key===k.key);
     const s = CHIP_MON_SERIES[k.key] || [];
     if(!m || !s.length){
-      return '<div class="ek-card" style="--ek-rail:'+k.rail+';--mon-rail:'+k.rail+'">'
+      return '<div class="ek-card" style="--mon-rail:'+EK_ACCENT+'">'
         + '<div class="ek-top"><span class="ek-ico">'+k.ico+'</span><span class="ek-name">'+(m?m.th:k.key)+'</span></div>'
         + '<div class="ek-nodata">'+noData+'</div></div>';
     }
@@ -4906,7 +5032,7 @@ function renderExecKpiPanel(){
     const dcls = d==null ? 'flat' : flat ? 'flat' : d>0 ? 'up' : 'down';
     const arrow = d==null ? '' : flat ? '–' : d>0 ? '↑' : '↓';
     const dateStr = EN ? (MONTH_ABBR_EN[anchor.mi]+' '+anchor.d+', '+anchor.y) : (anchor.d+' '+MONTH_ABBR_TH[anchor.mi]+' '+anchor.y);
-    return '<div class="ek-card" style="--ek-rail:'+k.rail+';--mon-rail:'+k.rail+'">'
+    return '<div class="ek-card" style="--mon-rail:'+EK_ACCENT+'">'
       + '<div class="ek-top"><span class="ek-ico">'+k.ico+'</span><span class="ek-name">'+m.th+'</span></div>'
       + '<div class="ek-val">'+chipMonFmt(anchor.v, m.dec)+'<span class="ek-unit">'+m.unit+'</span></div>'
       + '<div class="ek-sub">'
@@ -4925,7 +5051,7 @@ function renderExecKpiPanel(){
     const cv = document.getElementById('execSpark_'+k.key);
     const live = document.getElementById('execLive_'+k.key);
     if(execKpiSparks[k.key]){ try{ execKpiSparks[k.key].destroy(); }catch(e){} }
-    execKpiSparks[k.key] = chipMonMakeSpark(cv, live, s, k.rail);
+    execKpiSparks[k.key] = chipMonMakeSpark(cv, live, s, EK_ACCENT);
   });
 }
 
@@ -5033,11 +5159,11 @@ function chipMonRenderDetail(grpId){
 
     <div class="md-strip">
       <div class="md-cell hero"><div class="ck">Latest</div><div class="cv">${chipMonFmt(a.anchor.v, m.dec)}<small> ${m.unit}</small></div><div class="cs">${anchorDate}</div></div>
-      <div class="md-cell"><div class="ck">7 วัน</div><div class="cv">${chipMonFmt(chipMonMean(a.last7), m.dec)}</div><div class="cs">ค่าเฉลี่ย ${a.last7.length} วันล่าสุด</div></div>
-      <div class="md-cell"><div class="ck">${curLbl}</div><div class="cv">${chipMonFmt(chipMonMean(a.curMon), m.dec)}</div><div class="cs">เฉลี่ย ${a.curMon.length} วันที่บันทึก</div></div>
-      <div class="md-cell"><div class="ck">${prevLbl}</div><div class="cv">${chipMonFmt(chipMonMean(a.prevMon), m.dec)}</div><div class="cs">เฉลี่ย ${a.prevMon.length} วันที่บันทึก</div></div>
-      <div class="md-cell"><div class="ck">${a.anchor.y}</div><div class="cv">${chipMonFmt(chipMonMean(a.yrVals), m.dec)}</div><div class="cs">เฉลี่ย ${a.yrVals.length} วันที่บันทึก</div></div>
-      <div class="md-cell"><div class="ck">Est. ${MONTH_ABBR_TH[a.anchor.mi]} สิ้นเดือน</div><div class="cv">${a.est==null ? '—' : chipMonFmt(a.est, m.dec)}</div><div class="cs">${a.est==null ? 'ต้องมี ≥ 3 วัน' : `${a.curMon.length} วันจริง + ${a.remaining} วันที่อัตรา 7 วัน`}</div></div>
+      <div class="md-cell"><div class="ck">7 วัน</div><div class="cv">${chipMonFmt(chipMonMean(a.last7), m.dec)} ${chipMonTrendArrow(a.anchor.v, chipMonMean(a.last7), m.dir)}</div><div class="cs">ค่าเฉลี่ย ${a.last7.length} วันล่าสุด</div></div>
+      <div class="md-cell"><div class="ck">${curLbl}</div><div class="cv">${chipMonFmt(chipMonMean(a.curMon), m.dec)} ${chipMonTrendArrow(a.anchor.v, chipMonMean(a.curMon), m.dir)}</div><div class="cs">เฉลี่ย ${a.curMon.length} วันที่บันทึก</div></div>
+      <div class="md-cell"><div class="ck">${prevLbl}</div><div class="cv">${chipMonFmt(chipMonMean(a.prevMon), m.dec)} ${chipMonTrendArrow(a.anchor.v, chipMonMean(a.prevMon), m.dir)}</div><div class="cs">เฉลี่ย ${a.prevMon.length} วันที่บันทึก</div></div>
+      <div class="md-cell"><div class="ck">${a.anchor.y}</div><div class="cv">${chipMonFmt(chipMonMean(a.yrVals), m.dec)} ${chipMonTrendArrow(a.anchor.v, chipMonMean(a.yrVals), m.dir)}</div><div class="cs">เฉลี่ย ${a.yrVals.length} วันที่บันทึก</div></div>
+      <div class="md-cell"><div class="ck">Est. ${MONTH_ABBR_TH[a.anchor.mi]} สิ้นเดือน</div><div class="cv">${a.est==null ? '—' : chipMonFmt(a.est, m.dec)} ${chipMonTrendArrow(a.anchor.v, a.est, m.dir)}</div><div class="cs">${a.est==null ? 'ต้องมี ≥ 3 วัน' : `${a.curMon.length} วันจริง + ${a.remaining} วันที่อัตรา 7 วัน`}</div></div>
       <div class="md-cell"><div class="ck">Deviation</div><div class="cv ${a.dev==null?'':a.dev<0?'neg':'pos'}">${a.dev==null?'—':(a.dev>=0?'+':'')+a.dev.toFixed(1)+'σ'}</div>
         <div class="md-track"><span class="z"></span><span class="m ${devOut?'out':''}" style="left:${devTrackPct}%"></span></div></div>
     </div>
@@ -5222,8 +5348,9 @@ function initChipMon(){
   renderExecKpiPanel();
   CHIP_MON_GROUPS.forEach(grp=> {
     chipMonRenderTiles(grp);
-    // start with every detail panel collapsed — tiles only
-    CHIP_MON_STATE[grp.id] = null;
+    // every group starts collapsed (tiles only) — except 'yield', which has no tile of its
+    // own any more and shows its main chart immediately on load
+    CHIP_MON_STATE[grp.id] = grp.id === 'yield' ? 'yieldBdt' : null;
     chipMonRenderDetail(grp.id);
   });
   const host = document.getElementById('chipMonHost');
@@ -5247,9 +5374,85 @@ function initChipMon(){
   window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', ()=> {
     renderExecKpiPanel();
     CHIP_MON_GROUPS.forEach(grp=> { chipMonRenderTiles(grp); chipMonRenderDetail(grp.id); });
+    if(typeof renderNotifCentre === 'function') renderNotifCentre();
   });
 }
 if(document.getElementById('chipMonHost')) initChipMon();
+
+/* ---- Notification Centre: real anomalies from the Yield monitor metrics —
+   any scored metric whose latest reading sits outside its own ±3σ control band
+   (same threshold chipMonAssess already calls "out of band"). ---- */
+function computeYieldAnomalies(){
+  const EN = currentLang==='en';
+  const list = [];
+  if(typeof CHIP_MON_META === 'undefined') return list;
+  CHIP_MON_META.forEach(function(m){
+    if(!m.scored) return;
+    const a = chipMonAnalyse(m.key, m);
+    if(!a || a.dev==null || !isFinite(a.dev)) return;
+    if(Math.abs(a.dev) <= 3) return;
+    const grp = CHIP_MON_GROUPS.find(function(g){ return g.id===m.grp; });
+    list.push({
+      key:m.key, grp:m.grp, name:m.th, val:a.anchor.v, dec:m.dec, unit:m.unit, dev:a.dev,
+      rail: grp ? grp.rail : '#7C4DFF',
+      dateStr: EN ? (MONTH_ABBR_EN[a.anchor.mi]+' '+a.anchor.d+', '+a.anchor.y) : (a.anchor.d+' '+MONTH_ABBR_TH[a.anchor.mi]+' '+a.anchor.y)
+    });
+  });
+  list.sort(function(x,y){ return Math.abs(y.dev)-Math.abs(x.dev); });
+  return list;
+}
+function renderNotifCentre(){
+  const btn = document.getElementById('notifBtn');
+  const list = document.getElementById('notifList');
+  if(!btn || !list) return;
+  const EN = currentLang==='en';
+  const anomalies = computeYieldAnomalies();
+  if(anomalies.length) btn.setAttribute('data-badge', anomalies.length>99 ? '99+' : String(anomalies.length));
+  else btn.removeAttribute('data-badge');
+  if(!anomalies.length){
+    list.innerHTML = '<div class="notif-empty">'+(EN?'No anomalies detected right now.':'ยังไม่พบค่าผิดปกติในขณะนี้')+'</div>';
+    return;
+  }
+  list.innerHTML = anomalies.map(function(x){
+    const sign = x.dev>=0 ? '+' : '';
+    return '<button type="button" class="notif-item" data-grp="'+x.grp+'" data-key="'+x.key+'" style="--mon-rail:'+x.rail+'">'
+      + '<span class="ni-dot"></span>'
+      + '<span class="ni-body">'
+      +   '<span class="ni-name">'+x.name+'</span>'
+      +   '<span class="ni-val">'+chipMonFmt(x.val, x.dec)+' '+x.unit+' <span class="ni-dev">('+sign+x.dev.toFixed(1)+'σ)</span></span>'
+      +   '<span class="ni-date">'+x.dateStr+'</span>'
+      + '</span></button>';
+  }).join('');
+}
+const notifBtnEl2 = document.getElementById('notifBtn');
+const tbNotifMenu = document.getElementById('tbNotifMenu');
+if(notifBtnEl2 && tbNotifMenu){
+  notifBtnEl2.addEventListener('click', (e)=>{
+    e.stopPropagation();
+    const willOpen = tbNotifMenu.hidden;
+    closeAllTbMenus();
+    tbNotifMenu.hidden = !willOpen;
+    notifBtnEl2.setAttribute('aria-expanded', String(willOpen));
+    if(willOpen) renderNotifCentre();
+  });
+}
+const notifListEl = document.getElementById('notifList');
+if(notifListEl){
+  notifListEl.addEventListener('click', (e)=>{
+    const item = e.target.closest('.notif-item');
+    if(!item) return;
+    const g = item.dataset.grp, k = item.dataset.key;
+    showPage('yield');
+    if(tbNotifMenu) tbNotifMenu.hidden = true;
+    CHIP_MON_RANGE[g] = 'recent';
+    CHIP_MON_STATE[g] = k;
+    chipMonRenderDetail(g);
+    setTimeout(()=>{ const el = document.getElementById('chipDetail_'+g); if(el) el.scrollIntoView({behavior:'smooth', block:'start'}); }, 150);
+  });
+}
+if(document.getElementById('chipMonHost')) renderNotifCentre();
+const moreNotifBtnEl2 = document.getElementById('moreNotifBtn');
+if(moreNotifBtnEl2) moreNotifBtnEl2.addEventListener('click', ()=>{ const mm = document.getElementById('tbMoreMenu'); if(mm) mm.hidden = true; if(notifBtnEl2) notifBtnEl2.click(); });
 
 applyLang(currentLang);
 showPage('production-pm1');
