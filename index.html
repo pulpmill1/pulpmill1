@@ -978,7 +978,7 @@
         </section>
 
         <section class="page" data-page="production-pm2" hidden>
-          <div class="section-divider"><h2>โรงเยื่อ 2 (Fiberline 2)</h2></div>
+          <div class="section-divider"><h2>โรงเยื่อ 2 (Pulp mill 2)</h2></div>
 
           <div class="card" id="monthlyCard2">
             <div class="toolbar">
@@ -1690,27 +1690,6 @@ function compute7DayAvg(){
   if(count === 0) return null;
   return { avg: sum/count, count, endMi, endDayIdx, startPos };
 }
-/* ---- month-end / year-end production estimate: real days logged so far
-   + remaining days x the trailing 7-day daily rate (same rate as the badge
-   above) — null when there's no data yet to extrapolate from. ---- */
-function estimateMonthTotal(mi, mActual){
-  const a7 = compute7DayAvg();
-  if(!a7 || !LAST_DATA) return null;
-  let remaining;
-  if(mi < LAST_DATA.mi) remaining = 0;
-  else if(mi === LAST_DATA.mi) remaining = Math.max(0, DAYS_IN_MONTH[mi] - LAST_DATA.day);
-  else remaining = DAYS_IN_MONTH[mi];
-  return mActual + remaining*a7.avg;
-}
-function estimateYearTotal(yearActual){
-  const a7 = compute7DayAvg();
-  if(!a7 || !LAST_DATA) return null;
-  const daysElapsed = DAYS_IN_MONTH.slice(0, LAST_DATA.mi).reduce((a,b)=> a+b, 0) + LAST_DATA.day;
-  const totalDays = DAYS_IN_MONTH.reduce((a,b)=> a+b, 0);
-  const remaining = Math.max(0, totalDays - daysElapsed);
-  return yearActual + remaining*a7.avg;
-}
-
 const YEAR_ACTUAL = ACTUAL.reduce((s,arr)=> s + arr.reduce((a,v)=> a + (v==null?0:v), 0), 0);
 const YEAR_DIFF = YEAR_ACTUAL - BUDGET_ANNUAL;
 
@@ -1748,10 +1727,15 @@ function render(mi){
   // stat boxes
   const mActual = monthActualSum(mi);
   const mDiff = mActual - BUDGET_MONTHLY[mi];
-  const yearEst = estimateYearTotal(YEAR_ACTUAL);
-  const yearDiffEst = yearEst==null ? null : BUDGET_ANNUAL - yearEst;
-  const mEst = estimateMonthTotal(mi, mActual);
-  const mDiffEst = mEst==null ? null : BUDGET_MONTHLY[mi] - mEst;
+  // Est. yearly/monthly = the "Monthly (Act)" sheet's own current-year figures (which already
+  // carry the sheet's forward estimate for months from MONTHLY_FORECAST_FROM_MI onward) — not a
+  // locally-computed extrapolation. Diff Est * = Est * minus Budget * (same sign convention as
+  // the sibling Diff * boxes, which are Actual minus Budget).
+  const yearEst = annualActualTotal(YEAR);
+  const yearDiffEst = yearEst==null ? null : yearEst - BUDGET_ANNUAL;
+  const monthlyActFull = MONTHLY_ACTUAL_BY_YEAR_FULL[YEAR];
+  const mEst = monthlyActFull ? monthlyActFull[mi] : null;
+  const mDiffEst = (mEst==null || BUDGET_MONTHLY[mi]==null) ? null : mEst - BUDGET_MONTHLY[mi];
   document.getElementById('statRow').innerHTML = `
     <div class="stat"><div class="k">Budget yearly</div><div class="v">${fmt0(BUDGET_ANNUAL)}</div></div>
     <div class="stat"><div class="k">Actual yearly</div><div class="v" style="color:var(--accent-ink);">${fmt0(YEAR_ACTUAL)}</div></div>
@@ -2298,7 +2282,7 @@ function renderAnnualRankTable(){
   }
 }
 
-/* ===================== Fiberline 2 (โรงเยื่อ 2) — Monthly & Annual Production, Best Record =====================
+/* ===================== Pulp mill 2 (โรงเยื่อ 2) — Monthly & Annual Production, Best Record =====================
    ข้อมูลจากชีตเดียวกับโรงเยื่อ 1 คอลัมน์ Pulp 2 ของแต่ละเดือน: "Monthly (Act)" (gid=1448795576), "Monthly (Budget)" (gid=1872828527)
    ตรวจสอบทุกค่าด้วยการดึงข้อมูลดิบทีละคอลัมน์ (เดือนละคอลัมน์ ทุกปี) แล้วเทียบค่าปี 2026 กับ Pulp 2 ที่ยืนยันแล้วจากแถว "Actual 2026" (Total-Pulp1)
    หมายเหตุ: โรงเยื่อ 2 เริ่มมีข้อมูลการผลิตตั้งแต่ปี 2004 เป็นต้นมา (ปี 1998-2003 ไม่มีข้อมูล เนื่องจากยังไม่มีโรงเยื่อ 2)
@@ -3131,7 +3115,7 @@ function renderAnnualRankTableTot(){
 }
 
 
-/* ===================== Fiberline 1 — Monthly Groups by Days-in-Month (31d / 30d / Feb 29d / Feb 28d) =====================
+/* ===================== Pulp mill 1 — Monthly Groups by Days-in-Month (31d / 30d / Feb 29d / Feb 28d) =====================
    ใช้ข้อมูลชุดเดียวกับ "ผลผลิตรายเดือนโรงเยื่อ 1" ด้านบน (MONTHLY_ACTUAL_BY_YEAR_FULL, BUDGET_MONTHLY / MONTHLY_BUDGET_BY_YEAR)
    นำมาจัดกลุ่มตามจำนวนวันในเดือน
    วิธีจัดอันดับ Best Record: เทียบเฉพาะ "เดือนที่มีจำนวนวันเท่ากัน" ข้ามปีทั้งหมด (ไม่จำกัดเฉพาะเดือนปฏิทินเดียวกัน)
@@ -3387,7 +3371,7 @@ function renderDayGroupRankTable(key){
   }
 }
 
-/* ===================== Fiberline 2 — Monthly Groups by Days-in-Month (31d / 30d / Feb 29d / Feb 28d) =====================
+/* ===================== Pulp mill 2 — Monthly Groups by Days-in-Month (31d / 30d / Feb 29d / Feb 28d) =====================
    ใช้ข้อมูลชุดเดียวกับ "ผลผลิตรายเดือนโรงเยื่อ 2" ด้านบน (MONTHLY_ACTUAL_BY_YEAR_FULL_2, BUDGET_MONTHLY_2 / MONTHLY_BUDGET_BY_YEAR_2)
    นำมาจัดกลุ่มตามจำนวนวันในเดือน — ใช้คอนเซ็ปเดียวกับโรงเยื่อ 1 ทุกประการ
    โรงเยื่อ 2 เริ่มมีข้อมูลการผลิตตั้งแต่ปี 2004 เป็นต้นมา */
@@ -4146,7 +4130,7 @@ const TX_MONTH = s => { let o = String(s); for(const [th,en] of Object.entries(T
 
 const TX_EN = {
   // section dividers / group heads
-  'Chip Characteristics — คุณลักษณะของชิ้นไม้สับ (โรงเยื่อ 1)':'Chip Characteristics — wood-chip quality (Fiberline 1)',
+  'Chip Characteristics — คุณลักษณะของชิ้นไม้สับ (โรงเยื่อ 1)':'Chip Characteristics — wood-chip quality (Pulp mill 1)',
   'ค่าพื้นฐานของชิ้นไม้สับ':'Wood-chip basics',
   'การกระจายขนาดชิ้นไม้สับ (Chip Screen)':'Chip size distribution (Chip Screen)',
   '4 ค่า · คลิกที่บล็อกเพื่อดูประวัติและ control band':'4 metrics · click a tile for its history and control band',
@@ -4165,32 +4149,32 @@ const TX_EN = {
   'ยังไม่พบค่าผิดปกติในขณะนี้':'No anomalies detected right now.',
   '5 ค่า · คลิกที่บล็อกเพื่อดูประวัติ':'5 metrics · click a tile for its history',
   '3 ค่า · คลิกที่บล็อกเพื่อดูประวัติ':'3 metrics · click a tile for its history',
-  'โรงเยื่อ 1+2 (รวมทั้งโรงงาน)':'Fiberline 1+2 (whole mill)',
-  'โรงเยื่อ 2 (Fiberline 2)':'Fiberline 2',
+  'โรงเยื่อ 1+2 (รวมทั้งโรงงาน)':'Pulp mill 1+2 (whole mill)',
+  'โรงเยื่อ 2 (Pulp mill 2)':'Pulp mill 2',
   // chart titles
-  'ผลผลิตรายเดือนโรงเยื่อ 1 เทียบ Budget':'Fiberline 1 monthly production vs budget',
-  'ผลผลิตรายเดือนโรงเยื่อ 2 เทียบ Budget':'Fiberline 2 monthly production vs budget',
-  'ผลผลิตรายเดือนโรงเยื่อ 1+2 เทียบ Budget':'Fiberline 1+2 monthly production vs budget',
-  'ผลผลิตรายปีโรงเยื่อ 1':'Fiberline 1 annual production',
-  'ผลผลิตรายปีโรงเยื่อ 2':'Fiberline 2 annual production',
-  'ผลผลิตรายปีโรงเยื่อ 1+2':'Fiberline 1+2 annual production',
+  'ผลผลิตรายเดือนโรงเยื่อ 1 เทียบ Budget':'Pulp mill 1 monthly production vs budget',
+  'ผลผลิตรายเดือนโรงเยื่อ 2 เทียบ Budget':'Pulp mill 2 monthly production vs budget',
+  'ผลผลิตรายเดือนโรงเยื่อ 1+2 เทียบ Budget':'Pulp mill 1+2 monthly production vs budget',
+  'ผลผลิตรายปีโรงเยื่อ 1':'Pulp mill 1 annual production',
+  'ผลผลิตรายปีโรงเยื่อ 2':'Pulp mill 2 annual production',
+  'ผลผลิตรายปีโรงเยื่อ 1+2':'Pulp mill 1+2 annual production',
   'ผลผลิตจริงรายปี (ข้อมูลจริงครบปี)':'Actual annual production (full-year data)',
-  'Top 10 Production (Monthly) — โรงเยื่อ 1':'Top 10 Production (Monthly) — Fiberline 1',
-  'Top 10 Production (Monthly) — โรงเยื่อ 2':'Top 10 Production (Monthly) — Fiberline 2',
-  'Top 10 Production (Monthly) — โรงเยื่อ 1+2':'Top 10 Production (Monthly) — Fiberline 1+2',
-  'ผลผลิตรายเดือนโรงเยื่อ 1':'Fiberline 1 monthly production',
-  'ผลผลิตรายเดือนโรงเยื่อ 2':'Fiberline 2 monthly production',
+  'Top 10 Production (Monthly) — โรงเยื่อ 1':'Top 10 Production (Monthly) — Pulp mill 1',
+  'Top 10 Production (Monthly) — โรงเยื่อ 2':'Top 10 Production (Monthly) — Pulp mill 2',
+  'Top 10 Production (Monthly) — โรงเยื่อ 1+2':'Top 10 Production (Monthly) — Pulp mill 1+2',
+  'ผลผลิตรายเดือนโรงเยื่อ 1':'Pulp mill 1 monthly production',
+  'ผลผลิตรายเดือนโรงเยื่อ 2':'Pulp mill 2 monthly production',
   // best-record table titles
-  'สถิติผลผลิตรายเดือนโรงเยื่อ 1 (Best Record)':'Fiberline 1 monthly production record (Best Record)',
-  'สถิติผลผลิตรายเดือนโรงเยื่อ 2 (Best Record)':'Fiberline 2 monthly production record (Best Record)',
-  'สถิติผลผลิตรายเดือนโรงเยื่อ 1+2 (Best Record)':'Fiberline 1+2 monthly production record (Best Record)',
-  'สถิติผลผลิตรายปีโรงเยื่อ 1 (Best Record)':'Fiberline 1 annual production record (Best Record)',
-  'สถิติผลผลิตรายปีโรงเยื่อ 2 (Best Record)':'Fiberline 2 annual production record (Best Record)',
-  'สถิติผลผลิตรายปีโรงเยื่อ 1+2 (Best Record)':'Fiberline 1+2 annual production record (Best Record)',
+  'สถิติผลผลิตรายเดือนโรงเยื่อ 1 (Best Record)':'Pulp mill 1 monthly production record (Best Record)',
+  'สถิติผลผลิตรายเดือนโรงเยื่อ 2 (Best Record)':'Pulp mill 2 monthly production record (Best Record)',
+  'สถิติผลผลิตรายเดือนโรงเยื่อ 1+2 (Best Record)':'Pulp mill 1+2 monthly production record (Best Record)',
+  'สถิติผลผลิตรายปีโรงเยื่อ 1 (Best Record)':'Pulp mill 1 annual production record (Best Record)',
+  'สถิติผลผลิตรายปีโรงเยื่อ 2 (Best Record)':'Pulp mill 2 annual production record (Best Record)',
+  'สถิติผลผลิตรายปีโรงเยื่อ 1+2 (Best Record)':'Pulp mill 1+2 annual production record (Best Record)',
   // summary overview
-  'สรุปภาพรวมผลผลิตโรงเยื่อ 1':'Fiberline 1 production summary',
-  'สรุปภาพรวมผลผลิตโรงเยื่อ 2':'Fiberline 2 production summary',
-  'สรุปภาพรวมผลผลิตโรงเยื่อ 1+2':'Fiberline 1+2 production summary',
+  'สรุปภาพรวมผลผลิตโรงเยื่อ 1':'Pulp mill 1 production summary',
+  'สรุปภาพรวมผลผลิตโรงเยื่อ 2':'Pulp mill 2 production summary',
+  'สรุปภาพรวมผลผลิตโรงเยื่อ 1+2':'Pulp mill 1+2 production summary',
   // toolbar / selectors
   'เลือกปี':'Select year','เลือกเดือน':'Select month','ปีเริ่มต้น':'From year','ปีสิ้นสุด':'To year','ค่าที่แสดง':'Metric shown',
   'เลือกช่วงปีที่ต้องการแสดงในกราฟแท่งด้านล่าง':'Choose the year range for the bar chart below',
@@ -4200,20 +4184,20 @@ const TX_EN = {
   // hints / legends
   'Y axis: 0–1,250 Adt/d · เส้นประ = Target รายวัน (Daily Plan) · เส้นทึบ = Budget รายวัน (Daily BG)':'Y axis: 0–1,250 Adt/d · dashed = daily Target (Daily Plan) · solid = daily Budget (Daily BG)',
   'กราฟแท่ง = ผลผลิตเกิดจริงรายเดือน (Actual) · กราฟเส้น = ผลผลิต Budget รายเดือน · เกณฑ์สีแท่งอิงตาม Budget ของแต่ละเดือน':'Bars = actual monthly production · line = monthly budget · bar colour is judged against each month’s budget',
-  'กราฟแท่ง = ผลผลิตเกิดจริงรายเดือนรวมโรงเยื่อ 1+2 (Actual) · กราฟเส้น = ผลผลิต Budget รายเดือนรวมโรงเยื่อ 1+2 · สีแท่งแยกตามโรงเยื่อ':'Bars = actual combined Fiberline 1+2 monthly production · line = combined monthly budget · bar colour by fiberline',
+  'กราฟแท่ง = ผลผลิตเกิดจริงรายเดือนรวมโรงเยื่อ 1+2 (Actual) · กราฟเส้น = ผลผลิต Budget รายเดือนรวมโรงเยื่อ 1+2 · สีแท่งแยกตามโรงเยื่อ':'Bars = actual combined Pulp mill 1+2 monthly production · line = combined monthly budget · bar colour by mill',
   'Budget รายเดือน (Adt)':'Monthly budget (Adt)','Budget รายเดือนรวม (Adt)':'Combined monthly budget (Adt)',
   'แท่งสีอ่อน = ประมาณการ (เดือนยังไม่ปิดข้อมูลจริงครบเดือน)':'Pale bar = estimate (month not yet fully logged)',
   'แท่งสีอ่อน = ปีปัจจุบัน (คาดการณ์จบปี — มีค่าประมาณการบางเดือน)':'Pale bar = current year (year-end forecast — some months are estimated)',
   'Actual 70–99.9% ของ Budget':'Actual 70–99.9% of budget',
   'Actual < 70% ของ Budget, Loss >30%':'Actual < 70% of budget, loss >30%',
   'Actual < 70% ของ Budget (Loss >30%)':'Actual < 70% of budget (loss >30%)',
-  'โรงเยื่อ 1':'Fiberline 1','โรงเยื่อ 2':'Fiberline 2','โรงเยื่อ 1+2 (รวม)':'Fiberline 1+2 (total)',
+  'โรงเยื่อ 1':'Pulp mill 1','โรงเยื่อ 2':'Pulp mill 2','โรงเยื่อ 1+2 (รวม)':'Pulp mill 1+2 (total)',
   'ผลผลิตรายเดือน 10 อันดับสูงสุดนับตั้งแต่เริ่มเดินเครื่องผลิต เรียงจากมากไปน้อย':'Top 10 highest monthly production since start-up, largest first',
-  'ผลผลิตรายเดือน 10 อันดับสูงสุดนับตั้งแต่เริ่มเดินเครื่องผลิต เรียงจากมากไปน้อย (รวมโรงเยื่อ 1+2)':'Top 10 highest monthly production since start-up, largest first (Fiberline 1+2 combined)',
+  'ผลผลิตรายเดือน 10 อันดับสูงสุดนับตั้งแต่เริ่มเดินเครื่องผลิต เรียงจากมากไปน้อย (รวมโรงเยื่อ 1+2)':'Top 10 highest monthly production since start-up, largest first (Pulp mill 1+2 combined)',
   'จัดอันดับผลผลิตจริงรายเดือน เทียบเฉพาะ "เดือนเดียวกันข้ามปี" เท่านั้น (ไม่นำเดือนอื่นมารวม) จากข้อมูล Actual ทั้งหมดที่มี':'Ranks actual monthly production comparing the same calendar month across years only (no other months mixed in), from all available Actual data',
-  'จัดอันดับผลผลิตจริงรายเดือนรวมโรงเยื่อ 1+2 เทียบเฉพาะ "เดือนเดียวกันข้ามปี" เท่านั้น (ไม่นำเดือนอื่นมารวม) จากข้อมูล Actual ทั้งหมดที่มี':'Ranks actual combined Fiberline 1+2 monthly production comparing the same calendar month across years only, from all available Actual data',
+  'จัดอันดับผลผลิตจริงรายเดือนรวมโรงเยื่อ 1+2 เทียบเฉพาะ "เดือนเดียวกันข้ามปี" เท่านั้น (ไม่นำเดือนอื่นมารวม) จากข้อมูล Actual ทั้งหมดที่มี':'Ranks actual combined Pulp mill 1+2 monthly production comparing the same calendar month across years only, from all available Actual data',
   'จัดอันดับผลผลิตจริงรวมทั้งปี เทียบกับทุกปีที่มีข้อมูล จากข้อมูล Actual ทั้งหมดที่มี':'Ranks actual full-year production against every year with data, from all available Actual data',
-  'จัดอันดับผลผลิตจริงรวมทั้งปีของโรงเยื่อ 1+2 เทียบกับทุกปีที่มีข้อมูล จากข้อมูล Actual ทั้งหมดที่มี':'Ranks actual full-year Fiberline 1+2 production against every year with data, from all available Actual data',
+  'จัดอันดับผลผลิตจริงรวมทั้งปีของโรงเยื่อ 1+2 เทียบกับทุกปีที่มีข้อมูล จากข้อมูล Actual ทั้งหมดที่มี':'Ranks actual full-year Pulp mill 1+2 production against every year with data, from all available Actual data',
   // empty states
   'หน้านี้ยังไม่มีข้อมูล — รอเชื่อมต่อแหล่งข้อมูลต้นทุน BU21 รายวัน/รายเดือนจาก Google Sheets':'No data yet — awaiting a daily/monthly BU21 cost source from Google Sheets',
   'หน้านี้ยังไม่มีข้อมูล — รอเชื่อมต่อแหล่งข้อมูล Productive Cost จาก Google Sheets':'No data yet — awaiting a Productive Cost source from Google Sheets',
@@ -4269,13 +4253,13 @@ const TX_EN = {
   'ผู้จัดการสายการผลิตเยื่อ':'Fiber Line Manager','ผู้จัดการโรงงานเคมี':'Chemical Plant Manager','วิศวกรกระบวนการ':'Process Engineer',
   'หัวหน้ากะ':'Shift Supervisor','พนักงานควบคุมเครื่อง':'Panel Operator','ประกันและควบคุมคุณภาพ':'Quality Assurance & Control','วิจัยและพัฒนา':'Research & Development',
   // pm2 note about start year
-  'โรงเยื่อ 2 เริ่มมีข้อมูลการผลิตตั้งแต่ปี 2004 เป็นต้นมา':'Fiberline 2 has production data from 2004 onward',
+  'โรงเยื่อ 2 เริ่มมีข้อมูลการผลิตตั้งแต่ปี 2004 เป็นต้นมา':'Pulp mill 2 has production data from 2004 onward',
   // day-group ranking hints
   'จัดอันดับผลผลิตจริงรายเดือน เทียบเฉพาะ "เดือนที่มีจำนวน 31 วันเดียวกัน" ข้ามปีทั้งหมด (ม.ค., มี.ค., พ.ค., ก.ค., ส.ค., ต.ค., ธ.ค. ของทุกปีที่มีข้อมูลจริง นำมารวมจัดอันดับร่วมกันเป็นกลุ่มเดียว ไม่จำกัดเฉพาะเดือนปฏิทินเดียวกัน)':'Ranks actual monthly production comparing all 31-day months across every year (Jan, Mar, May, Jul, Aug, Oct, Dec of every year with real data are pooled into one group — not restricted to the same calendar month)',
   'จัดอันดับผลผลิตจริงรายเดือน เทียบเฉพาะ "เดือนที่มีจำนวน 30 วันเดียวกัน" ข้ามปีทั้งหมด (เม.ย., มิ.ย., ก.ย., พ.ย. ของทุกปีที่มีข้อมูลจริง นำมารวมจัดอันดับร่วมกันเป็นกลุ่มเดียว ไม่จำกัดเฉพาะเดือนปฏิทินเดียวกัน)':'Ranks actual monthly production comparing all 30-day months across every year (Apr, Jun, Sep, Nov of every year with real data are pooled into one group — not restricted to the same calendar month)',
   'จัดอันดับผลผลิตจริงเดือน ก.พ. เทียบเฉพาะปีอธิกสุรทิน (Leap Year, ก.พ. มี 29 วัน) ด้วยกันเท่านั้น ไม่นำ ก.พ. ปีปกติ (28 วัน) มารวมจัดอันดับ':'Ranks actual February production comparing leap years only (Feb has 29 days); non-leap Februaries (28 days) are not included',
   'จัดอันดับผลผลิตจริงเดือน ก.พ. เทียบเฉพาะปีปกติ (ก.พ. มี 28 วัน) ด้วยกันเท่านั้น ไม่นำ ก.พ. ปีอธิกสุรทิน (29 วัน) มารวมจัดอันดับ':'Ranks actual February production comparing non-leap years only (Feb has 28 days); leap-year Februaries (29 days) are not included',
-  'จัดอันดับผลผลิตจริงรายเดือนรวมโรงเยื่อ 1+2 เทียบเฉพาะ "เดือนเดียวกันข้ามปี" เท่านั้น (ไม่นำเดือนอื่นมารวม) จากข้อมูล Actual ทั้งหมดที่มี':'Ranks actual combined Fiberline 1+2 monthly production comparing the same calendar month across years only (no other months mixed in), from all available Actual data',
+  'จัดอันดับผลผลิตจริงรายเดือนรวมโรงเยื่อ 1+2 เทียบเฉพาะ "เดือนเดียวกันข้ามปี" เท่านั้น (ไม่นำเดือนอื่นมารวม) จากข้อมูล Actual ทั้งหมดที่มี':'Ranks actual combined Pulp mill 1+2 monthly production comparing the same calendar month across years only (no other months mixed in), from all available Actual data',
   // static foot notes (behind "Show details")
   'ข้อมูลผลผลิตรายวันดึงจาก Google Sheets "Data Base Fiberline 1" (Pulp Mill 1) ณ วันที่ 7 กันยายน 2026 — เป็นข้อมูล snapshot ที่ดึงมา ณ เวลาจัดทำหน้านี้ ไม่ได้เชื่อมต่อสด (live) กับชีตต้นทาง หากต้องการข้อมูลล่าสุด โปรดแจ้งให้ดึงข้อมูลใหม่':'Daily production data is read from the Google Sheet "Data Base Fiberline 1" (Pulp Mill 1). Reload the page to pull the latest.',
   'Actual รายวัน: ชีต Daily (Act) (gid=0) · Budget รายวัน (เส้นทึบสีเทา): ชีต Daily (BG) (gid=1682718600) คอลัมน์ B · Target รายวัน (เส้นประสีน้ำเงิน): ชีต Daily (Plan) (gid=3664159) คอลัมน์ B — เป็นข้อมูลรายวันคนละชุดกับ Budget โดยตรง จึงมีค่าต่างกันในแต่ละวัน · รายละเอียด Loss รายวัน: ชีต Daily (Loss) (gid=786133815) คอลัมน์ B · Budget รายเดือน/รายปีในกรอบสถิติ อ้างอิงจากแถว "Budget 2026" คอลัมน์ Pulp 1 ในชีตเดียวกัน · เกณฑ์สีแท่งกราฟใช้ค่าคงที่ 840 / 588 Adt/d ตามที่กำหนด':'Daily Actual: Daily (Act) tab (gid=0) · Daily Budget (solid grey line): Daily (BG) tab (gid=1682718600) column B · Daily Target (blue dashed line): Daily (Plan) tab (gid=3664159) column B — a separate daily series from Budget, so the two differ day to day · Daily loss detail: Daily (Loss) tab (gid=786133815) column B · Monthly/annual budget in the stat boxes comes from the "Budget 2026" row, Pulp 1 column, of the same sheet · Bar colour thresholds use the fixed 840 / 588 Adt/d values.',
@@ -4308,11 +4292,11 @@ const TX_PAT = [
   [/^\(เดือน ก\.พ\. 28 วัน\)$/, () => '(Feb, 28 days)'],
   [/^ผลผลิตรายเดือนโรงเยื่อ (1|2) (\(.+?\)) — เรียงมากไปน้อย$/, m => {
     const tag = { '(เดือนที่มี 31 วัน)':'(31-day months)','(เดือนที่มี 30 วัน)':'(30-day months)','(เดือน ก.พ. 29 วัน)':'(Feb, 29 days)','(เดือน ก.พ. 28 วัน)':'(Feb, 28 days)' }[m[2]] || m[2];
-    return `Fiberline ${m[1]} monthly production ${tag} — high to low`;
+    return `Pulp mill ${m[1]} monthly production ${tag} — high to low`;
   }],
   [/^สถิติผลผลิตรายเดือนโรงเยื่อ (1|2) (\(.+?\)) \(Best Record\)$/, m => {
     const tag = { '(เดือนที่มี 31 วัน)':'(31-day months)','(เดือนที่มี 30 วัน)':'(30-day months)','(เดือน ก.พ. 29 วัน)':'(Feb, 29 days)','(เดือน ก.พ. 28 วัน)':'(Feb, 28 days)' }[m[2]] || m[2];
-    return `Fiberline ${m[1]} monthly production record ${tag} (Best Record)`;
+    return `Pulp mill ${m[1]} monthly production record ${tag} (Best Record)`;
   }],
   [/^หมายเหตุ: ตั้งแต่เดือน (.+?) เป็นต้นไป ตัวเลข Actual รายเดือนที่ดึงจากชีตเป็นค่าประมาณการ\/แผนการผลิตล่วงหน้า.*$/, m =>
     `Note: from ${TX_MONTH(m[1])} onward the monthly Actual figures pulled from the sheet are estimates / forward plan; the pale bars and any "estimate" tags mark them, and they are excluded from the Best Record statistics.`],
@@ -4323,7 +4307,7 @@ const TX_PAT = [
   [/^หมายเหตุ: ปี (\d{4}) ยอดรวมทั้งปี.*$/, m =>
     `Note: the ${m[1]} full-year total includes estimated figures for the incomplete months onward (the year is not yet fully logged).`],
   [/^ผลผลิตจริงรายเดือน 10 อันดับสูงสุดของโรงเยื่อ (.+?) นับตั้งแต่เริ่มเดินเครื่องผลิต \(ปี (\d{4})[–-](\d{4})\)$/, m =>
-    `Top 10 highest monthly production for Fiberline ${m[1].replace('รวมทั้งโรงงาน','whole mill').replace('(','(' )} since start-up (years ${m[2]}–${m[3]})`],
+    `Top 10 highest monthly production for Pulp mill ${m[1].replace('รวมทั้งโรงงาน','whole mill').replace('(','(' )} since start-up (years ${m[2]}–${m[3]})`],
 ];
 
 /* last-resort phrase substitution for the long, heavily-interpolated methodology
@@ -4346,21 +4330,21 @@ const TX_PHRASES = [
   ['ผลผลิตเกิดจริงรายเดือนรวมทั้งโรงงาน','combined whole-mill actual monthly production'],
   ['ผลผลิตเกิดจริงรายเดือน','actual monthly production'],
   ['ผลผลิต Budget รายเดือน','monthly budget'],
-  ['ผลรวมโรงเยื่อ 1 + โรงเยื่อ 2','sum of Fiberline 1 + Fiberline 2'],
-  ['สีแท่งแยกตามโรงเยื่อ','bar colour by fiberline'],
+  ['ผลรวมโรงเยื่อ 1 + โรงเยื่อ 2','sum of Pulp mill 1 + Pulp mill 2'],
+  ['สีแท่งแยกตามโรงเยื่อ','bar colour by mill'],
   ['แท่งสีอ่อนลง = เดือนที่ยังเป็นค่าประมาณการ','paler bar = month still an estimate'],
   ['ไม่รวมเดือนของปีปัจจุบันที่ยังไม่ปิดข้อมูลจริงครบเดือน','current-year months that are not yet fully logged are excluded'],
   ['นับตั้งแต่เริ่มเดินเครื่องผลิต','since start-up'],
   ['เรียงจากผลผลิตมากไปน้อย','sorted from highest production to lowest'],
   ['จัดอันดับผลผลิตจริงรวมทั้งโรงงาน','ranks the combined whole-mill actual production'],
-  ['จัดอันดับผลผลิตจริงรวมทั้งปีของโรงเยื่อ','ranks the full-year actual production of Fiberline'],
+  ['จัดอันดับผลผลิตจริงรวมทั้งปีของโรงเยื่อ','ranks the full-year actual production of Pulp mill'],
   ['เทียบกับทุกปีที่มีข้อมูล','against every year with data'],
   ['กราฟนี้แสดงผลผลิตจริงของเดือนในกลุ่ม','This chart shows the actual production of the months in the group'],
   ['กราฟนี้แสดง','This chart shows'],
   ['วิธีจัดอันดับ','Ranking method'],
   ['ปีที่เข้าเกณฑ์','qualifying years'],
   ['รวมทั้งโรงงาน','whole mill'],
-  ['โรงเยื่อ','Fiberline'],
+  ['โรงเยื่อ','Pulp mill'],
   ['เดือนเดียวกันข้ามปี','the same calendar month across years'],
   ['เดือนที่มี 31 วัน','31-day months'],['เดือนที่มี 30 วัน','30-day months'],
   ['เดือน ก.พ. 29 วัน','Feb, 29 days'],['เดือน ก.พ. 28 วัน','Feb, 28 days'],
@@ -4528,7 +4512,7 @@ function buildProductionCsv(){
     const s = String(cell);
     return /[",\n]/.test(s) ? '"' + s.replace(/"/g,'""') + '"' : s;
   }).join(',')).join('\r\n');
-  return { filename:`fiberline1-production-${MONTH_NAMES_EN[mi]}-${YEAR}.csv`, csv:'﻿'+csv };
+  return { filename:`pulpmill1-production-${MONTH_NAMES_EN[mi]}-${YEAR}.csv`, csv:'﻿'+csv };
 }
 function triggerCsvExport(){
   const built = currentPageId === 'production-pm1' ? buildProductionCsv()
@@ -4897,7 +4881,7 @@ for(let cmi=6; cmi<chipWoodRows.length; cmi++){
 }
 const chipMonPct = v => { const n = parseSheetNum(v); return (n==null || n<0 || n>100) ? null : n; };
 const chipMonRaw = v => parseSheetNum(String(v==null?'':v).replace(/%/g,''));
-/* daily Fiberline-1 production (ADt/day) by date, from the Daily (Act) sheet — for per-ADt ratios */
+/* daily Pulp mill-1 production (ADt/day) by date, from the Daily (Act) sheet — for per-ADt ratios */
 const PROD_BY_DATE = {};
 try{ (dailyActParsed.entries||[]).forEach(e=>{ if(e.val!=null) PROD_BY_DATE[e.y+'-'+e.mi+'-'+e.d] = e.val; }); }catch(e){}
 function chipMonVal(rec, meta){
