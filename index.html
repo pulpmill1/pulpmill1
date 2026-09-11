@@ -374,6 +374,12 @@
   .tb-search-empty{padding:10px 9px; font-size:12px; color:var(--ink-3);}
 
 
+  .tb-visits{display:flex; align-items:center; gap:5px; border:1px solid var(--border); border-radius:9px;
+    background:var(--surface-2); padding:0 10px; height:36px; flex-shrink:0; font-size:12px; color:var(--ink-2); white-space:nowrap;}
+  .tb-visits .tv-ico{font-size:13px;}
+  .tb-visits .tv-count{font-family:"IBM Plex Mono",monospace; font-weight:700; color:var(--ink);}
+  .tb-more-row .tv-count{font-family:"IBM Plex Mono",monospace; font-weight:700; color:var(--ink);}
+
   .tb-lang{display:flex; border:1px solid var(--border); border-radius:9px; overflow:hidden; flex-shrink:0;}
   .tb-lang-btn{background:var(--surface-2); border:none; color:var(--ink-2); font-size:11.5px; font-weight:700;
     padding:8px 11px; cursor:pointer;}
@@ -439,7 +445,7 @@
     .tb-search-toggle{display:flex;}
   }
   @media (max-width:900px){
-    .tb-lang, #refreshBtn, #notifBtn, #exportBtn{display:none;}
+    .tb-lang, .tb-visits, #refreshBtn, #notifBtn, #exportBtn{display:none;}
     .tb-more{display:flex;}
   }
   @media (max-width:560px){
@@ -471,6 +477,24 @@
   .mon-group-head .gt{font-size:14.5px;font-weight:800;letter-spacing:.015em;color:var(--ink);}
   .mon-group-head .gs{font-size:11px;color:var(--ink-3);margin-left:auto;}
   .mon-tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(216px,1fr));gap:12px;}
+
+  .exec-kpi-panel{background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);padding:16px 18px;margin-bottom:18px;}
+  .exec-kpi-head{display:flex;align-items:center;gap:8px;margin-bottom:12px;}
+  .exec-kpi-head .ek-icon{font-size:17px;}
+  .exec-kpi-head .ek-title{font-size:15px;font-weight:800;color:var(--ink);letter-spacing:.01em;}
+  .exec-kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;}
+  .ek-card{position:relative;background:var(--surface);border:1px solid var(--border);border-top:3px solid var(--ek-rail,#7C4DFF);border-radius:12px;padding:13px 14px 12px;overflow:hidden;}
+  .ek-top{display:flex;align-items:center;gap:7px;}
+  .ek-ico{font-size:13px;}
+  .ek-name{font-size:12.5px;font-weight:700;color:var(--ink-2);}
+  .ek-val{font-family:"IBM Plex Mono",monospace;font-size:24.2px;font-weight:800;color:var(--ink);margin-top:6px;line-height:1;}
+  .ek-unit{font-size:11.5px;color:var(--ink-3);font-weight:500;margin-left:4px;}
+  .ek-sub{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:9px;font-size:11.55px;color:var(--ink-2);font-family:"IBM Plex Mono",monospace;flex-wrap:wrap;}
+  .ek-arrow.up{color:#12a150;}.ek-arrow.down{color:#d4342c;}.ek-arrow.flat{color:var(--ink-3);}
+  .ek-spark-wrap{position:relative;display:block;width:100%;height:34px;margin-top:9px;}
+  .ek-spark{width:100%;height:34px;display:block;}
+  .ek-date{font-size:10.5px;color:var(--ink-3);margin-top:7px;}
+  .ek-nodata{font-size:12px;color:var(--ink-3);margin-top:10px;}
   .mon-tile{position:relative;background:var(--surface);border:1px solid var(--border);border-top:3px solid var(--mon-rail,#7C4DFF);
     border-radius:12px;padding:13px 14px 12px;cursor:pointer;box-shadow:var(--shadow);transition:transform .1s,box-shadow .12s;overflow:hidden;}
   .mon-tile:hover{transform:translateY(-1px);box-shadow:0 2px 4px rgba(18,34,38,.08),0 12px 28px rgba(18,34,38,.10);}
@@ -490,10 +514,10 @@
   .mt-name{font-size:12px;font-weight:600;color:var(--ink-2);line-height:1.25;min-width:0;}
   .mt-dot{width:7px;height:7px;border-radius:50%;margin-left:auto;flex-shrink:0;background:var(--ink-3);}
   .mt-dot.ok{background:#12a150;}.mt-dot.warn{background:#e0a000;}.mt-dot.bad{background:#d4342c;}
-  .mt-val{font-family:"IBM Plex Mono",monospace;font-size:22px;font-weight:700;color:var(--ink);margin-top:6px;line-height:1;}
+  .mt-val{font-family:"IBM Plex Mono",monospace;font-size:24.2px;font-weight:700;color:var(--ink);margin-top:6px;line-height:1;}
   .mt-unit{font-size:11px;color:var(--ink-3);font-weight:500;margin-left:3px;}
   .mt-row3{display:flex;align-items:flex-end;justify-content:space-between;gap:8px;margin-top:9px;}
-  .mt-sub{font-size:10.5px;color:var(--ink-2);font-family:"IBM Plex Mono",monospace;white-space:nowrap;}
+  .mt-sub{font-size:11.55px;color:var(--ink-2);font-family:"IBM Plex Mono",monospace;white-space:nowrap;}
   .mt-sub .up{color:#12a150;}.mt-sub .down{color:#d4342c;}.mt-sub .flat{color:var(--ink-3);}
   .mt-spark-wrap{position:relative;width:88px;height:30px;flex-shrink:0;}
   .mt-spark{width:88px;height:30px;display:block;}
@@ -610,6 +634,10 @@
 
       <div class="tb-spacer"></div>
 
+      <div class="tb-visits" id="tbVisits" title="จำนวนครั้งที่เข้าชม Dashboard นี้ (นับ 1 ครั้งต่อเซสชันเบราว์เซอร์)">
+        <span class="tv-ico">👁</span><span class="tv-count" id="tbVisitCount">—</span>
+      </div>
+
       <div class="tb-lang" id="tbLang">
         <button class="tb-lang-btn active" data-lang="th" type="button">TH</button>
         <button class="tb-lang-btn" data-lang="en" type="button">EN</button>
@@ -650,6 +678,7 @@
             <button class="tb-lang-btn" data-lang="en" type="button">EN</button>
           </div>
         </div>
+        <div class="tb-more-row"><span>👁 ผู้เข้าชม</span><span class="tv-count" id="moreVisitCount">—</span></div>
         <button class="tb-menu-item" id="moreRefreshBtn" type="button">⟳ รีเฟรชข้อมูล</button>
         <button class="tb-menu-item" id="moreExportBtn" type="button" disabled>⬇ ดาวน์โหลดข้อมูล (CSV)</button>
         <button class="tb-menu-item" id="moreNotifBtn" type="button" disabled>🔔 การแจ้งเตือน (ยังไม่เปิดใช้งาน)</button>
@@ -1246,6 +1275,10 @@
         </section>
 
         <section class="page" data-page="yield" hidden>
+          <div class="exec-kpi-panel" id="execKpiPanel">
+            <div class="exec-kpi-head"><span class="ek-icon">🎯</span><span class="ek-title">สรุปตัวชี้วัดสำคัญ (Executive KPI Summary)</span></div>
+            <div class="exec-kpi-grid" id="execKpiGrid"></div>
+          </div>
           <div id="chipMonHost">
             <div class="mon-group">
               <div class="mon-group-head"><span class="gi">📈</span><span class="gt">Yield (BDt/ADt)</span><span class="gs">Yield + Yield Balance Tank · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
@@ -4028,6 +4061,8 @@ const TX_EN = {
   'น้ำเสียเข้าระบบบำบัด (ETP)':'Effluent to the ETP',
   'สายพันธุ์ไม้สับ (โรงเยื่อ 1 Actual)':'Wood species (Fiberline 1 actual)',
   'Yield + Yield Balance Tank · คลิกที่บล็อกเพื่อดูประวัติ':'Yield + Yield Balance Tank · click the tile for its history',
+  'สรุปตัวชี้วัดสำคัญ (Executive KPI Summary)':'Executive KPI Summary',
+  'ผู้เข้าชม':'Visits',
   '5 ค่า · คลิกที่บล็อกเพื่อดูประวัติ':'5 metrics · click a tile for its history',
   '3 ค่า · คลิกที่บล็อกเพื่อดูประวัติ':'3 metrics · click a tile for its history',
   'โรงเยื่อ 1+2 (รวมทั้งโรงงาน)':'Fiberline 1+2 (whole mill)',
@@ -4398,6 +4433,31 @@ const moreRefreshBtnEl = document.getElementById('moreRefreshBtn');
 if(refreshBtnEl) refreshBtnEl.addEventListener('click', triggerRefresh);
 if(moreRefreshBtnEl) moreRefreshBtnEl.addEventListener('click', triggerRefresh);
 
+/* ---- visitor counter: a real, shared hit count for this dashboard via a free public
+   counter service (abacus.jasoncameron.dev — no login, no backend of our own). Counts
+   once per browser session (sessionStorage guard) so page navigation / a refresh inside
+   the same visit doesn't inflate it. Fails silently (shows "—") if the service is down. */
+(function initVisitCounter(){
+  const elTop = document.getElementById('tbVisitCount');
+  const elMore = document.getElementById('moreVisitCount');
+  if(!elTop && !elMore) return;
+  const render = n => {
+    const txt = (n==null || isNaN(n)) ? '—' : Number(n).toLocaleString('en-US');
+    if(elTop) elTop.textContent = txt;
+    if(elMore) elMore.textContent = txt;
+  };
+  const NS = 'pulpmill1-fiberline1-dashboard', KEY = 'visits';
+  let counted = false;
+  try{ counted = sessionStorage.getItem('pm1_visit_counted') === '1'; }catch(e){}
+  const url = 'https://abacus.jasoncameron.dev/' + (counted ? 'get' : 'hit') + '/' + NS + '/' + KEY;
+  fetch(url).then(r=> r.ok ? r.json() : Promise.reject(r.status))
+    .then(d=> {
+      render(d && typeof d.value === 'number' ? d.value : null);
+      if(!counted){ try{ sessionStorage.setItem('pm1_visit_counted', '1'); }catch(e){} }
+    })
+    .catch(()=> render(null));
+})();
+
 /* ---- user menu / Role View selector (display-only — never changes data access
    or the underlying user account; see roleNoteText in the dropdown) ---- */
 const tbUserBtn = document.getElementById('tbUserBtn');
@@ -4529,6 +4589,7 @@ function applyLang(lang){
   renderAvg7();
   if(typeof renderSummaryOverview === 'function' && document.getElementById('summaryBody1')) renderSummaryOverview();
   if(typeof chipMonRenderTiles === 'function' && document.getElementById('chipMonHost')){
+    if(typeof renderExecKpiPanel === 'function') renderExecKpiPanel();
     CHIP_MON_GROUPS.forEach(g=>{ chipMonRenderTiles(g); chipMonRenderDetail(g.id); });
   }
   if(typeof i18nApplyPage === 'function') i18nApplyPage();
@@ -4641,6 +4702,7 @@ if(document.getElementById('summaryBody1')){
 const CHIP_MON_META = [
   {key:'yieldBdt',     col:78, th:'Yield',               unit:'BDt/ADt', dec:3, grp:'yield', scored:false},
   {key:'yieldBalTank', col:79, th:'Yield Balance Tank',   unit:'BDt/ADt', dec:3, grp:'yield', scored:false, hideTile:true},
+  {key:'chipWeightGT', col:74, th:'Chip weight',          unit:'GT/day',  dec:0, grp:'yield', scored:false, zeroIsMissing:true, hideTile:true},
   {key:'bulkDensity',    col:26, th:'Bulk density',              unit:'kg/m³', dec:1, grp:'bulk',   scored:false, spec:[300,350]},
   {key:'bulkDensityDry', col:27, th:'Bulk density × Dryness',    unit:'kg/m³', dec:1, grp:'bulk',   scored:false},
   {key:'dryness',        col:28, th:'Dryness',                   unit:'%',     dec:2, pct01:true, grp:'bulk',   scored:true,  dir:'lower',  specHi:54},
@@ -4712,7 +4774,7 @@ const chipMonYesterdayEnd = (()=>{ const d = new Date(); d.setHours(0,0,0,0); re
 const chipMonCeil = (()=>{
   let mx = 0;
   for(const rc of CHIP_MON_ROWS){
-    if([54,55,56,57,64,66,73,78,79].some(c=> chipMonRaw(rc.r[c])!=null)) mx = Math.max(mx, rc.ts);
+    if([54,55,56,57,64,66,73,74,78,79].some(c=> chipMonRaw(rc.r[c])!=null)) mx = Math.max(mx, rc.ts);
   }
   mx = mx || Number.MAX_SAFE_INTEGER;
   // never show "today" — the mill's own day isn't closed out yet, so cap at yesterday
@@ -4813,6 +4875,82 @@ function chipMonRangeOptions(m, grpId){
 }
 
 /* ---- tiles ---- */
+/* ---- Executive KPI Summary panel (top of the Yield page) ---- */
+const EXEC_KPI = [
+  {key:'yieldBdt',     ico:'📈', rail:'#1565C0'},
+  {key:'chipWeightGT', ico:'🪵', rail:'#7C4DFF'},
+  {key:'moisture',     ico:'💧', rail:'#0E7C86'},
+  {key:'endProd',      ico:'📦', rail:'#B25C00'},
+];
+const execKpiSparks = {};
+function renderExecKpiPanel(){
+  const grid = document.getElementById('execKpiGrid');
+  if(!grid) return;
+  const EN = currentLang==='en';
+  const noData = EN ? 'No data yet' : 'ยังไม่มีข้อมูล';
+  const avgLbl = EN ? '7d avg (prior)' : 'เฉลี่ย 7 วันก่อนหน้า';
+  grid.innerHTML = EXEC_KPI.map(k=> {
+    const m = CHIP_MON_META.find(x=> x.key===k.key);
+    const s = CHIP_MON_SERIES[k.key] || [];
+    if(!m || !s.length){
+      return '<div class="ek-card" style="--ek-rail:'+k.rail+';--mon-rail:'+k.rail+'">'
+        + '<div class="ek-top"><span class="ek-ico">'+k.ico+'</span><span class="ek-name">'+(m?m.th:k.key)+'</span></div>'
+        + '<div class="ek-nodata">'+noData+'</div></div>';
+    }
+    const anchor = s[s.length-1];
+    // 7-day average of the 7 days strictly BEFORE the shown date (excludes the anchor itself)
+    const prior = s.slice(Math.max(0, s.length-8), s.length-1);
+    const priorAvg = prior.length ? prior.reduce(function(p,c){ return p+c.v; }, 0)/prior.length : null;
+    const d = priorAvg==null ? null : anchor.v - priorAvg;
+    const flat = d==null ? true : Math.abs(d) < 0.005;
+    const dcls = d==null ? 'flat' : flat ? 'flat' : d>0 ? 'up' : 'down';
+    const arrow = d==null ? '' : flat ? '–' : d>0 ? '↑' : '↓';
+    const dateStr = EN ? (MONTH_ABBR_EN[anchor.mi]+' '+anchor.d+', '+anchor.y) : (anchor.d+' '+MONTH_ABBR_TH[anchor.mi]+' '+anchor.y);
+    return '<div class="ek-card" style="--ek-rail:'+k.rail+';--mon-rail:'+k.rail+'">'
+      + '<div class="ek-top"><span class="ek-ico">'+k.ico+'</span><span class="ek-name">'+m.th+'</span></div>'
+      + '<div class="ek-val">'+chipMonFmt(anchor.v, m.dec)+'<span class="ek-unit">'+m.unit+'</span></div>'
+      + '<div class="ek-sub">'
+      +   (d==null ? '' : '<span class="ek-arrow '+dcls+'">'+arrow+' '+chipMonFmt(Math.abs(d), m.dec)+'</span>')
+      +   '<span class="ek-7d">'+avgLbl+': '+(priorAvg==null?'—':chipMonFmt(priorAvg, m.dec))+'</span>'
+      + '</div>'
+      + '<span class="ek-spark-wrap"><canvas class="ek-spark" id="execSpark_'+k.key+'"></canvas><i class="spark-live" id="execLive_'+k.key+'" hidden></i></span>'
+      + '<div class="ek-date">'+dateStr+'</div>'
+      + '</div>';
+  }).join('');
+  EXEC_KPI.forEach(function(k){
+    const s0 = CHIP_MON_SERIES[k.key];
+    if(!s0 || !s0.length) return;
+    const aTs = s0[s0.length-1].ts;
+    const s = s0.filter(function(x){ return x.ts >= aTs - 30*86400000; });
+    const cv = document.getElementById('execSpark_'+k.key);
+    const live = document.getElementById('execLive_'+k.key);
+    if(execKpiSparks[k.key]){ try{ execKpiSparks[k.key].destroy(); }catch(e){} }
+    execKpiSparks[k.key] = chipMonMakeSpark(cv, live, s, k.rail);
+  });
+}
+
+/* shared sparkline builder: tight y-bounds + a pulsing dot pinned to the latest point.
+   Used by both the monitor tiles and the Executive KPI panel. */
+function chipMonMakeSpark(cv, live, s, railColor){
+  if(!cv || !s || !s.length) return null;
+  const ys = s.map(x=> x.v);
+  let lo = Math.min.apply(null, ys), hi = Math.max.apply(null, ys);
+  if(!(hi > lo)){ const b = Math.abs(hi) || 1; lo = hi - b*0.1; hi = hi + b*0.1; }
+  const padY = (hi - lo) * 0.14;   // tight bounds -> day-to-day wiggle fills the sparkline height
+  const placeLive = ch=> {
+    if(!live) return;
+    try{ const mt = ch.getDatasetMeta(0), p = mt.data[mt.data.length-1];
+      if(p && isFinite(p.x) && isFinite(p.y)){ live.style.left = p.x+'px'; live.style.top = p.y+'px'; live.hidden = false; } }catch(e){}
+  };
+  const cfg = { type:'line', data:{ labels:s.map(()=> ''), datasets:[{ data:ys, borderColor:railColor, borderWidth:1.7, pointRadius:s.map((_,i)=> i===s.length-1 ? 2.2 : 0), pointBackgroundColor:railColor, pointBorderColor:railColor, pointHoverRadius:0, tension:.28, fill:false }] },
+    options:{ responsive:true, maintainAspectRatio:false, animation:false, plugins:{legend:{display:false}, tooltip:{enabled:false}, datalabels:{display:false}},
+      scales:{ x:{display:false}, y:{display:false, min:lo-padY, max:hi+padY} }, elements:{line:{borderJoinStyle:'round'}} },
+    plugins:[{ id:'sparkLiveDot', afterDraw:placeLive }] };
+  const chart = new Chart(cv.getContext('2d'), cfg);
+  placeLive(chart);
+  requestAnimationFrame(()=> placeLive(chart));
+  return chart;
+}
 function chipMonRenderTiles(grp){
   const wrap = document.getElementById('chipTiles_'+grp.id);
   const metas = CHIP_MON_META.filter(m=> m.grp===grp.id && !m.hideTile);
@@ -4824,7 +4962,11 @@ function chipMonRenderTiles(grp){
       const d = a.anchor.v - a.prev.v;
       const dcls = Math.abs(d) < 0.005 ? 'flat' : d > 0 ? 'up' : 'down';
       const arrow = Math.abs(d) < 0.005 ? '–' : d > 0 ? '↑' : '↓';
-      sub = `<span class="${dcls}">${arrow} ${chipMonFmt(Math.abs(d), m.dec)}</span>  7d ${chipMonFmt(chipMonMean(a.last7), m.dec)}`;
+      const sevenD = chipMonMean(a.last7);
+      const d7 = sevenD==null ? null : a.anchor.v - sevenD;
+      const d7cls = d7==null ? 'flat' : Math.abs(d7) < 0.005 ? 'flat' : d7 > 0 ? 'up' : 'down';
+      const d7arrow = d7==null ? '' : Math.abs(d7) < 0.005 ? '–' : d7 > 0 ? '↑' : '↓';
+      sub = `<span class="${dcls}">${arrow} ${chipMonFmt(Math.abs(d), m.dec)}</span>  7d ${chipMonFmt(sevenD, m.dec)}` + (d7==null ? '' : ` <span class="${d7cls}">${d7arrow}</span>`);
       if(m.scored && a.dev!=null){
         const ad = Math.abs(a.dev);
         dot = ad <= 2 ? 'ok' : ad <= 3 ? 'warn' : 'bad';
@@ -4844,23 +4986,8 @@ function chipMonRenderTiles(grp){
     if(!s.length) return;
     const cv = document.getElementById('chipSpark_'+m.key);
     const live = document.getElementById('chipLive_'+m.key);
-    const ys = s.map(x=> x.v);
-    let lo = Math.min.apply(null, ys), hi = Math.max.apply(null, ys);
-    if(!(hi > lo)){ const b = Math.abs(hi) || 1; lo = hi - b*0.1; hi = hi + b*0.1; }
-    const padY = (hi - lo) * 0.14;   // tight bounds -> day-to-day wiggle fills the sparkline height
-    const placeLive = ch=> {
-      if(!live) return;
-      try{ const mt = ch.getDatasetMeta(0), p = mt.data[mt.data.length-1];
-        if(p && isFinite(p.x) && isFinite(p.y)){ live.style.left = p.x+'px'; live.style.top = p.y+'px'; live.hidden = false; } }catch(e){}
-    };
-    const cfg = { type:'line', data:{ labels:s.map(()=> ''), datasets:[{ data:ys, borderColor:grp.rail, borderWidth:1.7, pointRadius:s.map((_,i)=> i===s.length-1 ? 2.2 : 0), pointBackgroundColor:grp.rail, pointBorderColor:grp.rail, pointHoverRadius:0, tension:.28, fill:false }] },
-      options:{ responsive:true, maintainAspectRatio:false, animation:false, plugins:{legend:{display:false}, tooltip:{enabled:false}, datalabels:{display:false}},
-        scales:{ x:{display:false}, y:{display:false, min:lo-padY, max:hi+padY} }, elements:{line:{borderJoinStyle:'round'}} },
-      plugins:[{ id:'sparkLiveDot', afterDraw:placeLive }] };
     if(chipMonSparks[m.key]){ try{ chipMonSparks[m.key].destroy(); }catch(e){} }
-    chipMonSparks[m.key] = new Chart(cv.getContext('2d'), cfg);
-    placeLive(chipMonSparks[m.key]);
-    requestAnimationFrame(()=> { const c = chipMonSparks[m.key]; if(c) placeLive(c); });
+    chipMonSparks[m.key] = chipMonMakeSpark(cv, live, s, grp.rail);
   });
 }
 
@@ -5092,6 +5219,7 @@ function chipMonAssess(m, a, tgt){
 /* ---- init ---- */
 function initChipMon(){
   if(!CHIP_MON_ROWS.length) return;
+  renderExecKpiPanel();
   CHIP_MON_GROUPS.forEach(grp=> {
     chipMonRenderTiles(grp);
     // start with every detail panel collapsed — tiles only
@@ -5117,6 +5245,7 @@ function initChipMon(){
     chipMonToggle(tile.dataset.grp, tile.dataset.key);
   });
   window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', ()=> {
+    renderExecKpiPanel();
     CHIP_MON_GROUPS.forEach(grp=> { chipMonRenderTiles(grp); chipMonRenderDetail(grp.id); });
   });
 }
