@@ -5336,8 +5336,13 @@ function renderYaEffectMoisture(){
   const pct = (diff!=null && yieldPrev) ? (diff/yieldPrev*100) : null;
   diffEl.textContent = diff==null ? '—' : chipMonFmt(diff, 3);
   pctEl.textContent = pct==null ? '—' : chipMonFmt(pct, 2);
-  if(remarkEl) remarkEl.textContent = (diff==null || pct==null) ? '' :
-    'Effect Chip moisture diff '+chipMonFmt(diff,3)+' Bdt/Adt, '+chipMonFmt(pct,2)+' %';
+  if(remarkEl){
+    if(diff==null || pct==null) remarkEl.textContent = '';
+    else{
+      const trend = diff>0 ? 'Yield แย่ลงจาก ' : diff<0 ? 'Yield ดีขึ้นจาก ' : '';
+      remarkEl.textContent = trend+'- Effect Chip moisture diff '+chipMonFmt(diff,3)+' Bdt/Adt, '+chipMonFmt(pct,2)+' %';
+    }
+  }
 }
 /* "3. Effect Wood species" major row — weighted-average yield factor from the species mix:
    Σ (species fraction × its own yield factor), e.g. K58 6.9% contributes 0.069*1.883 — the "%"
