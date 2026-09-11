@@ -1428,7 +1428,7 @@
                     <tr class="ya-sub" data-ya-in="g0"><td class="ya-label">- Chip/batch</td><td class="ya-unit">BDt/batch</td><td class="num" id="yaCell_chipPerBatch_prev"></td><td class="num" id="yaCell_chipPerBatch_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
                     <tr class="ya-major" data-ya-group="g1"><td class="ya-label"><span class="yc">▾</span>1. Effect Chip Weight</td><td class="ya-unit">Bdt/Adt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
                     <tr class="ya-sub" data-ya-in="g1"><td class="ya-label">- Diff Chip Weight (Pending Calc.)</td><td class="ya-unit">Bdt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
-                    <tr class="ya-major" data-ya-group="g2"><td class="ya-label"><span class="yc">▾</span>2. Effect Moisture</td><td class="ya-unit">Bdt/Adt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-major" data-ya-group="g2"><td class="ya-label"><span class="yc">▾</span>2. Effect Moisture</td><td class="ya-unit">Bdt/Adt</td><td class="num" id="yaCell_effMoisture_prev"></td><td class="num" id="yaCell_effMoisture_cur"></td><td class="num" id="yaCell_effMoisture_diffbdt"></td><td class="num" id="yaCell_effMoisture_diffpct"></td><td class="ya-remark" id="yaCell_effMoisture_remark"></td></tr>
                     <tr class="ya-sub" data-ya-in="g2"><td class="ya-label">- Chip moisture (Lab)</td><td class="ya-unit">%</td><td class="num" id="yaCell_moistureLab_prev"></td><td class="num" id="yaCell_moistureLab_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
                     <tr class="ya-sub" data-ya-in="g2"><td class="ya-label">- Chip moisture (Online)</td><td class="ya-unit">%</td><td class="num" id="yaCell_moistureOnline_prev"></td><td class="num" id="yaCell_moistureOnline_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
                     <tr class="ya-major" data-ya-group="g3"><td class="ya-label"><span class="yc">▾</span>3. Effect Wood species</td><td class="ya-unit">Bdt/Adt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
@@ -5304,10 +5304,46 @@ function renderYieldAnalysisColumn(which){
   const headEl = document.getElementById(which==='prev' ? 'yaColPrev' : 'yaColCur');
   if(headEl) headEl.textContent = yaHeaderLabel(st);
 }
+/* "2. Effect Moisture" major row — the first Effect row with a real mill formula:
+   ( ChipWeightScaleNet * (1 - MoistureLab%) / EndProd ) - ( ChipWeightScaleNet * (1 - MoistureOnline%) / EndProd )
+   evaluated once per period column using that column's own picker, then Diff. Effect (Bdt/Adt and %)
+   and the REMARK sentence are derived from both columns together — so this runs after BOTH columns
+   are rendered, not per-column like yaPickValue-driven rows. */
+function yaEffectMoistureValue(which){
+  const st = YA_STATE[which];
+  const w = yaPickValue('chipWeightScaleNet', st.mode, st.value);
+  const lab = yaPickValue('moistureLab', st.mode, st.value);
+  const online = yaPickValue('moistureOnline', st.mode, st.value);
+  const ep = yaPickValue('endProd', st.mode, st.value);
+  if(w==null || lab==null || online==null || ep==null || ep===0) return null;
+  const a = w*(1 - lab/100)/ep;
+  const b = w*(1 - online/100)/ep;
+  return a - b;
+}
+function renderYaEffectMoisture(){
+  const prevEl = document.getElementById('yaCell_effMoisture_prev');
+  if(!prevEl) return;
+  const curEl = document.getElementById('yaCell_effMoisture_cur');
+  const diffEl = document.getElementById('yaCell_effMoisture_diffbdt');
+  const pctEl = document.getElementById('yaCell_effMoisture_diffpct');
+  const remarkEl = document.getElementById('yaCell_effMoisture_remark');
+  const vPrev = yaEffectMoistureValue('prev');
+  const vCur = yaEffectMoistureValue('cur');
+  prevEl.textContent = vPrev==null ? '—' : chipMonFmt(vPrev, 3);
+  curEl.textContent = vCur==null ? '—' : chipMonFmt(vCur, 3);
+  const diff = (vPrev!=null && vCur!=null) ? (vCur - vPrev) : null;
+  const yieldPrev = yaPickValue('yieldBdt', YA_STATE.prev.mode, YA_STATE.prev.value);
+  const pct = (diff!=null && yieldPrev) ? (diff/yieldPrev*100) : null;
+  diffEl.textContent = diff==null ? '—' : chipMonFmt(diff, 3);
+  pctEl.textContent = pct==null ? '—' : chipMonFmt(pct, 2);
+  if(remarkEl) remarkEl.textContent = (diff==null || pct==null) ? '' :
+    'Effect Chip moisture diff '+chipMonFmt(diff,3)+' Bdt/Adt, '+chipMonFmt(pct,2)+' %';
+}
 function renderYieldAnalysisTable(){
   if(!document.getElementById('yaModePrev')) return;
   renderYieldAnalysisColumn('prev');
   renderYieldAnalysisColumn('cur');
+  renderYaEffectMoisture();
 }
 function yaApplyMode(which){
   const Suffix = which==='prev' ? 'Prev' : 'Cur';
@@ -5323,6 +5359,7 @@ function yaApplyMode(which){
   const value = mode==='date' ? dateInp.value : mode==='month' ? monthInp.value : yearSel.value;
   YA_STATE[which] = { mode:mode, value:value || null };
   renderYieldAnalysisColumn(which);
+  renderYaEffectMoisture();
 }
 function initYieldAnalysisControls(){
   const modePrev = document.getElementById('yaModePrev');
