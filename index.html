@@ -528,10 +528,10 @@
   .ek-top{display:flex;align-items:center;gap:7px;}
   .ek-ico{font-size:13px;opacity:.9;}
   .ek-name{font-size:11.5px;font-weight:700;color:#8098B7;letter-spacing:.04em;text-transform:uppercase;}
-  .ek-val{font-family:"IBM Plex Mono",monospace;font-size:26px;font-weight:800;color:#fff;margin-top:8px;line-height:1;}
+  .ek-val{font-family:"IBM Plex Mono",monospace;font-size:33.8px;font-weight:800;color:#fff;margin-top:8px;line-height:1;}
   .ek-unit{font-size:12px;color:#8098B7;font-weight:500;margin-left:4px;}
   .ek-sub{display:flex;align-items:center;gap:9px;margin-top:9px;font-size:11.55px;color:#9FB4CE;font-family:"IBM Plex Mono",monospace;flex-wrap:wrap;}
-  .ek-arrow.up{color:#4ade80;}.ek-arrow.down{color:#f87171;}.ek-arrow.flat{color:#8098B7;}
+  .ek-arrow.up{color:#f87171;}.ek-arrow.down{color:#4ade80;}.ek-arrow.flat{color:#8098B7;}
   .ek-spark-wrap{position:relative;display:block;width:100%;height:34px;margin-top:12px;}
   .ek-spark{width:100%;height:34px;display:block;}
   .ek-date{font-size:10.5px;color:#7690AF;margin-top:8px;}
@@ -545,8 +545,8 @@
   .mon-tile.sel .mt-val{color:#fff;}
   .mon-tile.sel .mt-unit{color:#8098B7;}
   .mon-tile.sel .mt-sub{color:#9FB4CE;}
-  .mon-tile.sel .mt-sub .up{color:#4ade80;}
-  .mon-tile.sel .mt-sub .down{color:#f87171;}
+  .mon-tile.sel .mt-sub .up{color:#f87171;}
+  .mon-tile.sel .mt-sub .down{color:#4ade80;}
   .mon-tile.sel .mt-sub .flat{color:#8098B7;}
   .mon-tile.sel .mt-ico{opacity:.95;}
   .mon-tile.sel .mt-dot{background:#7f97b3;}
@@ -559,7 +559,7 @@
   .mt-unit{font-size:11px;color:var(--ink-3);font-weight:500;margin-left:3px;}
   .mt-row3{display:flex;align-items:flex-end;justify-content:space-between;gap:8px;margin-top:9px;}
   .mt-sub{font-size:11.55px;color:var(--ink-2);font-family:"IBM Plex Mono",monospace;white-space:nowrap;}
-  .mt-sub .up{color:#12a150;}.mt-sub .down{color:#d4342c;}.mt-sub .flat{color:var(--ink-3);}
+  .mt-sub .up{color:#d4342c;}.mt-sub .down{color:#12a150;}.mt-sub .flat{color:var(--ink-3);}
   .mt-spark-wrap{position:relative;width:88px;height:30px;flex-shrink:0;}
   .mt-spark{width:88px;height:30px;display:block;}
   .spark-live{position:absolute;width:5px;height:5px;border-radius:50%;background:var(--mon-rail,#7C4DFF);box-shadow:0 0 3px var(--mon-rail,#7C4DFF);transform:translate(-50%,-50%);pointer-events:none;z-index:2;}
@@ -4973,17 +4973,13 @@ const chipMonSparks = {};                                 // sparkline chart per
 
 function chipMonFmt(v, dec){ return v==null ? '—' : v.toLocaleString('en-US', {minimumFractionDigits:dec, maximumFractionDigits:dec}); }
 /* colored up/down arrow for a stat-strip cell: latest reading vs. that cell's own period value.
-   Green/red only when the metric has a known "good direction" (dir:'higher'/'lower'); otherwise
-   a neutral-colored arrow that still shows direction without implying good/bad. */
-function chipMonTrendArrow(latest, ref, dir){
+   House convention across the whole Yield page: ↓ is always green, ↑ is always red. */
+function chipMonTrendArrow(latest, ref){
   if(latest==null || ref==null || !isFinite(latest) || !isFinite(ref)) return '';
   const diff = latest - ref;
   if(Math.abs(diff) < 1e-9) return '<span class="tr-flat">–</span>';
   const up = diff > 0;
-  let cls = 'tr-flat';
-  if(dir==='higher') cls = up ? 'tr-good' : 'tr-bad';
-  else if(dir==='lower') cls = up ? 'tr-bad' : 'tr-good';
-  return '<span class="'+cls+'">'+(up?'↑':'↓')+'</span>';
+  return '<span class="'+(up?'tr-bad':'tr-good')+'">'+(up?'↑':'↓')+'</span>';
 }
 function chipMonMonthLabel(mi, y){ return `${currentLang==='en'?(MONTH_ABBR_EN?MONTH_ABBR_EN[mi]:mi):MONTH_ABBR_TH[mi]} ${String(y).slice(2)}`; }
 function chipMonRangeOptions(m, grpId){
@@ -5024,10 +5020,10 @@ function renderExecKpiPanel(){
         + '<div class="ek-nodata">'+noData+'</div></div>';
     }
     const anchor = s[s.length-1];
-    // 7-day average of the 7 days strictly BEFORE the shown date (excludes the anchor itself)
-    const prior = s.slice(Math.max(0, s.length-8), s.length-1);
-    const priorAvg = prior.length ? prior.reduce(function(p,c){ return p+c.v; }, 0)/prior.length : null;
-    const d = priorAvg==null ? null : anchor.v - priorAvg;
+    // 7-day average INCLUDING the shown day as 1 of the 7 (same convention the monitor tiles use)
+    const window7 = s.slice(Math.max(0, s.length-7));
+    const avg7 = window7.length ? window7.reduce(function(p,c){ return p+c.v; }, 0)/window7.length : null;
+    const d = avg7==null ? null : anchor.v - avg7;
     const flat = d==null ? true : Math.abs(d) < 0.005;
     const dcls = d==null ? 'flat' : flat ? 'flat' : d>0 ? 'up' : 'down';
     const arrow = d==null ? '' : flat ? '–' : d>0 ? '↑' : '↓';
@@ -5037,7 +5033,7 @@ function renderExecKpiPanel(){
       + '<div class="ek-val">'+chipMonFmt(anchor.v, m.dec)+'<span class="ek-unit">'+m.unit+'</span></div>'
       + '<div class="ek-sub">'
       +   (d==null ? '' : '<span class="ek-arrow '+dcls+'">'+arrow+' '+chipMonFmt(Math.abs(d), m.dec)+'</span>')
-      +   '<span class="ek-7d">'+avgLbl+': '+(priorAvg==null?'—':chipMonFmt(priorAvg, m.dec))+'</span>'
+      +   '<span class="ek-7d">'+avgLbl+': '+(d==null ? '' : '<span class="ek-arrow '+dcls+'">'+arrow+'</span> ')+(avg7==null?'—':chipMonFmt(avg7, m.dec))+'</span>'
       + '</div>'
       + '<span class="ek-spark-wrap"><canvas class="ek-spark" id="execSpark_'+k.key+'"></canvas><i class="spark-live" id="execLive_'+k.key+'" hidden></i></span>'
       + '<div class="ek-date">'+dateStr+'</div>'
@@ -5092,7 +5088,7 @@ function chipMonRenderTiles(grp){
       const d7 = sevenD==null ? null : a.anchor.v - sevenD;
       const d7cls = d7==null ? 'flat' : Math.abs(d7) < 0.005 ? 'flat' : d7 > 0 ? 'up' : 'down';
       const d7arrow = d7==null ? '' : Math.abs(d7) < 0.005 ? '–' : d7 > 0 ? '↑' : '↓';
-      sub = `<span class="${dcls}">${arrow} ${chipMonFmt(Math.abs(d), m.dec)}</span>  7d ${chipMonFmt(sevenD, m.dec)}` + (d7==null ? '' : ` <span class="${d7cls}">${d7arrow}</span>`);
+      sub = `<span class="${dcls}">${arrow} ${chipMonFmt(Math.abs(d), m.dec)}</span>  7d ` + (d7==null ? '' : `<span class="${d7cls}">${d7arrow}</span> `) + `${chipMonFmt(sevenD, m.dec)}`;
       if(m.scored && a.dev!=null){
         const ad = Math.abs(a.dev);
         dot = ad <= 2 ? 'ok' : ad <= 3 ? 'warn' : 'bad';
@@ -5159,11 +5155,11 @@ function chipMonRenderDetail(grpId){
 
     <div class="md-strip">
       <div class="md-cell hero"><div class="ck">Latest</div><div class="cv">${chipMonFmt(a.anchor.v, m.dec)}<small> ${m.unit}</small></div><div class="cs">${anchorDate}</div></div>
-      <div class="md-cell"><div class="ck">7 วัน</div><div class="cv">${chipMonFmt(chipMonMean(a.last7), m.dec)} ${chipMonTrendArrow(a.anchor.v, chipMonMean(a.last7), m.dir)}</div><div class="cs">ค่าเฉลี่ย ${a.last7.length} วันล่าสุด</div></div>
-      <div class="md-cell"><div class="ck">${curLbl}</div><div class="cv">${chipMonFmt(chipMonMean(a.curMon), m.dec)} ${chipMonTrendArrow(a.anchor.v, chipMonMean(a.curMon), m.dir)}</div><div class="cs">เฉลี่ย ${a.curMon.length} วันที่บันทึก</div></div>
-      <div class="md-cell"><div class="ck">${prevLbl}</div><div class="cv">${chipMonFmt(chipMonMean(a.prevMon), m.dec)} ${chipMonTrendArrow(a.anchor.v, chipMonMean(a.prevMon), m.dir)}</div><div class="cs">เฉลี่ย ${a.prevMon.length} วันที่บันทึก</div></div>
-      <div class="md-cell"><div class="ck">${a.anchor.y}</div><div class="cv">${chipMonFmt(chipMonMean(a.yrVals), m.dec)} ${chipMonTrendArrow(a.anchor.v, chipMonMean(a.yrVals), m.dir)}</div><div class="cs">เฉลี่ย ${a.yrVals.length} วันที่บันทึก</div></div>
-      <div class="md-cell"><div class="ck">Est. ${MONTH_ABBR_TH[a.anchor.mi]} สิ้นเดือน</div><div class="cv">${a.est==null ? '—' : chipMonFmt(a.est, m.dec)} ${chipMonTrendArrow(a.anchor.v, a.est, m.dir)}</div><div class="cs">${a.est==null ? 'ต้องมี ≥ 3 วัน' : `${a.curMon.length} วันจริง + ${a.remaining} วันที่อัตรา 7 วัน`}</div></div>
+      <div class="md-cell"><div class="ck">7 วัน</div><div class="cv">${chipMonTrendArrow(a.anchor.v, chipMonMean(a.last7))} ${chipMonFmt(chipMonMean(a.last7), m.dec)}</div><div class="cs">ค่าเฉลี่ย ${a.last7.length} วันล่าสุด</div></div>
+      <div class="md-cell"><div class="ck">${curLbl}</div><div class="cv">${chipMonTrendArrow(a.anchor.v, chipMonMean(a.curMon))} ${chipMonFmt(chipMonMean(a.curMon), m.dec)}</div><div class="cs">เฉลี่ย ${a.curMon.length} วันที่บันทึก</div></div>
+      <div class="md-cell"><div class="ck">${prevLbl}</div><div class="cv">${chipMonTrendArrow(a.anchor.v, chipMonMean(a.prevMon))} ${chipMonFmt(chipMonMean(a.prevMon), m.dec)}</div><div class="cs">เฉลี่ย ${a.prevMon.length} วันที่บันทึก</div></div>
+      <div class="md-cell"><div class="ck">${a.anchor.y}</div><div class="cv">${chipMonTrendArrow(a.anchor.v, chipMonMean(a.yrVals))} ${chipMonFmt(chipMonMean(a.yrVals), m.dec)}</div><div class="cs">เฉลี่ย ${a.yrVals.length} วันที่บันทึก</div></div>
+      <div class="md-cell"><div class="ck">Est. ${MONTH_ABBR_TH[a.anchor.mi]} สิ้นเดือน</div><div class="cv">${chipMonTrendArrow(a.anchor.v, a.est)} ${a.est==null ? '—' : chipMonFmt(a.est, m.dec)}</div><div class="cs">${a.est==null ? 'ต้องมี ≥ 3 วัน' : `${a.curMon.length} วันจริง + ${a.remaining} วันที่อัตรา 7 วัน`}</div></div>
       <div class="md-cell"><div class="ck">Deviation</div><div class="cv ${a.dev==null?'':a.dev<0?'neg':'pos'}">${a.dev==null?'—':(a.dev>=0?'+':'')+a.dev.toFixed(1)+'σ'}</div>
         <div class="md-track"><span class="z"></span><span class="m ${devOut?'out':''}" style="left:${devTrackPct}%"></span></div></div>
     </div>
