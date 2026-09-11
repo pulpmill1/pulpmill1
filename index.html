@@ -1424,7 +1424,7 @@
                     <tr class="ya-sub" data-ya-in="g0"><td class="ya-label">- Chip (Weight scale หักลบเฉ่งกอง)</td><td class="ya-unit">BDt/day</td><td class="num" id="yaCell_chipWeightScaleNet_prev"></td><td class="num" id="yaCell_chipWeightScaleNet_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
                     <tr class="ya-sub" data-ya-in="g0"><td class="ya-label">- End. Prod.</td><td class="ya-unit">Adt/day</td><td class="num" id="yaCell_endProd_prev"></td><td class="num" id="yaCell_endProd_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
                     <tr class="ya-sub" data-ya-in="g0"><td class="ya-label">- End. Prod. balance tank</td><td class="ya-unit">Adt/day</td><td class="num" id="yaCell_endProdBal_prev"></td><td class="num" id="yaCell_endProdBal_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
-                    <tr class="ya-sub" data-ya-in="g0"><td class="ya-label">- No of cooks</td><td class="ya-unit">Cooks</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-sub" data-ya-in="g0"><td class="ya-label">- No of cooks</td><td class="ya-unit">Cooks</td><td class="num" id="yaCell_noOfCooks_prev"></td><td class="num" id="yaCell_noOfCooks_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
                     <tr class="ya-sub" data-ya-in="g0"><td class="ya-label">- Chip/batch</td><td class="ya-unit">BDt/batch</td><td class="num" id="yaCell_chipPerBatch_prev"></td><td class="num" id="yaCell_chipPerBatch_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
                     <tr class="ya-major" data-ya-group="g1"><td class="ya-label"><span class="yc">▾</span>1. Effect Chip Weight</td><td class="ya-unit">Bdt/Adt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
                     <tr class="ya-sub" data-ya-in="g1"><td class="ya-label">- Diff Chip Weight (Pending Calc.)</td><td class="ya-unit">Bdt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
@@ -1595,7 +1595,7 @@ const DAYS_IN_MONTH = [31,28,31,30,31,30,31,31,30,31,30,31];
    Daily (Act) gid=0, Daily (BG) gid=1682718600, Daily (Plan) gid=3664159, Daily (Loss) gid=786133815
    Monthly (Act) gid=1448795576, Monthly (Budget) gid=1872828527 */
 const SHEET_ID = '1dStWwliEd6YhSOL3oT8JNyWHZOuII5F-QVeubIrBS50';
-const SHEET_GIDS = { dailyAct:0, dailyBg:1682718600, dailyPlan:3664159, dailyLoss:786133815, monthlyAct:1448795576, monthlyBudget:1872828527, chipWood:632351488 };
+const SHEET_GIDS = { dailyAct:0, dailyBg:1682718600, dailyPlan:3664159, dailyLoss:786133815, monthlyAct:1448795576, monthlyBudget:1872828527, chipWood:632351488, cookingCond:1561629878 };
 function sheetCsvUrl(gid){ return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${gid}`; }
 
 // robust CSV parser: handles quoted fields, embedded commas, embedded newlines, doubled-quote escaping
@@ -1689,9 +1689,9 @@ function parseMonthlySheet(rows, labelWord){
   return byYear;
 }
 
-const [dailyActRows, dailyBgRows, dailyPlanRows, dailyLossRows, monthlyActRows, monthlyBudgetRows, chipWoodRows] = await Promise.all([
+const [dailyActRows, dailyBgRows, dailyPlanRows, dailyLossRows, monthlyActRows, monthlyBudgetRows, chipWoodRows, cookingCondRows] = await Promise.all([
   fetchSheetCsv(SHEET_GIDS.dailyAct), fetchSheetCsv(SHEET_GIDS.dailyBg), fetchSheetCsv(SHEET_GIDS.dailyPlan), fetchSheetCsv(SHEET_GIDS.dailyLoss),
-  fetchSheetCsv(SHEET_GIDS.monthlyAct), fetchSheetCsv(SHEET_GIDS.monthlyBudget), fetchSheetCsv(SHEET_GIDS.chipWood),
+  fetchSheetCsv(SHEET_GIDS.monthlyAct), fetchSheetCsv(SHEET_GIDS.monthlyBudget), fetchSheetCsv(SHEET_GIDS.chipWood), fetchSheetCsv(SHEET_GIDS.cookingCond),
 ]);
 
 const dailyActParsed = parseDailySheet(dailyActRows, {numeric:true});
@@ -4978,6 +4978,10 @@ const COL_TANK_BUILDUP = resolveChipCol('End Prod. Balance - End Prod.', 78);
 const COL_CHIP_WEIGHT_SCALE = resolveChipCol('Chip weight', 75);
 const COL_CHIP_WEIGHT_SCALE_NET = resolveChipCol('Chip (Weight scale หักลบเฉ่งกอง)', 76);
 const COL_CHIP_PER_BATCH = resolveChipCol('Chip/batch', 77);
+/* "No of cooks" lives on a SEPARATE sheet tab ("Cooking Condition", gid 1561629878), not in the
+   chip-wood tab at all, so there's no header to resolve here — its daily values are merged into
+   each CHIP_MON_ROWS record below at this virtual (never-real) column index. */
+const COL_NO_OF_COOKS = 900;
 const CHIP_MON_META = [
   {key:'yieldBdt',     col:COL_YIELD, th:'Yield',               unit:'BDt/ADt', dec:3, grp:'yield', scored:false, hideTile:true},
   {key:'yieldBalTank', col:COL_YIELD_BALTANK, th:'Yield Balance Tank',   unit:'BDt/ADt', dec:3, grp:'yield', scored:false, hideTile:true},
@@ -4988,6 +4992,7 @@ const CHIP_MON_META = [
   {key:'chipWeightScale',    col:COL_CHIP_WEIGHT_SCALE, th:'Chip (Weight scale)', unit:'BDt/day', dec:2, grp:'yield', scored:false, hideTile:true},
   {key:'chipWeightScaleNet', col:COL_CHIP_WEIGHT_SCALE_NET, th:'Chip (Weight scale หักลบเฉ่งกอง)', unit:'BDt/day', dec:2, grp:'yield', scored:false, hideTile:true},
   {key:'chipPerBatch',       col:COL_CHIP_PER_BATCH, th:'Chip/batch', unit:'BDt/batch', dec:2, grp:'yield', scored:false, hideTile:true},
+  {key:'noOfCooks',          col:COL_NO_OF_COOKS, th:'No of cooks', unit:'Cooks', dec:0, grp:'yield', scored:false, hideTile:true},
   {key:'chipWeightGT', col:74, th:'Chip weight',          unit:'GT/day',  dec:0, grp:'yield', scored:false, zeroIsMissing:true, hideTile:true},
   {key:'bulkDensity',    col:26, th:'Bulk density',              unit:'kg/m³', dec:1, grp:'bulk',   scored:false, spec:[300,350]},
   {key:'bulkDensityDry', col:27, th:'Bulk density × Dryness',    unit:'kg/m³', dec:1, grp:'bulk',   scored:false},
@@ -5036,6 +5041,18 @@ for(let cmi=6; cmi<chipWoodRows.length; cmi++){
   if(!cm) continue;
   CHIP_MON_ROWS.push({ y:+cm[3], mi:(+cm[2])-1, d:+cm[1], ts:new Date(+cm[3],(+cm[2])-1,+cm[1]).getTime(), r:cr });
 }
+// Merge in "No of cooks" from the separate "Cooking Condition" tab (gid 1561629878), keyed by date —
+// that sheet has its own row layout, unrelated to chip-wood's, so it can't share chipWoodRows' indices.
+const COOKING_BY_DATE = new Map();
+for(let cci=0; cci<cookingCondRows.length; cci++){
+  const ccr = cookingCondRows[cci];
+  const ccm = chipMonDre.exec(String((ccr && ccr[1]) || '').trim());
+  if(!ccm) continue;
+  COOKING_BY_DATE.set((+ccm[3])*10000 + (+ccm[2])*100 + (+ccm[1]), ccr[2]);
+}
+CHIP_MON_ROWS.forEach(function(rec){
+  rec.r[COL_NO_OF_COOKS] = COOKING_BY_DATE.get(rec.y*10000 + (rec.mi+1)*100 + rec.d);
+});
 const chipMonPct = v => { const n = parseSheetNum(v); return (n==null || n<0 || n>100) ? null : n; };
 const chipMonRaw = v => parseSheetNum(String(v==null?'':v).replace(/%/g,''));
 /* daily Pulp mill-1 production (ADt/day) by date, from the Daily (Act) sheet — for per-ADt ratios */
@@ -5060,7 +5077,7 @@ const chipMonYesterdayEnd = (()=>{ const d = new Date(); d.setHours(0,0,0,0); re
 const chipMonCeil = (()=>{
   let mx = 0;
   for(const rc of CHIP_MON_ROWS){
-    if([54,55,56,57,64,66,73,74,COL_YIELD,COL_YIELD_BALTANK,COL_MOIST_ONLINE,COL_SULPHIDITY,COL_TANK_BUILDUP,COL_CHIP_WEIGHT_SCALE,COL_CHIP_WEIGHT_SCALE_NET,COL_CHIP_PER_BATCH].some(c=> chipMonRaw(rc.r[c])!=null)) mx = Math.max(mx, rc.ts);
+    if([54,55,56,57,64,66,73,74,COL_YIELD,COL_YIELD_BALTANK,COL_MOIST_ONLINE,COL_SULPHIDITY,COL_TANK_BUILDUP,COL_CHIP_WEIGHT_SCALE,COL_CHIP_WEIGHT_SCALE_NET,COL_CHIP_PER_BATCH,COL_NO_OF_COOKS].some(c=> chipMonRaw(rc.r[c])!=null)) mx = Math.max(mx, rc.ts);
   }
   mx = mx || Number.MAX_SAFE_INTEGER;
   // never show "today" — the mill's own day isn't closed out yet, so cap at yesterday
@@ -5232,7 +5249,7 @@ function renderExecKpiPanel(){
    exist in the Yield sheet data, so those are wired to CHIP_MON_SERIES — each of
    the two columns has its own date/month/year picker (YA_STATE.prev/cur); month
    and year pick an AVERAGE over that period, a specific date an exact reading. */
-const YA_ROW_KEYS = ['yieldBdt','chipWeightScale','chipWeightScaleNet','endProd','endProdBal','chipPerBatch','moistureLab','moistureOnline','woodK58','woodK7','woodSeed','woodOther','woodSt1m','bark','kappaCook','sdKappa','sulphidity','diffBalance','kwRejectAdt','kwReject','volEtp','tssEtp','tankBuildup'];
+const YA_ROW_KEYS = ['yieldBdt','chipWeightScale','chipWeightScaleNet','endProd','endProdBal','noOfCooks','chipPerBatch','moistureLab','moistureOnline','woodK58','woodK7','woodSeed','woodOther','woodSt1m','bark','kappaCook','sdKappa','sulphidity','diffBalance','kwRejectAdt','kwReject','volEtp','tssEtp','tankBuildup'];
 const YA_STATE = { prev:{mode:'month', value:null}, cur:{mode:'month', value:null} };
 function yaPickValue(key, mode, value){
   const s = CHIP_MON_SERIES[key];
