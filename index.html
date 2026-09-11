@@ -1437,14 +1437,14 @@
                     <tr class="ya-sub" data-ya-in="g5"><td class="ya-label">- Bark</td><td class="ya-unit">%</td><td class="num" id="yaCell_bark_prev"></td><td class="num" id="yaCell_bark_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
                     <tr class="ya-major" data-ya-group="g6"><td class="ya-label"><span class="yc">▾</span>6. Effect Kappa no.</td><td class="ya-unit">Bdt/Adt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
                     <tr class="ya-sub" data-ya-in="g6"><td class="ya-label">- Kappa no.</td><td class="ya-unit">-</td><td class="num" id="yaCell_kappaCook_prev"></td><td class="num" id="yaCell_kappaCook_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
-                    <tr class="ya-sub" data-ya-in="g6"><td class="ya-label">- SD</td><td class="ya-unit">%</td><td class="num" id="yaCell_sdKappa_prev"></td><td class="num" id="yaCell_sdKappa_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
-                    <tr class="ya-sub" data-ya-in="g6"><td class="ya-label">- CV</td><td class="ya-unit">%</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-sub" data-ya-in="g6"><td class="ya-label">- SD Kappa</td><td class="ya-unit">-</td><td class="num" id="yaCell_sdKappa_prev"></td><td class="num" id="yaCell_sdKappa_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-sub" data-ya-in="g6"><td class="ya-label">- CV Kappa</td><td class="ya-unit">%</td><td class="num" id="yaCell_cvKappa_prev"></td><td class="num" id="yaCell_cvKappa_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
                     <tr class="ya-major" data-ya-group="g7"><td class="ya-label"><span class="yc">▾</span>7. Effect Sulphidity</td><td class="ya-unit">Bdt/Adt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
                     <tr class="ya-sub" data-ya-in="g7"><td class="ya-label">- Sulphidity</td><td class="ya-unit">%</td><td class="num" id="yaCell_sulphidity_prev"></td><td class="num" id="yaCell_sulphidity_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
                     <tr class="ya-major" data-ya-group="g8"><td class="ya-label"><span class="yc">▾</span>8. Effect Diff. prod. balance</td><td class="ya-unit">Bdt/Adt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
                     <tr class="ya-sub" data-ya-in="g8"><td class="ya-label">- %Diff. production</td><td class="ya-unit">-</td><td class="num" id="yaCell_diffBalance_prev"></td><td class="num" id="yaCell_diffBalance_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
                     <tr class="ya-major" data-ya-group="g9"><td class="ya-label"><span class="yc">▾</span>9. Effect เยื่อสะสมในถัง</td><td class="ya-unit">Bdt/Adt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
-                    <tr class="ya-sub" data-ya-in="g9"><td class="ya-label">- เยื่อสะสมในถัง</td><td class="ya-unit">Adt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-sub" data-ya-in="g9"><td class="ya-label">- เยื่อสะสมในถัง</td><td class="ya-unit">Adt</td><td class="num" id="yaCell_tankBuildup_prev"></td><td class="num" id="yaCell_tankBuildup_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
                     <tr class="ya-major" data-ya-group="g10"><td class="ya-label"><span class="yc">▾</span>10. Effect Waste</td><td class="ya-unit">Bdt/Adt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
                     <tr class="ya-sub2" data-ya-in="g10"><td class="ya-label">Effect (Knot+White)</td><td class="ya-unit">Bdt/Adt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
                     <tr class="ya-sub3" data-ya-in="g10"><td class="ya-label">Knot + White reject</td><td class="ya-unit">kg/ADT</td><td class="num" id="yaCell_kwRejectAdt_prev"></td><td class="num" id="yaCell_kwRejectAdt_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
@@ -4968,12 +4968,14 @@ const COL_YIELD = resolveChipCol('Yield', 79);           // sheet header has a t
 const COL_YIELD_BALTANK = resolveChipCol('Yield Balane Tank', 80); // sheet's own spelling ("Balane")
 const COL_MOIST_ONLINE = resolveChipCol('Chip Moisture (Online)', 82);
 const COL_SULPHIDITY = resolveChipCol('Sulphidity', 83);
+const COL_TANK_BUILDUP = resolveChipCol('End Prod. Balance - End Prod.', 78);
 const CHIP_MON_META = [
   {key:'yieldBdt',     col:COL_YIELD, th:'Yield',               unit:'BDt/ADt', dec:3, grp:'yield', scored:false, hideTile:true},
   {key:'yieldBalTank', col:COL_YIELD_BALTANK, th:'Yield Balance Tank',   unit:'BDt/ADt', dec:3, grp:'yield', scored:false, hideTile:true},
   {key:'moistureLab',    col:29, th:'Chip Moisture (Lab)',    unit:'%', dec:2, grp:'yield', scored:false, hideTile:true},
   {key:'moistureOnline', col:COL_MOIST_ONLINE, th:'Chip Moisture (Online)', unit:'%', dec:2, grp:'yield', scored:false, hideTile:true},
   {key:'sulphidity',     col:COL_SULPHIDITY, th:'Sulphidity',              unit:'%', dec:2, grp:'yield', scored:false, hideTile:true},
+  {key:'tankBuildup',    col:COL_TANK_BUILDUP, th:'End Prod. Balance - End Prod.', unit:'Adt/day', dec:3, grp:'endprod', scored:false, hideTile:true},
   {key:'chipWeightGT', col:74, th:'Chip weight',          unit:'GT/day',  dec:0, grp:'yield', scored:false, zeroIsMissing:true, hideTile:true},
   {key:'bulkDensity',    col:26, th:'Bulk density',              unit:'kg/m³', dec:1, grp:'bulk',   scored:false, spec:[300,350]},
   {key:'bulkDensityDry', col:27, th:'Bulk density × Dryness',    unit:'kg/m³', dec:1, grp:'bulk',   scored:false},
@@ -5046,7 +5048,7 @@ const chipMonYesterdayEnd = (()=>{ const d = new Date(); d.setHours(0,0,0,0); re
 const chipMonCeil = (()=>{
   let mx = 0;
   for(const rc of CHIP_MON_ROWS){
-    if([54,55,56,57,64,66,73,74,COL_YIELD,COL_YIELD_BALTANK,COL_MOIST_ONLINE,COL_SULPHIDITY].some(c=> chipMonRaw(rc.r[c])!=null)) mx = Math.max(mx, rc.ts);
+    if([54,55,56,57,64,66,73,74,COL_YIELD,COL_YIELD_BALTANK,COL_MOIST_ONLINE,COL_SULPHIDITY,COL_TANK_BUILDUP].some(c=> chipMonRaw(rc.r[c])!=null)) mx = Math.max(mx, rc.ts);
   }
   mx = mx || Number.MAX_SAFE_INTEGER;
   // never show "today" — the mill's own day isn't closed out yet, so cap at yesterday
@@ -5218,7 +5220,7 @@ function renderExecKpiPanel(){
    exist in the Yield sheet data, so those are wired to CHIP_MON_SERIES — each of
    the two columns has its own date/month/year picker (YA_STATE.prev/cur); month
    and year pick an AVERAGE over that period, a specific date an exact reading. */
-const YA_ROW_KEYS = ['yieldBdt','moistureLab','moistureOnline','woodK58','woodK7','woodSeed','woodOther','woodSt1m','bark','kappaCook','sdKappa','sulphidity','diffBalance','kwRejectAdt','kwReject','volEtp','tssEtp'];
+const YA_ROW_KEYS = ['yieldBdt','moistureLab','moistureOnline','woodK58','woodK7','woodSeed','woodOther','woodSt1m','bark','kappaCook','sdKappa','sulphidity','diffBalance','kwRejectAdt','kwReject','volEtp','tssEtp','tankBuildup'];
 const YA_STATE = { prev:{mode:'month', value:null}, cur:{mode:'month', value:null} };
 function yaPickValue(key, mode, value){
   const s = CHIP_MON_SERIES[key];
@@ -5263,6 +5265,13 @@ function renderYieldAnalysisColumn(which){
     const meta = CHIP_MON_META.find(function(x){ return x.key===key; });
     el.textContent = v==null ? '—' : chipMonFmt(v, meta ? meta.dec : 2);
   });
+  const cvEl = document.getElementById('yaCell_cvKappa_'+which);
+  if(cvEl){
+    const sd = yaPickValue('sdKappa', st.mode, st.value);
+    const kp = yaPickValue('kappaCook', st.mode, st.value);
+    const cv = (sd!=null && kp!=null && kp!==0) ? (sd/kp*100) : null;
+    cvEl.textContent = cv==null ? '—' : chipMonFmt(cv, 2);
+  }
   const headEl = document.getElementById(which==='prev' ? 'yaColPrev' : 'yaColCur');
   if(headEl) headEl.textContent = yaHeaderLabel(st);
 }
