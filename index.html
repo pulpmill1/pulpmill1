@@ -1431,7 +1431,7 @@
                     <tr class="ya-major" data-ya-group="g2"><td class="ya-label"><span class="yc">▾</span>2. Effect Chip Moisture</td><td class="ya-unit">Bdt/Adt</td><td class="num" id="yaCell_effMoisture_prev"></td><td class="num" id="yaCell_effMoisture_cur"></td><td class="num" id="yaCell_effMoisture_diffbdt"></td><td class="num" id="yaCell_effMoisture_diffpct"></td><td class="ya-remark" id="yaCell_effMoisture_remark"></td></tr>
                     <tr class="ya-sub" data-ya-in="g2"><td class="ya-label">- Chip moisture (Lab)</td><td class="ya-unit">%</td><td class="num" id="yaCell_moistureLab_prev"></td><td class="num" id="yaCell_moistureLab_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
                     <tr class="ya-sub" data-ya-in="g2"><td class="ya-label">- Chip moisture (Online)</td><td class="ya-unit">%</td><td class="num" id="yaCell_moistureOnline_prev"></td><td class="num" id="yaCell_moistureOnline_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
-                    <tr class="ya-major" data-ya-group="g3"><td class="ya-label"><span class="yc">▾</span>3. Effect Wood species</td><td class="ya-unit">Bdt/Adt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-major" data-ya-group="g3"><td class="ya-label"><span class="yc">▾</span>3. Effect Wood species</td><td class="ya-unit">Bdt/Adt</td><td class="num" id="yaCell_effWood_prev"></td><td class="num" id="yaCell_effWood_cur"></td><td class="num" id="yaCell_effWood_diffbdt"></td><td class="num" id="yaCell_effWood_diffpct"></td><td class="ya-remark" id="yaCell_effWood_remark"></td></tr>
                     <tr class="ya-sub" data-ya-in="g3"><td class="ya-label">- K58</td><td class="ya-unit">%</td><td class="num" id="yaCell_woodK58_prev"></td><td class="num" id="yaCell_woodK58_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
                     <tr class="ya-sub" data-ya-in="g3"><td class="ya-label">- K7</td><td class="ya-unit">%</td><td class="num" id="yaCell_woodK7_prev"></td><td class="num" id="yaCell_woodK7_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
                     <tr class="ya-sub" data-ya-in="g3"><td class="ya-label">- Seed</td><td class="ya-unit">%</td><td class="num" id="yaCell_woodSeed_prev"></td><td class="num" id="yaCell_woodSeed_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
@@ -5339,11 +5339,65 @@ function renderYaEffectMoisture(){
   if(remarkEl) remarkEl.textContent = (diff==null || pct==null) ? '' :
     'Effect Chip moisture diff '+chipMonFmt(diff,3)+' Bdt/Adt, '+chipMonFmt(pct,2)+' %';
 }
+/* "3. Effect Wood species" major row — weighted-average yield factor from the species mix:
+   Σ (species fraction × its own yield factor), e.g. K58 6.9% contributes 0.069*1.883 — the "%"
+   in the mill's formula means ÷100 (same convention as Effect Moisture's "100%-X%"), which is what
+   keeps this on the same ~2 Bdt/Adt scale as Actual Yield instead of a raw hundreds-scale sum. */
+const YA_WOOD_SPECIES = [
+  {key:'woodK58', name:'K58', factor:1.883},
+  {key:'woodK7', name:'K7', factor:2.033},
+  {key:'woodSeed', name:'Seed', factor:2.090},
+  {key:'woodOther', name:'Other', factor:2.010},
+  {key:'woodSt1m', name:'St>1 m', factor:2.127},
+];
+function yaEffectWoodValue(which){
+  const st = YA_STATE[which];
+  let sum = 0;
+  for(const sp of YA_WOOD_SPECIES){
+    const v = yaPickValue(sp.key, st.mode, st.value);
+    if(v==null) return null;
+    sum += (v/100) * sp.factor;
+  }
+  return sum;
+}
+function renderYaEffectWoodSpecies(){
+  const prevEl = document.getElementById('yaCell_effWood_prev');
+  if(!prevEl) return;
+  const curEl = document.getElementById('yaCell_effWood_cur');
+  const diffEl = document.getElementById('yaCell_effWood_diffbdt');
+  const pctEl = document.getElementById('yaCell_effWood_diffpct');
+  const remarkEl = document.getElementById('yaCell_effWood_remark');
+  const vPrev = yaEffectWoodValue('prev');
+  const vCur = yaEffectWoodValue('cur');
+  prevEl.textContent = vPrev==null ? '—' : chipMonFmt(vPrev, 3);
+  curEl.textContent = vCur==null ? '—' : chipMonFmt(vCur, 3);
+  const diff = (vPrev!=null && vCur!=null) ? (vCur - vPrev) : null;
+  const yieldPrev = yaPickValue('yieldBdt', YA_STATE.prev.mode, YA_STATE.prev.value);
+  const pct = (diff!=null && yieldPrev) ? (diff/yieldPrev*100) : null;
+  diffEl.textContent = diff==null ? '—' : chipMonFmt(diff, 3);
+  pctEl.textContent = pct==null ? '—' : chipMonFmt(pct, 2);
+  if(!remarkEl) return;
+  if(diff==null || pct==null){ remarkEl.innerHTML = ''; return; }
+  const up = [], down = [];
+  YA_WOOD_SPECIES.forEach(function(sp){
+    const p = yaPickValue(sp.key, YA_STATE.prev.mode, YA_STATE.prev.value);
+    const c = yaPickValue(sp.key, YA_STATE.cur.mode, YA_STATE.cur.value);
+    if(p==null || c==null) return;
+    const d = c - p;
+    if(d > 0) up.push(sp.name+' '+chipMonFmt(d,1)+'%');
+    else if(d < 0) down.push(sp.name+' '+chipMonFmt(d,1)+'%');
+  });
+  let html = '- Effect Wood species '+chipMonFmt(diff,3)+' Bdt/Adt, '+chipMonFmt(pct,2)+' %';
+  if(up.length) html += '<br>- เพิ่มขึ้นจาก Wood species '+up.join(', ');
+  if(down.length) html += '<br>- ลดลงจาก Wood species '+down.join(', ');
+  remarkEl.innerHTML = html;
+}
 function renderYieldAnalysisTable(){
   if(!document.getElementById('yaModePrev')) return;
   renderYieldAnalysisColumn('prev');
   renderYieldAnalysisColumn('cur');
   renderYaEffectMoisture();
+  renderYaEffectWoodSpecies();
 }
 function yaApplyMode(which){
   const Suffix = which==='prev' ? 'Prev' : 'Cur';
@@ -5360,6 +5414,7 @@ function yaApplyMode(which){
   YA_STATE[which] = { mode:mode, value:value || null };
   renderYieldAnalysisColumn(which);
   renderYaEffectMoisture();
+  renderYaEffectWoodSpecies();
 }
 function initYieldAnalysisControls(){
   const modePrev = document.getElementById('yaModePrev');
