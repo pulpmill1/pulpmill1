@@ -4697,13 +4697,16 @@ function chipMonVal(rec, meta){
 }
 // the sheet carries placeholder / plan rows (mostly zeros) past the last real data —
 // cap every series at the latest date where an always-measured process metric
-// (Kappa cooking c64 / Diff. prod. balance c66 / TSS to ETP c73) has a reading
+// (wood species c54-57 / Kappa cooking c64 / Diff. prod. balance c66 / TSS to ETP c73) has a reading
+const chipMonYesterdayEnd = (()=>{ const d = new Date(); d.setHours(0,0,0,0); return d.getTime() - 1; })();
 const chipMonCeil = (()=>{
   let mx = 0;
   for(const rc of CHIP_MON_ROWS){
     if([54,55,56,57,64,66,73].some(c=> chipMonRaw(rc.r[c])!=null)) mx = Math.max(mx, rc.ts);
   }
-  return mx || Number.MAX_SAFE_INTEGER;
+  mx = mx || Number.MAX_SAFE_INTEGER;
+  // never show "today" — the mill's own day isn't closed out yet, so cap at yesterday
+  return Math.min(mx, chipMonYesterdayEnd);
 })();
 const CHIP_MON_SERIES = {};
 CHIP_MON_META.forEach(m=> {
