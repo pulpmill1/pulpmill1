@@ -661,7 +661,7 @@
       </div>
     </div>
     <nav class="side-nav" id="sideNav">
-      <div class="nav-group open" data-group="production">
+      <div class="nav-group" data-group="production">
         <button class="nav-parent" data-toggle="production">
           <span style="display:flex; align-items:center; min-width:0;"><span class="nav-ico">🏭</span><span class="nav-label" data-i18n-nav="navProduction">Production</span></span>
           <span class="chev">▸</span>
@@ -672,7 +672,7 @@
           <button class="nav-item" data-page="production-pm12"><span class="nav-label" data-i18n-nav="navProductionPm12">Pulp mill 1+2</span></button>
         </div>
       </div>
-      <button class="nav-item" data-page="yield"><span class="nav-ico">🌲</span><span class="nav-label" data-i18n-nav="navYield">Yield</span></button>
+      <button class="nav-item" data-page="yield"><span style="display:flex; align-items:center; min-width:0;"><span class="nav-ico">🌲</span><span class="nav-label" data-i18n-nav="navYield">Yield</span></span></button>
       <div class="nav-group" data-group="cost">
         <button class="nav-parent" data-toggle="cost">
           <span style="display:flex; align-items:center; min-width:0;"><span class="nav-ico">💰</span><span class="nav-label" data-i18n-nav="navCost">Cost</span></span>
@@ -1428,7 +1428,7 @@
                     <tr class="ya-sub" data-ya-in="g0"><td class="ya-label">- Chip/batch</td><td class="ya-unit">BDt/batch</td><td class="num" id="yaCell_chipPerBatch_prev"></td><td class="num" id="yaCell_chipPerBatch_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
                     <tr class="ya-major" data-ya-group="g1"><td class="ya-label"><span class="yc">▾</span>1. Effect Chip Weight</td><td class="ya-unit">Bdt/Adt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
                     <tr class="ya-sub" data-ya-in="g1"><td class="ya-label">- Diff Chip Weight (Pending Calc.)</td><td class="ya-unit">Bdt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
-                    <tr class="ya-major" data-ya-group="g2"><td class="ya-label"><span class="yc">▾</span>2. Effect Moisture</td><td class="ya-unit">Bdt/Adt</td><td class="num" id="yaCell_effMoisture_prev"></td><td class="num" id="yaCell_effMoisture_cur"></td><td class="num" id="yaCell_effMoisture_diffbdt"></td><td class="num" id="yaCell_effMoisture_diffpct"></td><td class="ya-remark" id="yaCell_effMoisture_remark"></td></tr>
+                    <tr class="ya-major" data-ya-group="g2"><td class="ya-label"><span class="yc">▾</span>2. Effect Chip Moisture</td><td class="ya-unit">Bdt/Adt</td><td class="num" id="yaCell_effMoisture_prev"></td><td class="num" id="yaCell_effMoisture_cur"></td><td class="num" id="yaCell_effMoisture_diffbdt"></td><td class="num" id="yaCell_effMoisture_diffpct"></td><td class="ya-remark" id="yaCell_effMoisture_remark"></td></tr>
                     <tr class="ya-sub" data-ya-in="g2"><td class="ya-label">- Chip moisture (Lab)</td><td class="ya-unit">%</td><td class="num" id="yaCell_moistureLab_prev"></td><td class="num" id="yaCell_moistureLab_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
                     <tr class="ya-sub" data-ya-in="g2"><td class="ya-label">- Chip moisture (Online)</td><td class="ya-unit">%</td><td class="num" id="yaCell_moistureOnline_prev"></td><td class="num" id="yaCell_moistureOnline_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
                     <tr class="ya-major" data-ya-group="g3"><td class="ya-label"><span class="yc">▾</span>3. Effect Wood species</td><td class="ya-unit">Bdt/Adt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
@@ -5802,6 +5802,11 @@ if(moreNotifBtnEl2) moreNotifBtnEl2.addEventListener('click', ()=>{ const mm = d
 
 applyLang(currentLang);
 showPage('production-pm1');
+// showPage() auto-expands whichever sidebar group holds the active page so navigating there
+// (search, notifications) reveals it — but on first load that means Production's sub-items
+// show by default, which reads as clutter here, so collapse it back right after landing.
+const prodNavGroupEl = document.querySelector('.nav-group[data-group="production"]');
+if(prodNavGroupEl) prodNavGroupEl.classList.remove('open');
 }catch(err){
   console.error('Dashboard data load error', err);
   const overlay = document.getElementById('dashLoadingOverlay');
