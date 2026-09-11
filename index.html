@@ -597,6 +597,23 @@
   table.md-table td.num{font-family:"IBM Plex Mono",monospace;text-align:right;}
   table.md-table tbody tr:nth-child(2n){background:var(--surface-2);}
   .md-sub{font-size:11px;color:var(--ink-3);margin-bottom:12px;}
+
+  /* ---- Yield Analysis bridge table (under the Yield chart) ---- */
+  .ya-head{display:flex;align-items:baseline;gap:8px;margin:16px 0 8px;}
+  .ya-head .yt{font-size:13.5px;font-weight:800;color:var(--ink);}
+  .ya-head .ys{font-size:11px;color:var(--ink-3);}
+  .ya-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:10px;}
+  table.ya-table{width:100%;min-width:640px;border-collapse:collapse;font-size:12px;}
+  table.ya-table th{background:var(--accent-soft);color:var(--accent-ink);font-size:10.5px;font-weight:700;padding:7px 9px;border:1px solid var(--border);text-align:center;white-space:nowrap;}
+  table.ya-table td{padding:6px 9px;border:1px solid var(--border);}
+  table.ya-table td.ya-label{white-space:normal;}
+  table.ya-table td.num{font-family:"IBM Plex Mono",monospace;text-align:right;color:var(--ink-3);min-width:78px;}
+  table.ya-table td.ya-unit{color:var(--ink-3);font-size:11px;text-align:center;white-space:nowrap;}
+  table.ya-table tr.ya-major td{background:var(--surface-2);}
+  table.ya-table tr.ya-major td.ya-label{font-weight:800;color:var(--ink);}
+  table.ya-table tr.ya-sub td.ya-label{padding-left:22px;color:var(--ink-2);font-weight:500;}
+  table.ya-table tr.ya-sub2 td.ya-label{padding-left:22px;color:var(--ink);font-weight:700;}
+  table.ya-table tr.ya-sub3 td.ya-label{padding-left:36px;color:var(--ink-2);font-weight:500;}
   .md-rangenote{font-size:11px;color:var(--ink-3);margin-top:8px;font-family:"IBM Plex Mono",monospace;}
   .md-target{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:9px 12px;margin-bottom:12px;}
   .md-target .lbl{font-size:10.5px;font-weight:800;letter-spacing:.05em;color:var(--ink-2);text-transform:uppercase;}
@@ -1357,6 +1374,63 @@
               <div class="mon-group-head"><span class="gi">📈</span><span class="gt">Yield (BDt/ADt)</span><span class="gs">Yield + Yield Balance Tank</span></div>
               <div class="mon-tiles" id="chipTiles_yield" hidden></div>
               <div class="mon-detail" id="chipDetail_yield" hidden></div>
+
+              <div class="ya-head"><span class="yt">บทวิเคราะห์ Yield (Yield Analysis)</span><span class="ys">แตกผลต่าง Yield ระหว่างสองเดือนตามปัจจัย — รอสูตร/ค่าคำนวณ ช่องข้อมูลยังเว้นว่างไว้ก่อน</span></div>
+              <div class="ya-wrap">
+                <table class="ya-table">
+                  <thead>
+                    <tr>
+                      <th rowspan="2"></th>
+                      <th rowspan="2"></th>
+                      <th rowspan="2" id="yaColPrev">Aug 2026</th>
+                      <th rowspan="2" id="yaColCur">Sep 2026</th>
+                      <th colspan="2">Diff. Effect</th>
+                    </tr>
+                    <tr>
+                      <th>Bdt/Adt</th>
+                      <th>%</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr class="ya-major"><td class="ya-label">Actual Yield</td><td class="ya-unit">Bdt/Adt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td></tr>
+                    <tr class="ya-major"><td class="ya-label">1. Effect Chip Weight</td><td class="ya-unit">Bdt/Adt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td></tr>
+                    <tr class="ya-sub"><td class="ya-label">- Diff Chip Weight (ทอ Cal.)</td><td class="ya-unit">Bdt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td></tr>
+                    <tr class="ya-major"><td class="ya-label">2. Effect Moisture</td><td class="ya-unit">Bdt/Adt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td></tr>
+                    <tr class="ya-sub"><td class="ya-label">- ความชื้น (Lab)</td><td class="ya-unit">%</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td></tr>
+                    <tr class="ya-sub"><td class="ya-label">- ความชื้น (Online)</td><td class="ya-unit">%</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td></tr>
+                    <tr class="ya-major"><td class="ya-label">3. Effect Wood species</td><td class="ya-unit">Bdt/Adt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td></tr>
+                    <tr class="ya-sub"><td class="ya-label">- K58</td><td class="ya-unit">%</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td></tr>
+                    <tr class="ya-sub"><td class="ya-label">- K7</td><td class="ya-unit">%</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td></tr>
+                    <tr class="ya-sub"><td class="ya-label">- Seed</td><td class="ya-unit">%</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td></tr>
+                    <tr class="ya-sub"><td class="ya-label">- Other</td><td class="ya-unit">%</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td></tr>
+                    <tr class="ya-sub"><td class="ya-label">- St&gt;1 m</td><td class="ya-unit">%</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td></tr>
+                    <tr class="ya-major"><td class="ya-label">4. Effect Chip size</td><td class="ya-unit">Bdt/Adt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td></tr>
+                    <tr class="ya-sub"><td class="ya-label">- ไม้สับขนาด 8-10 mm</td><td class="ya-unit">%</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td></tr>
+                    <tr class="ya-major"><td class="ya-label">5. Effect Bark</td><td class="ya-unit">Bdt/Adt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td></tr>
+                    <tr class="ya-sub"><td class="ya-label">- Bark</td><td class="ya-unit">%</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td></tr>
+                    <tr class="ya-major"><td class="ya-label">6. Effect Kappa no.</td><td class="ya-unit">Bdt/Adt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td></tr>
+                    <tr class="ya-sub"><td class="ya-label">- Kappa no.</td><td class="ya-unit">-</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td></tr>
+                    <tr class="ya-sub"><td class="ya-label">- SD</td><td class="ya-unit">%</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td></tr>
+                    <tr class="ya-sub"><td class="ya-label">- CV</td><td class="ya-unit">%</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td></tr>
+                    <tr class="ya-major"><td class="ya-label">7. Effect Sulphidity</td><td class="ya-unit">Bdt/Adt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td></tr>
+                    <tr class="ya-sub"><td class="ya-label">- Sulphidity</td><td class="ya-unit">-</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td></tr>
+                    <tr class="ya-major"><td class="ya-label">8. Effect Diff. prod. balance</td><td class="ya-unit">Bdt/Adt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td></tr>
+                    <tr class="ya-sub"><td class="ya-label">- %Diff. production</td><td class="ya-unit">-</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td></tr>
+                    <tr class="ya-major"><td class="ya-label">9. Effect เยื่อสะสมในถัง</td><td class="ya-unit">Bdt/Adt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td></tr>
+                    <tr class="ya-sub"><td class="ya-label">- เยื่อสะสมในถัง</td><td class="ya-unit">Adt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td></tr>
+                    <tr class="ya-major"><td class="ya-label">10. Effect Waste</td><td class="ya-unit">Bdt/Adt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td></tr>
+                    <tr class="ya-sub2"><td class="ya-label">Effect (Knot+White)</td><td class="ya-unit">Bdt/Adt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td></tr>
+                    <tr class="ya-sub3"><td class="ya-label">Knot + White reject</td><td class="ya-unit">kg/ADT</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td></tr>
+                    <tr class="ya-sub3"><td class="ya-label">Knot + White reject</td><td class="ya-unit">kg</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td></tr>
+                    <tr class="ya-sub2"><td class="ya-label">Effect (TSS)</td><td class="ya-unit">Bdt/Adt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td></tr>
+                    <tr class="ya-sub3"><td class="ya-label">Volume to ETP</td><td class="ya-unit">m3</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td></tr>
+                    <tr class="ya-sub3"><td class="ya-label">TSS (- Base Target 300 mg/l)</td><td class="ya-unit">mg/l</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td></tr>
+                    <tr class="ya-sub3"><td class="ya-label">TSS</td><td class="ya-unit">mg/l</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td></tr>
+                    <tr class="ya-sub3"><td class="ya-label">Excess Fiber to ETP</td><td class="ya-unit">ADT</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td></tr>
+                    <tr class="ya-major"><td class="ya-label">11. Unknow</td><td class="ya-unit">Bdt/Adt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td></tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
             <div class="mon-group">
               <div class="mon-group-head"><span class="gi">⚙</span><span class="gt">ค่าพื้นฐานของชิ้นไม้สับ</span><span class="gs">4 ค่า · คลิกที่บล็อกเพื่อดูประวัติและ control band</span></div>
@@ -4154,6 +4228,8 @@ const TX_EN = {
   '🖨️ พิมพ์ / บันทึกเป็น PDF':'🖨️ Print / Save as PDF',
   '📄 ส่งออก CSV (เปิดได้ใน Excel)':'📄 Export CSV (opens in Excel)',
   'ยังไม่พบค่าผิดปกติในขณะนี้':'No anomalies detected right now.',
+  'บทวิเคราะห์ Yield (Yield Analysis)':'Yield Analysis',
+  'แตกผลต่าง Yield ระหว่างสองเดือนตามปัจจัย — รอสูตร/ค่าคำนวณ ช่องข้อมูลยังเว้นว่างไว้ก่อน':'Breaks the Yield change between two months down by factor — cells are left blank pending the mill-specific formulas',
   '5 ค่า · คลิกที่บล็อกเพื่อดูประวัติ':'5 metrics · click a tile for its history',
   '3 ค่า · คลิกที่บล็อกเพื่อดูประวัติ':'3 metrics · click a tile for its history',
   'Pulp mill 1+2 (รวมทั้งโรงงาน)':'Pulp mill 1+2 (whole mill)',
@@ -4733,6 +4809,7 @@ function applyLang(lang){
     if(typeof renderExecKpiPanel === 'function') renderExecKpiPanel();
     CHIP_MON_GROUPS.forEach(g=>{ chipMonRenderTiles(g); chipMonRenderDetail(g.id); });
     if(typeof renderNotifCentre === 'function') renderNotifCentre();
+    if(typeof renderYieldAnalysisTable === 'function') renderYieldAnalysisTable();
   }
   if(typeof i18nApplyPage === 'function') i18nApplyPage();
 }
@@ -5088,6 +5165,22 @@ function renderExecKpiPanel(){
   });
 }
 
+/* ---- Yield Analysis bridge table (under the Yield chart): structure/headers only for
+   now — the "Effect *" breakdown needs mill-specific formulas the user will supply
+   later, so every data cell stays intentionally blank rather than a fabricated number.
+   Only the two month-column headers are live, reusing the Yield metric's own
+   current/previous-month labels so they never drift from what the chart shows. ---- */
+function renderYieldAnalysisTable(){
+  const prevEl = document.getElementById('yaColPrev');
+  const curEl = document.getElementById('yaColCur');
+  if(!prevEl || !curEl) return;
+  const m = CHIP_MON_META.find(function(x){ return x.key==='yieldBdt'; });
+  const a = m ? chipMonAnalyse('yieldBdt', m) : null;
+  if(!a){ return; }
+  curEl.textContent = chipMonMonthLabel(a.anchor.mi, a.anchor.y);
+  prevEl.textContent = chipMonMonthLabel(a.pmi, a.py);
+}
+
 /* shared sparkline builder: tight y-bounds + a pulsing dot pinned to the latest point.
    Used by both the monitor tiles and the Executive KPI panel. */
 function chipMonMakeSpark(cv, live, s, railColor){
@@ -5379,6 +5472,7 @@ function chipMonAssess(m, a, tgt){
 function initChipMon(){
   if(!CHIP_MON_ROWS.length) return;
   renderExecKpiPanel();
+  renderYieldAnalysisTable();
   CHIP_MON_GROUPS.forEach(grp=> {
     chipMonRenderTiles(grp);
     // every group starts collapsed (tiles only) — except 'yield', which has no tile of its
@@ -5406,6 +5500,7 @@ function initChipMon(){
   });
   window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', ()=> {
     renderExecKpiPanel();
+    renderYieldAnalysisTable();
     CHIP_MON_GROUPS.forEach(grp=> { chipMonRenderTiles(grp); chipMonRenderDetail(grp.id); });
     if(typeof renderNotifCentre === 'function') renderNotifCentre();
   });
