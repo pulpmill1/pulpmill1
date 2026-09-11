@@ -155,6 +155,10 @@
     white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
   .stat .v.neg{color:#C0392F;}
   @media (max-width:760px){ .stat-row{grid-template-columns:repeat(3,1fr); width:100%;} .stat{border-bottom:1px solid var(--box-border);} }
+  /* #statRow (daily-chart summary, Pulp mill 1) has 10 boxes — 5x2 grid instead of the 6-column default */
+  #statRow{grid-template-columns:repeat(5, 1fr); width:660px;}
+  #statRow .stat{border-bottom:1px solid var(--box-border);}
+  @media (max-width:760px){ #statRow{grid-template-columns:repeat(2,1fr); width:100%;} }
   .stat-row.stat-row-3{grid-template-columns:repeat(3, 1fr); width:460px;}
   @media (max-width:520px){ .stat-row.stat-row-3{width:100%;} .stat-row.stat-row-3 .stat .v{font-size:13px;} }
 
@@ -1650,6 +1654,63 @@ function statusChip(v){
 function monthActualSum(mi){ return ACTUAL[mi].reduce((s,v)=> s + (v==null?0:v), 0); }
 function cssVar(name){ return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
 
+/* ---- latest date with any Actual data, and the trailing 7-calendar-day average
+   anchored to it — e.g. if the latest data is 4/9/2026, the window is
+   29/8/2026–4/9/2026. Used both by the "7-day average" badge and the
+   Est. monthly/yearly stat boxes below. ---- */
+function computeLastDataDate(){
+  for(let mi=ACTUAL.length-1; mi>=0; mi--){
+    const arr = ACTUAL[mi];
+    for(let d=arr.length-1; d>=0; d--){
+      if(arr[d]!=null) return {mi, day:d+1};
+    }
+  }
+  return null;
+}
+const LAST_DATA = computeLastDataDate();
+function stepBackDate(mi, dayIdx, steps){
+  let m = mi, d = dayIdx;
+  for(let i=0;i<steps;i++){
+    d -= 1;
+    if(d < 0){ m -= 1; if(m < 0) return null; d = DAYS_IN_MONTH[m]-1; }
+  }
+  return {mi:m, day:d};
+}
+function compute7DayAvg(){
+  if(!LAST_DATA) return null;
+  const endMi = LAST_DATA.mi, endDayIdx = LAST_DATA.day - 1;
+  let sum = 0, count = 0;
+  const startPos = stepBackDate(endMi, endDayIdx, 6);
+  for(let i=0;i<7;i++){
+    const pos = stepBackDate(endMi, endDayIdx, i);
+    if(!pos) break;
+    const v = ACTUAL[pos.mi][pos.day];
+    if(v != null){ sum += v; count++; }
+  }
+  if(count === 0) return null;
+  return { avg: sum/count, count, endMi, endDayIdx, startPos };
+}
+/* ---- month-end / year-end production estimate: real days logged so far
+   + remaining days x the trailing 7-day daily rate (same rate as the badge
+   above) — null when there's no data yet to extrapolate from. ---- */
+function estimateMonthTotal(mi, mActual){
+  const a7 = compute7DayAvg();
+  if(!a7 || !LAST_DATA) return null;
+  let remaining;
+  if(mi < LAST_DATA.mi) remaining = 0;
+  else if(mi === LAST_DATA.mi) remaining = Math.max(0, DAYS_IN_MONTH[mi] - LAST_DATA.day);
+  else remaining = DAYS_IN_MONTH[mi];
+  return mActual + remaining*a7.avg;
+}
+function estimateYearTotal(yearActual){
+  const a7 = compute7DayAvg();
+  if(!a7 || !LAST_DATA) return null;
+  const daysElapsed = DAYS_IN_MONTH.slice(0, LAST_DATA.mi).reduce((a,b)=> a+b, 0) + LAST_DATA.day;
+  const totalDays = DAYS_IN_MONTH.reduce((a,b)=> a+b, 0);
+  const remaining = Math.max(0, totalDays - daysElapsed);
+  return yearActual + remaining*a7.avg;
+}
+
 const YEAR_ACTUAL = ACTUAL.reduce((s,arr)=> s + arr.reduce((a,v)=> a + (v==null?0:v), 0), 0);
 const YEAR_DIFF = YEAR_ACTUAL - BUDGET_ANNUAL;
 
@@ -1687,13 +1748,21 @@ function render(mi){
   // stat boxes
   const mActual = monthActualSum(mi);
   const mDiff = mActual - BUDGET_MONTHLY[mi];
+  const yearEst = estimateYearTotal(YEAR_ACTUAL);
+  const yearDiffEst = yearEst==null ? null : BUDGET_ANNUAL - yearEst;
+  const mEst = estimateMonthTotal(mi, mActual);
+  const mDiffEst = mEst==null ? null : BUDGET_MONTHLY[mi] - mEst;
   document.getElementById('statRow').innerHTML = `
     <div class="stat"><div class="k">Budget yearly</div><div class="v">${fmt0(BUDGET_ANNUAL)}</div></div>
     <div class="stat"><div class="k">Actual yearly</div><div class="v" style="color:var(--accent-ink);">${fmt0(YEAR_ACTUAL)}</div></div>
     <div class="stat"><div class="k">Diff yearly</div><div class="v ${YEAR_DIFF<0?'neg':''}" style="${YEAR_DIFF>=0?'color:#00a927;':''}">${fmtDiff(YEAR_DIFF)}</div></div>
+    <div class="stat"><div class="k">Est. yearly</div><div class="v">${yearEst==null?'—':fmt0(yearEst)}</div></div>
+    <div class="stat"><div class="k">Diff Est yearly</div><div class="v ${yearDiffEst!=null && yearDiffEst<0?'neg':''}" style="${yearDiffEst!=null && yearDiffEst>=0?'color:#00a927;':''}">${yearDiffEst==null?'—':fmtDiff(yearDiffEst)}</div></div>
     <div class="stat"><div class="k">Budget monthly</div><div class="v">${fmt0(BUDGET_MONTHLY[mi])}</div></div>
     <div class="stat"><div class="k">Actual monthly</div><div class="v" style="color:var(--accent-ink);">${fmt0(mActual)}</div></div>
-    <div class="stat"><div class="k">Diff</div><div class="v ${mDiff<0?'neg':''}" style="${mDiff>=0?'color:#00a927;':''}">${fmtDiff(mDiff)}</div></div>
+    <div class="stat"><div class="k">Diff monthly</div><div class="v ${mDiff<0?'neg':''}" style="${mDiff>=0?'color:#00a927;':''}">${fmtDiff(mDiff)}</div></div>
+    <div class="stat"><div class="k">Est. monthly</div><div class="v">${mEst==null?'—':fmt0(mEst)}</div></div>
+    <div class="stat"><div class="k">Diff Est monthly</div><div class="v ${mDiffEst!=null && mDiffEst<0?'neg':''}" style="${mDiffEst!=null && mDiffEst>=0?'color:#00a927;':''}">${mDiffEst==null?'—':fmtDiff(mDiffEst)}</div></div>
   `;
 
   // data table
@@ -3771,16 +3840,6 @@ function renderTop10ChartTot(){
   }
 }
 
-function computeLastDataDate(){
-  for(let mi=ACTUAL.length-1; mi>=0; mi--){
-    const arr = ACTUAL[mi];
-    for(let d=arr.length-1; d>=0; d--){
-      if(arr[d]!=null) return {mi, day:d+1};
-    }
-  }
-  return null;
-}
-const LAST_DATA = computeLastDataDate();
 if(document.getElementById('monthlyChart')){
   renderMonthly(+yearSel.value);
   window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', ()=> renderMonthly(+yearSel.value));
@@ -3995,31 +4054,6 @@ function renderSummaryOverview(){
   if(bodyTot) bodyTot.innerHTML = buildSummaryLines(annualActualTotalTot(YEAR), BUDGET_ANNUAL_TOT, annualRankingPoolTot(), YEAR);
 }
 
-/* ---- trailing 7-calendar-day average of Actual production, anchored to the
-   latest date with any Actual data (LAST_DATA) — e.g. if the latest data is
-   4/9/2026, the window is 29/8/2026–4/9/2026 ---- */
-function stepBackDate(mi, dayIdx, steps){
-  let m = mi, d = dayIdx;
-  for(let i=0;i<steps;i++){
-    d -= 1;
-    if(d < 0){ m -= 1; if(m < 0) return null; d = DAYS_IN_MONTH[m]-1; }
-  }
-  return {mi:m, day:d};
-}
-function compute7DayAvg(){
-  if(!LAST_DATA) return null;
-  const endMi = LAST_DATA.mi, endDayIdx = LAST_DATA.day - 1;
-  let sum = 0, count = 0;
-  const startPos = stepBackDate(endMi, endDayIdx, 6);
-  for(let i=0;i<7;i++){
-    const pos = stepBackDate(endMi, endDayIdx, i);
-    if(!pos) break;
-    const v = ACTUAL[pos.mi][pos.day];
-    if(v != null){ sum += v; count++; }
-  }
-  if(count === 0) return null;
-  return { avg: sum/count, count, endMi, endDayIdx, startPos };
-}
 function fmtFullDate(mi, dayIdx){
   const dd = String(dayIdx+1).padStart(2,'0');
   const mm = String(mi+1).padStart(2,'0');
