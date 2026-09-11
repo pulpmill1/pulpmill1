@@ -1426,9 +1426,9 @@
                     <tr class="ya-sub" data-ya-in="g0"><td class="ya-label">- End. Prod. balance tank</td><td class="ya-unit">Adt/day</td><td class="num" id="yaCell_endProdBal_prev"></td><td class="num" id="yaCell_endProdBal_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
                     <tr class="ya-sub" data-ya-in="g0"><td class="ya-label">- No of cooks</td><td class="ya-unit">Cooks</td><td class="num" id="yaCell_noOfCooks_prev"></td><td class="num" id="yaCell_noOfCooks_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
                     <tr class="ya-sub" data-ya-in="g0"><td class="ya-label">- Chip/batch</td><td class="ya-unit">BDt/batch</td><td class="num" id="yaCell_chipPerBatch_prev"></td><td class="num" id="yaCell_chipPerBatch_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
-                    <tr class="ya-major" data-ya-group="g1"><td class="ya-label"><span class="yc">▾</span>1. Effect Chip Weight</td><td class="ya-unit">Bdt/Adt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-major" data-ya-group="g1"><td class="ya-label"><span class="yc">▾</span>1. Effect Chip weight</td><td class="ya-unit">Bdt/Adt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
                     <tr class="ya-sub" data-ya-in="g1"><td class="ya-label">- Diff Chip Weight (Pending Calc.)</td><td class="ya-unit">Bdt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
-                    <tr class="ya-major" data-ya-group="g2"><td class="ya-label"><span class="yc">▾</span>2. Effect Chip Moisture</td><td class="ya-unit">Bdt/Adt</td><td class="num" id="yaCell_effMoisture_prev"></td><td class="num" id="yaCell_effMoisture_cur"></td><td class="num" id="yaCell_effMoisture_diffbdt"></td><td class="num" id="yaCell_effMoisture_diffpct"></td><td class="ya-remark" id="yaCell_effMoisture_remark"></td></tr>
+                    <tr class="ya-major" data-ya-group="g2"><td class="ya-label"><span class="yc">▾</span>2. Effect Chip moisture</td><td class="ya-unit">Bdt/Adt</td><td class="num" id="yaCell_effMoisture_prev"></td><td class="num" id="yaCell_effMoisture_cur"></td><td class="num" id="yaCell_effMoisture_diffbdt"></td><td class="num" id="yaCell_effMoisture_diffpct"></td><td class="ya-remark" id="yaCell_effMoisture_remark"></td></tr>
                     <tr class="ya-sub" data-ya-in="g2"><td class="ya-label">- Chip moisture (Lab)</td><td class="ya-unit">%</td><td class="num" id="yaCell_moistureLab_prev"></td><td class="num" id="yaCell_moistureLab_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
                     <tr class="ya-sub" data-ya-in="g2"><td class="ya-label">- Chip moisture (Online)</td><td class="ya-unit">%</td><td class="num" id="yaCell_moistureOnline_prev"></td><td class="num" id="yaCell_moistureOnline_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
                     <tr class="ya-major" data-ya-group="g3"><td class="ya-label"><span class="yc">▾</span>3. Effect Wood species</td><td class="ya-unit">Bdt/Adt</td><td class="num" id="yaCell_effWood_prev"></td><td class="num" id="yaCell_effWood_cur"></td><td class="num" id="yaCell_effWood_diffbdt"></td><td class="num" id="yaCell_effWood_diffpct"></td><td class="ya-remark" id="yaCell_effWood_remark"></td></tr>
@@ -5304,6 +5304,18 @@ function renderYieldAnalysisColumn(which){
   const headEl = document.getElementById(which==='prev' ? 'yaColPrev' : 'yaColCur');
   if(headEl) headEl.textContent = yaHeaderLabel(st);
 }
+/* Shared REMARK trend prefix — applies to EVERY major "Effect *" row's own Diff. Effect (col5,
+   Bdt/Adt): positive means the effect worsened Yield, negative means it improved it, no data means
+   no prefix (never fabricate a trend for a row without a real diff yet). Rows 1, 4-11 have no
+   formula wired yet so this is a no-op for them today (diff stays null) — when one of them gets a
+   real formula later, build its remark as `yaTrendPrefix(diff) + '<row-specific summary text>'`,
+   same as Effect Chip moisture / Effect Wood species below. */
+function yaTrendPrefix(diff){
+  if(diff==null) return null;
+  if(diff>0) return '- Yield แย่ลงจาก ';
+  if(diff<0) return '- Yield ดีขึ้นจาก ';
+  return '- ';
+}
 /* "2. Effect Moisture" major row — the first Effect row with a real mill formula:
    ( ChipWeightScaleNet * (1 - MoistureLab%) / EndProd ) - ( ChipWeightScaleNet * (1 - MoistureOnline%) / EndProd )
    evaluated once per period column using that column's own picker, then Diff. Effect (Bdt/Adt and %)
@@ -5337,11 +5349,9 @@ function renderYaEffectMoisture(){
   diffEl.textContent = diff==null ? '—' : chipMonFmt(diff, 3);
   pctEl.textContent = pct==null ? '—' : chipMonFmt(pct, 2);
   if(remarkEl){
-    if(diff==null || pct==null) remarkEl.textContent = '';
-    else{
-      const trend = diff>0 ? 'Yield แย่ลงจาก ' : diff<0 ? 'Yield ดีขึ้นจาก ' : '';
-      remarkEl.textContent = '- '+trend+'Effect Chip moisture diff '+chipMonFmt(diff,3)+' Bdt/Adt, '+chipMonFmt(pct,2)+'%';
-    }
+    const prefix = yaTrendPrefix(diff);
+    remarkEl.textContent = (prefix==null || pct==null) ? '' :
+      prefix+'Effect Chip moisture diff '+chipMonFmt(diff,3)+' Bdt/Adt, '+chipMonFmt(pct,2)+'%';
   }
 }
 /* "3. Effect Wood species" major row — weighted-average yield factor from the species mix:
@@ -5382,7 +5392,8 @@ function renderYaEffectWoodSpecies(){
   diffEl.textContent = diff==null ? '—' : chipMonFmt(diff, 3);
   pctEl.textContent = pct==null ? '—' : chipMonFmt(pct, 2);
   if(!remarkEl) return;
-  if(diff==null || pct==null){ remarkEl.innerHTML = ''; return; }
+  const prefix = yaTrendPrefix(diff);
+  if(prefix==null || pct==null){ remarkEl.innerHTML = ''; return; }
   const up = [], down = [];
   YA_WOOD_SPECIES.forEach(function(sp){
     const p = yaPickValue(sp.key, YA_STATE.prev.mode, YA_STATE.prev.value);
@@ -5392,7 +5403,7 @@ function renderYaEffectWoodSpecies(){
     if(d > 0) up.push(sp.name+' '+chipMonFmt(d,1)+'%');
     else if(d < 0) down.push(sp.name+' '+chipMonFmt(d,1)+'%');
   });
-  let html = '- Effect Wood species '+chipMonFmt(diff,3)+' Bdt/Adt, '+chipMonFmt(pct,2)+' %';
+  let html = prefix+'Effect Wood species '+chipMonFmt(diff,3)+' Bdt/Adt, '+chipMonFmt(pct,2)+' %';
   if(up.length) html += '<br>- เพิ่มขึ้นจาก Wood species '+up.join(', ');
   if(down.length) html += '<br>- ลดลงจาก Wood species '+down.join(', ');
   remarkEl.innerHTML = html;
