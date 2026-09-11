@@ -521,6 +521,7 @@
   table.md-table td.num{font-family:"IBM Plex Mono",monospace;text-align:right;}
   table.md-table tbody tr:nth-child(2n){background:var(--surface-2);}
   .md-sub{font-size:11px;color:var(--ink-3);margin-bottom:12px;}
+  .md-rangenote{font-size:11px;color:var(--ink-3);margin-top:8px;font-family:"IBM Plex Mono",monospace;}
   .md-target{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:9px 12px;margin-bottom:12px;}
   .md-target .lbl{font-size:10.5px;font-weight:800;letter-spacing:.05em;color:var(--ink-2);text-transform:uppercase;}
   .md-target .fld{display:flex;align-items:center;gap:5px;font-size:11.5px;color:var(--ink-2);}
@@ -1246,6 +1247,11 @@
 
         <section class="page" data-page="yield" hidden>
           <div id="chipMonHost">
+            <div class="mon-group">
+              <div class="mon-group-head"><span class="gi">📈</span><span class="gt">Yield (BDt/ADt)</span><span class="gs">Yield + Yield Balance Tank · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
+              <div class="mon-tiles" id="chipTiles_yield"></div>
+              <div class="mon-detail" id="chipDetail_yield" hidden></div>
+            </div>
             <div class="mon-group">
               <div class="mon-group-head"><span class="gi">⚙</span><span class="gt">ค่าพื้นฐานของชิ้นไม้สับ</span><span class="gs">4 ค่า · คลิกที่บล็อกเพื่อดูประวัติและ control band</span></div>
               <div class="mon-tiles" id="chipTiles_bulk"></div>
@@ -4021,6 +4027,7 @@ const TX_EN = {
   '2 ค่า · คลิกที่บล็อกเพื่อดูประวัติ':'2 metrics · click a tile for its history',
   'น้ำเสียเข้าระบบบำบัด (ETP)':'Effluent to the ETP',
   'สายพันธุ์ไม้สับ (โรงเยื่อ 1 Actual)':'Wood species (Fiberline 1 actual)',
+  'Yield + Yield Balance Tank · คลิกที่บล็อกเพื่อดูประวัติ':'Yield + Yield Balance Tank · click the tile for its history',
   '5 ค่า · คลิกที่บล็อกเพื่อดูประวัติ':'5 metrics · click a tile for its history',
   '3 ค่า · คลิกที่บล็อกเพื่อดูประวัติ':'3 metrics · click a tile for its history',
   'โรงเยื่อ 1+2 (รวมทั้งโรงงาน)':'Fiberline 1+2 (whole mill)',
@@ -4632,6 +4639,8 @@ if(document.getElementById('summaryBody1')){
    Robust stats: median + MAD×1.4826; baseline = the 180 days ending one week before the latest reading.
    Percentage values outside 0-100 are treated as bad entries and dropped. */
 const CHIP_MON_META = [
+  {key:'yieldBdt',     col:78, th:'Yield',               unit:'BDt/ADt', dec:3, grp:'yield', scored:false},
+  {key:'yieldBalTank', col:79, th:'Yield Balance Tank',   unit:'BDt/ADt', dec:3, grp:'yield', scored:false, hideTile:true},
   {key:'bulkDensity',    col:26, th:'Bulk density',              unit:'kg/m³', dec:1, grp:'bulk',   scored:false, spec:[300,350]},
   {key:'bulkDensityDry', col:27, th:'Bulk density × Dryness',    unit:'kg/m³', dec:1, grp:'bulk',   scored:false},
   {key:'dryness',        col:28, th:'Dryness',                   unit:'%',     dec:2, pct01:true, grp:'bulk',   scored:true,  dir:'lower',  specHi:54},
@@ -4661,6 +4670,7 @@ const CHIP_MON_META = [
   {key:'volEtpAdt',    col:71, perAdt:true, th:'Volume to ETP / ADt', unit:'m³/ADt', dec:3, grp:'etp', scored:false, zeroIsMissing:true},
 ];
 const CHIP_MON_GROUPS = [
+  {id:'yield',   ico:'📈', th:'Yield (BDt/ADt)', rail:'#1565C0'},
   {id:'bulk',    ico:'⚙', th:'ค่าพื้นฐานของชิ้นไม้สับ', rail:'#7C4DFF'},
   {id:'screen',  ico:'🔻', th:'การกระจายขนาดชิ้นไม้สับ (Chip Screen)', rail:'#E0417A'},
   {id:'wood',    ico:'🌲', th:'สายพันธุ์ไม้สับ (โรงเยื่อ 1 Actual)', rail:'#5B8C2A'},
@@ -4702,7 +4712,7 @@ const chipMonYesterdayEnd = (()=>{ const d = new Date(); d.setHours(0,0,0,0); re
 const chipMonCeil = (()=>{
   let mx = 0;
   for(const rc of CHIP_MON_ROWS){
-    if([54,55,56,57,64,66,73].some(c=> chipMonRaw(rc.r[c])!=null)) mx = Math.max(mx, rc.ts);
+    if([54,55,56,57,64,66,73,78,79].some(c=> chipMonRaw(rc.r[c])!=null)) mx = Math.max(mx, rc.ts);
   }
   mx = mx || Number.MAX_SAFE_INTEGER;
   // never show "today" — the mill's own day isn't closed out yet, so cap at yesterday
@@ -4805,7 +4815,7 @@ function chipMonRangeOptions(m, grpId){
 /* ---- tiles ---- */
 function chipMonRenderTiles(grp){
   const wrap = document.getElementById('chipTiles_'+grp.id);
-  const metas = CHIP_MON_META.filter(m=> m.grp===grp.id);
+  const metas = CHIP_MON_META.filter(m=> m.grp===grp.id && !m.hideTile);
   wrap.innerHTML = metas.map(m=> {
     const a = chipMonAnalyse(m.key, m);
     const val = a ? chipMonFmt(a.anchor.v, m.dec) : '—';
@@ -4940,21 +4950,31 @@ function chipMonDetailRows(grpId, m, a){
   if(rows.length < 2) rows = s.slice(-30);
   return rows;
 }
+function chipMonRangeLabel(rows){
+  if(!rows || !rows.length) return '';
+  const EN = currentLang==='en';
+  const f = x=> EN ? (MONTH_ABBR_EN[x.mi]+' '+x.d+', '+x.y) : (x.d+' '+MONTH_ABBR_TH[x.mi]+' '+x.y);
+  const first = rows[0], last = rows[rows.length-1];
+  const lbl = EN ? 'Showing' : 'ช่วงข้อมูลที่แสดง';
+  const dayWord = EN ? (rows.length===1?'day':'days') : 'วัน';
+  return first.ts===last.ts ? (lbl+': '+f(first)) : (lbl+': '+f(first)+' – '+f(last)+' ('+rows.length+' '+dayWord+')');
+}
 function chipMonRenderDetailBody(grpId, m, a, tgt){
   const body = document.getElementById('chipDetailBody_'+grpId);
   if(!body) return;
   const view = CHIP_MON_VIEW[grpId] || 'chart';
   document.querySelectorAll('#chipDetail_'+grpId+' .md-viewbtn').forEach(b=> b.classList.toggle('on', b.dataset.view===view));
   if(chipMonCharts[grpId]){ chipMonCharts[grpId].destroy(); chipMonCharts[grpId] = null; }
+  const rows = chipMonDetailRows(grpId, m, a);
+  const rangeNote = '<div class="md-rangenote">'+chipMonRangeLabel(rows)+'</div>';
   if(view === 'table'){
-    const rows = chipMonDetailRows(grpId, m, a);
     const f = v => v==null ? '—' : v.toLocaleString('en-US', {minimumFractionDigits:m.dec, maximumFractionDigits:m.dec});
     const dcol = currentLang==='en' ? 'Date' : 'วันที่';
     body.innerHTML = '<div class="md-tablewrap"><table class="md-table"><thead><tr><th>'+dcol+'</th><th>'+m.th+' ('+(m.unit||'—')+')</th></tr></thead><tbody>'
       + rows.map(x=> '<tr><td>'+x.d+'/'+(x.mi+1)+'/'+x.y+'</td><td class="num">'+f(x.v)+'</td></tr>').join('')
-      + '</tbody></table></div>';
+      + '</tbody></table></div>' + rangeNote;
   } else {
-    body.innerHTML = '<div class="md-chart-wrap"><canvas id="chipDetailChart_'+grpId+'"></canvas></div><div class="legend-row" id="chipDetailLegend_'+grpId+'"></div>';
+    body.innerHTML = '<div class="md-chart-wrap"><canvas id="chipDetailChart_'+grpId+'"></canvas></div><div class="legend-row" id="chipDetailLegend_'+grpId+'"></div>' + rangeNote;
     chipMonDrawDetailChart(grpId, m, a, tgt);
   }
 }
@@ -4966,21 +4986,31 @@ function chipMonDrawDetailChart(grpId, m, a, tgt){
   const c = { ink2:cssVar('--ink-2'), grid:cssVar('--grid'), surface:cssVar('--surface'), border:cssVar('--border'), ink:cssVar('--ink') };
   const EN = currentLang==='en';
   const actualLbl = EN ? 'Actual' : 'ข้อมูลเกิดจริง';
+  const balTankLbl = 'Yield Balance Tank', balTankCol = '#F0932B';
+
+  // Yield (BDt/ADt) tile also overlays its companion Yield Balance Tank series, in the same chart
+  const yieldExtra = m.key==='yieldBdt' ? (()=> {
+    const byTs = new Map((CHIP_MON_SERIES.yieldBalTank||[]).map(x=> [x.ts, x.v]));
+    return rows.map(x=> byTs.has(x.ts) ? byTs.get(x.ts) : null);
+  })() : null;
 
   const flat = (v, col, lab) => ({ type:'line', label:lab, data:labels.map(()=> v), borderColor:col, borderWidth:1.6,
     borderDash:[7,3], pointRadius:0, fill:false, tension:0, order:5, datalabels:{display:false} });
   const refs = [];
+  if(yieldExtra) refs.push({ type:'line', label:balTankLbl, data:yieldExtra, borderColor:balTankCol, backgroundColor:balTankCol,
+    borderWidth:1.8, pointRadius:2, pointBackgroundColor:balTankCol, tension:.25, fill:false, spanGaps:true, order:1, datalabels:{display:false} });
   if(tgt.lo!=null) refs.push(flat(tgt.lo, '#12a150', `Target Low ${tgt.lo}`));
   if(tgt.hi!=null) refs.push(flat(tgt.hi, '#d4342c', `Target High ${tgt.hi}`));
 
-  const scaleVals = vals.concat(refs.map(r=> r.data[0])).filter(v=> v!=null);
+  const allVals = yieldExtra ? vals.concat(yieldExtra) : vals;
+  const scaleVals = allVals.concat(refs.flatMap(r=> r.data)).filter(v=> v!=null);
   let lo = scaleVals.length ? Math.min(...scaleVals) : 0;
   let hi = scaleVals.length ? Math.max(...scaleVals) : 1;
   const pad = (hi-lo)*0.16 || 1;
   const rr = (hi+pad) - (lo-pad);
   const step = rr>50000 ? 10000 : rr>5000 ? 1000 : rr>500 ? 100 : rr>100 ? 20 : rr>40 ? 10 : rr>12 ? 5 : rr>4 ? 2 : 0.5;
   lo = Math.floor((lo-pad)/step)*step;
-  if(lo > 0 && !vals.some(v=> v!=null && v<0)) lo = 0;
+  if(lo > 0 && !allVals.some(v=> v!=null && v<0)) lo = 0;
   hi = Math.ceil((hi+pad)/step)*step;
 
   const nBars = vals.filter(v=> v!=null).length;
@@ -5013,6 +5043,7 @@ function chipMonDrawDetailChart(grpId, m, a, tgt){
   const leg = document.getElementById('chipDetailLegend_'+grpId);
   if(leg){
     const items = [`<span class="item"><span class="box" style="background:${grp.rail}"></span>${actualLbl}</span>`];
+    if(yieldExtra) items.push(`<span class="item"><span class="box" style="background:${balTankCol}"></span>${balTankLbl}</span>`);
     if(tgt.lo!=null) items.push(`<span class="item"><span class="sw dashed" style="border-color:#12a150"></span>Target Low ${tgt.lo}</span>`);
     if(tgt.hi!=null) items.push(`<span class="item"><span class="sw dashed" style="border-color:#d4342c"></span>Target High ${tgt.hi}</span>`);
     leg.innerHTML = items.join('');
