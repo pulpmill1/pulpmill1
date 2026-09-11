@@ -1419,7 +1419,13 @@
                     </tr>
                   </thead>
                   <tbody>
-                    <tr class="ya-major"><td class="ya-label">Actual Yield</td><td class="ya-unit">Bdt/Adt</td><td class="num" id="yaCell_yieldBdt_prev"></td><td class="num" id="yaCell_yieldBdt_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-major" data-ya-group="g0"><td class="ya-label"><span class="yc">▾</span>Actual Yield</td><td class="ya-unit">Bdt/Adt</td><td class="num" id="yaCell_yieldBdt_prev"></td><td class="num" id="yaCell_yieldBdt_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-sub" data-ya-in="g0"><td class="ya-label">- Chip (Weight scale)</td><td class="ya-unit">BDt/day</td><td class="num" id="yaCell_chipWeightScale_prev"></td><td class="num" id="yaCell_chipWeightScale_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-sub" data-ya-in="g0"><td class="ya-label">- Chip (Weight scale หักลบเฉ่งกอง)</td><td class="ya-unit">BDt/day</td><td class="num" id="yaCell_chipWeightScaleNet_prev"></td><td class="num" id="yaCell_chipWeightScaleNet_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-sub" data-ya-in="g0"><td class="ya-label">- End. Prod.</td><td class="ya-unit">Adt/day</td><td class="num" id="yaCell_endProd_prev"></td><td class="num" id="yaCell_endProd_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-sub" data-ya-in="g0"><td class="ya-label">- End. Prod. balance tank</td><td class="ya-unit">Adt/day</td><td class="num" id="yaCell_endProdBal_prev"></td><td class="num" id="yaCell_endProdBal_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-sub" data-ya-in="g0"><td class="ya-label">- No of cooks</td><td class="ya-unit">-</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-sub" data-ya-in="g0"><td class="ya-label">- Chip/batch</td><td class="ya-unit">BDt/batch</td><td class="num" id="yaCell_chipPerBatch_prev"></td><td class="num" id="yaCell_chipPerBatch_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
                     <tr class="ya-major" data-ya-group="g1"><td class="ya-label"><span class="yc">▾</span>1. Effect Chip Weight</td><td class="ya-unit">Bdt/Adt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
                     <tr class="ya-sub" data-ya-in="g1"><td class="ya-label">- Diff Chip Weight (ทอ Cal.)</td><td class="ya-unit">Bdt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
                     <tr class="ya-major" data-ya-group="g2"><td class="ya-label"><span class="yc">▾</span>2. Effect Moisture</td><td class="ya-unit">Bdt/Adt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
@@ -4969,6 +4975,9 @@ const COL_YIELD_BALTANK = resolveChipCol('Yield Balane Tank', 80); // sheet's ow
 const COL_MOIST_ONLINE = resolveChipCol('Chip Moisture (Online)', 82);
 const COL_SULPHIDITY = resolveChipCol('Sulphidity', 83);
 const COL_TANK_BUILDUP = resolveChipCol('End Prod. Balance - End Prod.', 78);
+const COL_CHIP_WEIGHT_SCALE = resolveChipCol('Chip weight', 75);
+const COL_CHIP_WEIGHT_SCALE_NET = resolveChipCol('Chip (Weight scale หักลบเฉ่งกอง)', 76);
+const COL_CHIP_PER_BATCH = resolveChipCol('Chip/batch', 77);
 const CHIP_MON_META = [
   {key:'yieldBdt',     col:COL_YIELD, th:'Yield',               unit:'BDt/ADt', dec:3, grp:'yield', scored:false, hideTile:true},
   {key:'yieldBalTank', col:COL_YIELD_BALTANK, th:'Yield Balance Tank',   unit:'BDt/ADt', dec:3, grp:'yield', scored:false, hideTile:true},
@@ -4976,6 +4985,9 @@ const CHIP_MON_META = [
   {key:'moistureOnline', col:COL_MOIST_ONLINE, th:'Chip Moisture (Online)', unit:'%', dec:2, grp:'yield', scored:false, hideTile:true},
   {key:'sulphidity',     col:COL_SULPHIDITY, th:'Sulphidity',              unit:'%', dec:2, grp:'yield', scored:false, hideTile:true},
   {key:'tankBuildup',    col:COL_TANK_BUILDUP, th:'End Prod. Balance - End Prod.', unit:'Adt/day', dec:3, grp:'endprod', scored:false, hideTile:true},
+  {key:'chipWeightScale',    col:COL_CHIP_WEIGHT_SCALE, th:'Chip (Weight scale)', unit:'BDt/day', dec:2, grp:'yield', scored:false, hideTile:true},
+  {key:'chipWeightScaleNet', col:COL_CHIP_WEIGHT_SCALE_NET, th:'Chip (Weight scale หักลบเฉ่งกอง)', unit:'BDt/day', dec:2, grp:'yield', scored:false, hideTile:true},
+  {key:'chipPerBatch',       col:COL_CHIP_PER_BATCH, th:'Chip/batch', unit:'BDt/batch', dec:2, grp:'yield', scored:false, hideTile:true},
   {key:'chipWeightGT', col:74, th:'Chip weight',          unit:'GT/day',  dec:0, grp:'yield', scored:false, zeroIsMissing:true, hideTile:true},
   {key:'bulkDensity',    col:26, th:'Bulk density',              unit:'kg/m³', dec:1, grp:'bulk',   scored:false, spec:[300,350]},
   {key:'bulkDensityDry', col:27, th:'Bulk density × Dryness',    unit:'kg/m³', dec:1, grp:'bulk',   scored:false},
@@ -5048,7 +5060,7 @@ const chipMonYesterdayEnd = (()=>{ const d = new Date(); d.setHours(0,0,0,0); re
 const chipMonCeil = (()=>{
   let mx = 0;
   for(const rc of CHIP_MON_ROWS){
-    if([54,55,56,57,64,66,73,74,COL_YIELD,COL_YIELD_BALTANK,COL_MOIST_ONLINE,COL_SULPHIDITY,COL_TANK_BUILDUP].some(c=> chipMonRaw(rc.r[c])!=null)) mx = Math.max(mx, rc.ts);
+    if([54,55,56,57,64,66,73,74,COL_YIELD,COL_YIELD_BALTANK,COL_MOIST_ONLINE,COL_SULPHIDITY,COL_TANK_BUILDUP,COL_CHIP_WEIGHT_SCALE,COL_CHIP_WEIGHT_SCALE_NET,COL_CHIP_PER_BATCH].some(c=> chipMonRaw(rc.r[c])!=null)) mx = Math.max(mx, rc.ts);
   }
   mx = mx || Number.MAX_SAFE_INTEGER;
   // never show "today" — the mill's own day isn't closed out yet, so cap at yesterday
@@ -5220,7 +5232,7 @@ function renderExecKpiPanel(){
    exist in the Yield sheet data, so those are wired to CHIP_MON_SERIES — each of
    the two columns has its own date/month/year picker (YA_STATE.prev/cur); month
    and year pick an AVERAGE over that period, a specific date an exact reading. */
-const YA_ROW_KEYS = ['yieldBdt','moistureLab','moistureOnline','woodK58','woodK7','woodSeed','woodOther','woodSt1m','bark','kappaCook','sdKappa','sulphidity','diffBalance','kwRejectAdt','kwReject','volEtp','tssEtp','tankBuildup'];
+const YA_ROW_KEYS = ['yieldBdt','chipWeightScale','chipWeightScaleNet','endProd','endProdBal','chipPerBatch','moistureLab','moistureOnline','woodK58','woodK7','woodSeed','woodOther','woodSt1m','bark','kappaCook','sdKappa','sulphidity','diffBalance','kwRejectAdt','kwReject','volEtp','tssEtp','tankBuildup'];
 const YA_STATE = { prev:{mode:'month', value:null}, cur:{mode:'month', value:null} };
 function yaPickValue(key, mode, value){
   const s = CHIP_MON_SERIES[key];
