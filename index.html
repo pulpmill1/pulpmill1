@@ -393,6 +393,8 @@
   .tb-visits{display:flex; align-items:center; gap:5px; border:1px solid var(--border); border-radius:9px;
     background:var(--surface-2); padding:0 10px; height:36px; flex-shrink:0; font-size:12px; color:var(--ink-2); white-space:nowrap;}
   .tb-visits .tv-ico{font-size:13px;}
+  .tb-visits .tv-live-dot{width:6px; height:6px; border-radius:50%; background:#00a927; display:inline-block; animation:tb-live-pulse 1.6s ease-in-out infinite;}
+  @media (prefers-reduced-motion:reduce){ .tb-visits .tv-live-dot{animation:none;} }
   .tb-visits .tv-count{font-family:"IBM Plex Mono",monospace; font-weight:700; color:var(--ink);}
   .tb-more-row .tv-count{font-family:"IBM Plex Mono",monospace; font-weight:700; color:var(--ink);}
 
@@ -735,8 +737,8 @@
         </div>
       </div>
 
-      <div class="tb-visits" id="tbVisits" title="จำนวนครั้งที่เข้าชม Dashboard นี้ (นับ 1 ครั้งต่อเซสชันเบราว์เซอร์)">
-        <span class="tv-ico">👁</span><span class="tv-count" id="tbVisitCount">—</span>
+      <div class="tb-visits" id="tbVisits" title="จำนวนผู้ที่กำลังดู Dashboard นี้อยู่ตอนนี้ (real-time ไม่นับสะสม)">
+        <span class="tv-live-dot"></span><span class="tv-ico">👁</span><span class="tv-count" id="tbVisitCount">—</span>
       </div>
 
       <button class="tb-btn tb-more" id="tbMoreBtn" type="button" aria-label="เมนูเพิ่มเติม" title="เมนูเพิ่มเติม">⋯</button>
@@ -749,7 +751,7 @@
             <button class="tb-lang-btn" data-lang="en" type="button">EN</button>
           </div>
         </div>
-        <div class="tb-more-row"><span>👁 ผู้เข้าชม</span><span class="tv-count" id="moreVisitCount">—</span></div>
+        <div class="tb-more-row"><span>👁 กำลังดูตอนนี้</span><span class="tv-count" id="moreVisitCount">—</span></div>
         <button class="tb-menu-item" id="moreRefreshBtn" type="button">⟳ รีเฟรชข้อมูล</button>
         <button class="tb-menu-item" id="moreExportBtn" type="button" disabled>⬇ ดาวน์โหลดข้อมูล (CSV)</button>
         <button class="tb-menu-item" id="moreNotifBtn" type="button" disabled>🔔 การแจ้งเตือน (ยังไม่เปิดใช้งาน)</button>
@@ -4556,11 +4558,14 @@ const moreRefreshBtnEl = document.getElementById('moreRefreshBtn');
 if(refreshBtnEl) refreshBtnEl.addEventListener('click', triggerRefresh);
 if(moreRefreshBtnEl) moreRefreshBtnEl.addEventListener('click', triggerRefresh);
 
-/* ---- visitor counter: a real, shared hit count for this dashboard via a free public
-   counter service (abacus.jasoncameron.dev — no login, no backend of our own). Counts
-   once per browser session (sessionStorage guard) so page navigation / a refresh inside
-   the same visit doesn't inflate it. Fails silently (shows "—") if the service is down. */
-(function initVisitCounter(){
+/* ---- live viewer count: how many tabs are open on this dashboard RIGHT NOW —
+   not a cumulative total. Each tab heartbeats /api/presence (a Vercel serverless
+   function backed by Upstash Redis) every 15s with its own random session id;
+   the server prunes tabs not heard from in 30s before reporting the count, so a
+   closed/idle tab drops out on its own. A "leave" beacon on pagehide makes a
+   closed tab disappear immediately instead of waiting out the TTL. Shows "—"
+   and fails silently if the endpoint/Redis isn't reachable or configured. */
+(function initPresence(){
   const elTop = document.getElementById('tbVisitCount');
   const elMore = document.getElementById('moreVisitCount');
   if(!elTop && !elMore) return;
@@ -4569,16 +4574,24 @@ if(moreRefreshBtnEl) moreRefreshBtnEl.addEventListener('click', triggerRefresh);
     if(elTop) elTop.textContent = txt;
     if(elMore) elMore.textContent = txt;
   };
-  const NS = 'pulpmill1-fiberline1-dashboard', KEY = 'visits';
-  let counted = false;
-  try{ counted = sessionStorage.getItem('pm1_visit_counted') === '1'; }catch(e){}
-  const url = 'https://abacus.jasoncameron.dev/' + (counted ? 'get' : 'hit') + '/' + NS + '/' + KEY;
-  fetch(url).then(r=> r.ok ? r.json() : Promise.reject(r.status))
-    .then(d=> {
-      render(d && typeof d.value === 'number' ? d.value : null);
-      if(!counted){ try{ sessionStorage.setItem('pm1_visit_counted', '1'); }catch(e){} }
-    })
-    .catch(()=> render(null));
+  let sid = null;
+  try{
+    sid = sessionStorage.getItem('pm1_presence_sid');
+    if(!sid){ sid = 'p' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10); sessionStorage.setItem('pm1_presence_sid', sid); }
+  }catch(e){ sid = 'p' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10); }
+  const beat = (extra) => fetch('/api/presence', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(Object.assign({sid}, extra||{}))
+    }).then(r=> r.ok ? r.json() : Promise.reject(r.status))
+      .then(d=> render(d && typeof d.count === 'number' ? d.count : null))
+      .catch(()=> render(null));
+  beat();
+  const timer = setInterval(beat, 15000);
+  document.addEventListener('visibilitychange', ()=> { if(document.visibilityState==='visible') beat(); });
+  window.addEventListener('pagehide', ()=> {
+    clearInterval(timer);
+    try{ navigator.sendBeacon && navigator.sendBeacon('/api/presence', new Blob([JSON.stringify({sid, leave:true})], {type:'application/json'})); }catch(e){}
+  });
 })();
 
 /* ---- user menu / Role View selector (display-only — never changes data access
