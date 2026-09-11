@@ -260,7 +260,7 @@
   .top10-chart-wrap{flex:1 1 380px; min-width:0; height:270px;}
   @media (max-width:700px){ .top10-layout{flex-direction:column;} .top10-table-wrap{flex-basis:auto;} .top10-chart-wrap{height:250px;} }
 
-  /* Summary overview text (สรุปภาพรวมผลผลิตโรงเยื่อ) */
+  /* Summary overview text (สรุปภาพรวมผลผลิต Pulp mill) */
   .summary-block{margin-bottom:16px; padding-bottom:14px; border-bottom:1px solid var(--border);}
   .summary-block:last-child{margin-bottom:0; padding-bottom:0; border-bottom:none;}
   .summary-title{font-weight:700; font-size:14px; color:var(--ink); margin-bottom:8px;}
@@ -282,7 +282,7 @@
     50%{ opacity:0.78; box-shadow:0 0 9px 3px rgba(245,166,35,0.4); }
   }
 
-  /* Series show/hide toggle buttons (โรงเยื่อ 1 / โรงเยื่อ 2 บนกราฟรวม) */
+  /* Series show/hide toggle buttons (Pulp mill 1 / Pulp mill 2 บนกราฟรวม) */
   .series-toggle-row{display:flex; gap:8px; margin:10px 0 2px; flex-wrap:wrap;}
   .series-toggle-btn{
     display:inline-flex; align-items:center; gap:6px; font:inherit; font-size:11.5px; font-weight:600;
@@ -364,6 +364,11 @@
   .tb-title-main{font-size:14.5px; font-weight:700; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
   .tb-title-sub{font-size:10.5px; color:var(--ink-3); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top:1px;}
   .tb-title-sub .dot{width:5px; height:5px; border-radius:50%; background:var(--good); display:inline-block; margin-right:5px;}
+  .tb-live-badge{display:inline-flex; align-items:center; gap:4px; background:rgba(0,169,39,.14); color:#0a8a26;
+    font-weight:800; font-size:9px; letter-spacing:.05em; padding:2px 7px 2px 6px; border-radius:20px; margin-right:7px; vertical-align:middle;}
+  .tb-live-badge .lp{width:6px; height:6px; border-radius:50%; background:#00a927; display:inline-block; animation:tb-live-pulse 1.6s ease-in-out infinite;}
+  @keyframes tb-live-pulse{0%,100%{opacity:1;} 50%{opacity:.3;}}
+  @media (prefers-reduced-motion:reduce){ .tb-live-badge .lp{animation:none;} }
 
   .tb-search{position:relative; flex-shrink:0;}
   .tb-search-toggle{display:none;}
@@ -816,7 +821,7 @@
             </div>
 
             <div class="chart-head">
-              <div class="chart-title" id="monthlyChartTitle">ผลผลิตรายเดือนโรงเยื่อ 1 เทียบ Budget</div>
+              <div class="chart-title" id="monthlyChartTitle">ผลผลิตรายเดือน Pulp mill 1 เทียบ Budget</div>
             </div>
 
             <div class="chart-wrap"><canvas id="monthlyChart"></canvas></div>
@@ -835,7 +840,7 @@
 
           <details class="dtable" id="rankTableDetails">
             <summary>
-              <span class="dtable-label" id="rankTableTitle">สถิติผลผลิตรายเดือนโรงเยื่อ 1 (Best Record)</span>
+              <span class="dtable-label" id="rankTableTitle">สถิติผลผลิตรายเดือน Pulp mill 1 (Best Record)</span>
             </summary>
 
             <div class="toolbar" style="margin-top:12px;">
@@ -895,7 +900,7 @@
             </div>
 
             <div class="chart-head">
-              <div class="chart-title" id="annualChartTitle">ผลผลิตรายปีโรงเยื่อ 1</div>
+              <div class="chart-title" id="annualChartTitle">ผลผลิตรายปี Pulp mill 1</div>
               <div class="stat-row stat-row-3" id="annualStatRow"></div>
             </div>
 
@@ -912,7 +917,7 @@
 
           <details class="dtable" id="annualRankTableDetails">
             <summary>
-              <span class="dtable-label" id="annualRankTableTitle">สถิติผลผลิตรายปีโรงเยื่อ 1 (Best Record)</span>
+              <span class="dtable-label" id="annualRankTableTitle">สถิติผลผลิตรายปี Pulp mill 1 (Best Record)</span>
             </summary>
 
             <div class="hint" style="margin:12px 0 4px;">จัดอันดับผลผลิตจริงรวมทั้งปี เทียบกับทุกปีที่มีข้อมูล จากข้อมูล Actual ทั้งหมดที่มี</div>
@@ -950,7 +955,7 @@
 
           <div class="card" id="top10Card1">
             <div class="chart-head">
-              <div class="chart-title" id="top10ChartTitle1">Top 10 Production (Monthly) — โรงเยื่อ 1</div>
+              <div class="chart-title" id="top10ChartTitle1">Top 10 Production (Monthly) — Pulp mill 1</div>
             </div>
 
             <div class="top10-layout">
@@ -978,7 +983,7 @@
         </section>
 
         <section class="page" data-page="production-pm2" hidden>
-          <div class="section-divider"><h2>โรงเยื่อ 2 (Pulp mill 2)</h2></div>
+          <div class="section-divider"><h2>Pulp mill 2</h2></div>
 
           <div class="card" id="monthlyCard2">
             <div class="toolbar">
@@ -990,7 +995,7 @@
             </div>
 
             <div class="chart-head">
-              <div class="chart-title" id="monthlyChartTitle2">ผลผลิตรายเดือนโรงเยื่อ 2 เทียบ Budget</div>
+              <div class="chart-title" id="monthlyChartTitle2">ผลผลิตรายเดือน Pulp mill 2 เทียบ Budget</div>
             </div>
 
             <div class="chart-wrap"><canvas id="monthlyChart2"></canvas></div>
@@ -1009,7 +1014,7 @@
 
           <details class="dtable" id="rankTableDetails2">
             <summary>
-              <span class="dtable-label" id="rankTableTitle2">สถิติผลผลิตรายเดือนโรงเยื่อ 2 (Best Record)</span>
+              <span class="dtable-label" id="rankTableTitle2">สถิติผลผลิตรายเดือน Pulp mill 2 (Best Record)</span>
             </summary>
 
             <div class="toolbar" style="margin-top:12px;">
@@ -1069,7 +1074,7 @@
             </div>
 
             <div class="chart-head">
-              <div class="chart-title" id="annualChartTitle2">ผลผลิตรายปีโรงเยื่อ 2</div>
+              <div class="chart-title" id="annualChartTitle2">ผลผลิตรายปี Pulp mill 2</div>
               <div class="stat-row stat-row-3" id="annualStatRow2"></div>
             </div>
 
@@ -1086,7 +1091,7 @@
 
           <details class="dtable" id="annualRankTableDetails2">
             <summary>
-              <span class="dtable-label" id="annualRankTableTitle2">สถิติผลผลิตรายปีโรงเยื่อ 2 (Best Record)</span>
+              <span class="dtable-label" id="annualRankTableTitle2">สถิติผลผลิตรายปี Pulp mill 2 (Best Record)</span>
             </summary>
 
             <div class="hint" style="margin:12px 0 4px;">จัดอันดับผลผลิตจริงรวมทั้งปี เทียบกับทุกปีที่มีข้อมูล จากข้อมูล Actual ทั้งหมดที่มี</div>
@@ -1124,7 +1129,7 @@
 
           <div class="card" id="top10Card2">
             <div class="chart-head">
-              <div class="chart-title" id="top10ChartTitle2">Top 10 Production (Monthly) — โรงเยื่อ 2</div>
+              <div class="chart-title" id="top10ChartTitle2">Top 10 Production (Monthly) — Pulp mill 2</div>
             </div>
 
             <div class="top10-layout">
@@ -1152,7 +1157,7 @@
         </section>
 
         <section class="page" data-page="production-pm12" hidden>
-          <div class="section-divider"><h2>โรงเยื่อ 1+2 (รวมทั้งโรงงาน)</h2></div>
+          <div class="section-divider"><h2>Pulp mill 1+2 (รวมทั้งโรงงาน)</h2></div>
 
           <div class="card" id="monthlyCardTot">
             <div class="toolbar">
@@ -1160,25 +1165,25 @@
                 <label for="yearSelectTot">เลือกปี</label>
                 <select id="yearSelectTot"></select>
               </div>
-              <div class="hint">กราฟแท่ง = ผลผลิตเกิดจริงรายเดือนรวมโรงเยื่อ 1+2 (Actual) · กราฟเส้น = ผลผลิต Budget รายเดือนรวมโรงเยื่อ 1+2 · สีแท่งแยกตามโรงเยื่อ</div>
+              <div class="hint">กราฟแท่ง = ผลผลิตเกิดจริงรายเดือนรวม Pulp mill 1+2 (Actual) · กราฟเส้น = ผลผลิต Budget รายเดือนรวม Pulp mill 1+2 · สีแท่งแยกตาม Pulp mill</div>
               </div>
 
             <div class="chart-head">
-              <div class="chart-title" id="monthlyChartTitleTot">ผลผลิตรายเดือนโรงเยื่อ 1+2 เทียบ Budget</div>
+              <div class="chart-title" id="monthlyChartTitleTot">ผลผลิตรายเดือน Pulp mill 1+2 เทียบ Budget</div>
             </div>
 
             <div class="series-toggle-row" id="monthlySeriesToggleTot">
-              <button type="button" class="series-toggle-btn" data-ds="0"><span class="dot" style="background:#A4C2F4;"></span>โรงเยื่อ 1</button>
-              <button type="button" class="series-toggle-btn" data-ds="1"><span class="dot" style="background:#6FA8DC;"></span>โรงเยื่อ 2</button>
+              <button type="button" class="series-toggle-btn" data-ds="0"><span class="dot" style="background:#A4C2F4;"></span>Pulp mill 1</button>
+              <button type="button" class="series-toggle-btn" data-ds="1"><span class="dot" style="background:#6FA8DC;"></span>Pulp mill 2</button>
             </div>
 
             <div class="chart-wrap"><canvas id="monthlyChartTot"></canvas></div>
 
             <div class="legend-row">
               <span class="item"><span class="sw" style="border-color:#999999;"></span>Budget รายเดือนรวม (Adt)</span>
-              <span class="item"><span class="box" style="background:#A4C2F4;"></span>โรงเยื่อ 1</span>
-              <span class="item"><span class="box" style="background:#6FA8DC;"></span>โรงเยื่อ 2</span>
-              <span class="item"><span class="box" style="background:#0B5394;"></span>โรงเยื่อ 1+2 (รวม)</span>
+              <span class="item"><span class="box" style="background:#A4C2F4;"></span>Pulp mill 1</span>
+              <span class="item"><span class="box" style="background:#6FA8DC;"></span>Pulp mill 2</span>
+              <span class="item"><span class="box" style="background:#0B5394;"></span>Pulp mill 1+2 (รวม)</span>
               <span class="item"><span class="box" style="background:rgba(11,83,148,0.35); border:1px dashed #0B5394;"></span>แท่งสีอ่อน = ประมาณการ (เดือนยังไม่ปิดข้อมูลจริงครบเดือน)</span>
             </div>
           </div>
@@ -1189,7 +1194,7 @@
 
           <details class="dtable" id="rankTableDetailsTot">
             <summary>
-              <span class="dtable-label" id="rankTableTitleTot">สถิติผลผลิตรายเดือนโรงเยื่อ 1+2 (Best Record)</span>
+              <span class="dtable-label" id="rankTableTitleTot">สถิติผลผลิตรายเดือน Pulp mill 1+2 (Best Record)</span>
             </summary>
 
             <div class="toolbar" style="margin-top:12px;">
@@ -1197,7 +1202,7 @@
                 <label for="rankYearSelectTot">เลือกปี</label>
                 <select id="rankYearSelectTot"></select>
               </div>
-              <div class="hint">จัดอันดับผลผลิตจริงรายเดือนรวมโรงเยื่อ 1+2 เทียบเฉพาะ "เดือนเดียวกันข้ามปี" เท่านั้น (ไม่นำเดือนอื่นมารวม) จากข้อมูล Actual ทั้งหมดที่มี</div>
+              <div class="hint">จัดอันดับผลผลิตจริงรายเดือนรวม Pulp mill 1+2 เทียบเฉพาะ "เดือนเดียวกันข้ามปี" เท่านั้น (ไม่นำเดือนอื่นมารวม) จากข้อมูล Actual ทั้งหมดที่มี</div>
             </div>
 
             <div class="rank-table-wrap">
@@ -1245,21 +1250,21 @@
             </div>
 
             <div class="chart-head">
-              <div class="chart-title" id="annualChartTitleTot">ผลผลิตรายปีโรงเยื่อ 1+2</div>
+              <div class="chart-title" id="annualChartTitleTot">ผลผลิตรายปี Pulp mill 1+2</div>
               <div class="stat-row stat-row-3" id="annualStatRowTot"></div>
             </div>
 
             <div class="series-toggle-row" id="annualSeriesToggleTot">
-              <button type="button" class="series-toggle-btn" data-ds="0"><span class="dot" style="background:#A4C2F4;"></span>โรงเยื่อ 1</button>
-              <button type="button" class="series-toggle-btn" data-ds="1"><span class="dot" style="background:#6FA8DC;"></span>โรงเยื่อ 2</button>
+              <button type="button" class="series-toggle-btn" data-ds="0"><span class="dot" style="background:#A4C2F4;"></span>Pulp mill 1</button>
+              <button type="button" class="series-toggle-btn" data-ds="1"><span class="dot" style="background:#6FA8DC;"></span>Pulp mill 2</button>
             </div>
 
             <div class="chart-wrap"><canvas id="annualChartTot"></canvas></div>
 
             <div class="legend-row">
-              <span class="item"><span class="box" style="background:#A4C2F4;"></span>โรงเยื่อ 1</span>
-              <span class="item"><span class="box" style="background:#6FA8DC;"></span>โรงเยื่อ 2</span>
-              <span class="item"><span class="box" style="background:#0B5394;"></span>โรงเยื่อ 1+2 (รวม)</span>
+              <span class="item"><span class="box" style="background:#A4C2F4;"></span>Pulp mill 1</span>
+              <span class="item"><span class="box" style="background:#6FA8DC;"></span>Pulp mill 2</span>
+              <span class="item"><span class="box" style="background:#0B5394;"></span>Pulp mill 1+2 (รวม)</span>
               <span class="item"><span class="box" style="background:rgba(11,83,148,0.35); border:1px dashed #0B5394;"></span>แท่งสีอ่อน = ปีปัจจุบัน (คาดการณ์จบปี — มีค่าประมาณการบางเดือน)</span>
             </div>
           </div>
@@ -1269,25 +1274,25 @@
 
           <div class="card" id="summaryOverviewCard">
             <div class="summary-block">
-              <div class="summary-title">สรุปภาพรวมผลผลิตโรงเยื่อ 1</div>
+              <div class="summary-title">สรุปภาพรวมผลผลิต Pulp mill 1</div>
               <div class="summary-body" id="summaryBody1"></div>
             </div>
             <div class="summary-block">
-              <div class="summary-title">สรุปภาพรวมผลผลิตโรงเยื่อ 2</div>
+              <div class="summary-title">สรุปภาพรวมผลผลิต Pulp mill 2</div>
               <div class="summary-body" id="summaryBody2"></div>
             </div>
             <div class="summary-block">
-              <div class="summary-title">สรุปภาพรวมผลผลิตโรงเยื่อ 1+2</div>
+              <div class="summary-title">สรุปภาพรวมผลผลิต Pulp mill 1+2</div>
               <div class="summary-body" id="summaryBodyTot"></div>
             </div>
           </div>
 
           <details class="dtable" id="annualRankTableDetailsTot">
             <summary>
-              <span class="dtable-label" id="annualRankTableTitleTot">สถิติผลผลิตรายปีโรงเยื่อ 1+2 (Best Record)</span>
+              <span class="dtable-label" id="annualRankTableTitleTot">สถิติผลผลิตรายปี Pulp mill 1+2 (Best Record)</span>
             </summary>
 
-            <div class="hint" style="margin:12px 0 4px;">จัดอันดับผลผลิตจริงรวมทั้งปีของโรงเยื่อ 1+2 เทียบกับทุกปีที่มีข้อมูล จากข้อมูล Actual ทั้งหมดที่มี</div>
+            <div class="hint" style="margin:12px 0 4px;">จัดอันดับผลผลิตจริงรวมทั้งปีของ Pulp mill 1+2 เทียบกับทุกปีที่มีข้อมูล จากข้อมูล Actual ทั้งหมดที่มี</div>
 
             <div class="rank-table-wrap">
               <table class="rank-table">
@@ -1322,7 +1327,7 @@
 
           <div class="card" id="top10CardTot">
             <div class="chart-head">
-              <div class="chart-title" id="top10ChartTitleTot">Top 10 Production (Monthly) — โรงเยื่อ 1+2</div>
+              <div class="chart-title" id="top10ChartTitleTot">Top 10 Production (Monthly) — Pulp mill 1+2</div>
             </div>
             <div class="top10-layout">
               <div class="top10-table-wrap">
@@ -1333,7 +1338,7 @@
               </div>
               <div class="top10-chart-wrap"><canvas id="top10ChartTot"></canvas></div>
             </div>
-            <div class="legend-row"><span class="item">ผลผลิตรายเดือน 10 อันดับสูงสุดนับตั้งแต่เริ่มเดินเครื่องผลิต เรียงจากมากไปน้อย (รวมโรงเยื่อ 1+2)</span></div>
+            <div class="legend-row"><span class="item">ผลผลิตรายเดือน 10 อันดับสูงสุดนับตั้งแต่เริ่มเดินเครื่องผลิต เรียงจากมากไปน้อย (รวม Pulp mill 1+2)</span></div>
           </div>
           <button type="button" class="foot-toggle" data-target="top10FootTot" aria-expanded="false" aria-controls="top10FootTot">ดูรายละเอียด</button>
           <div class="foot" id="top10FootTot" hidden></div>
@@ -1607,7 +1612,7 @@ Object.keys(monthlyActByYearRaw).forEach(yStr=>{
   const y = +yStr;
   const rec = monthlyActByYearRaw[y];
   if(rec.pulp1.some(v=> v!=null)) MONTHLY_ACTUAL_BY_YEAR_FULL[y] = rec.pulp1;
-  if(rec.pulp2.some(v=> v!=null && v>0)) MONTHLY_ACTUAL_BY_YEAR_FULL_2[y] = rec.pulp2; // ปี 1998-2003 ยังไม่มีโรงเยื่อ 2 จึงตัดออก
+  if(rec.pulp2.some(v=> v!=null && v>0)) MONTHLY_ACTUAL_BY_YEAR_FULL_2[y] = rec.pulp2; // ปี 1998-2003 ยังไม่มี Pulp mill 2 จึงตัดออก
   if(rec.total.some(v=> v!=null)) MONTHLY_ACTUAL_BY_YEAR_FULL_TOT[y] = rec.total;
 });
 
@@ -1722,7 +1727,7 @@ function render(mi){
 
   // title
   document.getElementById('chartTitle').innerHTML =
-    `ผลผลิตเยื่อน้ำโรงเยื่อ 1 เดือน ${MONTH_NAMES[mi]} <span class="yr">${YEAR}</span>`;
+    `ผลผลิตเยื่อน้ำ Pulp mill 1 เดือน ${MONTH_NAMES[mi]} <span class="yr">${YEAR}</span>`;
 
   // stat boxes
   const mActual = monthActualSum(mi);
@@ -1931,7 +1936,7 @@ function renderMonthly(year){
   const labels = MONTH_ABBR_TH.slice();
 
   const titleEl = document.getElementById('monthlyChartTitle');
-  if(titleEl) titleEl.innerHTML = `ผลผลิตรายเดือนโรงเยื่อ 1 เทียบ Budget <span class="yr">${year}</span>`;
+  if(titleEl) titleEl.innerHTML = `ผลผลิตรายเดือน Pulp mill 1 เทียบ Budget <span class="yr">${year}</span>`;
 
   const styles = actualArr.map((v,i)=> monthlyBarStyle(i, v, budgetArr[i], year));
   const barBg = styles.map(s=> s.bg);
@@ -2091,7 +2096,7 @@ function renderRankTable(year){
   if(body) body.innerHTML = rows;
 
   const titleEl = document.getElementById('rankTableTitle');
-  if(titleEl) titleEl.innerHTML = `สถิติผลผลิตรายเดือนโรงเยื่อ 1 (Best Record)`;
+  if(titleEl) titleEl.innerHTML = `สถิติผลผลิตรายเดือน Pulp mill 1 (Best Record)`;
 
   const foot = document.getElementById('rankFoot');
   if(foot){
@@ -2278,15 +2283,15 @@ function renderAnnualRankTable(){
 
   const foot = document.getElementById('annualRankFoot');
   if(foot){
-    foot.innerHTML = `* ปี ${YEAR} ยอดรวมทั้งปีรวมตัวเลขประมาณการของเดือน ${MONTH_NAMES[MONTHLY_FORECAST_FROM_MI]} ${YEAR} เป็นต้นไปด้วย (ยังไม่ปิดข้อมูลจริงครบปี) จึงไม่นำมานับในสถิติ Best Record และไม่จัดอันดับให้<br>วิธีจัดอันดับ: จัดอันดับผลผลิตจริงรวมทั้งปีของโรงเยื่อ 1 เทียบกับทุกปีที่มีข้อมูลจริงครบปี · ข้อมูลย้อนหลังที่ใช้: ปี ${Math.min(...MONTHLY_ACTUAL_YEARS_FULL)}–${Math.max(...MONTHLY_ACTUAL_YEARS_FULL)} รวม ${MONTHLY_ACTUAL_YEARS_FULL.length} ปี · แหล่งข้อมูล: Google Sheets ชีต "Monthly (Act)" (gid=1448795576) ผลรวม 12 เดือน คอลัมน์ Pulp 1`;
+    foot.innerHTML = `* ปี ${YEAR} ยอดรวมทั้งปีรวมตัวเลขประมาณการของเดือน ${MONTH_NAMES[MONTHLY_FORECAST_FROM_MI]} ${YEAR} เป็นต้นไปด้วย (ยังไม่ปิดข้อมูลจริงครบปี) จึงไม่นำมานับในสถิติ Best Record และไม่จัดอันดับให้<br>วิธีจัดอันดับ: จัดอันดับผลผลิตจริงรวมทั้งปีของ Pulp mill 1 เทียบกับทุกปีที่มีข้อมูลจริงครบปี · ข้อมูลย้อนหลังที่ใช้: ปี ${Math.min(...MONTHLY_ACTUAL_YEARS_FULL)}–${Math.max(...MONTHLY_ACTUAL_YEARS_FULL)} รวม ${MONTHLY_ACTUAL_YEARS_FULL.length} ปี · แหล่งข้อมูล: Google Sheets ชีต "Monthly (Act)" (gid=1448795576) ผลรวม 12 เดือน คอลัมน์ Pulp 1`;
   }
 }
 
-/* ===================== Pulp mill 2 (โรงเยื่อ 2) — Monthly & Annual Production, Best Record =====================
-   ข้อมูลจากชีตเดียวกับโรงเยื่อ 1 คอลัมน์ Pulp 2 ของแต่ละเดือน: "Monthly (Act)" (gid=1448795576), "Monthly (Budget)" (gid=1872828527)
+/* ===================== Pulp mill 2 — Monthly & Annual Production, Best Record =====================
+   ข้อมูลจากชีตเดียวกับ Pulp mill 1 คอลัมน์ Pulp 2 ของแต่ละเดือน: "Monthly (Act)" (gid=1448795576), "Monthly (Budget)" (gid=1872828527)
    ตรวจสอบทุกค่าด้วยการดึงข้อมูลดิบทีละคอลัมน์ (เดือนละคอลัมน์ ทุกปี) แล้วเทียบค่าปี 2026 กับ Pulp 2 ที่ยืนยันแล้วจากแถว "Actual 2026" (Total-Pulp1)
-   หมายเหตุ: โรงเยื่อ 2 เริ่มมีข้อมูลการผลิตตั้งแต่ปี 2004 เป็นต้นมา (ปี 1998-2003 ไม่มีข้อมูล เนื่องจากยังไม่มีโรงเยื่อ 2)
-   ใช้เกณฑ์ "เดือนปัจจุบันยังไม่ปิดข้อมูลจริง" (MONTHLY_FORECAST_FROM_MI) ร่วมกับโรงเยื่อ 1 เนื่องจากเป็นปฏิทินเดียวกันของทั้งโรงงาน */
+   หมายเหตุ: Pulp mill 2 เริ่มมีข้อมูลการผลิตตั้งแต่ปี 2004 เป็นต้นมา (ปี 1998-2003 ไม่มีข้อมูล เนื่องจากยังไม่มี Pulp mill 2)
+   ใช้เกณฑ์ "เดือนปัจจุบันยังไม่ปิดข้อมูลจริง" (MONTHLY_FORECAST_FROM_MI) ร่วมกับ Pulp mill 1 เนื่องจากเป็นปฏิทินเดียวกันของทั้งโรงงาน */
 const MONTHLY_ACTUAL_YEARS_FULL_2 = Object.keys(MONTHLY_ACTUAL_BY_YEAR_FULL_2).map(Number).sort((a,b)=> b-a);
 
 const MONTHLY_ACTUAL_BY_YEAR_2 = { [YEAR]: (MONTHLY_ACTUAL_BY_YEAR_FULL_2[YEAR] || Array(12).fill(null)).slice() };
@@ -2324,7 +2329,7 @@ function renderMonthly2(year){
   const labels = MONTH_ABBR_TH.slice();
 
   const titleEl = document.getElementById('monthlyChartTitle2');
-  if(titleEl) titleEl.innerHTML = `ผลผลิตรายเดือนโรงเยื่อ 2 เทียบ Budget <span class="yr">${year}</span>`;
+  if(titleEl) titleEl.innerHTML = `ผลผลิตรายเดือน Pulp mill 2 เทียบ Budget <span class="yr">${year}</span>`;
 
   const styles = actualArr.map((v,i)=> monthlyBarStyle(i, v, budgetArr[i], year));
   const barBg = styles.map(s=> s.bg);
@@ -2409,7 +2414,7 @@ function renderMonthly2(year){
     const forecastNote = (year===YEAR)
       ? `หมายเหตุ: ตั้งแต่เดือน ${MONTH_NAMES[MONTHLY_FORECAST_FROM_MI]} ${YEAR} เป็นต้นไป ตัวเลข Actual รายเดือนที่ดึงจากชีตเป็นค่าประมาณการ/แผนการผลิตล่วงหน้า (เดือนยังไม่ปิดข้อมูลจริงครบเดือน) จึงแสดงเป็นแท่งสีอ่อนกว่าเดือนอื่น เมื่อสิ้นเดือนและมีข้อมูลจริงครบแล้วตัวเลขนี้จะถูกอัปเดตให้ตรงกับข้อมูลจริง<br>`
       : '';
-    foot.innerHTML = `${forecastNote}ผลผลิตเกิดจริงรายเดือน: Google Sheets ชีต "Monthly (Act)" (gid=1448795576) แถว "Actual ${year}" คอลัมน์ Pulp 2 · ผลผลิต Budget รายเดือน: ชีต "Monthly (Budget)" (gid=1872828527) แถว "Budget ${year}" คอลัมน์ Pulp 2 · ปีที่มีข้อมูลครบสำหรับเปรียบเทียบในขณะนี้: ${MONTHLY_YEARS_2.join(', ')} (ปีอื่นในชีตต้นทาง แถว Budget รายเดือนยังว่างเปล่า จึงยังไม่เปิดให้เลือกเปรียบเทียบ) · โรงเยื่อ 2 เริ่มมีข้อมูลการผลิตตั้งแต่ปี 2004 เป็นต้นมา · เกณฑ์สีแท่งกราฟ: Actual ≥ Budget = เขียว (#00a927) · Actual ตั้งแต่ 70% ถึงต่ำกว่า Budget = ส้ม (#ff9900) · Actual ต่ำกว่า 70% ของ Budget (Loss มากกว่า 30%) = แดง (#ff0000) — คำนวณจากค่า Budget ของแต่ละเดือนโดยเฉพาะ`;
+    foot.innerHTML = `${forecastNote}ผลผลิตเกิดจริงรายเดือน: Google Sheets ชีต "Monthly (Act)" (gid=1448795576) แถว "Actual ${year}" คอลัมน์ Pulp 2 · ผลผลิต Budget รายเดือน: ชีต "Monthly (Budget)" (gid=1872828527) แถว "Budget ${year}" คอลัมน์ Pulp 2 · ปีที่มีข้อมูลครบสำหรับเปรียบเทียบในขณะนี้: ${MONTHLY_YEARS_2.join(', ')} (ปีอื่นในชีตต้นทาง แถว Budget รายเดือนยังว่างเปล่า จึงยังไม่เปิดให้เลือกเปรียบเทียบ) · Pulp mill 2 เริ่มมีข้อมูลการผลิตตั้งแต่ปี 2004 เป็นต้นมา · เกณฑ์สีแท่งกราฟ: Actual ≥ Budget = เขียว (#00a927) · Actual ตั้งแต่ 70% ถึงต่ำกว่า Budget = ส้ม (#ff9900) · Actual ต่ำกว่า 70% ของ Budget (Loss มากกว่า 30%) = แดง (#ff0000) — คำนวณจากค่า Budget ของแต่ละเดือนโดยเฉพาะ`;
   }
 }
 
@@ -2455,14 +2460,14 @@ function renderRankTable2(year){
   if(body) body.innerHTML = rows;
 
   const titleEl = document.getElementById('rankTableTitle2');
-  if(titleEl) titleEl.innerHTML = `สถิติผลผลิตรายเดือนโรงเยื่อ 2 (Best Record)`;
+  if(titleEl) titleEl.innerHTML = `สถิติผลผลิตรายเดือน Pulp mill 2 (Best Record)`;
 
   const foot = document.getElementById('rankFoot2');
   if(foot){
     const forecastNote = (year===YEAR)
       ? `* เดือน ${MONTH_NAMES[MONTHLY_FORECAST_FROM_MI]} ${YEAR} เป็นต้นไป เป็นค่าประมาณการ ยังไม่ปิดข้อมูลจริงครบเดือน จึงไม่นำมานับในสถิติ Best Record และไม่จัดอันดับให้<br>`
       : '';
-    foot.innerHTML = `${forecastNote}วิธีจัดอันดับ: เปรียบเทียบผลผลิตจริงเฉพาะ "เดือนเดียวกันข้ามปี" เท่านั้น (เช่น ส.ค. เทียบกับ ส.ค. ปีอื่น ๆ ทั้งหมด) ไม่นำเดือนอื่นมารวมในการจัดอันดับ · ข้อมูลย้อนหลังที่ใช้: ปี ${Math.min(...MONTHLY_ACTUAL_YEARS_FULL_2)}–${Math.max(...MONTHLY_ACTUAL_YEARS_FULL_2)} รวม ${MONTHLY_ACTUAL_YEARS_FULL_2.length} ปี (โรงเยื่อ 2 เริ่มมีข้อมูลตั้งแต่ปี 2004) · แหล่งข้อมูล: Google Sheets ชีต "Monthly (Act)" (gid=1448795576) คอลัมน์ Pulp 2 ของแต่ละเดือน`;
+    foot.innerHTML = `${forecastNote}วิธีจัดอันดับ: เปรียบเทียบผลผลิตจริงเฉพาะ "เดือนเดียวกันข้ามปี" เท่านั้น (เช่น ส.ค. เทียบกับ ส.ค. ปีอื่น ๆ ทั้งหมด) ไม่นำเดือนอื่นมารวมในการจัดอันดับ · ข้อมูลย้อนหลังที่ใช้: ปี ${Math.min(...MONTHLY_ACTUAL_YEARS_FULL_2)}–${Math.max(...MONTHLY_ACTUAL_YEARS_FULL_2)} รวม ${MONTHLY_ACTUAL_YEARS_FULL_2.length} ปี (Pulp mill 2 เริ่มมีข้อมูลตั้งแต่ปี 2004) · แหล่งข้อมูล: Google Sheets ชีต "Monthly (Act)" (gid=1448795576) คอลัมน์ Pulp 2 ของแต่ละเดือน`;
   }
 }
 
@@ -2589,7 +2594,7 @@ function renderAnnualChart2(){
 
   const foot = document.getElementById('annualFoot2');
   if(foot){
-    foot.innerHTML = `หมายเหตุ: ปี ${YEAR} ยอดรวมทั้งปีมีตัวเลขประมาณการของเดือน ${MONTH_NAMES[MONTHLY_FORECAST_FROM_MI]} ${YEAR} เป็นต้นไปรวมอยู่ด้วย (ยังไม่ปิดข้อมูลจริงครบปี) จึงแสดงเป็นแท่งสีอ่อนกว่าปกติ · โรงเยื่อ 2 เริ่มมีข้อมูลการผลิตตั้งแต่ปี 2004 เป็นต้นมา · ข้อมูล Actual รายปี: ผลรวม 12 เดือนจาก Google Sheets ชีต "Monthly (Act)" (gid=1448795576) คอลัมน์ Pulp 2`;
+    foot.innerHTML = `หมายเหตุ: ปี ${YEAR} ยอดรวมทั้งปีมีตัวเลขประมาณการของเดือน ${MONTH_NAMES[MONTHLY_FORECAST_FROM_MI]} ${YEAR} เป็นต้นไปรวมอยู่ด้วย (ยังไม่ปิดข้อมูลจริงครบปี) จึงแสดงเป็นแท่งสีอ่อนกว่าปกติ · Pulp mill 2 เริ่มมีข้อมูลการผลิตตั้งแต่ปี 2004 เป็นต้นมา · ข้อมูล Actual รายปี: ผลรวม 12 เดือนจาก Google Sheets ชีต "Monthly (Act)" (gid=1448795576) คอลัมน์ Pulp 2`;
   }
 }
 
@@ -2627,13 +2632,13 @@ function renderAnnualRankTable2(){
 
   const foot = document.getElementById('annualRankFoot2');
   if(foot){
-    foot.innerHTML = `* ปี ${YEAR} ยอดรวมทั้งปีรวมตัวเลขประมาณการของเดือน ${MONTH_NAMES[MONTHLY_FORECAST_FROM_MI]} ${YEAR} เป็นต้นไปด้วย (ยังไม่ปิดข้อมูลจริงครบปี) จึงไม่นำมานับในสถิติ Best Record และไม่จัดอันดับให้<br>วิธีจัดอันดับ: จัดอันดับผลผลิตจริงรวมทั้งปีของโรงเยื่อ 2 เทียบกับทุกปีที่มีข้อมูลจริงครบปี · ข้อมูลย้อนหลังที่ใช้: ปี ${Math.min(...MONTHLY_ACTUAL_YEARS_FULL_2)}–${Math.max(...MONTHLY_ACTUAL_YEARS_FULL_2)} รวม ${MONTHLY_ACTUAL_YEARS_FULL_2.length} ปี (โรงเยื่อ 2 เริ่มมีข้อมูลตั้งแต่ปี 2004) · แหล่งข้อมูล: Google Sheets ชีต "Monthly (Act)" (gid=1448795576) ผลรวม 12 เดือน คอลัมน์ Pulp 2`;
+    foot.innerHTML = `* ปี ${YEAR} ยอดรวมทั้งปีรวมตัวเลขประมาณการของเดือน ${MONTH_NAMES[MONTHLY_FORECAST_FROM_MI]} ${YEAR} เป็นต้นไปด้วย (ยังไม่ปิดข้อมูลจริงครบปี) จึงไม่นำมานับในสถิติ Best Record และไม่จัดอันดับให้<br>วิธีจัดอันดับ: จัดอันดับผลผลิตจริงรวมทั้งปีของ Pulp mill 2 เทียบกับทุกปีที่มีข้อมูลจริงครบปี · ข้อมูลย้อนหลังที่ใช้: ปี ${Math.min(...MONTHLY_ACTUAL_YEARS_FULL_2)}–${Math.max(...MONTHLY_ACTUAL_YEARS_FULL_2)} รวม ${MONTHLY_ACTUAL_YEARS_FULL_2.length} ปี (Pulp mill 2 เริ่มมีข้อมูลตั้งแต่ปี 2004) · แหล่งข้อมูล: Google Sheets ชีต "Monthly (Act)" (gid=1448795576) ผลรวม 12 เดือน คอลัมน์ Pulp 2`;
   }
 }
 
-/* ===================== รวมทั้งโรงงาน (โรงเยื่อ 1+2) — Monthly & Annual Production, Best Record =====================
+/* ===================== รวมทั้งโรงงาน (Pulp mill 1+2) — Monthly & Annual Production, Best Record =====================
    Total = ผลรวม Pulp 1 + Pulp 2 ของแต่ละเดือน/ปี ตรงกับคอลัมน์ "Total" ในชีตต้นทาง (ตรวจสอบแล้วว่า Pulp1+Pulp2≈Total)
-   ปี 1998-2003 ยังไม่มีโรงเยื่อ 2 ดังนั้น Total ของช่วงนี้ = ผลผลิตโรงเยื่อ 1 เพียงอย่างเดียว (Pulp2 = 0) */
+   ปี 1998-2003 ยังไม่มี Pulp mill 2 ดังนั้น Total ของช่วงนี้ = ผลผลิต Pulp mill 1 เพียงอย่างเดียว (Pulp2 = 0) */
 const BUDGET_MONTHLY_TOT = BUDGET_MONTHLY.map((v,i)=> v + BUDGET_MONTHLY_2[i]);
 const BUDGET_ANNUAL_TOT = BUDGET_MONTHLY_TOT.reduce((a,b)=> a+b, 0);
 
@@ -2678,7 +2683,7 @@ function renderMonthlyTot(year){
   const labels = MONTH_ABBR_TH.slice();
 
   const titleEl = document.getElementById('monthlyChartTitleTot');
-  if(titleEl) titleEl.innerHTML = `ผลผลิตรายเดือนโรงเยื่อ 1+2 เทียบ Budget <span class="yr">${year}</span>`;
+  if(titleEl) titleEl.innerHTML = `ผลผลิตรายเดือน Pulp mill 1+2 เทียบ Budget <span class="yr">${year}</span>`;
 
   const COLOR_FL1_M = '#A4C2F4';
   const COLOR_FL2_M = '#6FA8DC';
@@ -2688,7 +2693,7 @@ function renderMonthlyTot(year){
   const barBg = styles.map(s=> s.bg);
   const barBorder = styles.map(s=> s.border);
 
-  // โรงเยื่อ 1 และโรงเยื่อ 2: ใช้สีคงที่ตามโรงเยื่อ (ไม่อิงเกณฑ์ Budget) เพื่อแยกแยะแต่ละแท่งในกราฟรวม
+  // Pulp mill 1 และ Pulp mill 2: ใช้สีคงที่ตาม Pulp mill (ไม่อิงเกณฑ์ Budget) เพื่อแยกแยะแต่ละแท่งในกราฟรวม
   const styles1 = actualArr1.map((v,i)=> monthlyBarStyleFixed(i, v, COLOR_FL1_M, year));
   const barBg1 = styles1.map(s=> s.bg);
   const barBorder1 = styles1.map(s=> s.border);
@@ -2712,7 +2717,7 @@ function renderMonthlyTot(year){
       labels,
       datasets:[
         {
-          type:'bar', label:'โรงเยื่อ 1', data:actualArr1,
+          type:'bar', label:'Pulp mill 1', data:actualArr1,
           backgroundColor: barBg1, borderColor: barBorder1, borderWidth:1.5,
           borderRadius:2, barPercentage:0.85, categoryPercentage:0.75, order:2,
           datalabels:{
@@ -2723,7 +2728,7 @@ function renderMonthlyTot(year){
           }
         },
         {
-          type:'bar', label:'โรงเยื่อ 2', data:actualArr2,
+          type:'bar', label:'Pulp mill 2', data:actualArr2,
           backgroundColor: barBg2, borderColor: barBorder2, borderWidth:1.5,
           borderRadius:2, barPercentage:0.85, categoryPercentage:0.75, order:2,
           datalabels:{
@@ -2775,17 +2780,17 @@ function renderMonthlyTot(year){
               const mi = item.dataIndex;
               const isForecast = (year === YEAR) && (mi >= MONTHLY_FORECAST_FROM_MI);
               const statusOf = (v,b)=> (b!=null && v!=null) ? (v>=b?'≥ Budget': v>=b*0.7?'70–99.9% ของ Budget':'< 70% ของ Budget, Loss >30%') : '';
-              if(item.dataset.label==='โรงเยื่อ 1'){
+              if(item.dataset.label==='Pulp mill 1'){
                 const v = item.raw;
-                if(v==null) return 'โรงเยื่อ 1: ไม่มีข้อมูล';
+                if(v==null) return 'Pulp mill 1: ไม่มีข้อมูล';
                 const status = statusOf(v, budgetArr1[mi]);
-                return `โรงเยื่อ 1: ${fmt0(v)} Adt${status?` — ${status}`:''}${isForecast?' (ประมาณการ)':''}`;
+                return `Pulp mill 1: ${fmt0(v)} Adt${status?` — ${status}`:''}${isForecast?' (ประมาณการ)':''}`;
               }
-              if(item.dataset.label==='โรงเยื่อ 2'){
+              if(item.dataset.label==='Pulp mill 2'){
                 const v = item.raw;
-                if(v==null) return 'โรงเยื่อ 2: ไม่มีข้อมูล';
+                if(v==null) return 'Pulp mill 2: ไม่มีข้อมูล';
                 const status = statusOf(v, budgetArr2[mi]);
-                return `โรงเยื่อ 2: ${fmt0(v)} Adt${status?` — ${status}`:''}${isForecast?' (ประมาณการ)':''}`;
+                return `Pulp mill 2: ${fmt0(v)} Adt${status?` — ${status}`:''}${isForecast?' (ประมาณการ)':''}`;
               }
               if(item.dataset.label==='Actual'){
                 const v = item.raw;
@@ -2805,8 +2810,8 @@ function renderMonthlyTot(year){
   if(monthlyChartTot){ monthlyChartTot.data = cfg.data; monthlyChartTot.options = cfg.options; monthlyChartTot.update(); }
   else {
     monthlyChartTot = new Chart(document.getElementById('monthlyChartTot').getContext('2d'), cfg);
-    // ค่าเริ่มต้น: โชว์เฉพาะผลผลิตรวมโรงเยื่อ 1+2 (รวม, dataset index 2) และเส้น Budget ก่อนเป็นอันดับแรก
-    // ซ่อนแท่งโรงเยื่อ 1 (index 0) และโรงเยื่อ 2 (index 1) ไว้ก่อน — ผู้ใช้กดปุ่มด้านบนกราฟเพื่อแสดงเพิ่มเองได้
+    // ค่าเริ่มต้น: โชว์เฉพาะผลผลิตรวม Pulp mill 1+2 (รวม, dataset index 2) และเส้น Budget ก่อนเป็นอันดับแรก
+    // ซ่อนแท่ง Pulp mill 1 (index 0) และ Pulp mill 2 (index 1) ไว้ก่อน — ผู้ใช้กดปุ่มด้านบนกราฟเพื่อแสดงเพิ่มเองได้
     monthlyChartTot.setDatasetVisibility(0, false);
     monthlyChartTot.setDatasetVisibility(1, false);
     monthlyChartTot.update();
@@ -2824,7 +2829,7 @@ function renderMonthlyTot(year){
     const forecastNote = (year===YEAR)
       ? `หมายเหตุ: ตั้งแต่เดือน ${MONTH_NAMES[MONTHLY_FORECAST_FROM_MI]} ${YEAR} เป็นต้นไป ตัวเลข Actual รายเดือนที่ดึงจากชีตเป็นค่าประมาณการ/แผนการผลิตล่วงหน้า (เดือนยังไม่ปิดข้อมูลจริงครบเดือน) จึงแสดงเป็นแท่งสีอ่อนกว่าเดือนอื่น เมื่อสิ้นเดือนและมีข้อมูลจริงครบแล้วตัวเลขนี้จะถูกอัปเดตให้ตรงกับข้อมูลจริง<br>`
       : '';
-    foot.innerHTML = `${forecastNote}กราฟนี้แสดง 3 แท่งต่อเดือน (โรงเยื่อ 1 · โรงเยื่อ 2 · รวมทั้งโรงงาน) สีแท่งแยกตามโรงเยื่อ: โรงเยื่อ 1 = ${COLOR_FL1_M} · โรงเยื่อ 2 = ${COLOR_FL2_M} · รวมทั้งโรงงาน = ${COLOR_TOT_M} (แท่งสีอ่อนลง = เดือนที่ยังเป็นค่าประมาณการ) · ผลผลิตเกิดจริงรายเดือนรวมทั้งโรงงาน = ผลรวมโรงเยื่อ 1 + โรงเยื่อ 2 จาก Google Sheets ชีต "Monthly (Act)" (gid=1448795576) แถว "Actual ${year}" · Budget รวมทั้งโรงงาน = ผลรวม Budget โรงเยื่อ 1 + โรงเยื่อ 2 จากชีต "Monthly (Budget)" (gid=1872828527) แถว "Budget ${year}" · ปีที่มีข้อมูลครบสำหรับเปรียบเทียบในขณะนี้: ${MONTHLY_YEARS_TOT.join(', ')} (ปีอื่นในชีตต้นทาง แถว Budget รายเดือนยังว่างเปล่า จึงยังไม่เปิดให้เลือกเปรียบเทียบ) · ค่าเริ่มต้นแสดงเฉพาะแท่งผลผลิตรวมโรงเยื่อ 1+2 (รวม) ก่อน · ปุ่ม "โรงเยื่อ 1" / "โรงเยื่อ 2" เหนือกราฟใช้กดแสดง/ซ่อนแท่งของโรงเยื่อนั้นเพิ่มเองได้`;
+    foot.innerHTML = `${forecastNote}กราฟนี้แสดง 3 แท่งต่อเดือน (Pulp mill 1 · Pulp mill 2 · รวมทั้งโรงงาน) สีแท่งแยกตาม Pulp mill: Pulp mill 1 = ${COLOR_FL1_M} · Pulp mill 2 = ${COLOR_FL2_M} · รวมทั้งโรงงาน = ${COLOR_TOT_M} (แท่งสีอ่อนลง = เดือนที่ยังเป็นค่าประมาณการ) · ผลผลิตเกิดจริงรายเดือนรวมทั้งโรงงาน = ผลรวม Pulp mill 1 + Pulp mill 2 จาก Google Sheets ชีต "Monthly (Act)" (gid=1448795576) แถว "Actual ${year}" · Budget รวมทั้งโรงงาน = ผลรวม Budget Pulp mill 1 + Pulp mill 2 จากชีต "Monthly (Budget)" (gid=1872828527) แถว "Budget ${year}" · ปีที่มีข้อมูลครบสำหรับเปรียบเทียบในขณะนี้: ${MONTHLY_YEARS_TOT.join(', ')} (ปีอื่นในชีตต้นทาง แถว Budget รายเดือนยังว่างเปล่า จึงยังไม่เปิดให้เลือกเปรียบเทียบ) · ค่าเริ่มต้นแสดงเฉพาะแท่งผลผลิตรวม Pulp mill 1+2 (รวม) ก่อน · ปุ่ม "Pulp mill 1" / "Pulp mill 2" เหนือกราฟใช้กดแสดง/ซ่อนแท่งของโรงงานนั้นเพิ่มเองได้`;
   }
 }
 
@@ -2885,14 +2890,14 @@ function renderRankTableTot(year){
   if(body) body.innerHTML = rows;
 
   const titleEl = document.getElementById('rankTableTitleTot');
-  if(titleEl) titleEl.innerHTML = `สถิติผลผลิตรายเดือนโรงเยื่อ 1+2 (Best Record)`;
+  if(titleEl) titleEl.innerHTML = `สถิติผลผลิตรายเดือน Pulp mill 1+2 (Best Record)`;
 
   const foot = document.getElementById('rankFootTot');
   if(foot){
     const forecastNote = (year===YEAR)
       ? `* เดือน ${MONTH_NAMES[MONTHLY_FORECAST_FROM_MI]} ${YEAR} เป็นต้นไป เป็นค่าประมาณการ ยังไม่ปิดข้อมูลจริงครบเดือน จึงไม่นำมานับในสถิติ Best Record และไม่จัดอันดับให้<br>`
       : '';
-    foot.innerHTML = `${forecastNote}วิธีจัดอันดับ: เปรียบเทียบผลผลิตจริงรวมทั้งโรงงานเฉพาะ "เดือนเดียวกันข้ามปี" เท่านั้น (เช่น ส.ค. เทียบกับ ส.ค. ปีอื่น ๆ ทั้งหมด) ไม่นำเดือนอื่นมารวมในการจัดอันดับ · ข้อมูลย้อนหลังที่ใช้: ปี ${Math.min(...MONTHLY_ACTUAL_YEARS_FULL_TOT)}–${Math.max(...MONTHLY_ACTUAL_YEARS_FULL_TOT)} รวม ${MONTHLY_ACTUAL_YEARS_FULL_TOT.length} ปี (ปี 1998–2003 ยังไม่มีโรงเยื่อ 2 ตัวเลขรวมของช่วงนี้จึงเท่ากับโรงเยื่อ 1 เพียงอย่างเดียว) · แหล่งข้อมูล: Google Sheets ชีต "Monthly (Act)" (gid=1448795576) ผลรวมคอลัมน์ Pulp 1 + Pulp 2 ของแต่ละเดือน`;
+    foot.innerHTML = `${forecastNote}วิธีจัดอันดับ: เปรียบเทียบผลผลิตจริงรวมทั้งโรงงานเฉพาะ "เดือนเดียวกันข้ามปี" เท่านั้น (เช่น ส.ค. เทียบกับ ส.ค. ปีอื่น ๆ ทั้งหมด) ไม่นำเดือนอื่นมารวมในการจัดอันดับ · ข้อมูลย้อนหลังที่ใช้: ปี ${Math.min(...MONTHLY_ACTUAL_YEARS_FULL_TOT)}–${Math.max(...MONTHLY_ACTUAL_YEARS_FULL_TOT)} รวม ${MONTHLY_ACTUAL_YEARS_FULL_TOT.length} ปี (ปี 1998–2003 ยังไม่มี Pulp mill 2 ตัวเลขรวมของช่วงนี้จึงเท่ากับ Pulp mill 1 เพียงอย่างเดียว) · แหล่งข้อมูล: Google Sheets ชีต "Monthly (Act)" (gid=1448795576) ผลรวมคอลัมน์ Pulp 1 + Pulp 2 ของแต่ละเดือน`;
   }
 }
 
@@ -2997,7 +3002,7 @@ function renderAnnualChartTot(){
       labels,
       datasets:[
         {
-          type:'bar', label:'โรงเยื่อ 1', data:actualArr1,
+          type:'bar', label:'Pulp mill 1', data:actualArr1,
           backgroundColor: barBg1, borderColor: barBorder1, borderWidth:1.5,
           borderRadius:2, barPercentage:0.85, categoryPercentage:0.75, order:2,
           datalabels:{
@@ -3008,7 +3013,7 @@ function renderAnnualChartTot(){
           }
         },
         {
-          type:'bar', label:'โรงเยื่อ 2', data:actualArr2,
+          type:'bar', label:'Pulp mill 2', data:actualArr2,
           backgroundColor: barBg2, borderColor: barBorder2, borderWidth:1.5,
           borderRadius:2, barPercentage:0.85, categoryPercentage:0.75, order:2,
           datalabels:{
@@ -3019,7 +3024,7 @@ function renderAnnualChartTot(){
           }
         },
         {
-          type:'bar', label:'โรงเยื่อ 1+2 (รวม)', data:actualArr,
+          type:'bar', label:'Pulp mill 1+2 (รวม)', data:actualArr,
           backgroundColor: barBg, borderColor: barBorder, borderWidth:1.5,
           borderRadius:2, barPercentage:0.85, categoryPercentage:0.75, order:2,
           datalabels:{
@@ -3072,7 +3077,7 @@ function renderAnnualChartTot(){
 
   const foot = document.getElementById('annualFootTot');
   if(foot){
-    foot.innerHTML = `หมายเหตุ: ปี ${YEAR} ยอดรวมทั้งปีมีตัวเลขประมาณการของเดือน ${MONTH_NAMES[MONTHLY_FORECAST_FROM_MI]} ${YEAR} เป็นต้นไปรวมอยู่ด้วย (ยังไม่ปิดข้อมูลจริงครบปี) จึงแสดงเป็นแท่งสีอ่อนกว่าปกติ · กราฟนี้แสดง 3 แท่งต่อปี: ผลผลิตโรงเยื่อ 1 (${COLOR_FL1}) โรงเยื่อ 2 (${COLOR_FL2}) และผลรวมทั้งโรงงาน (${COLOR_TOT}) เพื่อเปรียบเทียบสัดส่วนของแต่ละโรงเยื่อ · ผลผลิตรวมทั้งโรงงาน = ผลผลิตโรงเยื่อ 1 + โรงเยื่อ 2 · ปี 1998–2003 ยังไม่มีโรงเยื่อ 2 ตัวเลขรวมของช่วงนี้จึงเท่ากับโรงเยื่อ 1 เพียงอย่างเดียว (ไม่มีแท่งโรงเยื่อ 2 แสดงในช่วงนี้) · ข้อมูล Actual รายปี: ผลรวม 12 เดือนจาก Google Sheets ชีต "Monthly (Act)" (gid=1448795576) คอลัมน์ Pulp 1 + Pulp 2`;
+    foot.innerHTML = `หมายเหตุ: ปี ${YEAR} ยอดรวมทั้งปีมีตัวเลขประมาณการของเดือน ${MONTH_NAMES[MONTHLY_FORECAST_FROM_MI]} ${YEAR} เป็นต้นไปรวมอยู่ด้วย (ยังไม่ปิดข้อมูลจริงครบปี) จึงแสดงเป็นแท่งสีอ่อนกว่าปกติ · กราฟนี้แสดง 3 แท่งต่อปี: ผลผลิต Pulp mill 1 (${COLOR_FL1}) Pulp mill 2 (${COLOR_FL2}) และผลรวมทั้งโรงงาน (${COLOR_TOT}) เพื่อเปรียบเทียบสัดส่วนของแต่ละ Pulp mill · ผลผลิตรวมทั้งโรงงาน = ผลผลิต Pulp mill 1 + Pulp mill 2 · ปี 1998–2003 ยังไม่มี Pulp mill 2 ตัวเลขรวมของช่วงนี้จึงเท่ากับ Pulp mill 1 เพียงอย่างเดียว (ไม่มีแท่ง Pulp mill 2 แสดงในช่วงนี้) · ข้อมูล Actual รายปี: ผลรวม 12 เดือนจาก Google Sheets ชีต "Monthly (Act)" (gid=1448795576) คอลัมน์ Pulp 1 + Pulp 2`;
   }
 }
 
@@ -3110,13 +3115,13 @@ function renderAnnualRankTableTot(){
 
   const foot = document.getElementById('annualRankFootTot');
   if(foot){
-    foot.innerHTML = `* ปี ${YEAR} ยอดรวมทั้งปีรวมตัวเลขประมาณการของเดือน ${MONTH_NAMES[MONTHLY_FORECAST_FROM_MI]} ${YEAR} เป็นต้นไปด้วย (ยังไม่ปิดข้อมูลจริงครบปี) จึงไม่นำมานับในสถิติ Best Record และไม่จัดอันดับให้<br>วิธีจัดอันดับ: จัดอันดับผลผลิตจริงรวมทั้งโรงงาน (โรงเยื่อ 1+2) รวมทั้งปี เทียบกับทุกปีที่มีข้อมูลจริงครบปี · ข้อมูลย้อนหลังที่ใช้: ปี ${Math.min(...MONTHLY_ACTUAL_YEARS_FULL_TOT)}–${Math.max(...MONTHLY_ACTUAL_YEARS_FULL_TOT)} รวม ${MONTHLY_ACTUAL_YEARS_FULL_TOT.length} ปี (ปี 1998–2003 ยังไม่มีโรงเยื่อ 2) · แหล่งข้อมูล: Google Sheets ชีต "Monthly (Act)" (gid=1448795576) ผลรวมคอลัมน์ Pulp 1 + Pulp 2 ของแต่ละเดือน`;
+    foot.innerHTML = `* ปี ${YEAR} ยอดรวมทั้งปีรวมตัวเลขประมาณการของเดือน ${MONTH_NAMES[MONTHLY_FORECAST_FROM_MI]} ${YEAR} เป็นต้นไปด้วย (ยังไม่ปิดข้อมูลจริงครบปี) จึงไม่นำมานับในสถิติ Best Record และไม่จัดอันดับให้<br>วิธีจัดอันดับ: จัดอันดับผลผลิตจริงรวมทั้งโรงงาน (Pulp mill 1+2) รวมทั้งปี เทียบกับทุกปีที่มีข้อมูลจริงครบปี · ข้อมูลย้อนหลังที่ใช้: ปี ${Math.min(...MONTHLY_ACTUAL_YEARS_FULL_TOT)}–${Math.max(...MONTHLY_ACTUAL_YEARS_FULL_TOT)} รวม ${MONTHLY_ACTUAL_YEARS_FULL_TOT.length} ปี (ปี 1998–2003 ยังไม่มี Pulp mill 2) · แหล่งข้อมูล: Google Sheets ชีต "Monthly (Act)" (gid=1448795576) ผลรวมคอลัมน์ Pulp 1 + Pulp 2 ของแต่ละเดือน`;
   }
 }
 
 
 /* ===================== Pulp mill 1 — Monthly Groups by Days-in-Month (31d / 30d / Feb 29d / Feb 28d) =====================
-   ใช้ข้อมูลชุดเดียวกับ "ผลผลิตรายเดือนโรงเยื่อ 1" ด้านบน (MONTHLY_ACTUAL_BY_YEAR_FULL, BUDGET_MONTHLY / MONTHLY_BUDGET_BY_YEAR)
+   ใช้ข้อมูลชุดเดียวกับ "ผลผลิตรายเดือน Pulp mill 1" ด้านบน (MONTHLY_ACTUAL_BY_YEAR_FULL, BUDGET_MONTHLY / MONTHLY_BUDGET_BY_YEAR)
    นำมาจัดกลุ่มตามจำนวนวันในเดือน
    วิธีจัดอันดับ Best Record: เทียบเฉพาะ "เดือนที่มีจำนวนวันเท่ากัน" ข้ามปีทั้งหมด (ไม่จำกัดเฉพาะเดือนปฏิทินเดียวกัน)
    เช่น กลุ่ม 31 วัน จะนำ ม.ค., มี.ค., พ.ค., ก.ค., ส.ค., ต.ค., ธ.ค. ของทุกปีที่มีข้อมูลจริง มารวมเป็น pool เดียวแล้วจัดอันดับร่วมกัน
@@ -3307,7 +3312,7 @@ function renderDayGroupChart(key){
     const rangeNote = isFullRange
       ? `ค่าเริ่มต้นแสดงเฉพาะ Top 10 เดือนที่ผลผลิตสูงสุด`
       : `กำลังแสดงช่วงที่เลือก ${labels[0]||'—'}–${labels[labels.length-1]||'—'} (เรียงตามตัวเลือกด้านบน)`;
-    foot.innerHTML = `กราฟนี้แสดงผลผลิตจริงของเดือนในกลุ่ม ${group.titleTag} ของโรงเยื่อ 1 ทุกเดือน-ปีที่ปิดข้อมูลจริงครบเดือนแล้ว (Google Sheets ชีต "Monthly (Act)" gid=1448795576 คอลัมน์ Pulp 1) รวม ${chrono.length} เดือน จาก ${yearsForGroup.length} ปีที่เข้าเกณฑ์: ${Math.min(...yearsForGroup)}–${Math.max(...yearsForGroup)} · ${rangeNote} · เดือนของปีปัจจุบันที่ยังไม่ปิดข้อมูลจริงครบเดือน (ตั้งแต่ ${MONTH_NAMES[MONTHLY_FORECAST_FROM_MI]} ${YEAR} เป็นต้นไป — ข้อมูลรายวันจริงมีถึงวันที่ ${LAST_DATA ? LAST_DATA.day : '—'} ${MONTH_ABBR_TH[MONTHLY_FORECAST_FROM_MI]}) เป็นค่าประมาณการ จึงไม่นำมาแสดงในกราฟนี้ · สามารถเลือกช่วงเดือนปีเริ่มต้น/สิ้นสุด และรูปแบบการเรียงได้จากตัวเลือกด้านบนกราฟ`;
+    foot.innerHTML = `กราฟนี้แสดงผลผลิตจริงของเดือนในกลุ่ม ${group.titleTag} ของ Pulp mill 1 ทุกเดือน-ปีที่ปิดข้อมูลจริงครบเดือนแล้ว (Google Sheets ชีต "Monthly (Act)" gid=1448795576 คอลัมน์ Pulp 1) รวม ${chrono.length} เดือน จาก ${yearsForGroup.length} ปีที่เข้าเกณฑ์: ${Math.min(...yearsForGroup)}–${Math.max(...yearsForGroup)} · ${rangeNote} · เดือนของปีปัจจุบันที่ยังไม่ปิดข้อมูลจริงครบเดือน (ตั้งแต่ ${MONTH_NAMES[MONTHLY_FORECAST_FROM_MI]} ${YEAR} เป็นต้นไป — ข้อมูลรายวันจริงมีถึงวันที่ ${LAST_DATA ? LAST_DATA.day : '—'} ${MONTH_ABBR_TH[MONTHLY_FORECAST_FROM_MI]}) เป็นค่าประมาณการ จึงไม่นำมาแสดงในกราฟนี้ · สามารถเลือกช่วงเดือนปีเริ่มต้น/สิ้นสุด และรูปแบบการเรียงได้จากตัวเลือกด้านบนกราฟ`;
   }
 }
 
@@ -3372,9 +3377,9 @@ function renderDayGroupRankTable(key){
 }
 
 /* ===================== Pulp mill 2 — Monthly Groups by Days-in-Month (31d / 30d / Feb 29d / Feb 28d) =====================
-   ใช้ข้อมูลชุดเดียวกับ "ผลผลิตรายเดือนโรงเยื่อ 2" ด้านบน (MONTHLY_ACTUAL_BY_YEAR_FULL_2, BUDGET_MONTHLY_2 / MONTHLY_BUDGET_BY_YEAR_2)
-   นำมาจัดกลุ่มตามจำนวนวันในเดือน — ใช้คอนเซ็ปเดียวกับโรงเยื่อ 1 ทุกประการ
-   โรงเยื่อ 2 เริ่มมีข้อมูลการผลิตตั้งแต่ปี 2004 เป็นต้นมา */
+   ใช้ข้อมูลชุดเดียวกับ "ผลผลิตรายเดือน Pulp mill 2" ด้านบน (MONTHLY_ACTUAL_BY_YEAR_FULL_2, BUDGET_MONTHLY_2 / MONTHLY_BUDGET_BY_YEAR_2)
+   นำมาจัดกลุ่มตามจำนวนวันในเดือน — ใช้คอนเซ็ปเดียวกับ Pulp mill 1 ทุกประการ
+   Pulp mill 2 เริ่มมีข้อมูลการผลิตตั้งแต่ปี 2004 เป็นต้นมา */
 const DAY_GROUPS_2 = {
   '31':    { monthIdx:[0,2,4,6,7,9,11], titleTag:'(เดือนที่มี 31 วัน)',  yearOk:()=> true },
   '30':    { monthIdx:[3,5,8,10],       titleTag:'(เดือนที่มี 30 วัน)',  yearOk:()=> true },
@@ -3560,7 +3565,7 @@ function renderDayGroupChart2(key){
     const rangeNote = isFullRange
       ? `ค่าเริ่มต้นแสดงเฉพาะ Top 10 เดือนที่ผลผลิตสูงสุด`
       : `กำลังแสดงช่วงที่เลือก ${labels[0]||'—'}–${labels[labels.length-1]||'—'} (เรียงตามตัวเลือกด้านบน)`;
-    foot.innerHTML = `กราฟนี้แสดงผลผลิตจริงของเดือนในกลุ่ม ${group.titleTag} ของโรงเยื่อ 2 ทุกเดือน-ปีที่ปิดข้อมูลจริงครบเดือนแล้ว (Google Sheets ชีต "Monthly (Act)" gid=1448795576 คอลัมน์ Pulp 2) รวม ${chrono.length} เดือน จาก ${yearsForGroup.length} ปีที่เข้าเกณฑ์: ${Math.min(...yearsForGroup)}–${Math.max(...yearsForGroup)} · ${rangeNote} · โรงเยื่อ 2 เริ่มมีข้อมูลการผลิตตั้งแต่ปี 2004 เป็นต้นมา · เดือนของปีปัจจุบันที่ยังไม่ปิดข้อมูลจริงครบเดือน (ตั้งแต่ ${MONTH_NAMES[MONTHLY_FORECAST_FROM_MI]} ${YEAR} เป็นต้นไป — ข้อมูลรายวันจริงมีถึงวันที่ ${LAST_DATA ? LAST_DATA.day : '—'} ${MONTH_ABBR_TH[MONTHLY_FORECAST_FROM_MI]}) เป็นค่าประมาณการ จึงไม่นำมาแสดงในกราฟนี้ · สามารถเลือกช่วงเดือนปีเริ่มต้น/สิ้นสุด และรูปแบบการเรียงได้จากตัวเลือกด้านบนกราฟ`;
+    foot.innerHTML = `กราฟนี้แสดงผลผลิตจริงของเดือนในกลุ่ม ${group.titleTag} ของ Pulp mill 2 ทุกเดือน-ปีที่ปิดข้อมูลจริงครบเดือนแล้ว (Google Sheets ชีต "Monthly (Act)" gid=1448795576 คอลัมน์ Pulp 2) รวม ${chrono.length} เดือน จาก ${yearsForGroup.length} ปีที่เข้าเกณฑ์: ${Math.min(...yearsForGroup)}–${Math.max(...yearsForGroup)} · ${rangeNote} · Pulp mill 2 เริ่มมีข้อมูลการผลิตตั้งแต่ปี 2004 เป็นต้นมา · เดือนของปีปัจจุบันที่ยังไม่ปิดข้อมูลจริงครบเดือน (ตั้งแต่ ${MONTH_NAMES[MONTHLY_FORECAST_FROM_MI]} ${YEAR} เป็นต้นไป — ข้อมูลรายวันจริงมีถึงวันที่ ${LAST_DATA ? LAST_DATA.day : '—'} ${MONTH_ABBR_TH[MONTHLY_FORECAST_FROM_MI]}) เป็นค่าประมาณการ จึงไม่นำมาแสดงในกราฟนี้ · สามารถเลือกช่วงเดือนปีเริ่มต้น/สิ้นสุด และรูปแบบการเรียงได้จากตัวเลือกด้านบนกราฟ`;
   }
 }
 
@@ -3622,11 +3627,11 @@ function renderDayGroupRankTable2(key){
       ? `* เดือนที่ยังไม่ปิดข้อมูลจริงครบเดือนของปี ${YEAR} เป็นค่าประมาณการ ไม่นำมานับในสถิติ Best Record และไม่จัดอันดับให้<br>`
       : '';
     const yearsForGroup = dayGroupYearsForSelect2(group);
-    foot.innerHTML = `${forecastNote}วิธีจัดอันดับ: นำผลผลิตจริงของ "เดือนที่มีจำนวนวันเท่ากันทั้งหมด" ${group.titleTag} ในทุกปีที่มีข้อมูลจริงมารวมเป็นกลุ่มเดียว (ไม่จำกัดเฉพาะเดือนปฏิทินเดียวกัน) แล้วจัดอันดับร่วมกันทั้งกลุ่ม (รวม ${pool.length} รายการ จาก ${yearsForGroup.length} ปีที่เข้าเกณฑ์: ${Math.min(...yearsForGroup)}–${Math.max(...yearsForGroup)}) · โรงเยื่อ 2 เริ่มมีข้อมูลการผลิตตั้งแต่ปี 2004 เป็นต้นมา · แหล่งข้อมูล: Google Sheets ชีต "Monthly (Act)" (gid=1448795576) คอลัมน์ Pulp 2 ของแต่ละเดือน`;
+    foot.innerHTML = `${forecastNote}วิธีจัดอันดับ: นำผลผลิตจริงของ "เดือนที่มีจำนวนวันเท่ากันทั้งหมด" ${group.titleTag} ในทุกปีที่มีข้อมูลจริงมารวมเป็นกลุ่มเดียว (ไม่จำกัดเฉพาะเดือนปฏิทินเดียวกัน) แล้วจัดอันดับร่วมกันทั้งกลุ่ม (รวม ${pool.length} รายการ จาก ${yearsForGroup.length} ปีที่เข้าเกณฑ์: ${Math.min(...yearsForGroup)}–${Math.max(...yearsForGroup)}) · Pulp mill 2 เริ่มมีข้อมูลการผลิตตั้งแต่ปี 2004 เป็นต้นมา · แหล่งข้อมูล: Google Sheets ชีต "Monthly (Act)" (gid=1448795576) คอลัมน์ Pulp 2 ของแต่ละเดือน`;
   }
 }
 
-/* ===================== Top 10 Production (Monthly) — โรงเยื่อ 1 / โรงเยื่อ 2 =====================
+/* ===================== Top 10 Production (Monthly) — Pulp mill 1 / Pulp mill 2 =====================
    นำผลผลิตจริงรายเดือนทุกเดือนทุกปี (ไม่จำกัดกลุ่มจำนวนวัน) มาจัดอันดับ 10 อันดับสูงสุด นับตั้งแต่เริ่มเดินเครื่องผลิต
    ไม่รวมเดือนของปีปัจจุบันที่ยังไม่ปิดข้อมูลจริงครบเดือน (ค่าประมาณการ) — ใช้ isRealActualMonth / isRealActualMonth2 เดียวกับส่วนอื่น ๆ
    สีในตาราง Product ไล่โทนตามค่า (heat scale เขียว→เหลือง→แดง) แบบเดียวกับตัวอย่างที่ผู้ใช้ส่งมา */
@@ -3761,7 +3766,7 @@ function renderTop10Chart1(){
 
   const foot = document.getElementById('top10Foot1');
   if(foot){
-    foot.innerHTML = `ผลผลิตจริงรายเดือน 10 อันดับสูงสุดของโรงเยื่อ 1 นับตั้งแต่เริ่มเดินเครื่องผลิต (ปี ${Math.min(...MONTHLY_ACTUAL_YEARS_FULL)}–${Math.max(...MONTHLY_ACTUAL_YEARS_FULL)}) เรียงจากผลผลิตมากไปน้อย ไม่จำกัดเฉพาะเดือนปฏิทินเดียวกัน · ไม่รวมเดือนของปีปัจจุบันที่ยังไม่ปิดข้อมูลจริงครบเดือน (ตั้งแต่ ${MONTH_NAMES[MONTHLY_FORECAST_FROM_MI]} ${YEAR} เป็นต้นไป) · แหล่งข้อมูล: Google Sheets ชีต "Monthly (Act)" (gid=1448795576) คอลัมน์ Pulp 1 ของแต่ละเดือน`;
+    foot.innerHTML = `ผลผลิตจริงรายเดือน 10 อันดับสูงสุดของ Pulp mill 1 นับตั้งแต่เริ่มเดินเครื่องผลิต (ปี ${Math.min(...MONTHLY_ACTUAL_YEARS_FULL)}–${Math.max(...MONTHLY_ACTUAL_YEARS_FULL)}) เรียงจากผลผลิตมากไปน้อย ไม่จำกัดเฉพาะเดือนปฏิทินเดียวกัน · ไม่รวมเดือนของปีปัจจุบันที่ยังไม่ปิดข้อมูลจริงครบเดือน (ตั้งแต่ ${MONTH_NAMES[MONTHLY_FORECAST_FROM_MI]} ${YEAR} เป็นต้นไป) · แหล่งข้อมูล: Google Sheets ชีต "Monthly (Act)" (gid=1448795576) คอลัมน์ Pulp 1 ของแต่ละเดือน`;
   }
 }
 function renderTop10Chart2(){
@@ -3776,7 +3781,7 @@ function renderTop10Chart2(){
 
   const foot = document.getElementById('top10Foot2');
   if(foot){
-    foot.innerHTML = `ผลผลิตจริงรายเดือน 10 อันดับสูงสุดของโรงเยื่อ 2 นับตั้งแต่เริ่มเดินเครื่องผลิต (ปี ${Math.min(...MONTHLY_ACTUAL_YEARS_FULL_2)}–${Math.max(...MONTHLY_ACTUAL_YEARS_FULL_2)}) เรียงจากผลผลิตมากไปน้อย ไม่จำกัดเฉพาะเดือนปฏิทินเดียวกัน · โรงเยื่อ 2 เริ่มมีข้อมูลการผลิตตั้งแต่ปี 2004 เป็นต้นมา · ไม่รวมเดือนของปีปัจจุบันที่ยังไม่ปิดข้อมูลจริงครบเดือน (ตั้งแต่ ${MONTH_NAMES[MONTHLY_FORECAST_FROM_MI]} ${YEAR} เป็นต้นไป) · แหล่งข้อมูล: Google Sheets ชีต "Monthly (Act)" (gid=1448795576) คอลัมน์ Pulp 2 ของแต่ละเดือน`;
+    foot.innerHTML = `ผลผลิตจริงรายเดือน 10 อันดับสูงสุดของ Pulp mill 2 นับตั้งแต่เริ่มเดินเครื่องผลิต (ปี ${Math.min(...MONTHLY_ACTUAL_YEARS_FULL_2)}–${Math.max(...MONTHLY_ACTUAL_YEARS_FULL_2)}) เรียงจากผลผลิตมากไปน้อย ไม่จำกัดเฉพาะเดือนปฏิทินเดียวกัน · Pulp mill 2 เริ่มมีข้อมูลการผลิตตั้งแต่ปี 2004 เป็นต้นมา · ไม่รวมเดือนของปีปัจจุบันที่ยังไม่ปิดข้อมูลจริงครบเดือน (ตั้งแต่ ${MONTH_NAMES[MONTHLY_FORECAST_FROM_MI]} ${YEAR} เป็นต้นไป) · แหล่งข้อมูล: Google Sheets ชีต "Monthly (Act)" (gid=1448795576) คอลัมน์ Pulp 2 ของแต่ละเดือน`;
   }
 }
 
@@ -3820,7 +3825,7 @@ function renderTop10ChartTot(){
 
   const foot = document.getElementById('top10FootTot');
   if(foot){
-    foot.innerHTML = `ผลผลิตจริงรายเดือน 10 อันดับสูงสุดของโรงเยื่อ 1+2 (รวมทั้งโรงงาน) นับตั้งแต่เริ่มเดินเครื่องผลิต (ปี ${Math.min(...MONTHLY_ACTUAL_YEARS_FULL_TOT)}–${Math.max(...MONTHLY_ACTUAL_YEARS_FULL_TOT)}) เรียงจากผลผลิตมากไปน้อย ไม่จำกัดเฉพาะเดือนปฏิทินเดียวกัน · ไม่รวมเดือนของปีปัจจุบันที่ยังไม่ปิดข้อมูลจริงครบเดือน (ตั้งแต่ ${MONTH_NAMES[MONTHLY_FORECAST_FROM_MI]} ${YEAR} เป็นต้นไป) · แหล่งข้อมูล: Google Sheets ชีต "Monthly (Act)" (gid=1448795576) ผลรวมคอลัมน์ Pulp 1 และ Pulp 2 ของแต่ละเดือน`;
+    foot.innerHTML = `ผลผลิตจริงรายเดือน 10 อันดับสูงสุดของ Pulp mill 1+2 (รวมทั้งโรงงาน) นับตั้งแต่เริ่มเดินเครื่องผลิต (ปี ${Math.min(...MONTHLY_ACTUAL_YEARS_FULL_TOT)}–${Math.max(...MONTHLY_ACTUAL_YEARS_FULL_TOT)}) เรียงจากผลผลิตมากไปน้อย ไม่จำกัดเฉพาะเดือนปฏิทินเดียวกัน · ไม่รวมเดือนของปีปัจจุบันที่ยังไม่ปิดข้อมูลจริงครบเดือน (ตั้งแต่ ${MONTH_NAMES[MONTHLY_FORECAST_FROM_MI]} ${YEAR} เป็นต้นไป) · แหล่งข้อมูล: Google Sheets ชีต "Monthly (Act)" (gid=1448795576) ผลรวมคอลัมน์ Pulp 1 และ Pulp 2 ของแต่ละเดือน`;
   }
 }
 
@@ -3871,7 +3876,7 @@ if(document.getElementById('annualChartTot')){
 if(document.getElementById('annualRankTableBodyTot')){
   renderAnnualRankTableTot();
 }
-/* ===================== Day-group card markup (โรงเยื่อ 1 และ 2 ใช้โครงสร้างเดียวกันทุกประการ จึงสร้างด้วยเทมเพลตเดียวแทนการ hardcode HTML ซ้ำ 8 ชุด) ===================== */
+/* ===================== Day-group card markup (Pulp mill 1 และ 2 ใช้โครงสร้างเดียวกันทุกประการ จึงสร้างด้วยเทมเพลตเดียวแทนการ hardcode HTML ซ้ำ 8 ชุด) ===================== */
 const DAY_GROUP_RANK_HINT = {
   '31': 'จัดอันดับผลผลิตจริงรายเดือน เทียบเฉพาะ "เดือนที่มีจำนวน 31 วันเดียวกัน" ข้ามปีทั้งหมด (ม.ค., มี.ค., พ.ค., ก.ค., ส.ค., ต.ค., ธ.ค. ของทุกปีที่มีข้อมูลจริง นำมารวมจัดอันดับร่วมกันเป็นกลุ่มเดียว ไม่จำกัดเฉพาะเดือนปฏิทินเดียวกัน)',
   '30': 'จัดอันดับผลผลิตจริงรายเดือน เทียบเฉพาะ "เดือนที่มีจำนวน 30 วันเดียวกัน" ข้ามปีทั้งหมด (เม.ย., มิ.ย., ก.ย., พ.ย. ของทุกปีที่มีข้อมูลจริง นำมารวมจัดอันดับร่วมกันเป็นกลุ่มเดียว ไม่จำกัดเฉพาะเดือนปฏิทินเดียวกัน)',
@@ -3963,8 +3968,8 @@ function renderDayGroupCardsInto(containerId, millLabel, idPrefix, groups){
     dayGroupCardHTML(millLabel, idPrefix+key, groups[key], DAY_GROUP_RANK_HINT[key])
   ).join('\n');
 }
-renderDayGroupCardsInto('dayGroupCardsFL1', 'โรงเยื่อ 1', '', DAY_GROUPS);
-renderDayGroupCardsInto('dayGroupCardsFL2', 'โรงเยื่อ 2', '2_', DAY_GROUPS_2);
+renderDayGroupCardsInto('dayGroupCardsFL1', 'Pulp mill 1', '', DAY_GROUPS);
+renderDayGroupCardsInto('dayGroupCardsFL2', 'Pulp mill 2', '2_', DAY_GROUPS_2);
 
 ['31','30','Feb29','Feb28'].forEach(key=>{
   populateDayGroupRangeSelect(key);
@@ -4000,9 +4005,9 @@ function lastDataStr(lang){
     : `${MONTH_ABBR_EN[LAST_DATA.mi]} ${LAST_DATA.day}, ${YEAR}`;
 }
 
-/* ===================== สรุปภาพรวมผลผลิตโรงเยื่อ (Summary overview text) =====================
-   วางไว้เหนือกราฟผลผลิตรายเดือนโรงเยื่อ 1+2 เทียบ Budget ในเมนูย่อย "Pulp mill 1+2"
-   ใช้ข้อมูลชุดเดียวกับกรอบสถิติของกราฟรายปีแต่ละโรงเยื่อ (curTotal / Budget รายปี / 1st Best Record) */
+/* ===================== สรุปภาพรวมผลผลิต Pulp mill (Summary overview text) =====================
+   วางไว้เหนือกราฟผลผลิตรายเดือน Pulp mill 1+2 เทียบ Budget ในเมนูย่อย "Pulp mill 1+2"
+   ใช้ข้อมูลชุดเดียวกับกรอบสถิติของกราฟรายปีแต่ละ Pulp mill (curTotal / Budget รายปี / 1st Best Record) */
 function summaryDiffSpan(v){
   const cls = v>=0 ? 'diff-pos' : 'diff-neg';
   return `<span class="${cls}">${fmtDiffSigned(v)}</span>`;
@@ -4130,7 +4135,7 @@ const TX_MONTH = s => { let o = String(s); for(const [th,en] of Object.entries(T
 
 const TX_EN = {
   // section dividers / group heads
-  'Chip Characteristics — คุณลักษณะของชิ้นไม้สับ (โรงเยื่อ 1)':'Chip Characteristics — wood-chip quality (Pulp mill 1)',
+  'Chip Characteristics — คุณลักษณะของชิ้นไม้สับ (Pulp mill 1)':'Chip Characteristics — wood-chip quality (Pulp mill 1)',
   'ค่าพื้นฐานของชิ้นไม้สับ':'Wood-chip basics',
   'การกระจายขนาดชิ้นไม้สับ (Chip Screen)':'Chip size distribution (Chip Screen)',
   '4 ค่า · คลิกที่บล็อกเพื่อดูประวัติและ control band':'4 metrics · click a tile for its history and control band',
@@ -4149,32 +4154,31 @@ const TX_EN = {
   'ยังไม่พบค่าผิดปกติในขณะนี้':'No anomalies detected right now.',
   '5 ค่า · คลิกที่บล็อกเพื่อดูประวัติ':'5 metrics · click a tile for its history',
   '3 ค่า · คลิกที่บล็อกเพื่อดูประวัติ':'3 metrics · click a tile for its history',
-  'โรงเยื่อ 1+2 (รวมทั้งโรงงาน)':'Pulp mill 1+2 (whole mill)',
-  'โรงเยื่อ 2 (Pulp mill 2)':'Pulp mill 2',
+  'Pulp mill 1+2 (รวมทั้งโรงงาน)':'Pulp mill 1+2 (whole mill)',
   // chart titles
-  'ผลผลิตรายเดือนโรงเยื่อ 1 เทียบ Budget':'Pulp mill 1 monthly production vs budget',
-  'ผลผลิตรายเดือนโรงเยื่อ 2 เทียบ Budget':'Pulp mill 2 monthly production vs budget',
-  'ผลผลิตรายเดือนโรงเยื่อ 1+2 เทียบ Budget':'Pulp mill 1+2 monthly production vs budget',
-  'ผลผลิตรายปีโรงเยื่อ 1':'Pulp mill 1 annual production',
-  'ผลผลิตรายปีโรงเยื่อ 2':'Pulp mill 2 annual production',
-  'ผลผลิตรายปีโรงเยื่อ 1+2':'Pulp mill 1+2 annual production',
+  'ผลผลิตรายเดือน Pulp mill 1 เทียบ Budget':'Pulp mill 1 monthly production vs budget',
+  'ผลผลิตรายเดือน Pulp mill 2 เทียบ Budget':'Pulp mill 2 monthly production vs budget',
+  'ผลผลิตรายเดือน Pulp mill 1+2 เทียบ Budget':'Pulp mill 1+2 monthly production vs budget',
+  'ผลผลิตรายปี Pulp mill 1':'Pulp mill 1 annual production',
+  'ผลผลิตรายปี Pulp mill 2':'Pulp mill 2 annual production',
+  'ผลผลิตรายปี Pulp mill 1+2':'Pulp mill 1+2 annual production',
   'ผลผลิตจริงรายปี (ข้อมูลจริงครบปี)':'Actual annual production (full-year data)',
-  'Top 10 Production (Monthly) — โรงเยื่อ 1':'Top 10 Production (Monthly) — Pulp mill 1',
-  'Top 10 Production (Monthly) — โรงเยื่อ 2':'Top 10 Production (Monthly) — Pulp mill 2',
-  'Top 10 Production (Monthly) — โรงเยื่อ 1+2':'Top 10 Production (Monthly) — Pulp mill 1+2',
-  'ผลผลิตรายเดือนโรงเยื่อ 1':'Pulp mill 1 monthly production',
-  'ผลผลิตรายเดือนโรงเยื่อ 2':'Pulp mill 2 monthly production',
+  'Top 10 Production (Monthly) — Pulp mill 1':'Top 10 Production (Monthly) — Pulp mill 1',
+  'Top 10 Production (Monthly) — Pulp mill 2':'Top 10 Production (Monthly) — Pulp mill 2',
+  'Top 10 Production (Monthly) — Pulp mill 1+2':'Top 10 Production (Monthly) — Pulp mill 1+2',
+  'ผลผลิตรายเดือน Pulp mill 1':'Pulp mill 1 monthly production',
+  'ผลผลิตรายเดือน Pulp mill 2':'Pulp mill 2 monthly production',
   // best-record table titles
-  'สถิติผลผลิตรายเดือนโรงเยื่อ 1 (Best Record)':'Pulp mill 1 monthly production record (Best Record)',
-  'สถิติผลผลิตรายเดือนโรงเยื่อ 2 (Best Record)':'Pulp mill 2 monthly production record (Best Record)',
-  'สถิติผลผลิตรายเดือนโรงเยื่อ 1+2 (Best Record)':'Pulp mill 1+2 monthly production record (Best Record)',
-  'สถิติผลผลิตรายปีโรงเยื่อ 1 (Best Record)':'Pulp mill 1 annual production record (Best Record)',
-  'สถิติผลผลิตรายปีโรงเยื่อ 2 (Best Record)':'Pulp mill 2 annual production record (Best Record)',
-  'สถิติผลผลิตรายปีโรงเยื่อ 1+2 (Best Record)':'Pulp mill 1+2 annual production record (Best Record)',
+  'สถิติผลผลิตรายเดือน Pulp mill 1 (Best Record)':'Pulp mill 1 monthly production record (Best Record)',
+  'สถิติผลผลิตรายเดือน Pulp mill 2 (Best Record)':'Pulp mill 2 monthly production record (Best Record)',
+  'สถิติผลผลิตรายเดือน Pulp mill 1+2 (Best Record)':'Pulp mill 1+2 monthly production record (Best Record)',
+  'สถิติผลผลิตรายปี Pulp mill 1 (Best Record)':'Pulp mill 1 annual production record (Best Record)',
+  'สถิติผลผลิตรายปี Pulp mill 2 (Best Record)':'Pulp mill 2 annual production record (Best Record)',
+  'สถิติผลผลิตรายปี Pulp mill 1+2 (Best Record)':'Pulp mill 1+2 annual production record (Best Record)',
   // summary overview
-  'สรุปภาพรวมผลผลิตโรงเยื่อ 1':'Pulp mill 1 production summary',
-  'สรุปภาพรวมผลผลิตโรงเยื่อ 2':'Pulp mill 2 production summary',
-  'สรุปภาพรวมผลผลิตโรงเยื่อ 1+2':'Pulp mill 1+2 production summary',
+  'สรุปภาพรวมผลผลิต Pulp mill 1':'Pulp mill 1 production summary',
+  'สรุปภาพรวมผลผลิต Pulp mill 2':'Pulp mill 2 production summary',
+  'สรุปภาพรวมผลผลิต Pulp mill 1+2':'Pulp mill 1+2 production summary',
   // toolbar / selectors
   'เลือกปี':'Select year','เลือกเดือน':'Select month','ปีเริ่มต้น':'From year','ปีสิ้นสุด':'To year','ค่าที่แสดง':'Metric shown',
   'เลือกช่วงปีที่ต้องการแสดงในกราฟแท่งด้านล่าง':'Choose the year range for the bar chart below',
@@ -4184,20 +4188,20 @@ const TX_EN = {
   // hints / legends
   'Y axis: 0–1,250 Adt/d · เส้นประ = Target รายวัน (Daily Plan) · เส้นทึบ = Budget รายวัน (Daily BG)':'Y axis: 0–1,250 Adt/d · dashed = daily Target (Daily Plan) · solid = daily Budget (Daily BG)',
   'กราฟแท่ง = ผลผลิตเกิดจริงรายเดือน (Actual) · กราฟเส้น = ผลผลิต Budget รายเดือน · เกณฑ์สีแท่งอิงตาม Budget ของแต่ละเดือน':'Bars = actual monthly production · line = monthly budget · bar colour is judged against each month’s budget',
-  'กราฟแท่ง = ผลผลิตเกิดจริงรายเดือนรวมโรงเยื่อ 1+2 (Actual) · กราฟเส้น = ผลผลิต Budget รายเดือนรวมโรงเยื่อ 1+2 · สีแท่งแยกตามโรงเยื่อ':'Bars = actual combined Pulp mill 1+2 monthly production · line = combined monthly budget · bar colour by mill',
+  'กราฟแท่ง = ผลผลิตเกิดจริงรายเดือนรวม Pulp mill 1+2 (Actual) · กราฟเส้น = ผลผลิต Budget รายเดือนรวม Pulp mill 1+2 · สีแท่งแยกตาม Pulp mill':'Bars = actual combined Pulp mill 1+2 monthly production · line = combined monthly budget · bar colour by mill',
   'Budget รายเดือน (Adt)':'Monthly budget (Adt)','Budget รายเดือนรวม (Adt)':'Combined monthly budget (Adt)',
   'แท่งสีอ่อน = ประมาณการ (เดือนยังไม่ปิดข้อมูลจริงครบเดือน)':'Pale bar = estimate (month not yet fully logged)',
   'แท่งสีอ่อน = ปีปัจจุบัน (คาดการณ์จบปี — มีค่าประมาณการบางเดือน)':'Pale bar = current year (year-end forecast — some months are estimated)',
   'Actual 70–99.9% ของ Budget':'Actual 70–99.9% of budget',
   'Actual < 70% ของ Budget, Loss >30%':'Actual < 70% of budget, loss >30%',
   'Actual < 70% ของ Budget (Loss >30%)':'Actual < 70% of budget (loss >30%)',
-  'โรงเยื่อ 1':'Pulp mill 1','โรงเยื่อ 2':'Pulp mill 2','โรงเยื่อ 1+2 (รวม)':'Pulp mill 1+2 (total)',
+  'Pulp mill 1':'Pulp mill 1','Pulp mill 2':'Pulp mill 2','Pulp mill 1+2 (รวม)':'Pulp mill 1+2 (total)',
   'ผลผลิตรายเดือน 10 อันดับสูงสุดนับตั้งแต่เริ่มเดินเครื่องผลิต เรียงจากมากไปน้อย':'Top 10 highest monthly production since start-up, largest first',
-  'ผลผลิตรายเดือน 10 อันดับสูงสุดนับตั้งแต่เริ่มเดินเครื่องผลิต เรียงจากมากไปน้อย (รวมโรงเยื่อ 1+2)':'Top 10 highest monthly production since start-up, largest first (Pulp mill 1+2 combined)',
+  'ผลผลิตรายเดือน 10 อันดับสูงสุดนับตั้งแต่เริ่มเดินเครื่องผลิต เรียงจากมากไปน้อย (รวม Pulp mill 1+2)':'Top 10 highest monthly production since start-up, largest first (Pulp mill 1+2 combined)',
   'จัดอันดับผลผลิตจริงรายเดือน เทียบเฉพาะ "เดือนเดียวกันข้ามปี" เท่านั้น (ไม่นำเดือนอื่นมารวม) จากข้อมูล Actual ทั้งหมดที่มี':'Ranks actual monthly production comparing the same calendar month across years only (no other months mixed in), from all available Actual data',
-  'จัดอันดับผลผลิตจริงรายเดือนรวมโรงเยื่อ 1+2 เทียบเฉพาะ "เดือนเดียวกันข้ามปี" เท่านั้น (ไม่นำเดือนอื่นมารวม) จากข้อมูล Actual ทั้งหมดที่มี':'Ranks actual combined Pulp mill 1+2 monthly production comparing the same calendar month across years only, from all available Actual data',
+  'จัดอันดับผลผลิตจริงรายเดือนรวม Pulp mill 1+2 เทียบเฉพาะ "เดือนเดียวกันข้ามปี" เท่านั้น (ไม่นำเดือนอื่นมารวม) จากข้อมูล Actual ทั้งหมดที่มี':'Ranks actual combined Pulp mill 1+2 monthly production comparing the same calendar month across years only, from all available Actual data',
   'จัดอันดับผลผลิตจริงรวมทั้งปี เทียบกับทุกปีที่มีข้อมูล จากข้อมูล Actual ทั้งหมดที่มี':'Ranks actual full-year production against every year with data, from all available Actual data',
-  'จัดอันดับผลผลิตจริงรวมทั้งปีของโรงเยื่อ 1+2 เทียบกับทุกปีที่มีข้อมูล จากข้อมูล Actual ทั้งหมดที่มี':'Ranks actual full-year Pulp mill 1+2 production against every year with data, from all available Actual data',
+  'จัดอันดับผลผลิตจริงรวมทั้งปีของ Pulp mill 1+2 เทียบกับทุกปีที่มีข้อมูล จากข้อมูล Actual ทั้งหมดที่มี':'Ranks actual full-year Pulp mill 1+2 production against every year with data, from all available Actual data',
   // empty states
   'หน้านี้ยังไม่มีข้อมูล — รอเชื่อมต่อแหล่งข้อมูลต้นทุน BU21 รายวัน/รายเดือนจาก Google Sheets':'No data yet — awaiting a daily/monthly BU21 cost source from Google Sheets',
   'หน้านี้ยังไม่มีข้อมูล — รอเชื่อมต่อแหล่งข้อมูล Productive Cost จาก Google Sheets':'No data yet — awaiting a Productive Cost source from Google Sheets',
@@ -4253,13 +4257,13 @@ const TX_EN = {
   'ผู้จัดการสายการผลิตเยื่อ':'Fiber Line Manager','ผู้จัดการโรงงานเคมี':'Chemical Plant Manager','วิศวกรกระบวนการ':'Process Engineer',
   'หัวหน้ากะ':'Shift Supervisor','พนักงานควบคุมเครื่อง':'Panel Operator','ประกันและควบคุมคุณภาพ':'Quality Assurance & Control','วิจัยและพัฒนา':'Research & Development',
   // pm2 note about start year
-  'โรงเยื่อ 2 เริ่มมีข้อมูลการผลิตตั้งแต่ปี 2004 เป็นต้นมา':'Pulp mill 2 has production data from 2004 onward',
+  'Pulp mill 2 เริ่มมีข้อมูลการผลิตตั้งแต่ปี 2004 เป็นต้นมา':'Pulp mill 2 has production data from 2004 onward',
   // day-group ranking hints
   'จัดอันดับผลผลิตจริงรายเดือน เทียบเฉพาะ "เดือนที่มีจำนวน 31 วันเดียวกัน" ข้ามปีทั้งหมด (ม.ค., มี.ค., พ.ค., ก.ค., ส.ค., ต.ค., ธ.ค. ของทุกปีที่มีข้อมูลจริง นำมารวมจัดอันดับร่วมกันเป็นกลุ่มเดียว ไม่จำกัดเฉพาะเดือนปฏิทินเดียวกัน)':'Ranks actual monthly production comparing all 31-day months across every year (Jan, Mar, May, Jul, Aug, Oct, Dec of every year with real data are pooled into one group — not restricted to the same calendar month)',
   'จัดอันดับผลผลิตจริงรายเดือน เทียบเฉพาะ "เดือนที่มีจำนวน 30 วันเดียวกัน" ข้ามปีทั้งหมด (เม.ย., มิ.ย., ก.ย., พ.ย. ของทุกปีที่มีข้อมูลจริง นำมารวมจัดอันดับร่วมกันเป็นกลุ่มเดียว ไม่จำกัดเฉพาะเดือนปฏิทินเดียวกัน)':'Ranks actual monthly production comparing all 30-day months across every year (Apr, Jun, Sep, Nov of every year with real data are pooled into one group — not restricted to the same calendar month)',
   'จัดอันดับผลผลิตจริงเดือน ก.พ. เทียบเฉพาะปีอธิกสุรทิน (Leap Year, ก.พ. มี 29 วัน) ด้วยกันเท่านั้น ไม่นำ ก.พ. ปีปกติ (28 วัน) มารวมจัดอันดับ':'Ranks actual February production comparing leap years only (Feb has 29 days); non-leap Februaries (28 days) are not included',
   'จัดอันดับผลผลิตจริงเดือน ก.พ. เทียบเฉพาะปีปกติ (ก.พ. มี 28 วัน) ด้วยกันเท่านั้น ไม่นำ ก.พ. ปีอธิกสุรทิน (29 วัน) มารวมจัดอันดับ':'Ranks actual February production comparing non-leap years only (Feb has 28 days); leap-year Februaries (29 days) are not included',
-  'จัดอันดับผลผลิตจริงรายเดือนรวมโรงเยื่อ 1+2 เทียบเฉพาะ "เดือนเดียวกันข้ามปี" เท่านั้น (ไม่นำเดือนอื่นมารวม) จากข้อมูล Actual ทั้งหมดที่มี':'Ranks actual combined Pulp mill 1+2 monthly production comparing the same calendar month across years only (no other months mixed in), from all available Actual data',
+  'จัดอันดับผลผลิตจริงรายเดือนรวม Pulp mill 1+2 เทียบเฉพาะ "เดือนเดียวกันข้ามปี" เท่านั้น (ไม่นำเดือนอื่นมารวม) จากข้อมูล Actual ทั้งหมดที่มี':'Ranks actual combined Pulp mill 1+2 monthly production comparing the same calendar month across years only (no other months mixed in), from all available Actual data',
   // static foot notes (behind "Show details")
   'ข้อมูลผลผลิตรายวันดึงจาก Google Sheets "Data Base Fiberline 1" (Pulp Mill 1) ณ วันที่ 7 กันยายน 2026 — เป็นข้อมูล snapshot ที่ดึงมา ณ เวลาจัดทำหน้านี้ ไม่ได้เชื่อมต่อสด (live) กับชีตต้นทาง หากต้องการข้อมูลล่าสุด โปรดแจ้งให้ดึงข้อมูลใหม่':'Daily production data is read from the Google Sheet "Data Base Fiberline 1" (Pulp Mill 1). Reload the page to pull the latest.',
   'Actual รายวัน: ชีต Daily (Act) (gid=0) · Budget รายวัน (เส้นทึบสีเทา): ชีต Daily (BG) (gid=1682718600) คอลัมน์ B · Target รายวัน (เส้นประสีน้ำเงิน): ชีต Daily (Plan) (gid=3664159) คอลัมน์ B — เป็นข้อมูลรายวันคนละชุดกับ Budget โดยตรง จึงมีค่าต่างกันในแต่ละวัน · รายละเอียด Loss รายวัน: ชีต Daily (Loss) (gid=786133815) คอลัมน์ B · Budget รายเดือน/รายปีในกรอบสถิติ อ้างอิงจากแถว "Budget 2026" คอลัมน์ Pulp 1 ในชีตเดียวกัน · เกณฑ์สีแท่งกราฟใช้ค่าคงที่ 840 / 588 Adt/d ตามที่กำหนด':'Daily Actual: Daily (Act) tab (gid=0) · Daily Budget (solid grey line): Daily (BG) tab (gid=1682718600) column B · Daily Target (blue dashed line): Daily (Plan) tab (gid=3664159) column B — a separate daily series from Budget, so the two differ day to day · Daily loss detail: Daily (Loss) tab (gid=786133815) column B · Monthly/annual budget in the stat boxes comes from the "Budget 2026" row, Pulp 1 column, of the same sheet · Bar colour thresholds use the fixed 840 / 588 Adt/d values.',
@@ -4268,7 +4272,7 @@ const TX_EN = {
 // interpolated / pattern strings
 const TX_ABBR_RE = /^(ม\.ค\.|ก\.พ\.|มี\.ค\.|เม\.ย\.|พ\.ค\.|มิ\.ย\.|ก\.ค\.|ส\.ค\.|ก\.ย\.|ต\.ค\.|พ\.ย\.|ธ\.ค\.)( \d{2})$/;
 const TX_PAT = [
-  [/^ผลผลิตเยื่อน้ำโรงเยื่อ 1 เดือน (.+?)\s*$/, m => `Pulp mill 1 production, ${TX_MONTH(m[1])}`],
+  [/^ผลผลิตเยื่อน้ำ Pulp mill 1 เดือน (.+?)\s*$/, m => `Pulp mill 1 production, ${TX_MONTH(m[1])}`],
   [TX_ABBR_RE, m => `${TX_MONTH_MAP[m[1]]}${m[2]}`],
   [/^(\d{1,2}) (ม\.ค\.|ก\.พ\.|มี\.ค\.|เม\.ย\.|พ\.ค\.|มิ\.ย\.|ก\.ค\.|ส\.ค\.|ก\.ย\.|ต\.ค\.|พ\.ย\.|ธ\.ค\.) (\d{4})$/, m => `${m[1]} ${TX_MONTH_MAP[m[2]]} ${m[3]}`],
   [/^เฉลี่ย (\d+) วันที่บันทึก$/, m => `mean of ${m[1]} logged days`],
@@ -4290,11 +4294,11 @@ const TX_PAT = [
   [/^\(เดือนที่มี 30 วัน\)$/, () => '(30-day months)'],
   [/^\(เดือน ก\.พ\. 29 วัน\)$/, () => '(Feb, 29 days)'],
   [/^\(เดือน ก\.พ\. 28 วัน\)$/, () => '(Feb, 28 days)'],
-  [/^ผลผลิตรายเดือนโรงเยื่อ (1|2) (\(.+?\)) — เรียงมากไปน้อย$/, m => {
+  [/^ผลผลิตรายเดือน Pulp mill (1|2) (\(.+?\)) — เรียงมากไปน้อย$/, m => {
     const tag = { '(เดือนที่มี 31 วัน)':'(31-day months)','(เดือนที่มี 30 วัน)':'(30-day months)','(เดือน ก.พ. 29 วัน)':'(Feb, 29 days)','(เดือน ก.พ. 28 วัน)':'(Feb, 28 days)' }[m[2]] || m[2];
     return `Pulp mill ${m[1]} monthly production ${tag} — high to low`;
   }],
-  [/^สถิติผลผลิตรายเดือนโรงเยื่อ (1|2) (\(.+?\)) \(Best Record\)$/, m => {
+  [/^สถิติผลผลิตรายเดือน Pulp mill (1|2) (\(.+?\)) \(Best Record\)$/, m => {
     const tag = { '(เดือนที่มี 31 วัน)':'(31-day months)','(เดือนที่มี 30 วัน)':'(30-day months)','(เดือน ก.พ. 29 วัน)':'(Feb, 29 days)','(เดือน ก.พ. 28 วัน)':'(Feb, 28 days)' }[m[2]] || m[2];
     return `Pulp mill ${m[1]} monthly production record ${tag} (Best Record)`;
   }],
@@ -4306,7 +4310,7 @@ const TX_PAT = [
     `* The ${m[1]} full-year total includes estimated figures from the incomplete months onward (the year is not yet fully logged), so it is not counted in the Best Record statistics and is not ranked.`],
   [/^หมายเหตุ: ปี (\d{4}) ยอดรวมทั้งปี.*$/, m =>
     `Note: the ${m[1]} full-year total includes estimated figures for the incomplete months onward (the year is not yet fully logged).`],
-  [/^ผลผลิตจริงรายเดือน 10 อันดับสูงสุดของโรงเยื่อ (.+?) นับตั้งแต่เริ่มเดินเครื่องผลิต \(ปี (\d{4})[–-](\d{4})\)$/, m =>
+  [/^ผลผลิตจริงรายเดือน 10 อันดับสูงสุดของ Pulp mill (.+?) นับตั้งแต่เริ่มเดินเครื่องผลิต \(ปี (\d{4})[–-](\d{4})\)$/, m =>
     `Top 10 highest monthly production for Pulp mill ${m[1].replace('รวมทั้งโรงงาน','whole mill').replace('(','(' )} since start-up (years ${m[2]}–${m[3]})`],
 ];
 
@@ -4330,21 +4334,21 @@ const TX_PHRASES = [
   ['ผลผลิตเกิดจริงรายเดือนรวมทั้งโรงงาน','combined whole-mill actual monthly production'],
   ['ผลผลิตเกิดจริงรายเดือน','actual monthly production'],
   ['ผลผลิต Budget รายเดือน','monthly budget'],
-  ['ผลรวมโรงเยื่อ 1 + โรงเยื่อ 2','sum of Pulp mill 1 + Pulp mill 2'],
-  ['สีแท่งแยกตามโรงเยื่อ','bar colour by mill'],
+  ['ผลรวม Pulp mill 1 + Pulp mill 2','sum of Pulp mill 1 + Pulp mill 2'],
+  ['สีแท่งแยกตาม Pulp mill','bar colour by mill'],
   ['แท่งสีอ่อนลง = เดือนที่ยังเป็นค่าประมาณการ','paler bar = month still an estimate'],
   ['ไม่รวมเดือนของปีปัจจุบันที่ยังไม่ปิดข้อมูลจริงครบเดือน','current-year months that are not yet fully logged are excluded'],
   ['นับตั้งแต่เริ่มเดินเครื่องผลิต','since start-up'],
   ['เรียงจากผลผลิตมากไปน้อย','sorted from highest production to lowest'],
   ['จัดอันดับผลผลิตจริงรวมทั้งโรงงาน','ranks the combined whole-mill actual production'],
-  ['จัดอันดับผลผลิตจริงรวมทั้งปีของโรงเยื่อ','ranks the full-year actual production of Pulp mill'],
+  ['จัดอันดับผลผลิตจริงรวมทั้งปีของ Pulp mill','ranks the full-year actual production of Pulp mill'],
   ['เทียบกับทุกปีที่มีข้อมูล','against every year with data'],
   ['กราฟนี้แสดงผลผลิตจริงของเดือนในกลุ่ม','This chart shows the actual production of the months in the group'],
   ['กราฟนี้แสดง','This chart shows'],
   ['วิธีจัดอันดับ','Ranking method'],
   ['ปีที่เข้าเกณฑ์','qualifying years'],
   ['รวมทั้งโรงงาน','whole mill'],
-  ['โรงเยื่อ','Pulp mill'],
+  ['Pulp mill','Pulp mill'],
   ['เดือนเดียวกันข้ามปี','the same calendar month across years'],
   ['เดือนที่มี 31 วัน','31-day months'],['เดือนที่มี 30 วัน','30-day months'],
   ['เดือน ก.พ. 29 วัน','Feb, 29 days'],['เดือน ก.พ. 28 วัน','Feb, 28 days'],
@@ -4727,8 +4731,11 @@ function updateToolbarForPage(pageId){
   if(titleEl) titleEl.textContent = `${meta[currentLang]} — ${t('dashLabel')}`;
   const subEl = document.getElementById('tbPageSub');
   if(subEl){
+    const liveTitle = currentLang==='en'
+      ? 'Data is fetched live from Google Sheets on every page load — not a static snapshot'
+      : 'ข้อมูลดึงสดจาก Google Sheets ทุกครั้งที่โหลดหน้านี้ ไม่ใช่ข้อมูลนิ่ง (snapshot)';
     subEl.innerHTML = meta.hasData
-      ? `<span class="dot"></span>${t('lastDataAt')} ${lastDataStr(currentLang)}`
+      ? `<span class="tb-live-badge" title="${liveTitle}"><span class="lp"></span>LIVE</span><span class="dot"></span>${t('lastDataAt')} ${lastDataStr(currentLang)}`
       : t('noDataYet');
   }
   setExportState();
@@ -4824,7 +4831,7 @@ if(document.getElementById('summaryBody1')){
 
 /* initial language + page render, now that every toolbar function above exists */
 
-/* ===================== Yield · Chip Characteristics — Monitor blocks (โรงเยื่อ 1) =====================
+/* ===================== Yield · Chip Characteristics — Monitor blocks (Pulp mill 1) =====================
    Source: Google Sheet tab gid=632351488, "Pulp 1" chip block. Date col B, D/M/YYYY (day-first).
    Robust stats: median + MAD×1.4826; baseline = the 180 days ending one week before the latest reading.
    Percentage values outside 0-100 are treated as bad entries and dropped. */
