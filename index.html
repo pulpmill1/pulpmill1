@@ -1439,7 +1439,7 @@
                     <tr class="ya-sub" data-ya-in="g3"><td class="ya-label">- Other</td><td class="ya-unit">%</td><td class="num" id="yaCell_woodOther_prev"></td><td class="num" id="yaCell_woodOther_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark">- Ref. R&amp;D Other Yield 2.010 Bdt/Adt</td></tr>
                     <tr class="ya-sub" data-ya-in="g3"><td class="ya-label">- St&gt;1 m</td><td class="ya-unit">%</td><td class="num" id="yaCell_woodSt1m_prev"></td><td class="num" id="yaCell_woodSt1m_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark">- Ref. R&amp;D St&gt;1 m Yield 2.127 Bdt/Adt</td></tr>
                     <tr class="ya-major" data-ya-group="g4"><td class="ya-label"><span class="yc">▾</span>4. Effect Chip size</td><td class="ya-unit">Bdt/Adt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
-                    <tr class="ya-sub" data-ya-in="g4"><td class="ya-label">- Chip size 8-10 mm.</td><td class="ya-unit">%</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-sub" data-ya-in="g4"><td class="ya-label">- Chip size 8-10 mm.</td><td class="ya-unit">%</td><td class="num" id="yaCell_chipSize810_prev"></td><td class="num" id="yaCell_chipSize810_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
                     <tr class="ya-major" data-ya-group="g5"><td class="ya-label"><span class="yc">▾</span>5. Effect Bark</td><td class="ya-unit">Bdt/Adt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
                     <tr class="ya-sub" data-ya-in="g5"><td class="ya-label">- Bark</td><td class="ya-unit">%</td><td class="num" id="yaCell_bark_prev"></td><td class="num" id="yaCell_bark_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
                     <tr class="ya-major" data-ya-group="g6"><td class="ya-label"><span class="yc">▾</span>6. Effect Kappa no.</td><td class="ya-unit">Bdt/Adt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
@@ -4979,6 +4979,7 @@ const COL_TANK_BUILDUP = resolveChipCol('End Prod. Balance - End Prod.', 78);
 const COL_CHIP_WEIGHT_SCALE = resolveChipCol('Chip weight', 75);
 const COL_CHIP_WEIGHT_SCALE_NET = resolveChipCol('Chip (Weight scale หักลบเฉ่งกอง)', 76);
 const COL_CHIP_PER_BATCH = resolveChipCol('Chip/batch', 77);
+const COL_CHIP_SIZE_8_10 = resolveChipCol('Chip size 8-10 mm.', 86);
 /* "No of cooks" lives on a SEPARATE sheet tab ("Cooking Condition", gid 1561629878), not in the
    chip-wood tab at all, so there's no header to resolve here — its daily values are merged into
    each CHIP_MON_ROWS record below at this virtual (never-real) column index. */
@@ -4994,6 +4995,7 @@ const CHIP_MON_META = [
   {key:'chipWeightScaleNet', col:COL_CHIP_WEIGHT_SCALE_NET, th:'Chip (Weight scale หักลบเฉ่งกอง)', unit:'BDt/day', dec:2, grp:'yield', scored:false, hideTile:true},
   {key:'chipPerBatch',       col:COL_CHIP_PER_BATCH, th:'Chip/batch', unit:'BDt/batch', dec:2, grp:'yield', scored:false, hideTile:true},
   {key:'noOfCooks',          col:COL_NO_OF_COOKS, th:'No of cooks', unit:'Cooks', dec:0, grp:'yield', scored:false, hideTile:true},
+  {key:'chipSize810',        col:COL_CHIP_SIZE_8_10, th:'Chip size 8-10 mm.', unit:'%', dec:2, grp:'yield', scored:false, hideTile:true, zeroIsMissing:true},
   {key:'chipWeightGT', col:74, th:'Chip weight',          unit:'GT/day',  dec:0, grp:'yield', scored:false, zeroIsMissing:true, hideTile:true},
   {key:'bulkDensity',    col:26, th:'Bulk density',              unit:'kg/m³', dec:1, grp:'bulk',   scored:false, spec:[300,350]},
   {key:'bulkDensityDry', col:27, th:'Bulk density × Dryness',    unit:'kg/m³', dec:1, grp:'bulk',   scored:false},
@@ -5079,6 +5081,10 @@ const chipMonCeil = (()=>{
   let mx = 0;
   for(const rc of CHIP_MON_ROWS){
     if([54,55,56,57,64,66,73,74,COL_YIELD,COL_YIELD_BALTANK,COL_MOIST_ONLINE,COL_SULPHIDITY,COL_TANK_BUILDUP,COL_CHIP_WEIGHT_SCALE,COL_CHIP_WEIGHT_SCALE_NET,COL_CHIP_PER_BATCH,COL_NO_OF_COOKS].some(c=> chipMonRaw(rc.r[c])!=null)) mx = Math.max(mx, rc.ts);
+    /* COL_CHIP_SIZE_8_10 deliberately excluded from this anchor list — it is 100% zero-filled
+       (including years into the future) as of this writing, so including it would just push mx
+       toward a meaningless far-future date; the final Math.min(mx, chipMonYesterdayEnd) below
+       would still clamp it correctly, but there's no benefit either, so it's left out for clarity. */
   }
   mx = mx || Number.MAX_SAFE_INTEGER;
   // never show "today" — the mill's own day isn't closed out yet, so cap at yesterday
@@ -5250,7 +5256,7 @@ function renderExecKpiPanel(){
    exist in the Yield sheet data, so those are wired to CHIP_MON_SERIES — each of
    the two columns has its own date/month/year picker (YA_STATE.prev/cur); month
    and year pick an AVERAGE over that period, a specific date an exact reading. */
-const YA_ROW_KEYS = ['yieldBdt','chipWeightScale','chipWeightScaleNet','endProd','endProdBal','noOfCooks','chipPerBatch','moistureLab','moistureOnline','woodK58','woodK7','woodSeed','woodOther','woodSt1m','bark','kappaCook','sdKappa','sulphidity','diffBalance','kwRejectAdt','kwReject','volEtp','tssEtp','tankBuildup'];
+const YA_ROW_KEYS = ['yieldBdt','chipWeightScale','chipWeightScaleNet','endProd','endProdBal','noOfCooks','chipPerBatch','chipSize810','moistureLab','moistureOnline','woodK58','woodK7','woodSeed','woodOther','woodSt1m','bark','kappaCook','sdKappa','sulphidity','diffBalance','kwRejectAdt','kwReject','volEtp','tssEtp','tankBuildup'];
 const YA_STATE = { prev:{mode:'month', value:null}, cur:{mode:'month', value:null} };
 function yaPickValue(key, mode, value){
   const s = CHIP_MON_SERIES[key];
