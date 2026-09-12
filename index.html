@@ -1440,7 +1440,7 @@
                     <tr class="ya-sub" data-ya-in="g3"><td class="ya-label">- St&gt;1 m</td><td class="ya-unit">%</td><td class="num" id="yaCell_woodSt1m_prev"></td><td class="num" id="yaCell_woodSt1m_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark">- Ref. R&amp;D St&gt;1 m Yield 2.127 Bdt/Adt</td></tr>
                     <tr class="ya-major" data-ya-group="g4"><td class="ya-label"><span class="yc">▾</span>4. Effect Chip size</td><td class="ya-unit">Bdt/Adt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
                     <tr class="ya-sub" data-ya-in="g4"><td class="ya-label">- Chip size 8-10 mm.</td><td class="ya-unit">%</td><td class="num" id="yaCell_chipSize810_prev"></td><td class="num" id="yaCell_chipSize810_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
-                    <tr class="ya-major" data-ya-group="g5"><td class="ya-label"><span class="yc">▾</span>5. Effect Bark</td><td class="ya-unit">Bdt/Adt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-major" data-ya-group="g5"><td class="ya-label"><span class="yc">▾</span>5. Effect Bark</td><td class="ya-unit">Bdt/Adt</td><td class="num">-</td><td class="num">-</td><td class="num" id="yaCell_effBark_diffbdt"></td><td class="num" id="yaCell_effBark_diffpct"></td><td class="ya-remark" id="yaCell_effBark_remark"></td></tr>
                     <tr class="ya-sub" data-ya-in="g5"><td class="ya-label">- Bark</td><td class="ya-unit">%</td><td class="num" id="yaCell_bark_prev"></td><td class="num" id="yaCell_bark_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
                     <tr class="ya-major" data-ya-group="g6"><td class="ya-label"><span class="yc">▾</span>6. Effect Kappa no.</td><td class="ya-unit">Bdt/Adt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
                     <tr class="ya-sub" data-ya-in="g6"><td class="ya-label">- Kappa no.</td><td class="ya-unit">-</td><td class="num" id="yaCell_kappaCook_prev"></td><td class="num" id="yaCell_kappaCook_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
@@ -5415,12 +5415,37 @@ function renderYaEffectWoodSpecies(){
   if(down.length) html += '<br>- ลดลงจาก Wood species '+down.join(', ');
   remarkEl.innerHTML = html;
 }
+/* "5. Effect Bark" major row — unlike Effect Chip moisture / Effect Wood species, this one has no
+   meaningful single-period base value (Bark's own row already shows the raw % per period below),
+   so columns 3/4 are a static "-" (set directly in the HTML) and the row's own columns are derived
+   straight from the two periods' Bark % readings: col6 (%) is the raw percentage-point diff, and
+   col5 (Bdt/Adt) converts that into a yield-equivalent effect via Actual Yield's PREV-column value —
+   the reverse order from Effect Chip moisture/Wood species, which compute col5 first. */
+function renderYaEffectBark(){
+  const diffBdtEl = document.getElementById('yaCell_effBark_diffbdt');
+  if(!diffBdtEl) return;
+  const diffPctEl = document.getElementById('yaCell_effBark_diffpct');
+  const remarkEl = document.getElementById('yaCell_effBark_remark');
+  const bPrev = yaPickValue('bark', YA_STATE.prev.mode, YA_STATE.prev.value);
+  const bCur = yaPickValue('bark', YA_STATE.cur.mode, YA_STATE.cur.value);
+  const diffPct = (bPrev!=null && bCur!=null) ? (bCur - bPrev) : null;
+  const yieldPrev = yaPickValue('yieldBdt', YA_STATE.prev.mode, YA_STATE.prev.value);
+  const diffBdt = (diffPct!=null && yieldPrev!=null) ? (diffPct/100*yieldPrev) : null;
+  diffPctEl.textContent = diffPct==null ? '—' : chipMonFmt(diffPct, 2);
+  diffBdtEl.textContent = diffBdt==null ? '—' : chipMonFmt(diffBdt, 3);
+  if(remarkEl){
+    const prefix = yaTrendPrefix(diffBdt);
+    remarkEl.textContent = (prefix==null || diffPct==null) ? '' :
+      prefix+'Effect Bark '+chipMonFmt(diffBdt,3)+' Bdt/Adt, '+chipMonFmt(diffPct,2)+'%';
+  }
+}
 function renderYieldAnalysisTable(){
   if(!document.getElementById('yaModePrev')) return;
   renderYieldAnalysisColumn('prev');
   renderYieldAnalysisColumn('cur');
   renderYaEffectMoisture();
   renderYaEffectWoodSpecies();
+  renderYaEffectBark();
 }
 function yaApplyMode(which){
   const Suffix = which==='prev' ? 'Prev' : 'Cur';
@@ -5438,6 +5463,7 @@ function yaApplyMode(which){
   renderYieldAnalysisColumn(which);
   renderYaEffectMoisture();
   renderYaEffectWoodSpecies();
+  renderYaEffectBark();
 }
 function initYieldAnalysisControls(){
   const modePrev = document.getElementById('yaModePrev');
