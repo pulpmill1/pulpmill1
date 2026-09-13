@@ -1475,7 +1475,7 @@
                     <tr class="ya-sub3" data-ya-in="g10"><td class="ya-label">TSS (- Base Target 300 mg/l)</td><td class="ya-unit">mg/l</td><td class="num" id="yaCell_tssBaseTarget_prev"></td><td class="num" id="yaCell_tssBaseTarget_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
                     <tr class="ya-sub3" data-ya-in="g10"><td class="ya-label">TSS</td><td class="ya-unit">mg/l</td><td class="num" id="yaCell_tssEtp_prev"></td><td class="num" id="yaCell_tssEtp_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
                     <tr class="ya-sub3" data-ya-in="g10"><td class="ya-label">Excess Fiber to ETP</td><td class="ya-unit">ADT</td><td class="num" id="yaCell_excessFiberEtp_prev"></td><td class="num" id="yaCell_excessFiberEtp_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
-                    <tr class="ya-major"><td class="ya-label">11. Unknow</td><td class="ya-unit">Bdt/Adt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-major"><td class="ya-label">11. Unknow</td><td class="ya-unit">Bdt/Adt</td><td class="num"></td><td class="num"></td><td class="num" id="yaCell_effUnknown_diffbdt"></td><td class="num" id="yaCell_effUnknown_diffpct"></td><td class="ya-remark"></td></tr>
                   </tbody>
                 </table>
               </div>
@@ -5655,6 +5655,37 @@ function yaRenderSimpleDiff(valueFn, diffBdtId, diffPctId){
   diffBdtEl.textContent = diff==null ? '—' : chipMonFmt(diff, 3);
   diffPctEl.textContent = pct==null ? '—' : chipMonFmt(pct, 2);
 }
+/* "11. Unknow" is the residual/plug row: Actual Yield's own diff minus every other numbered
+   Effect's diff (column 5), whatever is left over is "unexplained". Reads each row's ALREADY
+   -RENDERED column-5 text (not a fresh recomputation) so Unknown always reconciles exactly with
+   what's visibly on screen — must run after every other diff render in the same pass. A row with
+   no formula yet (e.g. "1. Effect Chip Weight", which has no id at all here) reads as 0, i.e. it
+   contributes nothing to the residual rather than blocking the whole calculation. */
+function yaReadDiffNum(id){
+  const el = document.getElementById(id);
+  if(!el) return 0;
+  const t = el.textContent;
+  if(!t || t==='—') return 0;
+  const n = parseFloat(t.replace(/,/g,''));
+  return isNaN(n) ? 0 : n;
+}
+function renderYaEffectUnknown(){
+  const diffBdtEl = document.getElementById('yaCell_effUnknown_diffbdt');
+  if(!diffBdtEl) return;
+  const diffPctEl = document.getElementById('yaCell_effUnknown_diffpct');
+  const knownEffectIds = [
+    'yaCell_effChipWeight_diffbdt', 'yaCell_effMoisture_diffbdt', 'yaCell_effWood_diffbdt',
+    'yaCell_effChipSize_diffbdt', 'yaCell_effBark_diffbdt', 'yaCell_effKappa_diffbdt',
+    'yaCell_effSulphidity_diffbdt', 'yaCell_effDiffBalance_diffbdt', 'yaCell_effTankBuildup_diffbdt',
+    'yaCell_effWaste_diffbdt',
+  ];
+  let sum = yaReadDiffNum('yaCell_yieldBdt_diffbdt');
+  knownEffectIds.forEach(function(id){ sum -= yaReadDiffNum(id); });
+  diffBdtEl.textContent = chipMonFmt(sum, 3);
+  const yieldPrev = yaPickValue('yieldBdt', YA_STATE.prev.mode, YA_STATE.prev.value);
+  const pct = yieldPrev ? (sum/yieldPrev*100) : null;
+  diffPctEl.textContent = pct==null ? '—' : chipMonFmt(pct, 2);
+}
 function renderYieldAnalysisTable(){
   if(!document.getElementById('yaModePrev')) return;
   renderYieldAnalysisColumn('prev');
@@ -5669,6 +5700,7 @@ function renderYieldAnalysisTable(){
   yaRenderSimpleDiff(yaEffectTankBuildupValue, 'yaCell_effTankBuildup_diffbdt', 'yaCell_effTankBuildup_diffpct');
   yaRenderSimpleDiff(function(w){ return yaEffectWasteChain(w).effWaste; }, 'yaCell_effWaste_diffbdt', 'yaCell_effWaste_diffpct');
   yaRenderSimpleDiff(function(w){ return yaPickValue('yieldBdt', YA_STATE[w].mode, YA_STATE[w].value); }, 'yaCell_yieldBdt_diffbdt', 'yaCell_yieldBdt_diffpct');
+  renderYaEffectUnknown();
 }
 function yaApplyMode(which){
   const Suffix = which==='prev' ? 'Prev' : 'Cur';
@@ -5694,6 +5726,7 @@ function yaApplyMode(which){
   yaRenderSimpleDiff(yaEffectTankBuildupValue, 'yaCell_effTankBuildup_diffbdt', 'yaCell_effTankBuildup_diffpct');
   yaRenderSimpleDiff(function(w){ return yaEffectWasteChain(w).effWaste; }, 'yaCell_effWaste_diffbdt', 'yaCell_effWaste_diffpct');
   yaRenderSimpleDiff(function(w){ return yaPickValue('yieldBdt', YA_STATE[w].mode, YA_STATE[w].value); }, 'yaCell_yieldBdt_diffbdt', 'yaCell_yieldBdt_diffpct');
+  renderYaEffectUnknown();
 }
 function initYieldAnalysisControls(){
   const modePrev = document.getElementById('yaModePrev');
