@@ -5522,12 +5522,15 @@ function renderYaEffectMoisture(){
    Σ (species fraction × its own yield factor), e.g. K58 6.9% contributes 0.069*1.883 — the "%"
    in the mill's formula means ÷100 (same convention as Effect Moisture's "100%-X%"), which is what
    keeps this on the same ~2 Bdt/Adt scale as Actual Yield instead of a raw hundreds-scale sum. */
+/* worseWhenUp: K58 is the premium grade (more of it is good, so a rising % counts as
+   "improved"); K7/Seed/Other/St>1m are the lower grades (more of them is bad, so a rising
+   % counts as "worsened") — opposite conventions, per explicit user spec. */
 const YA_WOOD_SPECIES = [
-  {key:'woodK58', name:'K58', factor:1.883},
-  {key:'woodK7', name:'K7', factor:2.033},
-  {key:'woodSeed', name:'Seed', factor:2.090},
-  {key:'woodOther', name:'Other', factor:2.010},
-  {key:'woodSt1m', name:'St>1 m', factor:2.127},
+  {key:'woodK58', name:'K58', factor:1.883, worseWhenUp:false},
+  {key:'woodK7', name:'K7', factor:2.033, worseWhenUp:true},
+  {key:'woodSeed', name:'Seed', factor:2.090, worseWhenUp:true},
+  {key:'woodOther', name:'Other', factor:2.010, worseWhenUp:true},
+  {key:'woodSt1m', name:'St>1 m', factor:2.127, worseWhenUp:true},
 ];
 function yaEffectWoodValue(which){
   const st = YA_STATE[which];
@@ -5558,18 +5561,20 @@ function renderYaEffectWoodSpecies(){
   if(!remarkEl) return;
   const prefix = yaTrendPrefix(diff);
   if(prefix==null || pct==null){ remarkEl.innerHTML = ''; return; }
-  const up = [], down = [];
+  const worse = [], better = [];
   YA_WOOD_SPECIES.forEach(function(sp){
     const p = yaPickValue(sp.key, YA_STATE.prev.mode, YA_STATE.prev.value);
     const c = yaPickValue(sp.key, YA_STATE.cur.mode, YA_STATE.cur.value);
     if(p==null || c==null) return;
     const d = c - p;
-    if(d > 0) up.push(sp.name+' '+chipMonFmt(d,1)+'%');
-    else if(d < 0) down.push(sp.name+' '+chipMonFmt(d,1)+'%');
+    if(d === 0) return;
+    const entry = sp.name+' '+chipMonFmt(d,1)+'%';
+    const worsened = sp.worseWhenUp ? (d > 0) : (d < 0);
+    if(worsened) worse.push(entry); else better.push(entry);
   });
   let html = prefix+'Effect Wood species '+chipMonFmt(diff,3)+' Bdt/Adt, '+chipMonFmt(pct,2)+' %';
-  if(up.length) html += '<br>- แย่ลงจาก Wood species '+up.join(', ');
-  if(down.length) html += '<br>- ดีขึ้นจาก Wood species '+down.join(', ');
+  if(worse.length) html += '<br>- แย่ลงจาก Wood species '+worse.join(', ');
+  if(better.length) html += '<br>- ดีขึ้นจาก Wood species '+better.join(', ');
   remarkEl.innerHTML = html;
 }
 /* "5. Effect Bark" major row — unlike Effect Chip moisture / Effect Wood species, this one has no
