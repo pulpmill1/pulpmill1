@@ -627,8 +627,8 @@
   .ya-summary{margin-bottom:14px;font-size:12px;color:var(--ink-2);}
   .ya-summary .rn-head{font-weight:700;color:var(--ink);margin-bottom:6px;}
   .ya-summary .ys-body{font-weight:300;line-height:1.9;}
-  .ya-summary .ys-pos{color:#12a150;font-weight:600;}
-  .ya-summary .ys-neg{color:#d4342c;font-weight:600;}
+  .ya-summary .ys-red{color:#d4342c;font-weight:600;}
+  .ya-summary .ys-green{color:#12a150;font-weight:600;}
   .ya-summary .ys-top{margin-bottom:6px;}
   .ya-summary .ys-group{font-weight:500;color:var(--ink);margin-top:4px;}
   .ya-summary .ys-item{padding-left:16px;}
@@ -5774,8 +5774,8 @@ const YA_SUMMARY_EFFECTS = [
 function yaSummaryNum(v, dec){
   if(v==null) return '—';
   const txt = chipMonFmt(v, dec);
-  if(v>0) return '<span class="ys-pos">'+txt+'</span>';
-  if(v<0) return '<span class="ys-neg">'+txt+'</span>';
+  if(v>0) return '<span class="ys-red">'+txt+'</span>';
+  if(v<0) return '<span class="ys-green">'+txt+'</span>';
   return txt;
 }
 function renderYaSummary(){
