@@ -5896,8 +5896,10 @@ function renderYaSummary(){
   box.hidden = false;
   const curLabel = yaHeaderLabel(YA_STATE.cur);
   const prevLabel = yaHeaderLabel(YA_STATE.prev);
+  const curYieldVal = document.getElementById('yaCell_yieldBdt_cur').textContent;
+  const prevYieldVal = document.getElementById('yaCell_yieldBdt_prev').textContent;
   const trendWord = yieldDiff > 0 ? 'แย่ลง' : yieldDiff < 0 ? 'ดีขึ้น' : '';
-  let html = '<div class="ys-top">&gt;&gt; Yield Actual '+curLabel+' เทียบ '+prevLabel+' '+trendWord+
+  let html = '<div class="ys-top">&gt;&gt; Yield Actual '+curLabel+' '+curYieldVal+' Bdt/Adt เทียบ '+prevLabel+' '+prevYieldVal+' Bdt/Adt '+trendWord+
     ' ('+yaSummaryNum(yieldDiff,3)+' Bdt/Adt, '+yaSummaryNum(yieldPct,2)+'%)</div>';
   const items = YA_SUMMARY_EFFECTS.map(function(e){
     const el = document.getElementById(e.diffId);
