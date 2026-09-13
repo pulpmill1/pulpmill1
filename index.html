@@ -155,9 +155,13 @@
     white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
   .stat .v.neg{color:#C0392F;}
   @media (max-width:760px){ .stat-row{grid-template-columns:repeat(3,1fr); width:100%;} .stat{border-bottom:1px solid var(--box-border);} }
-  /* #statRow (daily-chart summary, Pulp mill 1) has 10 boxes — 5x2 grid instead of the 6-column default */
-  #statRow{grid-template-columns:repeat(5, 1fr); width:660px;}
-  #statRow .stat{border-bottom:1px solid var(--box-border);}
+  /* #statRow (daily-chart summary, Pulp mill 1) has 10 boxes — 5x2 grid instead of the 6-column default.
+     Narrower than the general .stat-row so it fits on the same line as .chart-title instead of
+     wrapping below it (.chart-head is display:flex + justify-content:space-between). */
+  #statRow{grid-template-columns:repeat(5, 1fr); width:460px;}
+  #statRow .stat{border-bottom:1px solid var(--box-border); padding:6px 4px;}
+  #statRow .stat .k{font-size:8.5px;}
+  #statRow .stat .v{font-size:12.5px;}
   @media (max-width:760px){ #statRow{grid-template-columns:repeat(2,1fr); width:100%;} }
   .stat-row.stat-row-3{grid-template-columns:repeat(3, 1fr); width:460px;}
   @media (max-width:520px){ .stat-row.stat-row-3{width:100%;} .stat-row.stat-row-3 .stat .v{font-size:13px;} }
