@@ -703,7 +703,16 @@
           <button class="nav-item" data-page="production-pm12"><span class="nav-label" data-i18n-nav="navProductionPm12">Pulp mill 1+2</span></button>
         </div>
       </div>
-      <button class="nav-item" data-page="yield"><span style="display:flex; align-items:center; min-width:0;"><span class="nav-ico">🌲</span><span class="nav-label" data-i18n-nav="navYield">Yield</span></span></button>
+      <div class="nav-group" data-group="yield">
+        <button class="nav-parent" data-toggle="yield">
+          <span style="display:flex; align-items:center; min-width:0;"><span class="nav-ico">🌲</span><span class="nav-label" data-i18n-nav="navYield">Yield</span></span>
+          <span class="chev">▸</span>
+        </button>
+        <div class="nav-children">
+          <button class="nav-item" data-page="yield"><span class="nav-label" data-i18n-nav="navYield">Yield</span></button>
+          <button class="nav-item" data-page="yield-weightscale"><span class="nav-label" data-i18n-nav="navYieldWeightScale">Weight Scale Digester</span></button>
+        </div>
+      </div>
       <div class="nav-group" data-group="cost">
         <button class="nav-parent" data-toggle="cost">
           <span style="display:flex; align-items:center; min-width:0;"><span class="nav-ico">💰</span><span class="nav-label" data-i18n-nav="navCost">Cost</span></span>
@@ -1556,6 +1565,14 @@
             สถิติใช้วิธี robust: median + MAD × 1.4826 · baseline = 180 วันที่จบก่อนสัปดาห์ล่าสุด · control band = median ± 3σ<br>
             Est. สิ้นเดือน = (ผลรวมค่าที่บันทึกในเดือนนี้ + จำนวนวันที่เหลือ × ค่าเฉลี่ย 7 วันล่าสุด) ÷ (จำนวนวันที่บันทึก + จำนวนวันที่เหลือ) · Bulk density / Bulk density × Dryness แสดงไว้อ้างอิงแต่ไม่ให้คะแนน<br>
             เส้นประเทา = เกณฑ์ Tappi Std. / JPN Rqs. จากชีต · เส้นประม่วง = control band (±3σ, median) · Target Low/High ตั้งเองเก็บในเบราว์เซอร์
+          </div>
+        </section>
+
+        <section class="page" data-page="yield-weightscale" hidden>
+          <div class="empty-state">
+            <div class="icon">⚖️</div>
+            <h2>Weight Scale Digester Dashboard</h2>
+            <p>หน้านี้ยังไม่มีข้อมูล — รอเชื่อมต่อแหล่งข้อมูล Weight Scale Digester รายวัน/รายกะจาก Google Sheets<br>แจ้งลิงก์ชีทและชื่อแท็บที่ต้องการดึงข้อมูลได้เลยครับ</p>
           </div>
         </section>
 
@@ -4261,6 +4278,7 @@ const PAGE_META = {
   'production-pm2':{th:'Pulp mill 2', en:'Pulp mill 2', hasData:true},
   'production-pm12':{th:'Pulp mill 1+2', en:'Pulp mill 1+2', hasData:true},
   yield:{th:'Yield', en:'Yield', hasData:true},
+  'yield-weightscale':{th:'Weight Scale Digester', en:'Weight Scale Digester', hasData:false},
   'cost-bu21':{th:'BU21 Cost', en:'BU21 Cost', hasData:false},
   'cost-productive':{th:'Productive Cost', en:'Productive Cost', hasData:false},
   'quality-lab':{th:'Lab Results', en:'Lab Results', hasData:false},
@@ -4269,7 +4287,7 @@ const PAGE_META = {
 
 const I18N = {
   th:{
-    navProduction:'Production', navProductionPm1:'Pulp mill 1', navProductionPm2:'Pulp mill 2', navProductionPm12:'Pulp mill 1+2', navYield:'Yield', navCost:'Cost', navCostBu21:'BU21 Cost', navCostProductive:'Productive Cost',
+    navProduction:'Production', navProductionPm1:'Pulp mill 1', navProductionPm2:'Pulp mill 2', navProductionPm12:'Pulp mill 1+2', navYield:'Yield', navYieldWeightScale:'Weight Scale Digester', navCost:'Cost', navCostBu21:'BU21 Cost', navCostProductive:'Productive Cost',
     navQuality:'Quality', navQualityLab:'Lab Results', navQualityOpt:'OPT Tuning Results',
     searchPlaceholder:'ค้นหา KPI (Search metrics)',
     lastDataAt:'ข้อมูลล่าสุด ณ', noDataYet:'ยังไม่เชื่อมต่อแหล่งข้อมูล',
@@ -4287,7 +4305,7 @@ const I18N = {
     avg7Label:'ค่าเฉลี่ย 7 วันย้อนหลัง (Adt/day)', daysUnit:'วัน',
   },
   en:{
-    navProduction:'Production', navProductionPm1:'Pulp mill 1', navProductionPm2:'Pulp mill 2', navProductionPm12:'Pulp mill 1+2', navYield:'Yield', navCost:'Cost', navCostBu21:'BU21 Cost', navCostProductive:'Productive Cost',
+    navProduction:'Production', navProductionPm1:'Pulp mill 1', navProductionPm2:'Pulp mill 2', navProductionPm12:'Pulp mill 1+2', navYield:'Yield', navYieldWeightScale:'Weight Scale Digester', navCost:'Cost', navCostBu21:'BU21 Cost', navCostProductive:'Productive Cost',
     navQuality:'Quality', navQualityLab:'Lab Results', navQualityOpt:'OPT Tuning Results',
     searchPlaceholder:'Search metrics',
     lastDataAt:'Latest data as of', noDataYet:'No data source connected yet',
