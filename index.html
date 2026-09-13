@@ -1509,6 +1509,11 @@
               </div>
             </div>
             <div class="mon-group">
+              <div class="mon-group-head"><span class="gi">📋</span><span class="gt">ภาพรวม (Overview)</span><span class="gs">5 ค่า · คลิกที่บล็อกเพื่อดูประวัติและ control band</span></div>
+              <div class="mon-tiles" id="chipTiles_overview"></div>
+              <div class="mon-detail" id="chipDetail_overview" hidden></div>
+            </div>
+            <div class="mon-group">
               <div class="mon-group-head"><span class="gi">⚙</span><span class="gt">ค่าพื้นฐานของชิ้นไม้สับ</span><span class="gs">4 ค่า · คลิกที่บล็อกเพื่อดูประวัติและ control band</span></div>
               <div class="mon-tiles" id="chipTiles_bulk"></div>
               <div class="mon-detail" id="chipDetail_bulk" hidden></div>
@@ -5068,6 +5073,17 @@ const CHIP_MON_META = [
   {key:'noOfCooks',          col:COL_NO_OF_COOKS, th:'No of cooks', unit:'Cooks', dec:0, grp:'yield', scored:false, hideTile:true},
   {key:'chipSize810',        col:COL_CHIP_SIZE_8_10, th:'Chip size 8-10 mm.', unit:'%', dec:2, grp:'yield', scored:false, hideTile:true, zeroIsMissing:true},
   {key:'chipWeightGT', col:74, th:'Chip weight',          unit:'GT/day',  dec:0, grp:'yield', scored:false, zeroIsMissing:true, hideTile:true},
+  /* "Overview" group (added on request, placed before Wood-chip basics): 4 dedicated keys that
+     duplicate the SAME source columns as chipWeightGT / moistureLab / endProd / yieldBdt above,
+     rather than reusing those keys directly — those originals are hideTile (feeding the Yield
+     Analysis table / Executive KPI panel / the always-open Yield chart) or already have their own
+     tile in a different group ("endprod"), so giving them a second, independent tile here avoids
+     any risk of disturbing that existing wiring. */
+  {key:'ovwChipWeight',  col:74, th:'Chip weight (GT/day)', unit:'GT/day', dec:0, grp:'overview', scored:false, zeroIsMissing:true},
+  {key:'ovwMoistureLab', col:29, th:'Chip Moisture (Lab)', unit:'%', dec:2, grp:'overview', scored:false},
+  {key:'ovwChipWeightBdt', col:COL_CHIP_WEIGHT_SCALE, th:'Chip weight', unit:'BDt/day', dec:2, grp:'overview', scored:false},
+  {key:'ovwEndProd',     col:COL_END_PROD, th:'End Prod.', unit:'Adt/day', dec:0, grp:'overview', scored:false, zeroIsMissing:true},
+  {key:'ovwYield',       col:COL_YIELD, th:'Yield', unit:'BDt/ADt', dec:3, grp:'overview', scored:false},
   {key:'bulkDensity',    col:26, th:'Bulk density',              unit:'kg/m³', dec:1, grp:'bulk',   scored:false, spec:[300,350]},
   {key:'bulkDensityDry', col:27, th:'Bulk density × Dryness',    unit:'kg/m³', dec:1, grp:'bulk',   scored:false},
   {key:'dryness',        col:28, th:'Dryness',                   unit:'%',     dec:2, pct01:true, grp:'bulk',   scored:true,  dir:'lower',  specHi:54},
@@ -5098,6 +5114,7 @@ const CHIP_MON_META = [
 ];
 const CHIP_MON_GROUPS = [
   {id:'yield',   ico:'📈', th:'Yield (BDt/ADt)', rail:'#1565C0'},
+  {id:'overview', ico:'📋', th:'ภาพรวม (Overview)', rail:'#455A64'},
   {id:'bulk',    ico:'⚙', th:'ค่าพื้นฐานของชิ้นไม้สับ', rail:'#7C4DFF'},
   {id:'screen',  ico:'🔻', th:'การกระจายขนาดชิ้นไม้สับ (Chip Screen)', rail:'#E0417A'},
   {id:'wood',    ico:'🌲', th:'Wood species', rail:'#5B8C2A'},
