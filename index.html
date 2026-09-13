@@ -1449,7 +1449,7 @@
                     </tr>
                   </thead>
                   <tbody>
-                    <tr class="ya-major" data-ya-group="g0"><td class="ya-label"><span class="yc">▾</span>Yield Actual</td><td class="ya-unit">Bdt/Adt</td><td class="num" id="yaCell_yieldBdt_prev"></td><td class="num" id="yaCell_yieldBdt_cur"></td><td class="num" id="yaCell_yieldBdt_diffbdt"></td><td class="num" id="yaCell_yieldBdt_diffpct"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-major" data-ya-group="g0"><td class="ya-label"><span class="yc">▾</span>Yield Actual</td><td class="ya-unit">Bdt/Adt</td><td class="num" id="yaCell_yieldBdt_prev"></td><td class="num" id="yaCell_yieldBdt_cur"></td><td class="num" id="yaCell_yieldBdt_diffbdt"></td><td class="num" id="yaCell_yieldBdt_diffpct"></td><td class="ya-remark" id="yaCell_yieldBdt_remark"></td></tr>
                     <tr class="ya-sub" data-ya-in="g0"><td class="ya-label">- Chip (Weight scale)</td><td class="ya-unit">BDt/day</td><td class="num" id="yaCell_chipWeightScale_prev"></td><td class="num" id="yaCell_chipWeightScale_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
                     <tr class="ya-sub" data-ya-in="g0"><td class="ya-label">- Chip (Weight scale หักลบเฉ่งกอง)</td><td class="ya-unit">BDt/day</td><td class="num" id="yaCell_chipWeightScaleNet_prev"></td><td class="num" id="yaCell_chipWeightScaleNet_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
                     <tr class="ya-sub" data-ya-in="g0"><td class="ya-label">- End. Prod.</td><td class="ya-unit">Adt/day</td><td class="num" id="yaCell_endProd_prev"></td><td class="num" id="yaCell_endProd_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
@@ -5839,6 +5839,19 @@ function renderYaSummary(){
   }
   body.innerHTML = html;
 }
+/* "Yield Actual" row's own REMARK — a plain sentence, not the "จาก Effect X" shape every other
+   row's remark uses, so it doesn't fit yaRenderSimpleDiff's built-in remark generation; reads the
+   already-rendered diffbdt/diffpct cells (yaReadDiffNum) so it stays reconciled with what's shown. */
+function renderYaYieldActualRemark(){
+  const remarkEl = document.getElementById('yaCell_yieldBdt_remark');
+  if(!remarkEl) return;
+  const diffEl = document.getElementById('yaCell_yieldBdt_diffbdt');
+  if(!diffEl || diffEl.textContent === '—'){ remarkEl.textContent = ''; return; }
+  const diff = yaReadDiffNum('yaCell_yieldBdt_diffbdt');
+  const pct = yaReadDiffNum('yaCell_yieldBdt_diffpct');
+  const word = diff > 0 ? 'แย่ลง ' : diff < 0 ? 'ดีขึ้น ' : '';
+  remarkEl.textContent = '- Yield '+word+chipMonFmt(diff,3)+' Bdt/Adt, '+chipMonFmt(pct,2)+'%';
+}
 function renderYieldAnalysisTable(){
   if(!document.getElementById('yaModePrev')) return;
   renderYieldAnalysisColumn('prev');
@@ -5853,6 +5866,7 @@ function renderYieldAnalysisTable(){
   yaRenderSimpleDiff(yaEffectTankBuildupValue, 'yaCell_effTankBuildup_diffbdt', 'yaCell_effTankBuildup_diffpct', 'Pulp accumulate in tank', 'yaCell_effTankBuildup_remark');
   yaRenderSimpleDiff(function(w){ return yaEffectWasteChain(w).effWaste; }, 'yaCell_effWaste_diffbdt', 'yaCell_effWaste_diffpct', 'Waste', 'yaCell_effWaste_remark');
   yaRenderSimpleDiff(function(w){ return yaPickValue('yieldBdt', YA_STATE[w].mode, YA_STATE[w].value); }, 'yaCell_yieldBdt_diffbdt', 'yaCell_yieldBdt_diffpct');
+  renderYaYieldActualRemark();
   renderYaEffectUnknown();
   renderYaSummary();
 }
@@ -5880,6 +5894,7 @@ function yaApplyMode(which){
   yaRenderSimpleDiff(yaEffectTankBuildupValue, 'yaCell_effTankBuildup_diffbdt', 'yaCell_effTankBuildup_diffpct', 'Pulp accumulate in tank', 'yaCell_effTankBuildup_remark');
   yaRenderSimpleDiff(function(w){ return yaEffectWasteChain(w).effWaste; }, 'yaCell_effWaste_diffbdt', 'yaCell_effWaste_diffpct', 'Waste', 'yaCell_effWaste_remark');
   yaRenderSimpleDiff(function(w){ return yaPickValue('yieldBdt', YA_STATE[w].mode, YA_STATE[w].value); }, 'yaCell_yieldBdt_diffbdt', 'yaCell_yieldBdt_diffpct');
+  renderYaYieldActualRemark();
   renderYaEffectUnknown();
   renderYaSummary();
 }
