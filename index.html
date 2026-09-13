@@ -630,7 +630,7 @@
   .ya-summary .ys-red{color:#d4342c;font-weight:600;}
   .ya-summary .ys-green{color:#12a150;font-weight:600;}
   .ya-summary .ys-top{margin-bottom:6px;}
-  .ya-summary .ys-group{font-weight:500;color:var(--ink);margin-top:4px;}
+  .ya-summary .ys-group{font-weight:500;color:var(--ink);margin-top:4px;text-decoration:underline;}
   .ya-summary .ys-item{padding-left:16px;}
   .ya-summary .ys-sub{padding-left:32px;display:block;font-size:11px;}
   .ya-refnote{margin-top:10px;font-size:12px;color:var(--ink-2);}
@@ -5814,11 +5814,17 @@ function renderYaSummary(){
   }
   function groupHtml(heading, list){
     if(!list.length) return '';
-    return '<div class="ys-group">* &gt;&gt; '+heading+'</div>'+list.map(itemLine).join('');
+    return '<div class="ys-group">'+heading+':</div>'+list.map(itemLine).join('');
   }
   const worseGroup = groupHtml('Yield แย่ลงจาก', worseItems);
   const betterGroup = groupHtml('Yield ดีขึ้นจาก', betterItems);
   html += yieldDiff < 0 ? (betterGroup + worseGroup) : (worseGroup + betterGroup);
+  const unknownEl = document.getElementById('yaCell_effUnknown_diffbdt');
+  if(unknownEl){
+    const unknownDiff = yaReadDiffNum('yaCell_effUnknown_diffbdt');
+    const unknownPct = yaReadDiffNum('yaCell_effUnknown_diffpct');
+    html += '<div class="ys-top">Unknow (อื่นๆ): ('+yaSummaryNum(unknownDiff,3)+' Bdt/Adt, '+yaSummaryNum(unknownPct,2)+'%)</div>';
+  }
   body.innerHTML = html;
 }
 function renderYieldAnalysisTable(){
