@@ -5484,7 +5484,9 @@ function yaEffectWasteChain(which){
   const kwAdt = yaPickValue('kwRejectAdt', st.mode, st.value);
   const effKw = kwAdt==null ? null : (kwAdt/1000*0.40);
   const yld2 = yaPickValue('yieldBdt', st.mode, st.value);
-  const epBal = yaPickValue('endProdBal', st.mode, st.value);
+  /* End Prod. balance tank only applies to a single day's balance — for a month/year range, use
+     plain End Prod. instead (there's no meaningful "balance tank" total across many days). */
+  const epBal = st.mode === 'date' ? yaPickValue('endProdBal', st.mode, st.value) : yaPickValue('endProd', st.mode, st.value);
   const w2 = yaPickValue('chipWeightScaleNet', st.mode, st.value);
   const tssDenom = (epBal!=null && excessFiber!=null) ? (epBal + excessFiber) : null;
   const effTss = (yld2!=null && w2!=null && tssDenom!=null && tssDenom!==0) ? (yld2 - w2/tssDenom) : null;
