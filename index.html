@@ -622,6 +622,8 @@
   table.ya-table tr.ya-sub2 td.ya-label{padding-left:22px;color:var(--ink);font-weight:700;}
   table.ya-table tr.ya-sub3 td.ya-label{padding-left:36px;color:var(--ink-2);font-weight:500;}
   table.ya-table tr.ya-sub td.ya-remark,table.ya-table tr.ya-sub2 td.ya-remark,table.ya-table tr.ya-sub3 td.ya-remark{font-weight:300;color:var(--ink-3);}
+  table.ya-table .tr-bad{color:#d4342c;}
+  table.ya-table .tr-good{color:#12a150;}
   .ya-refnote{margin-top:10px;font-size:12px;color:var(--ink-2);}
   .ya-refnote .rn-head{font-weight:700;color:var(--ink);margin-bottom:4px;}
   .ya-refnote ol{margin:0;padding-left:18px;font-weight:300;}
@@ -5485,6 +5487,16 @@ function yaTrendPrefix(diff){
   if(diff<0) return '- Yield ดีขึ้นจาก ';
   return '- ';
 }
+/* Every "Diff. Effect" cell (columns 5/6) across the whole table: positive -> red text + red
+   up-arrow, negative -> green text + green down-arrow, reusing the same .tr-bad/.tr-good classes
+   and up=red/down=green convention already established for the rest of the Yield page. */
+function yaSetDiffCell(el, v, dec){
+  if(!el) return;
+  if(v==null){ el.textContent = '—'; return; }
+  if(v > 0) el.innerHTML = '<span class="tr-bad">↑</span> '+chipMonFmt(v, dec);
+  else if(v < 0) el.innerHTML = '<span class="tr-good">↓</span> '+chipMonFmt(v, dec);
+  else el.textContent = chipMonFmt(v, dec);
+}
 /* "2. Effect Moisture" major row — the first Effect row with a real mill formula:
    ( ChipWeightScaleNet * (1 - MoistureLab%) / EndProd ) - ( ChipWeightScaleNet * (1 - MoistureOnline%) / EndProd )
    evaluated once per period column using that column's own picker, then Diff. Effect (Bdt/Adt and %)
@@ -5515,8 +5527,8 @@ function renderYaEffectMoisture(){
   const diff = (vPrev!=null && vCur!=null) ? (vCur - vPrev) : null;
   const yieldPrev = yaPickValue('yieldBdt', YA_STATE.prev.mode, YA_STATE.prev.value);
   const pct = (diff!=null && yieldPrev) ? (diff/yieldPrev*100) : null;
-  diffEl.textContent = diff==null ? '—' : chipMonFmt(diff, 3);
-  pctEl.textContent = pct==null ? '—' : chipMonFmt(pct, 2);
+  yaSetDiffCell(diffEl, diff, 3);
+  yaSetDiffCell(pctEl, pct, 2);
   if(remarkEl){
     const prefix = yaTrendPrefix(diff);
     remarkEl.textContent = (prefix==null || pct==null) ? '' :
@@ -5561,8 +5573,8 @@ function renderYaEffectWoodSpecies(){
   const diff = (vPrev!=null && vCur!=null) ? (vCur - vPrev) : null;
   const yieldPrev = yaPickValue('yieldBdt', YA_STATE.prev.mode, YA_STATE.prev.value);
   const pct = (diff!=null && yieldPrev) ? (diff/yieldPrev*100) : null;
-  diffEl.textContent = diff==null ? '—' : chipMonFmt(diff, 3);
-  pctEl.textContent = pct==null ? '—' : chipMonFmt(pct, 2);
+  yaSetDiffCell(diffEl, diff, 3);
+  yaSetDiffCell(pctEl, pct, 2);
   if(!remarkEl) return;
   const prefix = yaTrendPrefix(diff);
   if(prefix==null || pct==null){ remarkEl.innerHTML = ''; return; }
@@ -5600,8 +5612,8 @@ function renderYaEffectBark(){
   const diffPct = (bPrev!=null && bCur!=null) ? (bCur - bPrev) : null;
   const yieldPrev = yaPickValue('yieldBdt', YA_STATE.prev.mode, YA_STATE.prev.value);
   const diffBdt = (diffPct!=null && yieldPrev!=null) ? (diffPct/100*yieldPrev) : null;
-  diffPctEl.textContent = diffPct==null ? '—' : chipMonFmt(diffPct, 2);
-  diffBdtEl.textContent = diffBdt==null ? '—' : chipMonFmt(diffBdt, 3);
+  yaSetDiffCell(diffPctEl, diffPct, 2);
+  yaSetDiffCell(diffBdtEl, diffBdt, 3);
   if(remarkEl){
     const prefix = yaTrendPrefix(diffBdt);
     remarkEl.textContent = (prefix==null || diffPct==null) ? '' :
@@ -5619,8 +5631,8 @@ function renderYaEffectKappaDiff(){
   const diff = (effPrev!=null && effCur!=null) ? (effCur - effPrev) : null;
   const yieldPrev = yaPickValue('yieldBdt', YA_STATE.prev.mode, YA_STATE.prev.value);
   const pct = (diff!=null && yieldPrev) ? (diff/yieldPrev*100) : null;
-  diffBdtEl.textContent = diff==null ? '—' : chipMonFmt(diff, 3);
-  diffPctEl.textContent = pct==null ? '—' : chipMonFmt(pct, 2);
+  yaSetDiffCell(diffBdtEl, diff, 3);
+  yaSetDiffCell(diffPctEl, pct, 2);
   const remarkEl = document.getElementById('yaCell_effKappa_remark');
   if(remarkEl){
     const prefix = yaTrendPrefix(diff);
@@ -5636,15 +5648,15 @@ function renderYaEffectChipSizeDiff(){
   const vCur = yaPickValue('chipSize810', YA_STATE.cur.mode, YA_STATE.cur.value);
   if(vPrev==null && vCur==null){
     // no chip-size data at all yet (columns 3/4 both blank) -> 0.000/0.00 rather than "-"
-    diffBdtEl.textContent = chipMonFmt(0, 3);
-    diffPctEl.textContent = chipMonFmt(0, 2);
+    yaSetDiffCell(diffBdtEl, 0, 3);
+    yaSetDiffCell(diffPctEl, 0, 2);
     return;
   }
   const diff = (vPrev!=null && vCur!=null) ? (vCur - vPrev) : null;
   const yieldPrev = yaPickValue('yieldBdt', YA_STATE.prev.mode, YA_STATE.prev.value);
   const pct = (diff!=null && yieldPrev) ? (diff/yieldPrev*100) : null;
-  diffBdtEl.textContent = diff==null ? '—' : chipMonFmt(diff, 3);
-  diffPctEl.textContent = pct==null ? '—' : chipMonFmt(pct, 2);
+  yaSetDiffCell(diffBdtEl, diff, 3);
+  yaSetDiffCell(diffPctEl, pct, 2);
 }
 function renderYaEffectSulphidityDiff(){
   const diffBdtEl = document.getElementById('yaCell_effSulphidity_diffbdt');
@@ -5655,8 +5667,8 @@ function renderYaEffectSulphidityDiff(){
   const diff = (sPrev!=null && sCur!=null) ? -(sCur - sPrev)*0.008 : null;
   const yieldPrev = yaPickValue('yieldBdt', YA_STATE.prev.mode, YA_STATE.prev.value);
   const pct = (diff!=null && yieldPrev) ? (diff/yieldPrev*100) : null;
-  diffBdtEl.textContent = diff==null ? '—' : chipMonFmt(diff, 3);
-  diffPctEl.textContent = pct==null ? '—' : chipMonFmt(pct, 2);
+  yaSetDiffCell(diffBdtEl, diff, 3);
+  yaSetDiffCell(diffPctEl, pct, 2);
   const remarkEl = document.getElementById('yaCell_effSulphidity_remark');
   if(remarkEl){
     const prefix = yaTrendPrefix(diff);
@@ -5676,8 +5688,8 @@ function yaRenderSimpleDiff(valueFn, diffBdtId, diffPctId, rowName, remarkId){
   const diff = (vPrev!=null && vCur!=null) ? (vCur - vPrev) : null;
   const yieldPrev = yaPickValue('yieldBdt', YA_STATE.prev.mode, YA_STATE.prev.value);
   const pct = (diff!=null && yieldPrev) ? (diff/yieldPrev*100) : null;
-  diffBdtEl.textContent = diff==null ? '—' : chipMonFmt(diff, 3);
-  diffPctEl.textContent = pct==null ? '—' : chipMonFmt(pct, 2);
+  yaSetDiffCell(diffBdtEl, diff, 3);
+  yaSetDiffCell(diffPctEl, pct, 2);
   if(remarkId){
     const remarkEl = document.getElementById(remarkId);
     if(remarkEl){
@@ -5697,8 +5709,12 @@ function yaReadDiffNum(id){
   const el = document.getElementById(id);
   if(!el) return 0;
   const t = el.textContent;
-  if(!t || t==='—') return 0;
-  const n = parseFloat(t.replace(/,/g,''));
+  if(!t) return 0;
+  // textContent includes the up/down arrow glyph now (yaSetDiffCell), so pull out just the
+  // number rather than parsing the whole string.
+  const m = t.replace(/,/g,'').match(/-?\d+\.?\d*/);
+  if(!m) return 0;
+  const n = parseFloat(m[0]);
   return isNaN(n) ? 0 : n;
 }
 function renderYaEffectUnknown(){
@@ -5713,10 +5729,10 @@ function renderYaEffectUnknown(){
   ];
   let sum = yaReadDiffNum('yaCell_yieldBdt_diffbdt');
   knownEffectIds.forEach(function(id){ sum -= yaReadDiffNum(id); });
-  diffBdtEl.textContent = chipMonFmt(sum, 3);
+  yaSetDiffCell(diffBdtEl, sum, 3);
   const yieldPrev = yaPickValue('yieldBdt', YA_STATE.prev.mode, YA_STATE.prev.value);
   const pct = yieldPrev ? (sum/yieldPrev*100) : null;
-  diffPctEl.textContent = pct==null ? '—' : chipMonFmt(pct, 2);
+  yaSetDiffCell(diffPctEl, pct, 2);
 }
 function renderYieldAnalysisTable(){
   if(!document.getElementById('yaModePrev')) return;
