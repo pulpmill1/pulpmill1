@@ -626,6 +626,16 @@
   .ya-refnote .rn-head{font-weight:700;color:var(--ink);margin-bottom:4px;}
   .ya-refnote ol{margin:0;padding-left:18px;font-weight:300;}
   .ya-refnote li{margin-top:2px;}
+  .ya-remark-clickable{cursor:pointer;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:2px;}
+  .ya-remark-clickable:hover{color:var(--accent-ink);}
+  .ya-refmodal{position:fixed;inset:0;z-index:9000;display:flex;align-items:center;justify-content:center;padding:20px;}
+  .ya-refmodal-backdrop{position:absolute;inset:0;background:rgba(20,20,19,.55);}
+  .ya-refmodal-card{position:relative;background:var(--surface);border-radius:14px;box-shadow:0 20px 60px rgba(0,0,0,.35);max-width:720px;width:100%;max-height:88vh;overflow-y:auto;padding:20px 22px;}
+  .ya-refmodal-close{position:absolute;top:10px;right:12px;width:30px;height:30px;border:none;border-radius:8px;background:var(--surface-2);color:var(--ink-2);font-size:18px;line-height:1;cursor:pointer;}
+  .ya-refmodal-close:hover{background:var(--border);color:var(--ink);}
+  .ya-refmodal-chartwrap{position:relative;height:320px;margin-bottom:14px;}
+  .ya-refmodal-text .rn-head{font-weight:700;color:var(--ink);font-size:13px;margin-bottom:6px;}
+  .ya-refmodal-text .rn-body{font-weight:300;font-size:12.5px;color:var(--ink-2);line-height:1.85;}
   .md-rangenote{font-size:11px;color:var(--ink-3);margin-top:8px;font-family:"IBM Plex Mono",monospace;}
   .md-target{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:9px 12px;margin-bottom:12px;}
   .md-target .lbl{font-size:10.5px;font-weight:800;letter-spacing:.05em;color:var(--ink-2);text-transform:uppercase;}
@@ -1447,7 +1457,7 @@
                     <tr class="ya-major" data-ya-group="g5"><td class="ya-label"><span class="yc">▾</span>5. Effect Bark</td><td class="ya-unit">%</td><td class="num" id="yaCell_effBarkVal_prev"></td><td class="num" id="yaCell_effBarkVal_cur"></td><td class="num" id="yaCell_effBark_diffbdt"></td><td class="num" id="yaCell_effBark_diffpct"></td><td class="ya-remark" id="yaCell_effBark_remark"></td></tr>
                     <tr class="ya-sub" data-ya-in="g5"><td class="ya-label">- Bark</td><td class="ya-unit">%</td><td class="num" id="yaCell_bark_prev"></td><td class="num" id="yaCell_bark_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
                     <tr class="ya-major" data-ya-group="g6"><td class="ya-label"><span class="yc">▾</span>6. Effect Kappa no.</td><td class="ya-unit">Bdt/Adt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
-                    <tr class="ya-sub" data-ya-in="g6"><td class="ya-label">- Kappa no.</td><td class="ya-unit">-</td><td class="num" id="yaCell_kappaCook_prev"></td><td class="num" id="yaCell_kappaCook_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark">- Ref. R&amp;D Kappa 12 → 13: Effect Yield 0.0248 Bdt/Adt, 1.22%, Kappa 13 → 14: Wood Consumption ลดลง 0.0216 Bdt/Adt, 1.08%</td></tr>
+                    <tr class="ya-sub" data-ya-in="g6"><td class="ya-label">- Kappa no.</td><td class="ya-unit">-</td><td class="num" id="yaCell_kappaCook_prev"></td><td class="num" id="yaCell_kappaCook_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark ya-remark-clickable" id="yaKappaRefRemark">- Ref. R&amp;D Kappa 12 → 13: Effect Yield 0.0248 Bdt/Adt, 1.22%, Kappa 13 → 14: Wood Consumption ลดลง 0.0216 Bdt/Adt, 1.08%</td></tr>
                     <tr class="ya-sub" data-ya-in="g6"><td class="ya-label">- SD Kappa</td><td class="ya-unit">-</td><td class="num" id="yaCell_sdKappa_prev"></td><td class="num" id="yaCell_sdKappa_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
                     <tr class="ya-sub" data-ya-in="g6"><td class="ya-label">- CV Kappa</td><td class="ya-unit">%</td><td class="num" id="yaCell_cvKappa_prev"></td><td class="num" id="yaCell_cvKappa_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
                     <tr class="ya-major" data-ya-group="g7"><td class="ya-label"><span class="yc">▾</span>7. Effect Sulphidity</td><td class="ya-unit">%</td><td class="num" id="yaCell_effSulphidity_prev"></td><td class="num" id="yaCell_effSulphidity_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
@@ -1556,6 +1566,30 @@
           </div>
         </section>
 
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="ya-refmodal" id="yaRefModal" hidden>
+  <div class="ya-refmodal-backdrop" id="yaRefModalBackdrop"></div>
+  <div class="ya-refmodal-card" role="dialog" aria-modal="true">
+    <button class="ya-refmodal-close" id="yaRefModalClose" type="button" aria-label="Close">×</button>
+    <div class="ya-refmodal-chartwrap"><canvas id="yaRefKappaChart"></canvas></div>
+    <div class="ya-refmodal-text">
+      <div class="rn-head">ข้อสรุปสำคัญจากสมการ Ref.R&amp;D ตั้งแต่ Kappa 10–20:</div>
+      <div class="rn-body">
+        Kappa 10 → 11: Effect Yield 0.0312 Bdt/Adt, 1.49%<br>
+        Kappa 11 → 12: Effect Yield 0.0280 Bdt/Adt, 1.36%<br>
+        Kappa 12 → 13: Effect Yield 0.0248 Bdt/Adt, 1.22%<br>
+        Kappa 13 → 14: Effect Yield 0.0216 Bdt/Adt, 1.08%<br>
+        Kappa 14 → 15: Effect Yield 0.0184 Bdt/Adt, 0.93%<br>
+        Kappa 15 → 16: Effect Yield 0.0152 Bdt/Adt, 0.77%<br>
+        Kappa 16 → 17: Effect Yield 0.0120 Bdt/Adt, 0.61%<br>
+        Kappa 17 → 18: Effect Yield 0.0088 Bdt/Adt, 0.45%<br>
+        Kappa 18 → 19: Effect Yield 0.0056 Bdt/Adt, 0.29%<br>
+        Kappa 19 → 20: Effect Yield 0.0024 Bdt/Adt, 0.12%<br>
+        Kappa 10 → 20: Effect Yield 0.1680 Bdt/Adt, 8.03%
       </div>
     </div>
   </div>
@@ -5531,6 +5565,56 @@ function initYieldAnalysisControls(){
       document.querySelectorAll('.ya-table [data-ya-in="'+g+'"]').forEach(function(row){ row.hidden = collapsed; });
     });
   });
+  initYaKappaRefModal();
+}
+/* Clicking the "- Kappa no." row's "Ref. R&D Kappa ..." remark opens a modal with the underlying
+   R&D wood-consumption-vs-cooking-kappa curve (y = 0.0016x² − 0.0648x + 2.5801, R²=1, Kappa 10–20)
+   plus the full step-by-step Effect Yield reference table — this is a REDRAWN chart from the mill's
+   own equation/screenshot (no image asset available to embed), so it always matches the dashboard's
+   own chart styling instead of an external picture. */
+let yaRefKappaChartInstance = null;
+function initYaKappaRefModal(){
+  const trigger = document.getElementById('yaKappaRefRemark');
+  const modal = document.getElementById('yaRefModal');
+  if(!trigger || !modal || trigger.dataset.yaRefWired) return;
+  trigger.dataset.yaRefWired = '1';
+  const backdrop = document.getElementById('yaRefModalBackdrop');
+  const closeBtn = document.getElementById('yaRefModalClose');
+  function openModal(){
+    modal.hidden = false;
+    if(!yaRefKappaChartInstance){
+      const pts = [];
+      for(let x=10; x<=20.001; x+=0.1){
+        const xr = Math.round(x*10)/10;
+        pts.push({x:xr, y: 0.0016*xr*xr - 0.0648*xr + 2.5801});
+      }
+      yaRefKappaChartInstance = new Chart(document.getElementById('yaRefKappaChart').getContext('2d'), {
+        type:'line',
+        data:{ datasets:[{
+          label:'Wood consumption', data:pts, borderColor:'#1565C0', borderWidth:2.5,
+          borderDash:[7,4], pointRadius:0, tension:0.15, fill:false, datalabels:{display:false},
+        }]},
+        options:{
+          responsive:true, maintainAspectRatio:false,
+          plugins:{
+            legend:{display:false},
+            title:{display:true, text:'Wood Consumption vs Cooking Kappa (Ref. R&D)', font:{size:13, weight:'700'}},
+            subtitle:{display:true, text:['y = 0.0016x² − 0.0648x + 2.5801', 'R² = 1'], font:{size:11}, padding:{bottom:8}},
+            tooltip:{callbacks:{label:function(ctx){ return 'Kappa '+ctx.parsed.x.toFixed(1)+': '+ctx.parsed.y.toFixed(4)+' Bdt/Adt'; }}},
+          },
+          scales:{
+            x:{type:'linear', title:{display:true, text:'cooking kappa'}, min:10, max:20, ticks:{stepSize:1}},
+            y:{title:{display:true, text:'wood consumption'}},
+          },
+        },
+      });
+    }
+  }
+  function closeModal(){ modal.hidden = true; }
+  trigger.addEventListener('click', openModal);
+  backdrop.addEventListener('click', closeModal);
+  closeBtn.addEventListener('click', closeModal);
+  document.addEventListener('keydown', function(e){ if(e.key==='Escape' && !modal.hidden) closeModal(); });
 }
 
 /* shared sparkline builder: tight y-bounds + a pulsing dot pinned to the latest point.
