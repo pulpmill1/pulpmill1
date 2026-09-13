@@ -1462,11 +1462,11 @@
                     <tr class="ya-sub" data-ya-in="g6"><td class="ya-label">- CV Kappa</td><td class="ya-unit">%</td><td class="num" id="yaCell_cvKappa_prev"></td><td class="num" id="yaCell_cvKappa_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
                     <tr class="ya-major" data-ya-group="g7"><td class="ya-label"><span class="yc">▾</span>7. Effect Sulphidity</td><td class="ya-unit">%</td><td class="num" id="yaCell_effSulphidity_prev"></td><td class="num" id="yaCell_effSulphidity_cur"></td><td class="num" id="yaCell_effSulphidity_diffbdt"></td><td class="num" id="yaCell_effSulphidity_diffpct"></td><td class="ya-remark"></td></tr>
                     <tr class="ya-sub" data-ya-in="g7"><td class="ya-label">- Sulphidity</td><td class="ya-unit">%</td><td class="num" id="yaCell_sulphidity_prev"></td><td class="num" id="yaCell_sulphidity_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark">- Ref. R&amp;D 1%Sulphidity Effect Yield 0.008 Bdt/Adt</td></tr>
-                    <tr class="ya-major" data-ya-group="g8"><td class="ya-label"><span class="yc">▾</span>8. Effect Diff. prod. balance</td><td class="ya-unit">%</td><td class="num" id="yaCell_effDiffBalance_prev"></td><td class="num" id="yaCell_effDiffBalance_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-major" data-ya-group="g8"><td class="ya-label"><span class="yc">▾</span>8. Effect Diff. prod. balance</td><td class="ya-unit">%</td><td class="num" id="yaCell_effDiffBalance_prev"></td><td class="num" id="yaCell_effDiffBalance_cur"></td><td class="num" id="yaCell_effDiffBalance_diffbdt"></td><td class="num" id="yaCell_effDiffBalance_diffpct"></td><td class="ya-remark"></td></tr>
                     <tr class="ya-sub" data-ya-in="g8"><td class="ya-label">- %Diff. production</td><td class="ya-unit">-</td><td class="num" id="yaCell_diffBalance_prev"></td><td class="num" id="yaCell_diffBalance_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
-                    <tr class="ya-major" data-ya-group="g9"><td class="ya-label"><span class="yc">▾</span>9. Effect Pulp accumulate in tank</td><td class="ya-unit">Bdt/Adt</td><td class="num" id="yaCell_effTankBuildup_prev"></td><td class="num" id="yaCell_effTankBuildup_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-major" data-ya-group="g9"><td class="ya-label"><span class="yc">▾</span>9. Effect Pulp accumulate in tank</td><td class="ya-unit">Bdt/Adt</td><td class="num" id="yaCell_effTankBuildup_prev"></td><td class="num" id="yaCell_effTankBuildup_cur"></td><td class="num" id="yaCell_effTankBuildup_diffbdt"></td><td class="num" id="yaCell_effTankBuildup_diffpct"></td><td class="ya-remark"></td></tr>
                     <tr class="ya-sub" data-ya-in="g9"><td class="ya-label">- Pulp accumulate in tank</td><td class="ya-unit">Adt</td><td class="num" id="yaCell_tankBuildup_prev"></td><td class="num" id="yaCell_tankBuildup_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
-                    <tr class="ya-major" data-ya-group="g10"><td class="ya-label"><span class="yc">▾</span>10. Effect Waste</td><td class="ya-unit">Bdt/Adt</td><td class="num" id="yaCell_effWaste_prev"></td><td class="num" id="yaCell_effWaste_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-major" data-ya-group="g10"><td class="ya-label"><span class="yc">▾</span>10. Effect Waste</td><td class="ya-unit">Bdt/Adt</td><td class="num" id="yaCell_effWaste_prev"></td><td class="num" id="yaCell_effWaste_cur"></td><td class="num" id="yaCell_effWaste_diffbdt"></td><td class="num" id="yaCell_effWaste_diffpct"></td><td class="ya-remark"></td></tr>
                     <tr class="ya-sub2" data-ya-in="g10"><td class="ya-label">Effect (Knot+White)</td><td class="ya-unit">Bdt/Adt</td><td class="num" id="yaCell_effKnotWhite_prev"></td><td class="num" id="yaCell_effKnotWhite_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
                     <tr class="ya-sub3" data-ya-in="g10"><td class="ya-label">Knot + White reject</td><td class="ya-unit">kg/ADT</td><td class="num" id="yaCell_kwRejectAdt_prev"></td><td class="num" id="yaCell_kwRejectAdt_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
                     <tr class="ya-sub3" data-ya-in="g10"><td class="ya-label">Knot + White reject</td><td class="ya-unit">kg</td><td class="num" id="yaCell_kwReject_prev"></td><td class="num" id="yaCell_kwReject_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
@@ -5342,6 +5342,39 @@ function yaKappaEffectYield(kappa){
   }
   return total;
 }
+/* Standalone value functions for major-row calcs that need recomputing for BOTH periods at once
+   (their own Diff. Effect columns 5/6) as well as per-column — kept separate from the inline
+   per-column rendering in renderYieldAnalysisColumn() so both call sites stay in sync. */
+function yaEffectDiffBalanceValue(which){
+  const st = YA_STATE[which];
+  const yld = yaPickValue('yieldBdt', st.mode, st.value);
+  const db = yaPickValue('diffBalance', st.mode, st.value);
+  return (yld!=null && db!=null) ? -(yld * db/100) : null;
+}
+function yaEffectTankBuildupValue(which){
+  const st = YA_STATE[which];
+  const w = yaPickValue('chipWeightScaleNet', st.mode, st.value);
+  const ep = yaPickValue('endProd', st.mode, st.value);
+  const tank = yaPickValue('tankBuildup', st.mode, st.value);
+  return (w!=null && ep!=null && ep!==0 && tank!=null && (ep+tank)!==0) ? (w/ep - w/(ep+tank)) : null;
+}
+function yaEffectWasteChain(which){
+  const st = YA_STATE[which];
+  const tssRaw = yaPickValue('tssEtp', st.mode, st.value);
+  const tssBase = tssRaw==null ? null : (tssRaw - 300);
+  const volEtpV = yaPickValue('volEtp', st.mode, st.value);
+  const excessFiber = (volEtpV!=null && tssBase!=null)
+    ? (((volEtpV*1000/86400) * tssBase * 86.4/(1000*1000)) / 0.9) : null;
+  const kwAdt = yaPickValue('kwRejectAdt', st.mode, st.value);
+  const effKw = kwAdt==null ? null : (kwAdt/1000*0.40);
+  const yld2 = yaPickValue('yieldBdt', st.mode, st.value);
+  const epBal = yaPickValue('endProdBal', st.mode, st.value);
+  const w2 = yaPickValue('chipWeightScaleNet', st.mode, st.value);
+  const tssDenom = (epBal!=null && excessFiber!=null) ? (epBal + excessFiber) : null;
+  const effTss = (yld2!=null && w2!=null && tssDenom!=null && tssDenom!==0) ? (yld2 - w2/tssDenom) : null;
+  const effWaste = (effKw!=null && effTss!=null) ? (effKw + effTss) : null;
+  return { tssBase, excessFiber, effKw, effTss, effWaste };
+}
 function yaPickValue(key, mode, value){
   const s = CHIP_MON_SERIES[key];
   if(!s || !s.length || !value) return null;
@@ -5400,48 +5433,27 @@ function renderYieldAnalysisColumn(which){
   }
   const effDiffBalEl = document.getElementById('yaCell_effDiffBalance_'+which);
   if(effDiffBalEl){
-    const yld = yaPickValue('yieldBdt', st.mode, st.value);
-    const db = yaPickValue('diffBalance', st.mode, st.value);
-    const effDb = (yld!=null && db!=null) ? -(yld * db/100) : null;
+    const effDb = yaEffectDiffBalanceValue(which);
     effDiffBalEl.textContent = effDb==null ? '—' : chipMonFmt(effDb, 3);
   }
   const effTankEl = document.getElementById('yaCell_effTankBuildup_'+which);
   if(effTankEl){
-    const w = yaPickValue('chipWeightScaleNet', st.mode, st.value);
-    const ep = yaPickValue('endProd', st.mode, st.value);
-    const tank = yaPickValue('tankBuildup', st.mode, st.value);
-    const effTank = (w!=null && ep!=null && ep!==0 && tank!=null && (ep+tank)!==0)
-      ? (w/ep - w/(ep+tank)) : null;
+    const effTank = yaEffectTankBuildupValue(which);
     effTankEl.textContent = effTank==null ? '—' : chipMonFmt(effTank, 3);
   }
-  /* Effect Waste chain: TSS (- Base Target 300) -> Excess Fiber to ETP -> Effect (TSS), each
-     feeding the next, so they must be computed in this order within the same column. */
+  /* Effect Waste chain: TSS (- Base Target 300) -> Excess Fiber to ETP -> Effect (TSS) -> Effect
+     Waste, each feeding the next — yaEffectWasteChain() computes all of them together in order. */
+  const waste = yaEffectWasteChain(which);
   const tssBaseEl = document.getElementById('yaCell_tssBaseTarget_'+which);
-  const tssRaw = yaPickValue('tssEtp', st.mode, st.value);
-  const tssBase = tssRaw==null ? null : (tssRaw - 300);
-  if(tssBaseEl) tssBaseEl.textContent = tssBase==null ? '—' : chipMonFmt(tssBase, 0);
+  if(tssBaseEl) tssBaseEl.textContent = waste.tssBase==null ? '—' : chipMonFmt(waste.tssBase, 0);
   const excessFiberEl = document.getElementById('yaCell_excessFiberEtp_'+which);
-  const volEtpV = yaPickValue('volEtp', st.mode, st.value);
-  const excessFiber = (volEtpV!=null && tssBase!=null)
-    ? (((volEtpV*1000/86400) * tssBase * 86.4/(1000*1000)) / 0.9) : null;
-  if(excessFiberEl) excessFiberEl.textContent = excessFiber==null ? '—' : chipMonFmt(excessFiber, 3);
-  const kwAdt = yaPickValue('kwRejectAdt', st.mode, st.value);
-  const effKw = kwAdt==null ? null : (kwAdt/1000*0.40);
+  if(excessFiberEl) excessFiberEl.textContent = waste.excessFiber==null ? '—' : chipMonFmt(waste.excessFiber, 3);
   const effKnotWhiteEl = document.getElementById('yaCell_effKnotWhite_'+which);
-  if(effKnotWhiteEl) effKnotWhiteEl.textContent = effKw==null ? '—' : chipMonFmt(effKw, 3);
-  const yld2 = yaPickValue('yieldBdt', st.mode, st.value);
-  const epBal = yaPickValue('endProdBal', st.mode, st.value);
-  const w2 = yaPickValue('chipWeightScaleNet', st.mode, st.value);
-  const tssDenom = (epBal!=null && excessFiber!=null) ? (epBal + excessFiber) : null;
-  const effTss = (yld2!=null && w2!=null && tssDenom!=null && tssDenom!==0)
-    ? (yld2 - w2/tssDenom) : null;
+  if(effKnotWhiteEl) effKnotWhiteEl.textContent = waste.effKw==null ? '—' : chipMonFmt(waste.effKw, 3);
   const effTssEl = document.getElementById('yaCell_effTss_'+which);
-  if(effTssEl) effTssEl.textContent = effTss==null ? '—' : chipMonFmt(effTss, 3);
+  if(effTssEl) effTssEl.textContent = waste.effTss==null ? '—' : chipMonFmt(waste.effTss, 3);
   const effWasteEl = document.getElementById('yaCell_effWaste_'+which);
-  if(effWasteEl){
-    const effWaste = (effKw!=null && effTss!=null) ? (effKw + effTss) : null;
-    effWasteEl.textContent = effWaste==null ? '—' : chipMonFmt(effWaste, 3);
-  }
+  if(effWasteEl) effWasteEl.textContent = waste.effWaste==null ? '—' : chipMonFmt(waste.effWaste, 3);
   /* Some major "Effect *" rows have no formula of their own for columns 3/4 (ช่วงที่1/2), so they
      just mirror their one real sub-row's value instead — e.g. "4. Effect Chip size" mirrors its
      "- Chip size 8-10 mm." sub-row. Kept as its own list rather than folded into YA_ROW_KEYS since
@@ -5628,6 +5640,21 @@ function renderYaEffectSulphidityDiff(){
   diffBdtEl.textContent = diff==null ? '—' : chipMonFmt(diff, 3);
   diffPctEl.textContent = pct==null ? '—' : chipMonFmt(pct, 2);
 }
+/* Shared shape for "col5 = cur - prev of my own value, col6 = col5 / Actual Yield's prev value x 100" —
+   used by Effect Diff. prod. balance / Effect Pulp accumulate in tank / Effect Waste, whose own
+   columns 3/4 are already computed per-column by valueFn(which) (defined above). */
+function yaRenderSimpleDiff(valueFn, diffBdtId, diffPctId){
+  const diffBdtEl = document.getElementById(diffBdtId);
+  if(!diffBdtEl) return;
+  const diffPctEl = document.getElementById(diffPctId);
+  const vPrev = valueFn('prev');
+  const vCur = valueFn('cur');
+  const diff = (vPrev!=null && vCur!=null) ? (vCur - vPrev) : null;
+  const yieldPrev = yaPickValue('yieldBdt', YA_STATE.prev.mode, YA_STATE.prev.value);
+  const pct = (diff!=null && yieldPrev) ? (diff/yieldPrev*100) : null;
+  diffBdtEl.textContent = diff==null ? '—' : chipMonFmt(diff, 3);
+  diffPctEl.textContent = pct==null ? '—' : chipMonFmt(pct, 2);
+}
 function renderYieldAnalysisTable(){
   if(!document.getElementById('yaModePrev')) return;
   renderYieldAnalysisColumn('prev');
@@ -5638,6 +5665,9 @@ function renderYieldAnalysisTable(){
   renderYaEffectKappaDiff();
   renderYaEffectChipSizeDiff();
   renderYaEffectSulphidityDiff();
+  yaRenderSimpleDiff(yaEffectDiffBalanceValue, 'yaCell_effDiffBalance_diffbdt', 'yaCell_effDiffBalance_diffpct');
+  yaRenderSimpleDiff(yaEffectTankBuildupValue, 'yaCell_effTankBuildup_diffbdt', 'yaCell_effTankBuildup_diffpct');
+  yaRenderSimpleDiff(function(w){ return yaEffectWasteChain(w).effWaste; }, 'yaCell_effWaste_diffbdt', 'yaCell_effWaste_diffpct');
 }
 function yaApplyMode(which){
   const Suffix = which==='prev' ? 'Prev' : 'Cur';
@@ -5659,6 +5689,9 @@ function yaApplyMode(which){
   renderYaEffectKappaDiff();
   renderYaEffectChipSizeDiff();
   renderYaEffectSulphidityDiff();
+  yaRenderSimpleDiff(yaEffectDiffBalanceValue, 'yaCell_effDiffBalance_diffbdt', 'yaCell_effDiffBalance_diffpct');
+  yaRenderSimpleDiff(yaEffectTankBuildupValue, 'yaCell_effTankBuildup_diffbdt', 'yaCell_effTankBuildup_diffpct');
+  yaRenderSimpleDiff(function(w){ return yaEffectWasteChain(w).effWaste; }, 'yaCell_effWaste_diffbdt', 'yaCell_effWaste_diffpct');
 }
 function initYieldAnalysisControls(){
   const modePrev = document.getElementById('yaModePrev');
