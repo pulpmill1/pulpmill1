@@ -572,6 +572,11 @@
   .mt-dot.ok{background:#12a150;}.mt-dot.warn{background:#e0a000;}.mt-dot.bad{background:#d4342c;}
   .mt-val{font-family:"IBM Plex Mono",monospace;font-size:24.2px;font-weight:700;color:var(--ink);margin-top:6px;line-height:1;}
   .mt-unit{font-size:11px;color:var(--ink-3);font-weight:500;margin-left:3px;}
+  .mt-pair{font-family:"IBM Plex Mono",monospace;font-size:15px;font-weight:700;color:var(--ink);margin-top:6px;line-height:1.6;white-space:nowrap;}
+  .mt-tag{font-family:"Anuphan","Noto Sans","Noto Sans Thai",sans-serif;font-size:9px;font-weight:700;color:var(--ink-3);background:var(--surface-2);border-radius:3px;padding:1px 4px;margin-right:4px;vertical-align:middle;}
+  .mt-pair .mt-tag+.mt-tag{margin-left:8px;}
+  .mon-tile.sel .mt-pair{color:#fff;}
+  .mon-tile.sel .mt-tag{color:#9FB4CE;background:rgba(255,255,255,.1);}
   .mt-row3{display:flex;align-items:flex-end;justify-content:space-between;gap:8px;margin-top:9px;}
   .mt-sub{font-size:11.55px;color:var(--ink-2);font-family:"IBM Plex Mono",monospace;white-space:nowrap;}
   .mt-sub .up{color:#d4342c;}.mt-sub .down{color:#12a150;}.mt-sub .flat{color:var(--ink-3);}
@@ -1542,9 +1547,19 @@
               <div class="mon-detail" id="chipDetail_screen" hidden></div>
             </div>
             <div class="mon-group">
-              <div class="mon-group-head"><span class="gi">🌲</span><span class="gt">Wood species</span><span class="gs">5 ค่า · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
-              <div class="mon-tiles" id="chipTiles_wood"></div>
-              <div class="mon-detail" id="chipDetail_wood" hidden></div>
+              <div class="mon-group-head"><span class="gi">🌲</span><span class="gt">Wood species Pulp mill 1</span><span class="gs">5 ค่า · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
+              <div class="mon-tiles" id="chipTiles_woodPm1"></div>
+              <div class="mon-detail" id="chipDetail_woodPm1" hidden></div>
+            </div>
+            <div class="mon-group">
+              <div class="mon-group-head"><span class="gi">🌲</span><span class="gt">Wood species Pulp mill 2</span><span class="gs">5 ค่า · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
+              <div class="mon-tiles" id="chipTiles_woodPm2"></div>
+              <div class="mon-detail" id="chipDetail_woodPm2" hidden></div>
+            </div>
+            <div class="mon-group">
+              <div class="mon-group-head"><span class="gi">🌲</span><span class="gt">Wood species Pulp mill 1 + Pulp mill 2</span><span class="gs">5 ค่า · คลิกที่บล็อกเพื่อดูประวัติ (แสดงข้อมูลทั้งสองโรงงานเทียบกัน)</span></div>
+              <div class="mon-tiles" id="chipTiles_woodTotal"></div>
+              <div class="mon-detail" id="chipDetail_woodTotal" hidden></div>
             </div>
             <div class="mon-group">
               <div class="mon-group-head"><span class="gi">🍲</span><span class="gt">Cooking Kappa</span><span class="gs">2 ค่า · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
@@ -5170,11 +5185,31 @@ const CHIP_MON_META = [
   {key:'overSize',       col:35, th:'Over size > 45.0 mm.',      unit:'%',     dec:2, pct01:true, grp:'screen', scored:true,  dir:'lower',  specHi:1.5},
   {key:'accPin',         col:36, th:'Acc 1+2+Pin  28.6–4.8 mm.', unit:'%',     dec:2, pct01:true, grp:'screen', scored:true,  dir:'higher', specLo:90},
   {key:'bark',           col:37, th:'Bark',                      unit:'%',     dec:2, pct01:true, grp:'screen', scored:true,  dir:'lower',  specHi:1},
-  {key:'woodK7',    col:54, th:'K7',       unit:'%', dec:1, pct01:true, grp:'wood', scored:false},
-  {key:'woodK58',   col:55, th:'K58',      unit:'%', dec:1, pct01:true, grp:'wood', scored:false},
-  {key:'woodSeed',  col:56, th:'Seed',     unit:'%', dec:1, pct01:true, grp:'wood', scored:false},
-  {key:'woodOther', col:57, th:'Other',    unit:'%', dec:1, pct01:true, grp:'wood', scored:false},
-  {key:'woodSt1m',  col:58, th:'St > 1 m', unit:'%', dec:1, pct01:true, grp:'wood', scored:false},
+  /* Wood species — sheet columns 54-58 (สายพันธุ์ไม้โรงเยื่อ 1 Actual) = Pulp mill 1's own mix, the
+     same keys the Yield Analysis table's "3. Effect Wood species" formula already reads by name
+     (YA_ROW_KEYS, yaWoodSpeciesBreakdown) — reordered here to K58,K7,Seed,Other,St>1m per the
+     monitor-tile display order requested, but the keys/columns themselves are unchanged so nothing
+     downstream in the Yield Analysis table needed touching. Columns 59-63 (สายพันธุ์ไม้โรงเยื่อ 2
+     Actual) are Pulp mill 2's own mix — new keys, only used by the monitor-tile system below. */
+  {key:'woodK58',   col:55, th:'K58',      unit:'%', dec:1, pct01:true, grp:'woodPm1', scored:false},
+  {key:'woodK7',    col:54, th:'K7',       unit:'%', dec:1, pct01:true, grp:'woodPm1', scored:false},
+  {key:'woodSeed',  col:56, th:'Seed',     unit:'%', dec:1, pct01:true, grp:'woodPm1', scored:false},
+  {key:'woodOther', col:57, th:'Other',    unit:'%', dec:1, pct01:true, grp:'woodPm1', scored:false},
+  {key:'woodSt1m',  col:58, th:'St > 1 m', unit:'%', dec:1, pct01:true, grp:'woodPm1', scored:false},
+  {key:'wood2K58',   col:60, th:'K58',      unit:'%', dec:1, pct01:true, grp:'woodPm2', scored:false},
+  {key:'wood2K7',    col:59, th:'K7',       unit:'%', dec:1, pct01:true, grp:'woodPm2', scored:false},
+  {key:'wood2Seed',  col:61, th:'Seed',     unit:'%', dec:1, pct01:true, grp:'woodPm2', scored:false},
+  {key:'wood2Other', col:62, th:'Other',    unit:'%', dec:1, pct01:true, grp:'woodPm2', scored:false},
+  {key:'wood2St1m',  col:63, th:'St > 1 m', unit:'%', dec:1, pct01:true, grp:'woodPm2', scored:false},
+  /* Combined view — same Pulp mill 1 columns as the primary bar (duplicate keys, not reused, same
+     pattern as the "Overview" group's ovw* keys) with a "pairKey" pointing at the matching Pulp
+     mill 2 metric: chipMonRenderTiles shows both numbers on the tile, chipMonDrawDetailChart
+     overlays both series on the same chart (generalizes the yieldBdt/yieldBalTank overlay). */
+  {key:'woodTotalK58',   col:55, th:'K58',      unit:'%', dec:1, pct01:true, grp:'woodTotal', scored:false, pairKey:'wood2K58',   pairLabel:'Pulp mill 2'},
+  {key:'woodTotalK7',    col:54, th:'K7',       unit:'%', dec:1, pct01:true, grp:'woodTotal', scored:false, pairKey:'wood2K7',    pairLabel:'Pulp mill 2'},
+  {key:'woodTotalSeed',  col:56, th:'Seed',     unit:'%', dec:1, pct01:true, grp:'woodTotal', scored:false, pairKey:'wood2Seed',  pairLabel:'Pulp mill 2'},
+  {key:'woodTotalOther', col:57, th:'Other',    unit:'%', dec:1, pct01:true, grp:'woodTotal', scored:false, pairKey:'wood2Other', pairLabel:'Pulp mill 2'},
+  {key:'woodTotalSt1m',  col:58, th:'St > 1 m', unit:'%', dec:1, pct01:true, grp:'woodTotal', scored:false, pairKey:'wood2St1m',  pairLabel:'Pulp mill 2'},
   {key:'kappaCook',    col:64, th:'Kappa cooking',                 unit:'',        dec:2, grp:'cook', scored:true,  dir:'band'},
   {key:'sdKappa',      col:65, th:'SD Kappa cooking',              unit:'',        dec:2, grp:'cook', scored:true,  dir:'lower'},
   {key:'kwReject',     col:67, th:'Knot + White reject',           unit:'kg',      dec:0, grp:'reject', scored:false, zeroIsMissing:true},
@@ -5191,7 +5226,9 @@ const CHIP_MON_GROUPS = [
   {id:'overview', ico:'📋', th:'ภาพรวม (Overview)', rail:'#455A64'},
   {id:'bulk',    ico:'⚙', th:'ค่าพื้นฐานของชิ้นไม้สับ', rail:'#7C4DFF'},
   {id:'screen',  ico:'🔻', th:'การกระจายขนาดชิ้นไม้สับ (Chip Screen)', rail:'#E0417A'},
-  {id:'wood',    ico:'🌲', th:'Wood species', rail:'#5B8C2A'},
+  {id:'woodPm1',   ico:'🌲', th:'Wood species Pulp mill 1', rail:'#5B8C2A'},
+  {id:'woodPm2',   ico:'🌲', th:'Wood species Pulp mill 2', rail:'#2A8C6E'},
+  {id:'woodTotal', ico:'🌲', th:'Wood species Pulp mill 1 + Pulp mill 2', rail:'#5B8C2A'},
   {id:'cook',    ico:'🍲', th:'Cooking Kappa', rail:'#0E7C86'},
   {id:'reject',  ico:'🧹', th:'Knot / White reject', rail:'#C9A227'},
   {id:'endprod', ico:'📊', th:'End Production / Diff. prod. balance wetlap', rail:'#B25C00'},
@@ -6148,9 +6185,18 @@ function chipMonRenderTiles(grp){
         dot = ad <= 2 ? 'ok' : ad <= 3 ? 'warn' : 'bad';
       }
     }
+    // "combined" tiles (m.pairKey set, e.g. Wood species Pulp mill 1 + Pulp mill 2) show a second
+    // mill's value alongside the primary one — chipMonDrawDetailChart overlays both series too.
+    let pairHtml = '';
+    if(m.pairKey){
+      const pm = CHIP_MON_META.find(x=> x.key===m.pairKey);
+      const pa = pm ? chipMonAnalyse(m.pairKey, pm) : null;
+      const pval = pa ? chipMonFmt(pa.anchor.v, pm.dec) : '—';
+      pairHtml = `<div class="mt-pair"><span class="mt-tag">PM1</span>${val}${m.unit} <span class="mt-tag">PM2</span>${pval}${pm ? pm.unit : m.unit}</div>`;
+    }
     return `<div class="mon-tile" role="button" tabindex="0" data-grp="${grp.id}" data-key="${m.key}" style="--mon-rail:${grp.rail}">
       <div class="mt-top"><span class="mt-ico">${grp.ico}</span><span class="mt-name">${m.th}</span><span class="mt-dot ${dot}"></span></div>
-      <div class="mt-val">${val}<span class="mt-unit">${m.unit}</span></div>
+      ${pairHtml || `<div class="mt-val">${val}<span class="mt-unit">${m.unit}</span></div>`}
       <div class="mt-row3"><span class="mt-sub">${sub}</span><span class="mt-spark-wrap"><canvas class="mt-spark" id="chipSpark_${m.key}"></canvas><i class="spark-live" id="chipLive_${m.key}" hidden></i></span></div>
     </div>`;
   }).join('');
@@ -6374,20 +6420,25 @@ function chipMonDrawDetailChart(grpId, m, a, tgt){
   const vals = rows.map(x=> x.v);
   const c = { ink2:cssVar('--ink-2'), grid:cssVar('--grid'), surface:cssVar('--surface'), border:cssVar('--border'), ink:cssVar('--ink') };
   const EN = currentLang==='en';
-  const actualLbl = EN ? 'Actual' : 'ข้อมูลเกิดจริง';
+  const actualLbl = m.pairKey ? 'Pulp mill 1' : (EN ? 'Actual' : 'ข้อมูลเกิดจริง');
   const balTankLbl = 'Yield Balance Tank', balTankCol = '#F0932B';
 
-  // Yield (BDt/ADt) tile also overlays its companion Yield Balance Tank series, in the same chart
-  const yieldExtra = m.key==='yieldBdt' ? (()=> {
-    const byTs = new Map((CHIP_MON_SERIES.yieldBalTank||[]).map(x=> [x.ts, x.v]));
+  // Yield (BDt/ADt) tile overlays its companion Yield Balance Tank series; any tile with a
+  // "pairKey" (e.g. Wood species Pulp mill 1 + Pulp mill 2) overlays its companion metric the
+  // same way — both share this one mechanism instead of two separate special cases.
+  const pairSeriesKey = m.key==='yieldBdt' ? 'yieldBalTank' : m.pairKey;
+  const pairLbl = m.key==='yieldBdt' ? balTankLbl : (m.pairLabel || '');
+  const pairCol = m.key==='yieldBdt' ? balTankCol : (m.pairColor || '#F0932B');
+  const yieldExtra = pairSeriesKey ? (()=> {
+    const byTs = new Map((CHIP_MON_SERIES[pairSeriesKey]||[]).map(x=> [x.ts, x.v]));
     return rows.map(x=> byTs.has(x.ts) ? byTs.get(x.ts) : null);
   })() : null;
 
   const flat = (v, col, lab) => ({ type:'line', label:lab, data:labels.map(()=> v), borderColor:col, borderWidth:1.6,
     borderDash:[7,3], pointRadius:0, fill:false, tension:0, order:5, datalabels:{display:false} });
   const refs = [];
-  if(yieldExtra) refs.push({ type:'line', label:balTankLbl, data:yieldExtra, borderColor:balTankCol, backgroundColor:balTankCol,
-    borderWidth:1.8, pointRadius:2, pointBackgroundColor:balTankCol, tension:.25, fill:false, spanGaps:true, order:1, datalabels:{display:false} });
+  if(yieldExtra) refs.push({ type:'line', label:pairLbl, data:yieldExtra, borderColor:pairCol, backgroundColor:pairCol,
+    borderWidth:1.8, pointRadius:2, pointBackgroundColor:pairCol, tension:.25, fill:false, spanGaps:true, order:1, datalabels:{display:false} });
   if(tgt.lo!=null) refs.push(flat(tgt.lo, '#12a150', `Target Low ${tgt.lo}`));
   if(tgt.hi!=null) refs.push(flat(tgt.hi, '#d4342c', `Target High ${tgt.hi}`));
 
@@ -6432,7 +6483,7 @@ function chipMonDrawDetailChart(grpId, m, a, tgt){
   const leg = document.getElementById('chipDetailLegend_'+grpId);
   if(leg){
     const items = [`<span class="item"><span class="box" style="background:${grp.rail}"></span>${actualLbl}</span>`];
-    if(yieldExtra) items.push(`<span class="item"><span class="box" style="background:${balTankCol}"></span>${balTankLbl}</span>`);
+    if(yieldExtra) items.push(`<span class="item"><span class="box" style="background:${pairCol}"></span>${pairLbl}</span>`);
     if(tgt.lo!=null) items.push(`<span class="item"><span class="sw dashed" style="border-color:#12a150"></span>Target Low ${tgt.lo}</span>`);
     if(tgt.hi!=null) items.push(`<span class="item"><span class="sw dashed" style="border-color:#d4342c"></span>Target High ${tgt.hi}</span>`);
     leg.innerHTML = items.join('');
