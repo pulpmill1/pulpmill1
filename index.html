@@ -1434,7 +1434,7 @@
                     </tr>
                   </thead>
                   <tbody>
-                    <tr class="ya-major" data-ya-group="g0"><td class="ya-label"><span class="yc">▾</span>Actual Yield</td><td class="ya-unit">Bdt/Adt</td><td class="num" id="yaCell_yieldBdt_prev"></td><td class="num" id="yaCell_yieldBdt_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-major" data-ya-group="g0"><td class="ya-label"><span class="yc">▾</span>Actual Yield</td><td class="ya-unit">Bdt/Adt</td><td class="num" id="yaCell_yieldBdt_prev"></td><td class="num" id="yaCell_yieldBdt_cur"></td><td class="num" id="yaCell_yieldBdt_diffbdt"></td><td class="num" id="yaCell_yieldBdt_diffpct"></td><td class="ya-remark"></td></tr>
                     <tr class="ya-sub" data-ya-in="g0"><td class="ya-label">- Chip (Weight scale)</td><td class="ya-unit">BDt/day</td><td class="num" id="yaCell_chipWeightScale_prev"></td><td class="num" id="yaCell_chipWeightScale_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
                     <tr class="ya-sub" data-ya-in="g0"><td class="ya-label">- Chip (Weight scale หักลบเฉ่งกอง)</td><td class="ya-unit">BDt/day</td><td class="num" id="yaCell_chipWeightScaleNet_prev"></td><td class="num" id="yaCell_chipWeightScaleNet_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
                     <tr class="ya-sub" data-ya-in="g0"><td class="ya-label">- End. Prod.</td><td class="ya-unit">Adt/day</td><td class="num" id="yaCell_endProd_prev"></td><td class="num" id="yaCell_endProd_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
@@ -5634,7 +5634,7 @@ function renderYaEffectSulphidityDiff(){
   const diffPctEl = document.getElementById('yaCell_effSulphidity_diffpct');
   const sPrev = yaPickValue('sulphidity', YA_STATE.prev.mode, YA_STATE.prev.value);
   const sCur = yaPickValue('sulphidity', YA_STATE.cur.mode, YA_STATE.cur.value);
-  const diff = (sPrev!=null && sCur!=null) ? -(sCur - sPrev) : null;
+  const diff = (sPrev!=null && sCur!=null) ? -(sCur - sPrev)*0.008 : null;
   const yieldPrev = yaPickValue('yieldBdt', YA_STATE.prev.mode, YA_STATE.prev.value);
   const pct = (diff!=null && yieldPrev) ? (diff/yieldPrev*100) : null;
   diffBdtEl.textContent = diff==null ? '—' : chipMonFmt(diff, 3);
@@ -5668,6 +5668,7 @@ function renderYieldAnalysisTable(){
   yaRenderSimpleDiff(yaEffectDiffBalanceValue, 'yaCell_effDiffBalance_diffbdt', 'yaCell_effDiffBalance_diffpct');
   yaRenderSimpleDiff(yaEffectTankBuildupValue, 'yaCell_effTankBuildup_diffbdt', 'yaCell_effTankBuildup_diffpct');
   yaRenderSimpleDiff(function(w){ return yaEffectWasteChain(w).effWaste; }, 'yaCell_effWaste_diffbdt', 'yaCell_effWaste_diffpct');
+  yaRenderSimpleDiff(function(w){ return yaPickValue('yieldBdt', YA_STATE[w].mode, YA_STATE[w].value); }, 'yaCell_yieldBdt_diffbdt', 'yaCell_yieldBdt_diffpct');
 }
 function yaApplyMode(which){
   const Suffix = which==='prev' ? 'Prev' : 'Cur';
@@ -5692,6 +5693,7 @@ function yaApplyMode(which){
   yaRenderSimpleDiff(yaEffectDiffBalanceValue, 'yaCell_effDiffBalance_diffbdt', 'yaCell_effDiffBalance_diffpct');
   yaRenderSimpleDiff(yaEffectTankBuildupValue, 'yaCell_effTankBuildup_diffbdt', 'yaCell_effTankBuildup_diffpct');
   yaRenderSimpleDiff(function(w){ return yaEffectWasteChain(w).effWaste; }, 'yaCell_effWaste_diffbdt', 'yaCell_effWaste_diffpct');
+  yaRenderSimpleDiff(function(w){ return yaPickValue('yieldBdt', YA_STATE[w].mode, YA_STATE[w].value); }, 'yaCell_yieldBdt_diffbdt', 'yaCell_yieldBdt_diffpct');
 }
 function initYieldAnalysisControls(){
   const modePrev = document.getElementById('yaModePrev');
