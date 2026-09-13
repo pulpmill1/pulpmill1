@@ -5503,7 +5503,22 @@ function yaEffectWasteChain(which){
    excludes kwRejectAdt (kg/ADt, a ratio) even though it shares a label with kwReject (kg) in the
    table — summing a per-ADt rate across days has no physical meaning, only its own kg total does. */
 const YA_SUM_KEYS = new Set(['chipWeightScale','chipWeightScaleNet','endProd','endProdBal','noOfCooks','kwReject','volEtp']);
+/* "Yield Actual" (คอลัมภ์ 3/4 ของแถว Yield Actual) is no longer read straight from the sheet's
+   own Yield column — it's computed as Chip (Weight scale หักลบเฉ่งกอง) ÷ End Prod., using End
+   Prod. balance tank instead only when the selected range is a single day (mode 'date'). Both
+   inputs are in YA_SUM_KEYS, so for month/year this naturally divides the PERIOD TOTALS (not an
+   average of daily ratios) since yaPickValue already sums them for those modes. Special-cased
+   inside yaPickValue itself (rather than only in the table-cell renderer) so every other place
+   that calls yaPickValue('yieldBdt', ...) — the Diff. Effect column, every Effect row's % base,
+   the executive summary, the residual "Unknow" calc — stays consistent with what column 3/4
+   display. */
+function yaYieldActualValue(mode, value){
+  const w = yaPickValue('chipWeightScaleNet', mode, value);
+  const ep = mode === 'date' ? yaPickValue('endProdBal', mode, value) : yaPickValue('endProd', mode, value);
+  return (w!=null && ep!=null && ep!==0) ? (w/ep) : null;
+}
 function yaPickValue(key, mode, value){
+  if(key === 'yieldBdt') return yaYieldActualValue(mode, value);
   const s = CHIP_MON_SERIES[key];
   if(!s || !s.length || !value) return null;
   if(mode==='date'){
