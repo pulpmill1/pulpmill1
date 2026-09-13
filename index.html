@@ -710,7 +710,7 @@
         </button>
         <div class="nav-children">
           <button class="nav-item" data-page="yield"><span class="nav-label" data-i18n-nav="navYield">Yield</span></button>
-          <button class="nav-item" data-page="yield-weightscale"><span class="nav-label" data-i18n-nav="navYieldWeightScale">Weight Scale Digester</span></button>
+          <button class="nav-item" data-page="yield-weightscale"><span class="nav-label" data-i18n-nav="navYieldWeightScale">Weight scale digester</span></button>
         </div>
       </div>
       <div class="nav-group" data-group="cost">
@@ -719,20 +719,25 @@
           <span class="chev">▸</span>
         </button>
         <div class="nav-children">
-          <button class="nav-item" data-page="cost-bu21"><span class="nav-label" data-i18n-nav="navCostBu21">BU21 Cost</span></button>
-          <button class="nav-item" data-page="cost-productive"><span class="nav-label" data-i18n-nav="navCostProductive">Productive Cost</span></button>
+          <button class="nav-item" data-page="cost-bu21"><span class="nav-label" data-i18n-nav="navCostBu21">Bu21 cost</span></button>
+          <button class="nav-item" data-page="cost-productive"><span class="nav-label" data-i18n-nav="navCostProductive">Productive cost</span></button>
+          <button class="nav-item" data-page="cost-unitconsumption"><span class="nav-label" data-i18n-nav="navCostUnitConsumption">Unit consumption</span></button>
         </div>
       </div>
-      <div class="nav-group" data-group="quality">
-        <button class="nav-parent" data-toggle="quality">
-          <span style="display:flex; align-items:center; min-width:0;"><span class="nav-ico">🧪</span><span class="nav-label" data-i18n-nav="navQuality">Quality</span></span>
+      <div class="nav-group" data-group="process-area">
+        <button class="nav-parent" data-toggle="process-area">
+          <span style="display:flex; align-items:center; min-width:0;"><span class="nav-ico">🏗</span><span class="nav-label" data-i18n-nav="navProcessArea">Process area</span></span>
           <span class="chev">▸</span>
         </button>
         <div class="nav-children">
-          <button class="nav-item" data-page="quality-lab"><span class="nav-label" data-i18n-nav="navQualityLab">Lab Results</span></button>
-          <button class="nav-item" data-page="quality-opt"><span class="nav-label" data-i18n-nav="navQualityOpt">OPT Tuning Results</span></button>
+          <button class="nav-item" data-page="process-rawmaterial"><span class="nav-label" data-i18n-nav="navProcessRawMaterial">Raw material</span></button>
+          <button class="nav-item" data-page="process-cooking"><span class="nav-label" data-i18n-nav="navProcessCooking">Cooking</span></button>
+          <button class="nav-item" data-page="process-brownstock"><span class="nav-label" data-i18n-nav="navProcessBrownStock">Brown stock</span></button>
+          <button class="nav-item" data-page="process-bleaching"><span class="nav-label" data-i18n-nav="navProcessBleaching">Bleaching</span></button>
+          <button class="nav-item" data-page="process-qualitytopm"><span class="nav-label" data-i18n-nav="navProcessQualityToPm">Quality to pm</span></button>
         </div>
       </div>
+      <button class="nav-item" data-page="loss-production"><span style="display:flex; align-items:center; min-width:0;"><span class="nav-ico">📉</span><span class="nav-label" data-i18n-nav="navLossProduction">Loss production</span></span></button>
     </nav>
     <div class="sidebar-foot">
       <a class="nav-source-link" href="https://docs.google.com/spreadsheets/d/1dStWwliEd6YhSOL3oT8JNyWHZOuII5F-QVeubIrBS50/edit" target="_blank" rel="noopener noreferrer" title="เปิด Google Sheet ต้นทางที่ Dashboard นี้ดึงข้อมูลมา">
@@ -1592,19 +1597,59 @@
           </div>
         </section>
 
-        <section class="page" data-page="quality-lab" hidden>
+        <section class="page" data-page="cost-unitconsumption" hidden>
           <div class="empty-state">
-            <div class="icon">🧪</div>
-            <h2>Lab Results Dashboard</h2>
-            <p>หน้านี้ยังไม่มีข้อมูล — รอเชื่อมต่อแหล่งข้อมูลผลตรวจ Lab รายวัน/รายกะจาก Google Sheets<br>แจ้งลิงก์ชีทและชื่อแท็บที่ต้องการดึงข้อมูลได้เลยครับ</p>
+            <div class="icon">🔌</div>
+            <h2>Unit Consumption Dashboard</h2>
+            <p>หน้านี้ยังไม่มีข้อมูล — รอเชื่อมต่อแหล่งข้อมูล Unit Consumption จาก Google Sheets<br>แจ้งลิงก์ชีทและชื่อแท็บที่ต้องการดึงข้อมูลได้เลยครับ</p>
           </div>
         </section>
 
-        <section class="page" data-page="quality-opt" hidden>
+        <section class="page" data-page="process-rawmaterial" hidden>
           <div class="empty-state">
-            <div class="icon">⚙️</div>
-            <h2>OPT Tuning Results Dashboard</h2>
-            <p>หน้านี้ยังไม่มีข้อมูล — รอเชื่อมต่อแหล่งข้อมูลผล OPT Tuning จาก Google Sheets<br>แจ้งลิงก์ชีทและชื่อแท็บที่ต้องการดึงข้อมูลได้เลยครับ</p>
+            <div class="icon">🪵</div>
+            <h2>Raw Material Dashboard</h2>
+            <p>หน้านี้ยังไม่มีข้อมูล — รอเชื่อมต่อแหล่งข้อมูล Raw Material จาก Google Sheets<br>แจ้งลิงก์ชีทและชื่อแท็บที่ต้องการดึงข้อมูลได้เลยครับ</p>
+          </div>
+        </section>
+
+        <section class="page" data-page="process-cooking" hidden>
+          <div class="empty-state">
+            <div class="icon">🍲</div>
+            <h2>Cooking Dashboard</h2>
+            <p>หน้านี้ยังไม่มีข้อมูล — รอเชื่อมต่อแหล่งข้อมูล Cooking จาก Google Sheets<br>แจ้งลิงก์ชีทและชื่อแท็บที่ต้องการดึงข้อมูลได้เลยครับ</p>
+          </div>
+        </section>
+
+        <section class="page" data-page="process-brownstock" hidden>
+          <div class="empty-state">
+            <div class="icon">🟤</div>
+            <h2>Brown Stock Dashboard</h2>
+            <p>หน้านี้ยังไม่มีข้อมูล — รอเชื่อมต่อแหล่งข้อมูล Brown Stock จาก Google Sheets<br>แจ้งลิงก์ชีทและชื่อแท็บที่ต้องการดึงข้อมูลได้เลยครับ</p>
+          </div>
+        </section>
+
+        <section class="page" data-page="process-bleaching" hidden>
+          <div class="empty-state">
+            <div class="icon">🧴</div>
+            <h2>Bleaching Dashboard</h2>
+            <p>หน้านี้ยังไม่มีข้อมูล — รอเชื่อมต่อแหล่งข้อมูล Bleaching จาก Google Sheets<br>แจ้งลิงก์ชีทและชื่อแท็บที่ต้องการดึงข้อมูลได้เลยครับ</p>
+          </div>
+        </section>
+
+        <section class="page" data-page="process-qualitytopm" hidden>
+          <div class="empty-state">
+            <div class="icon">🧪</div>
+            <h2>Quality to PM Dashboard</h2>
+            <p>หน้านี้ยังไม่มีข้อมูล — รอเชื่อมต่อแหล่งข้อมูล Quality to PM จาก Google Sheets<br>แจ้งลิงก์ชีทและชื่อแท็บที่ต้องการดึงข้อมูลได้เลยครับ</p>
+          </div>
+        </section>
+
+        <section class="page" data-page="loss-production" hidden>
+          <div class="empty-state">
+            <div class="icon">📉</div>
+            <h2>Loss Production Dashboard</h2>
+            <p>หน้านี้ยังไม่มีข้อมูล — รอเชื่อมต่อแหล่งข้อมูล Loss Production จาก Google Sheets<br>แจ้งลิงก์ชีทและชื่อแท็บที่ต้องการดึงข้อมูลได้เลยครับ</p>
           </div>
         </section>
 
@@ -4278,17 +4323,23 @@ const PAGE_META = {
   'production-pm2':{th:'Pulp mill 2', en:'Pulp mill 2', hasData:true},
   'production-pm12':{th:'Pulp mill 1+2', en:'Pulp mill 1+2', hasData:true},
   yield:{th:'Yield', en:'Yield', hasData:true},
-  'yield-weightscale':{th:'Weight Scale Digester', en:'Weight Scale Digester', hasData:false},
-  'cost-bu21':{th:'BU21 Cost', en:'BU21 Cost', hasData:false},
-  'cost-productive':{th:'Productive Cost', en:'Productive Cost', hasData:false},
-  'quality-lab':{th:'Lab Results', en:'Lab Results', hasData:false},
-  'quality-opt':{th:'OPT Tuning Results', en:'OPT Tuning Results', hasData:false},
+  'yield-weightscale':{th:'Weight scale digester', en:'Weight scale digester', hasData:false},
+  'cost-bu21':{th:'Bu21 cost', en:'Bu21 cost', hasData:false},
+  'cost-productive':{th:'Productive cost', en:'Productive cost', hasData:false},
+  'cost-unitconsumption':{th:'Unit consumption', en:'Unit consumption', hasData:false},
+  'process-rawmaterial':{th:'Raw material', en:'Raw material', hasData:false},
+  'process-cooking':{th:'Cooking', en:'Cooking', hasData:false},
+  'process-brownstock':{th:'Brown stock', en:'Brown stock', hasData:false},
+  'process-bleaching':{th:'Bleaching', en:'Bleaching', hasData:false},
+  'process-qualitytopm':{th:'Quality to pm', en:'Quality to pm', hasData:false},
+  'loss-production':{th:'Loss production', en:'Loss production', hasData:false},
 };
 
 const I18N = {
   th:{
-    navProduction:'Production', navProductionPm1:'Pulp mill 1', navProductionPm2:'Pulp mill 2', navProductionPm12:'Pulp mill 1+2', navYield:'Yield', navYieldWeightScale:'Weight Scale Digester', navCost:'Cost', navCostBu21:'BU21 Cost', navCostProductive:'Productive Cost',
-    navQuality:'Quality', navQualityLab:'Lab Results', navQualityOpt:'OPT Tuning Results',
+    navProduction:'Production', navProductionPm1:'Pulp mill 1', navProductionPm2:'Pulp mill 2', navProductionPm12:'Pulp mill 1+2', navYield:'Yield', navYieldWeightScale:'Weight scale digester', navCost:'Cost', navCostBu21:'Bu21 cost', navCostProductive:'Productive cost', navCostUnitConsumption:'Unit consumption',
+    navProcessArea:'Process area', navProcessRawMaterial:'Raw material', navProcessCooking:'Cooking', navProcessBrownStock:'Brown stock', navProcessBleaching:'Bleaching', navProcessQualityToPm:'Quality to pm',
+    navLossProduction:'Loss production',
     searchPlaceholder:'ค้นหา KPI (Search metrics)',
     lastDataAt:'ข้อมูลล่าสุด ณ', noDataYet:'ยังไม่เชื่อมต่อแหล่งข้อมูล',
     refreshTitle:'รีเฟรชข้อมูลล่าสุด (โหลดหน้าใหม่ — ดึงข้อมูลสดจาก Google Sheets ทันที)',
@@ -4305,8 +4356,9 @@ const I18N = {
     avg7Label:'ค่าเฉลี่ย 7 วันย้อนหลัง (Adt/day)', daysUnit:'วัน',
   },
   en:{
-    navProduction:'Production', navProductionPm1:'Pulp mill 1', navProductionPm2:'Pulp mill 2', navProductionPm12:'Pulp mill 1+2', navYield:'Yield', navYieldWeightScale:'Weight Scale Digester', navCost:'Cost', navCostBu21:'BU21 Cost', navCostProductive:'Productive Cost',
-    navQuality:'Quality', navQualityLab:'Lab Results', navQualityOpt:'OPT Tuning Results',
+    navProduction:'Production', navProductionPm1:'Pulp mill 1', navProductionPm2:'Pulp mill 2', navProductionPm12:'Pulp mill 1+2', navYield:'Yield', navYieldWeightScale:'Weight scale digester', navCost:'Cost', navCostBu21:'Bu21 cost', navCostProductive:'Productive cost', navCostUnitConsumption:'Unit consumption',
+    navProcessArea:'Process area', navProcessRawMaterial:'Raw material', navProcessCooking:'Cooking', navProcessBrownStock:'Brown stock', navProcessBleaching:'Bleaching', navProcessQualityToPm:'Quality to pm',
+    navLossProduction:'Loss production',
     searchPlaceholder:'Search metrics',
     lastDataAt:'Latest data as of', noDataYet:'No data source connected yet',
     refreshTitle:'Refresh latest data (reloads the page — fetches live data directly from Google Sheets)',
