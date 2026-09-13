@@ -1598,10 +1598,15 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.5.1/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
 <script>
+/* Pages are shown/hidden in place (no real navigation), so the browser's own scroll-position
+   restoration on reload would otherwise leave the very first paint mid-scroll — disable it and
+   let showPage() below own the scroll position instead. */
+if('scrollRestoration' in history) history.scrollRestoration = 'manual';
 /* ===================== sidebar navigation (SPA-style page switching) ===================== */
 let currentPageId = 'production-pm1';
 function showPage(pageId){
   currentPageId = pageId;
+  window.scrollTo(0, 0);
   document.querySelectorAll('.page').forEach(sec=>{ sec.hidden = sec.dataset.page !== pageId; });
   document.querySelectorAll('.nav-item[data-page]').forEach(btn=>{
     btn.classList.toggle('active', btn.dataset.page === pageId);
