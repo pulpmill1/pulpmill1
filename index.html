@@ -624,6 +624,15 @@
   table.ya-table tr.ya-sub td.ya-remark,table.ya-table tr.ya-sub2 td.ya-remark,table.ya-table tr.ya-sub3 td.ya-remark{font-weight:300;color:var(--ink-3);}
   table.ya-table .tr-bad{color:#d4342c;}
   table.ya-table .tr-good{color:#12a150;}
+  .ya-summary{margin-bottom:14px;font-size:12px;color:var(--ink-2);}
+  .ya-summary .rn-head{font-weight:700;color:var(--ink);margin-bottom:6px;}
+  .ya-summary .ys-body{font-weight:300;line-height:1.9;}
+  .ya-summary .ys-pos{color:#12a150;font-weight:600;}
+  .ya-summary .ys-neg{color:#d4342c;font-weight:600;}
+  .ya-summary .ys-top{margin-bottom:6px;}
+  .ya-summary .ys-group{font-weight:500;color:var(--ink);margin-top:4px;}
+  .ya-summary .ys-item{padding-left:16px;}
+  .ya-summary .ys-sub{padding-left:32px;display:block;font-size:11px;}
   .ya-refnote{margin-top:10px;font-size:12px;color:var(--ink-2);}
   .ya-refnote .rn-head{font-weight:700;color:var(--ink);margin-bottom:4px;}
   .ya-refnote ol{margin:0;padding-left:18px;font-weight:300;}
@@ -1415,6 +1424,10 @@
                   <input type="month" id="yaMonthCur">
                   <select id="yaYearCur" hidden></select>
                 </div>
+              </div>
+              <div class="ya-summary" id="yaSummary" hidden>
+                <div class="rn-head">สรุปข้อมูลวิเคราะห์ Yield เปรียบเทียบโรงเยื่อ 1</div>
+                <div class="ys-body" id="yaSummaryBody"></div>
               </div>
               <div class="ya-wrap">
                 <table class="ya-table">
@@ -5578,6 +5591,17 @@ function renderYaEffectWoodSpecies(){
   if(!remarkEl) return;
   const prefix = yaTrendPrefix(diff);
   if(prefix==null || pct==null){ remarkEl.innerHTML = ''; return; }
+  const bd = yaWoodSpeciesBreakdown();
+  let html = prefix+'Effect Wood species '+chipMonFmt(diff,3)+' Bdt/Adt, '+chipMonFmt(pct,2)+' %';
+  const worseLine = bd.worse.length ? ('<br>- แย่ลงจาก Wood species '+bd.worse.join(', ')) : '';
+  const betterLine = bd.better.length ? ('<br>- ดีขึ้นจาก Wood species '+bd.better.join(', ')) : '';
+  // whichever direction matches the overall "Yield แย่ลง/ดีขึ้น" summary above is listed first
+  html += diff < 0 ? (betterLine + worseLine) : (worseLine + betterLine);
+  remarkEl.innerHTML = html;
+}
+/* Shared with the top-of-table summary (renderYaSummary), which nests these same two lines under
+   its own "Wood species" entry. */
+function yaWoodSpeciesBreakdown(){
   const worse = [], better = [];
   YA_WOOD_SPECIES.forEach(function(sp){
     const p = yaPickValue(sp.key, YA_STATE.prev.mode, YA_STATE.prev.value);
@@ -5589,12 +5613,7 @@ function renderYaEffectWoodSpecies(){
     const worsened = sp.worseWhenUp ? (d > 0) : (d < 0);
     if(worsened) worse.push(entry); else better.push(entry);
   });
-  let html = prefix+'Effect Wood species '+chipMonFmt(diff,3)+' Bdt/Adt, '+chipMonFmt(pct,2)+' %';
-  const worseLine = worse.length ? ('<br>- แย่ลงจาก Wood species '+worse.join(', ')) : '';
-  const betterLine = better.length ? ('<br>- ดีขึ้นจาก Wood species '+better.join(', ')) : '';
-  // whichever direction matches the overall "Yield แย่ลง/ดีขึ้น" summary above is listed first
-  html += diff < 0 ? (betterLine + worseLine) : (worseLine + betterLine);
-  remarkEl.innerHTML = html;
+  return { worse: worse, better: better };
 }
 /* "5. Effect Bark" major row — unlike Effect Chip moisture / Effect Wood species, this one has no
    meaningful single-period base value (Bark's own row already shows the raw % per period below),
@@ -5734,6 +5753,74 @@ function renderYaEffectUnknown(){
   const pct = yieldPrev ? (sum/yieldPrev*100) : null;
   yaSetDiffCell(diffPctEl, pct, 2);
 }
+/* Executive-style prose summary above the table, condensing the same numbers already rendered in
+   the "Diff. Effect" columns. Deliberately re-reads each contributing row's ALREADY-RENDERED col5/6
+   text (yaReadDiffNum, same approach as "11. Unknow") rather than recomputing, so it always
+   reconciles exactly with what's on screen — must run after every other diff render in the pass.
+   NOTE the color convention here is the OPPOSITE of the table's own arrows (positive Bdt/Adt = a
+   WORSE Yield effect there, shown red/↑) — this box was explicitly specified with positive=green,
+   negative=red, a plain sign-based rule unrelated to "good/bad", so don't "fix" it to match. */
+const YA_SUMMARY_EFFECTS = [
+  {name:'Chip moisture', diffId:'yaCell_effMoisture_diffbdt', pctId:'yaCell_effMoisture_diffpct'},
+  {name:'Wood species', diffId:'yaCell_effWood_diffbdt', pctId:'yaCell_effWood_diffpct', extra:true},
+  {name:'Chip size', diffId:'yaCell_effChipSize_diffbdt', pctId:'yaCell_effChipSize_diffpct'},
+  {name:'Bark', diffId:'yaCell_effBark_diffbdt', pctId:'yaCell_effBark_diffpct'},
+  {name:'Kappa no.', diffId:'yaCell_effKappa_diffbdt', pctId:'yaCell_effKappa_diffpct'},
+  {name:'Sulphidity', diffId:'yaCell_effSulphidity_diffbdt', pctId:'yaCell_effSulphidity_diffpct'},
+  {name:'Diff. prod. balance', diffId:'yaCell_effDiffBalance_diffbdt', pctId:'yaCell_effDiffBalance_diffpct'},
+  {name:'Pulp accumulate in tank', diffId:'yaCell_effTankBuildup_diffbdt', pctId:'yaCell_effTankBuildup_diffpct'},
+  {name:'Waste', diffId:'yaCell_effWaste_diffbdt', pctId:'yaCell_effWaste_diffpct'},
+];
+function yaSummaryNum(v, dec){
+  if(v==null) return '—';
+  const txt = chipMonFmt(v, dec);
+  if(v>0) return '<span class="ys-pos">'+txt+'</span>';
+  if(v<0) return '<span class="ys-neg">'+txt+'</span>';
+  return txt;
+}
+function renderYaSummary(){
+  const box = document.getElementById('yaSummary');
+  const body = document.getElementById('yaSummaryBody');
+  if(!box || !body) return;
+  const yieldPrevEl = document.getElementById('yaCell_yieldBdt_prev');
+  if(!yieldPrevEl){ box.hidden = true; return; }
+  const yieldDiff = yaReadDiffNum('yaCell_yieldBdt_diffbdt');
+  const yieldPct = yaReadDiffNum('yaCell_yieldBdt_diffpct');
+  if(document.getElementById('yaCell_yieldBdt_diffbdt').textContent === '—'){ box.hidden = true; return; }
+  box.hidden = false;
+  const curLabel = yaHeaderLabel(YA_STATE.cur);
+  const prevLabel = yaHeaderLabel(YA_STATE.prev);
+  const trendWord = yieldDiff > 0 ? 'แย่ลง' : yieldDiff < 0 ? 'ดีขึ้น' : '';
+  let html = '<div class="ys-top">&gt;&gt; Yield Actual '+curLabel+' เทียบ '+prevLabel+' '+trendWord+
+    ' ('+yaSummaryNum(yieldDiff,3)+' Bdt/Adt, '+yaSummaryNum(yieldPct,2)+'%)</div>';
+  const items = YA_SUMMARY_EFFECTS.map(function(e){
+    const el = document.getElementById(e.diffId);
+    if(!el) return null;
+    const d = yaReadDiffNum(e.diffId);
+    if(d === 0) return null;
+    const p = yaReadDiffNum(e.pctId);
+    return { name:e.name, d:d, p:p, extra:e.extra };
+  }).filter(Boolean);
+  const worseItems = items.filter(function(it){ return it.d > 0; }).sort(function(a,b){ return Math.abs(b.d)-Math.abs(a.d); });
+  const betterItems = items.filter(function(it){ return it.d < 0; }).sort(function(a,b){ return Math.abs(b.d)-Math.abs(a.d); });
+  function itemLine(it){
+    let line = '<div class="ys-item">- '+it.name+' ('+yaSummaryNum(it.d,3)+' Bdt/Adt, '+yaSummaryNum(it.p,2)+'%)</div>';
+    if(it.extra){
+      const bd = yaWoodSpeciesBreakdown();
+      if(bd.worse.length) line += '<div class="ys-sub">แย่ลงจาก Wood species '+bd.worse.join(', ')+'</div>';
+      if(bd.better.length) line += '<div class="ys-sub">ดีขึ้นจาก Wood species '+bd.better.join(', ')+'</div>';
+    }
+    return line;
+  }
+  function groupHtml(heading, list){
+    if(!list.length) return '';
+    return '<div class="ys-group">* &gt;&gt; '+heading+'</div>'+list.map(itemLine).join('');
+  }
+  const worseGroup = groupHtml('Yield แย่ลงจาก', worseItems);
+  const betterGroup = groupHtml('Yield ดีขึ้นจาก', betterItems);
+  html += yieldDiff < 0 ? (betterGroup + worseGroup) : (worseGroup + betterGroup);
+  body.innerHTML = html;
+}
 function renderYieldAnalysisTable(){
   if(!document.getElementById('yaModePrev')) return;
   renderYieldAnalysisColumn('prev');
@@ -5749,6 +5836,7 @@ function renderYieldAnalysisTable(){
   yaRenderSimpleDiff(function(w){ return yaEffectWasteChain(w).effWaste; }, 'yaCell_effWaste_diffbdt', 'yaCell_effWaste_diffpct', 'Waste', 'yaCell_effWaste_remark');
   yaRenderSimpleDiff(function(w){ return yaPickValue('yieldBdt', YA_STATE[w].mode, YA_STATE[w].value); }, 'yaCell_yieldBdt_diffbdt', 'yaCell_yieldBdt_diffpct');
   renderYaEffectUnknown();
+  renderYaSummary();
 }
 function yaApplyMode(which){
   const Suffix = which==='prev' ? 'Prev' : 'Cur';
@@ -5775,6 +5863,7 @@ function yaApplyMode(which){
   yaRenderSimpleDiff(function(w){ return yaEffectWasteChain(w).effWaste; }, 'yaCell_effWaste_diffbdt', 'yaCell_effWaste_diffpct', 'Waste', 'yaCell_effWaste_remark');
   yaRenderSimpleDiff(function(w){ return yaPickValue('yieldBdt', YA_STATE[w].mode, YA_STATE[w].value); }, 'yaCell_yieldBdt_diffbdt', 'yaCell_yieldBdt_diffpct');
   renderYaEffectUnknown();
+  renderYaSummary();
 }
 function initYieldAnalysisControls(){
   const modePrev = document.getElementById('yaModePrev');
