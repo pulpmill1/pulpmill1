@@ -1456,7 +1456,7 @@
                     <tr class="ya-sub" data-ya-in="g4"><td class="ya-label">- Chip size 8-10 mm.</td><td class="ya-unit">%</td><td class="num" id="yaCell_chipSize810_prev"></td><td class="num" id="yaCell_chipSize810_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
                     <tr class="ya-major" data-ya-group="g5"><td class="ya-label"><span class="yc">▾</span>5. Effect Bark</td><td class="ya-unit">%</td><td class="num" id="yaCell_effBarkVal_prev"></td><td class="num" id="yaCell_effBarkVal_cur"></td><td class="num" id="yaCell_effBark_diffbdt"></td><td class="num" id="yaCell_effBark_diffpct"></td><td class="ya-remark" id="yaCell_effBark_remark"></td></tr>
                     <tr class="ya-sub" data-ya-in="g5"><td class="ya-label">- Bark</td><td class="ya-unit">%</td><td class="num" id="yaCell_bark_prev"></td><td class="num" id="yaCell_bark_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
-                    <tr class="ya-major" data-ya-group="g6"><td class="ya-label"><span class="yc">▾</span>6. Effect Kappa no.</td><td class="ya-unit">Bdt/Adt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-major" data-ya-group="g6"><td class="ya-label"><span class="yc">▾</span>6. Effect Kappa no.</td><td class="ya-unit">Bdt/Adt</td><td class="num" id="yaCell_effKappa_prev"></td><td class="num" id="yaCell_effKappa_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
                     <tr class="ya-sub" data-ya-in="g6"><td class="ya-label">- Kappa no.</td><td class="ya-unit">-</td><td class="num" id="yaCell_kappaCook_prev"></td><td class="num" id="yaCell_kappaCook_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark ya-remark-clickable" id="yaKappaRefRemark">- Ref. R&amp;D Kappa 12 → 13: Effect Yield 0.025 Bdt/Adt, 1.22%, Kappa 13 → 14: Wood Consumption ลดลง 0.023 Bdt/Adt, 1.08%</td></tr>
                     <tr class="ya-sub" data-ya-in="g6"><td class="ya-label">- SD Kappa</td><td class="ya-unit">-</td><td class="num" id="yaCell_sdKappa_prev"></td><td class="num" id="yaCell_sdKappa_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
                     <tr class="ya-sub" data-ya-in="g6"><td class="ya-label">- CV Kappa</td><td class="ya-unit">%</td><td class="num" id="yaCell_cvKappa_prev"></td><td class="num" id="yaCell_cvKappa_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
@@ -5311,6 +5311,37 @@ const YA_MIRROR_MAJOR = [
   {key:'sulphidity',   prevId:'yaCell_effSulphidity_prev', curId:'yaCell_effSulphidity_cur'},
 ];
 const YA_STATE = { prev:{mode:'month', value:null}, cur:{mode:'month', value:null} };
+/* "6. Effect Kappa no." major row: Effect Yield = the definite integral of a per-band step-rate
+   function from the actual Kappa reading back to a 14.00 reference — i.e. walk from 14 toward the
+   Kappa value one whole unit at a time, each unit crossed contributing (span × that band's own
+   Ref. R&D rate), with the final fractional remainder using the band the Kappa value itself falls
+   in. Verified against 5 worked examples the user supplied (12.97, 11.50, 13.50, 14.50, 15.50).
+   KAPPA_EFFECT_RATES keys are each band's LOWER bound (e.g. 13 -> the [13,14) "Kappa 13→14" rate). */
+const KAPPA_EFFECT_RATES = {10:0.031, 11:0.028, 12:0.025, 13:0.023, 14:0.019, 15:0.015, 16:0.012, 17:0.009, 18:0.006, 19:0.003};
+function yaKappaEffectYield(kappa){
+  if(kappa==null) return null;
+  let total = 0;
+  if(kappa < 14){
+    let hi = 14;
+    while(hi > kappa){
+      const lo = Math.max(kappa, hi - 1);
+      const rate = KAPPA_EFFECT_RATES[hi - 1];
+      if(rate==null) break;
+      total += (hi - lo) * rate;
+      hi = lo;
+    }
+  } else if(kappa > 14){
+    let lo = 14;
+    while(lo < kappa){
+      const hi = Math.min(kappa, lo + 1);
+      const rate = KAPPA_EFFECT_RATES[lo];
+      if(rate==null) break;
+      total += (lo - hi) * rate;
+      lo = hi;
+    }
+  }
+  return total;
+}
 function yaPickValue(key, mode, value){
   const s = CHIP_MON_SERIES[key];
   if(!s || !s.length || !value) return null;
@@ -5360,6 +5391,12 @@ function renderYieldAnalysisColumn(which){
     const kp = yaPickValue('kappaCook', st.mode, st.value);
     const cv = (sd!=null && kp!=null && kp!==0) ? (sd/kp*100) : null;
     cvEl.textContent = cv==null ? '—' : chipMonFmt(cv, 2);
+  }
+  const effKappaEl = document.getElementById('yaCell_effKappa_'+which);
+  if(effKappaEl){
+    const kp2 = yaPickValue('kappaCook', st.mode, st.value);
+    const eff = yaKappaEffectYield(kp2);
+    effKappaEl.textContent = eff==null ? '—' : chipMonFmt(eff, 3);
   }
   /* Some major "Effect *" rows have no formula of their own for columns 3/4 (ช่วงที่1/2), so they
      just mirror their one real sub-row's value instead — e.g. "4. Effect Chip size" mirrors its
