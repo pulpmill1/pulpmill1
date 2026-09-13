@@ -1467,14 +1467,14 @@
                     <tr class="ya-major" data-ya-group="g9"><td class="ya-label"><span class="yc">▾</span>9. Effect Pulp accumulate in tank</td><td class="ya-unit">Bdt/Adt</td><td class="num" id="yaCell_effTankBuildup_prev"></td><td class="num" id="yaCell_effTankBuildup_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
                     <tr class="ya-sub" data-ya-in="g9"><td class="ya-label">- Pulp accumulate in tank</td><td class="ya-unit">Adt</td><td class="num" id="yaCell_tankBuildup_prev"></td><td class="num" id="yaCell_tankBuildup_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
                     <tr class="ya-major" data-ya-group="g10"><td class="ya-label"><span class="yc">▾</span>10. Effect Waste</td><td class="ya-unit">Bdt/Adt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
-                    <tr class="ya-sub2" data-ya-in="g10"><td class="ya-label">Effect (Knot+White)</td><td class="ya-unit">Bdt/Adt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-sub2" data-ya-in="g10"><td class="ya-label">Effect (Knot+White)</td><td class="ya-unit">Bdt/Adt</td><td class="num" id="yaCell_effKnotWhite_prev"></td><td class="num" id="yaCell_effKnotWhite_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
                     <tr class="ya-sub3" data-ya-in="g10"><td class="ya-label">Knot + White reject</td><td class="ya-unit">kg/ADT</td><td class="num" id="yaCell_kwRejectAdt_prev"></td><td class="num" id="yaCell_kwRejectAdt_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
                     <tr class="ya-sub3" data-ya-in="g10"><td class="ya-label">Knot + White reject</td><td class="ya-unit">kg</td><td class="num" id="yaCell_kwReject_prev"></td><td class="num" id="yaCell_kwReject_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
-                    <tr class="ya-sub2" data-ya-in="g10"><td class="ya-label">Effect (TSS)</td><td class="ya-unit">Bdt/Adt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-sub2" data-ya-in="g10"><td class="ya-label">Effect (TSS)</td><td class="ya-unit">Bdt/Adt</td><td class="num" id="yaCell_effTss_prev"></td><td class="num" id="yaCell_effTss_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
                     <tr class="ya-sub3" data-ya-in="g10"><td class="ya-label">Volume to ETP</td><td class="ya-unit">m3</td><td class="num" id="yaCell_volEtp_prev"></td><td class="num" id="yaCell_volEtp_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
-                    <tr class="ya-sub3" data-ya-in="g10"><td class="ya-label">TSS (- Base Target 300 mg/l)</td><td class="ya-unit">mg/l</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-sub3" data-ya-in="g10"><td class="ya-label">TSS (- Base Target 300 mg/l)</td><td class="ya-unit">mg/l</td><td class="num" id="yaCell_tssBaseTarget_prev"></td><td class="num" id="yaCell_tssBaseTarget_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
                     <tr class="ya-sub3" data-ya-in="g10"><td class="ya-label">TSS</td><td class="ya-unit">mg/l</td><td class="num" id="yaCell_tssEtp_prev"></td><td class="num" id="yaCell_tssEtp_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
-                    <tr class="ya-sub3" data-ya-in="g10"><td class="ya-label">Excess Fiber to ETP</td><td class="ya-unit">ADT</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-sub3" data-ya-in="g10"><td class="ya-label">Excess Fiber to ETP</td><td class="ya-unit">ADT</td><td class="num" id="yaCell_excessFiberEtp_prev"></td><td class="num" id="yaCell_excessFiberEtp_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
                     <tr class="ya-major"><td class="ya-label">11. Unknow</td><td class="ya-unit">Bdt/Adt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
                   </tbody>
                 </table>
@@ -5413,6 +5413,33 @@ function renderYieldAnalysisColumn(which){
     const effTank = (w!=null && ep!=null && ep!==0 && tank!=null && (ep+tank)!==0)
       ? (w/ep - w/(ep+tank)) : null;
     effTankEl.textContent = effTank==null ? '—' : chipMonFmt(effTank, 3);
+  }
+  /* Effect Waste chain: TSS (- Base Target 300) -> Excess Fiber to ETP -> Effect (TSS), each
+     feeding the next, so they must be computed in this order within the same column. */
+  const tssBaseEl = document.getElementById('yaCell_tssBaseTarget_'+which);
+  const tssRaw = yaPickValue('tssEtp', st.mode, st.value);
+  const tssBase = tssRaw==null ? null : (tssRaw - 300);
+  if(tssBaseEl) tssBaseEl.textContent = tssBase==null ? '—' : chipMonFmt(tssBase, 0);
+  const excessFiberEl = document.getElementById('yaCell_excessFiberEtp_'+which);
+  const volEtpV = yaPickValue('volEtp', st.mode, st.value);
+  const excessFiber = (volEtpV!=null && tssBase!=null)
+    ? (((volEtpV*1000/86400) * tssBase * 86.4/(1000*1000)) / 0.9) : null;
+  if(excessFiberEl) excessFiberEl.textContent = excessFiber==null ? '—' : chipMonFmt(excessFiber, 3);
+  const effKnotWhiteEl = document.getElementById('yaCell_effKnotWhite_'+which);
+  if(effKnotWhiteEl){
+    const kwAdt = yaPickValue('kwRejectAdt', st.mode, st.value);
+    const effKw = kwAdt==null ? null : (kwAdt/1000*0.40);
+    effKnotWhiteEl.textContent = effKw==null ? '—' : chipMonFmt(effKw, 3);
+  }
+  const effTssEl = document.getElementById('yaCell_effTss_'+which);
+  if(effTssEl){
+    const yld2 = yaPickValue('yieldBdt', st.mode, st.value);
+    const epBal = yaPickValue('endProdBal', st.mode, st.value);
+    const w2 = yaPickValue('chipWeightScaleNet', st.mode, st.value);
+    const denom = (epBal!=null && excessFiber!=null) ? (epBal + excessFiber) : null;
+    const effTss = (yld2!=null && w2!=null && denom!=null && denom!==0)
+      ? (yld2 - w2/denom) : null;
+    effTssEl.textContent = effTss==null ? '—' : chipMonFmt(effTss, 3);
   }
   /* Some major "Effect *" rows have no formula of their own for columns 3/4 (ช่วงที่1/2), so they
      just mirror their one real sub-row's value instead — e.g. "4. Effect Chip size" mirrors its
