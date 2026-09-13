@@ -5814,10 +5814,12 @@ function renderYaSummary(){
   }
   function groupHtml(heading, list){
     if(!list.length) return '';
-    return '<div class="ys-group">'+heading+':</div>'+list.map(itemLine).join('');
+    const sumD = list.reduce(function(a,it){ return a+it.d; }, 0);
+    const sumP = list.reduce(function(a,it){ return a+it.p; }, 0);
+    return '<div class="ys-group">'+heading+' ('+yaSummaryNum(sumD,3)+' Bdt/Adt, '+yaSummaryNum(sumP,2)+'%)</div>'+list.map(itemLine).join('');
   }
-  const worseGroup = groupHtml('Yield แย่ลงจาก', worseItems);
-  const betterGroup = groupHtml('Yield ดีขึ้นจาก', betterItems);
+  const worseGroup = groupHtml('Yield แย่ลง', worseItems);
+  const betterGroup = groupHtml('Yield ดีขึ้น', betterItems);
   html += yieldDiff < 0 ? (betterGroup + worseGroup) : (worseGroup + betterGroup);
   const unknownEl = document.getElementById('yaCell_effUnknown_diffbdt');
   if(unknownEl){
