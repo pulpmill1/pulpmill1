@@ -1464,7 +1464,7 @@
                     <tr class="ya-sub" data-ya-in="g7"><td class="ya-label">- Sulphidity</td><td class="ya-unit">%</td><td class="num" id="yaCell_sulphidity_prev"></td><td class="num" id="yaCell_sulphidity_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark">- Ref. R&amp;D 1%Sulphidity Effect Yield 0.008 Bdt/Adt</td></tr>
                     <tr class="ya-major" data-ya-group="g8"><td class="ya-label"><span class="yc">▾</span>8. Effect Diff. prod. balance</td><td class="ya-unit">%</td><td class="num" id="yaCell_effDiffBalance_prev"></td><td class="num" id="yaCell_effDiffBalance_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
                     <tr class="ya-sub" data-ya-in="g8"><td class="ya-label">- %Diff. production</td><td class="ya-unit">-</td><td class="num" id="yaCell_diffBalance_prev"></td><td class="num" id="yaCell_diffBalance_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
-                    <tr class="ya-major" data-ya-group="g9"><td class="ya-label"><span class="yc">▾</span>9. Effect Pulp accumulate in tank</td><td class="ya-unit">Bdt/Adt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-major" data-ya-group="g9"><td class="ya-label"><span class="yc">▾</span>9. Effect Pulp accumulate in tank</td><td class="ya-unit">Bdt/Adt</td><td class="num" id="yaCell_effTankBuildup_prev"></td><td class="num" id="yaCell_effTankBuildup_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
                     <tr class="ya-sub" data-ya-in="g9"><td class="ya-label">- Pulp accumulate in tank</td><td class="ya-unit">Adt</td><td class="num" id="yaCell_tankBuildup_prev"></td><td class="num" id="yaCell_tankBuildup_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
                     <tr class="ya-major" data-ya-group="g10"><td class="ya-label"><span class="yc">▾</span>10. Effect Waste</td><td class="ya-unit">Bdt/Adt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
                     <tr class="ya-sub2" data-ya-in="g10"><td class="ya-label">Effect (Knot+White)</td><td class="ya-unit">Bdt/Adt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
@@ -5404,6 +5404,15 @@ function renderYieldAnalysisColumn(which){
     const db = yaPickValue('diffBalance', st.mode, st.value);
     const effDb = (yld!=null && db!=null) ? -(yld * db/100) : null;
     effDiffBalEl.textContent = effDb==null ? '—' : chipMonFmt(effDb, 3);
+  }
+  const effTankEl = document.getElementById('yaCell_effTankBuildup_'+which);
+  if(effTankEl){
+    const w = yaPickValue('chipWeightScaleNet', st.mode, st.value);
+    const ep = yaPickValue('endProd', st.mode, st.value);
+    const tank = yaPickValue('tankBuildup', st.mode, st.value);
+    const effTank = (w!=null && ep!=null && ep!==0 && tank!=null && (ep+tank)!==0)
+      ? (w/ep - w/(ep+tank)) : null;
+    effTankEl.textContent = effTank==null ? '—' : chipMonFmt(effTank, 3);
   }
   /* Some major "Effect *" rows have no formula of their own for columns 3/4 (ช่วงที่1/2), so they
      just mirror their one real sub-row's value instead — e.g. "4. Effect Chip size" mirrors its
