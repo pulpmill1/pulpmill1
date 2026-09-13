@@ -589,6 +589,11 @@
   .md-viewbtn{font:inherit;font-size:10.5px;font-weight:700;color:var(--ink-2);background:var(--surface-2);border:1px solid var(--border);border-radius:20px;padding:4px 11px;cursor:pointer;}
   .md-viewbtn.on{background:var(--accent-soft);color:var(--accent-ink);border-color:var(--accent-soft);}
   .md-viewbtn:focus-visible{outline:2px solid var(--accent);outline-offset:1px;}
+  .md-avgpick{display:flex;align-items:center;gap:5px;background:var(--surface-2);border:1px solid var(--border);border-radius:20px;padding:3px 10px;}
+  .md-avglbl{font-size:10.5px;font-weight:700;color:var(--ink-2);white-space:nowrap;}
+  .md-avgpick select,.md-avgpick input{font:inherit;font-size:10.5px;color:var(--ink);background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:2px 7px;cursor:pointer;}
+  .md-avgpick select:focus-visible,.md-avgpick input:focus-visible{outline:2px solid var(--accent);outline-offset:1px;}
+  .md-avgval{font-size:11px;font-weight:800;color:var(--accent-ink);white-space:nowrap;}
   .md-body{margin-top:4px;}
   .md-tablewrap{max-height:280px;overflow:auto;border:1px solid var(--border);border-radius:10px;}
   table.md-table{width:100%;border-collapse:collapse;font-size:12px;}
@@ -5104,7 +5109,11 @@ const CHIP_MON_GROUPS = [
 
 const chipMonDre = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/;
 const CHIP_MON_ROWS = [];
-for(let cmi=6; cmi<chipWoodRows.length; cmi++){
+// starts at 0, not some hardcoded header-depth offset: the date regex below already skips every
+// non-date header/blank row on its own, and the old cmi=6 start was silently dropping the sheet's
+// first 2 real data rows (01/01/2024 and 02/01/2024 sit at rows 4-5), corrupting every full-year
+// average computed from this data (discovered via the new per-metric average picker).
+for(let cmi=0; cmi<chipWoodRows.length; cmi++){
   const cr = chipWoodRows[cmi];
   const cm = chipMonDre.exec(String((cr && cr[1]) || '').trim());
   if(!cm) continue;
@@ -6048,6 +6057,61 @@ function chipMonRenderTiles(grp){
   });
 }
 
+/* ---- per-metric "view average for a chosen date/month/year" picker, next to Chart/Table ----
+   Reuses yaPickValue (already generic over any CHIP_MON_SERIES key: exact match for a date,
+   average for a month or year) rather than duplicating that logic. State persists per GROUP
+   across re-renders of the same detail panel (tile switches, language/theme changes all rebuild
+   the panel's HTML from scratch), defaulting to mode "year" / value "2024" the first time a group
+   is opened. Applies to every monitor group on the Yield page since chipMonRenderDetail is shared
+   by all of them. */
+const CHIP_MON_AVGPICK = {};
+function chipMonAvgPickRender(grpId, key, m){
+  const st = CHIP_MON_AVGPICK[grpId];
+  const valEl = document.getElementById('chipAvgVal_'+grpId);
+  if(!valEl || !st) return;
+  const v = yaPickValue(key, st.mode, st.value);
+  valEl.textContent = v==null ? '—' : (chipMonFmt(v, m.dec)+' '+m.unit);
+}
+function chipMonAvgPickApply(grpId, key, m){
+  const modeEl = document.getElementById('chipAvgMode_'+grpId);
+  if(!modeEl) return;
+  const dateEl = document.getElementById('chipAvgDate_'+grpId);
+  const monthEl = document.getElementById('chipAvgMonth_'+grpId);
+  const yearEl = document.getElementById('chipAvgYear_'+grpId);
+  const mode = modeEl.value;
+  dateEl.hidden = mode!=='date';
+  monthEl.hidden = mode!=='month';
+  yearEl.hidden = mode!=='year';
+  const value = mode==='date' ? dateEl.value : mode==='month' ? monthEl.value : yearEl.value;
+  CHIP_MON_AVGPICK[grpId] = { mode:mode, value:value||null };
+  chipMonAvgPickRender(grpId, key, m);
+}
+function initChipMonAvgPick(grpId, key, m){
+  const modeEl = document.getElementById('chipAvgMode_'+grpId);
+  if(!modeEl) return;
+  const years = Array.from(new Set((CHIP_MON_SERIES[key]||[]).map(function(x){ return x.y; }))).sort();
+  const yearEl = document.getElementById('chipAvgYear_'+grpId);
+  yearEl.innerHTML = years.map(function(y){ return '<option value="'+y+'">'+y+'</option>'; }).join('');
+  const defaultYear = years.indexOf(2024) >= 0 ? '2024' : (years.length ? String(years[0]) : null);
+  const saved = CHIP_MON_AVGPICK[grpId];
+  const mode = (saved && saved.mode) || 'year';
+  const value = saved ? saved.value : defaultYear;
+  modeEl.value = mode;
+  const dateEl = document.getElementById('chipAvgDate_'+grpId);
+  const monthEl = document.getElementById('chipAvgMonth_'+grpId);
+  dateEl.hidden = mode!=='date';
+  monthEl.hidden = mode!=='month';
+  yearEl.hidden = mode!=='year';
+  if(mode==='date') dateEl.value = value||'';
+  else if(mode==='month') monthEl.value = value||'';
+  else if(value) yearEl.value = value;
+  CHIP_MON_AVGPICK[grpId] = { mode:mode, value:value };
+  [modeEl, dateEl, monthEl, yearEl].forEach(function(el){
+    el.addEventListener('change', function(){ chipMonAvgPickApply(grpId, key, m); });
+    el.addEventListener('input', function(){ chipMonAvgPickApply(grpId, key, m); });
+  });
+  chipMonAvgPickRender(grpId, key, m);
+}
 /* ---- detail panel ---- */
 function chipMonRenderDetail(grpId){
   const grp = CHIP_MON_GROUPS.find(g=> g.id===grpId);
@@ -6077,6 +6141,18 @@ function chipMonRenderDetail(grpId){
         <select class="md-range" id="chipRange_${grpId}" aria-label="${currentLang==='en'?'Chart range':'ช่วงข้อมูลของกราฟ'}">${chipMonRangeOptions(m, grpId)}</select>
         <button type="button" class="md-viewbtn" data-view="chart">${currentLang==='en'?'Chart':'กราฟ'}</button>
         <button type="button" class="md-viewbtn" data-view="table">${currentLang==='en'?'Table':'ตาราง'}</button>
+        <span class="md-avgpick" id="mdAvgPick_${grpId}">
+          <span class="md-avglbl">${currentLang==='en'?'Average':'ค่าเฉลี่ย'}</span>
+          <select id="chipAvgMode_${grpId}">
+            <option value="date">${currentLang==='en'?'Day':'วัน'}</option>
+            <option value="month">${currentLang==='en'?'Month':'เดือน'}</option>
+            <option value="year">${currentLang==='en'?'Year':'ปี'}</option>
+          </select>
+          <input type="date" id="chipAvgDate_${grpId}" hidden>
+          <input type="month" id="chipAvgMonth_${grpId}" hidden>
+          <select id="chipAvgYear_${grpId}" hidden></select>
+          <span class="md-avgval" id="chipAvgVal_${grpId}"></span>
+        </span>
       </span>
     </div>
     <div class="md-sub">${grp.th} · baseline ${a.baseN} วัน (180 วันก่อนสัปดาห์ล่าสุด) · ${specTxt}</div>
@@ -6118,6 +6194,7 @@ function chipMonRenderDetail(grpId){
   const rngEl = document.getElementById('chipRange_'+grpId);
   if(rngEl) rngEl.addEventListener('change', ()=>{ CHIP_MON_RANGE[grpId] = rngEl.value; chipMonRenderDetailBody(grpId, m, a, chipMonTarget(key)); });
   panel.querySelectorAll('.md-viewbtn').forEach(b=> b.addEventListener('click', ()=>{ CHIP_MON_VIEW[grpId] = b.dataset.view; chipMonRenderDetailBody(grpId, m, a, chipMonTarget(key)); }));
+  initChipMonAvgPick(grpId, key, m);
 
   chipMonRenderDetailBody(grpId, m, a, tgt);
 }
