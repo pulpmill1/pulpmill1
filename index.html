@@ -5568,7 +5568,7 @@ function renderYaEffectWoodSpecies(){
     if(p==null || c==null) return;
     const d = c - p;
     if(d === 0) return;
-    const entry = sp.name+' '+chipMonFmt(d,1)+'%';
+    const entry = sp.name+' '+(d>0 ? '+' : '')+chipMonFmt(d,1)+'%';
     const worsened = sp.worseWhenUp ? (d > 0) : (d < 0);
     if(worsened) worse.push(entry); else better.push(entry);
   });
