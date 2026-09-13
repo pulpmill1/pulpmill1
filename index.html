@@ -5825,7 +5825,7 @@ function renderYaSummary(){
   if(unknownEl){
     const unknownDiff = yaReadDiffNum('yaCell_effUnknown_diffbdt');
     const unknownPct = yaReadDiffNum('yaCell_effUnknown_diffpct');
-    html += '<div class="ys-top">Unknow (อื่นๆ): ('+yaSummaryNum(unknownDiff,3)+' Bdt/Adt, '+yaSummaryNum(unknownPct,2)+'%)</div>';
+    html += '<div class="ys-group">Unknow (อื่นๆ) ('+yaSummaryNum(unknownDiff,3)+' Bdt/Adt, '+yaSummaryNum(unknownPct,2)+'%)</div>';
   }
   body.innerHTML = html;
 }
