@@ -610,6 +610,11 @@
   table.md-table td{padding:6px 10px;border-bottom:1px solid var(--border);text-align:center;width:50%;}
   table.md-table td.num{font-family:"IBM Plex Mono",monospace;text-align:center;}
   table.md-table tbody tr:nth-child(2n){background:var(--surface-2);}
+  table.md-table.wide th,table.md-table.wide td{width:auto;}
+  table.md-table tr.wsd-alert-row td{background:rgba(212,52,44,.12);color:#d4342c;font-weight:700;}
+  .wsd-alert-dot{position:absolute;width:9px;height:9px;border-radius:50%;background:#d4342c;box-shadow:0 0 5px #d4342c;transform:translate(-50%,-50%);pointer-events:none;z-index:3;}
+  .wsd-alert-dot::after{content:"";position:absolute;left:50%;top:50%;width:9px;height:9px;margin:-4.5px 0 0 -4.5px;border-radius:50%;border:1.6px solid #d4342c;animation:sparkLivePulse 1.1s ease-out infinite;}
+  @media (prefers-reduced-motion:reduce){.wsd-alert-dot::after{animation:none;}}
   .md-sub{font-size:11px;color:var(--ink-3);margin-bottom:12px;}
 
   /* ---- Yield Analysis bridge table (under the Yield chart) ---- */
@@ -1593,10 +1598,18 @@
         </section>
 
         <section class="page" data-page="yield-weightscale" hidden>
-          <div class="empty-state">
-            <div class="icon">⚖️</div>
-            <h2>Weight Scale Digester Dashboard</h2>
-            <p>หน้านี้ยังไม่มีข้อมูล — รอเชื่อมต่อแหล่งข้อมูล Weight Scale Digester รายวัน/รายกะจาก Google Sheets<br>แจ้งลิงก์ชีทและชื่อแท็บที่ต้องการดึงข้อมูลได้เลยครับ</p>
+          <div class="mon-group">
+            <div class="mon-group-head"><span class="gi">⚖️</span><span class="gt">น้ำหนักคงเหลือหลัง Discharge (Weight Scale Digester)</span><span class="gs">5 Digester · คลิกที่บล็อกเพื่อดูกราฟหลัก</span></div>
+            <div id="wsdHost">
+              <div class="mon-tiles" id="wsdTiles"></div>
+              <div class="mon-detail" id="wsdDetail" hidden></div>
+            </div>
+          </div>
+          <button type="button" class="foot-toggle" data-target="wsdFoot" aria-expanded="false" aria-controls="wsdFoot">ดูรายละเอียด</button>
+          <div class="foot" id="wsdFoot" hidden>
+            ที่มา: Google Sheets tab "Cooking Condition" (<code>gid=1561629878</code>) · คอลัมน์วันที่รูปแบบ D/M/YYYY (วันก่อนเดือน) · Cooking Batch ACC., Digester no., ปริมาณไม้สับตาม Weight scale (GT) และ Weight after discharge (ton) ดึงจากคอลัมน์ตรงในชีตเดียวกัน<br>
+            จุดข้อมูลที่มีน้ำหนัก ≥ Target High หรือ ≤ Target Low จะแสดงเป็นวงกลมสีแดงกระพริบบนกราฟ · ตั้งค่า Target Low/High ได้เองต่อ Digester (ค่าเริ่มต้น −6 / 6 ตัน) เก็บไว้ในเบราว์เซอร์นี้<br>
+            เมื่อเปิดหน้านี้ค่าเริ่มต้นจะแสดงข้อมูลของเดือนปัจจุบัน · เปลี่ยนช่วงเป็นรายวัน/รายเดือน/รายปีได้จากตัวเลือกด้านบนกราฟ · กดปุ่ม "ตาราง" เพื่อดูข้อมูลดิบแทนกราฟ
           </div>
         </section>
 
@@ -5010,6 +5023,7 @@ function applyLang(lang){
     if(typeof renderNotifCentre === 'function') renderNotifCentre();
     if(typeof renderYieldAnalysisTable === 'function') renderYieldAnalysisTable();
   }
+  if(typeof wsdRenderTiles === 'function' && document.getElementById('wsdHost')){ wsdRenderTiles(); wsdRenderDetail(); }
   if(typeof i18nApplyPage === 'function') i18nApplyPage();
 }
 
@@ -6567,6 +6581,282 @@ function initChipMon(){
   });
 }
 if(document.getElementById('chipMonHost')) initChipMon();
+
+/* ==================================================================================
+   Weight Scale Digester — น้ำหนักคงเหลือหลัง Discharge ต่อ cooking batch, แยกตาม Digester 1-5
+   แหล่งข้อมูล: Google Sheets tab "Cooking Condition" (gid=1561629878), ตารางเดียวกับที่ใช้ดึง
+   "No of cooks" อยู่แล้ว (COOKING_BY_DATE ด้านบน) — คอลัมน์: 1=วันที่, 2=Cooking No.,
+   3=Cooking Batch ACC., 4=Shift, 5=Digester no., 6=ปริมาณไม้สับตาม Weight scale (GT),
+   7=Weight after discharge (ton). หนึ่งแถว = หนึ่ง cook (ไม่ใช่หนึ่งวัน) ต่างจากตารางอื่นในชีตนี้
+   ที่เป็นรายวัน จึงต้อง parse แยกเป็นชุดของตัวเอง ไม่ผสมกับ CHIP_MON_ROWS ================== */
+const WSD_DIGESTERS = [1,2,3,4,5];
+const WSD_ROWS = [];
+for(let wsdi=0; wsdi<cookingCondRows.length; wsdi++){
+  const wr = cookingCondRows[wsdi];
+  const wm = chipMonDre.exec(String((wr && wr[1]) || '').trim());
+  if(!wm) continue;
+  const dig = parseSheetNum(wr[5]);
+  const weight = parseSheetNum(wr[7]);
+  if(dig==null || weight==null) continue;
+  WSD_ROWS.push({
+    y:+wm[3], mi:(+wm[2])-1, d:+wm[1], ts:new Date(+wm[3],(+wm[2])-1,+wm[1]).getTime(),
+    batchAcc: parseSheetNum(wr[3]), shift: String(wr[4]||'').trim(),
+    dig: dig, chipGT: parseSheetNum(wr[6]), weight: weight
+  });
+}
+WSD_ROWS.sort((x,y)=> (x.batchAcc!=null && y.batchAcc!=null) ? (x.batchAcc-y.batchAcc) : (x.ts-y.ts));
+const WSD_BY_DIG = {};
+WSD_DIGESTERS.forEach(n=> WSD_BY_DIG[n] = WSD_ROWS.filter(r=> r.dig===n));
+
+function wsdTarget(dig){
+  try{ const raw = JSON.parse(localStorage.getItem('fl1_wsd_target_'+dig) || '{}');
+    return { lo: raw.lo!=null ? raw.lo : -6, hi: raw.hi!=null ? raw.hi : 6 }; }
+  catch(e){ return {lo:-6, hi:6}; }
+}
+function wsdSetTarget(dig, lo, hi){ try{ localStorage.setItem('fl1_wsd_target_'+dig, JSON.stringify({lo, hi})); }catch(e){} }
+function wsdIsAlert(v, tgt){ return v!=null && tgt.hi!=null && tgt.lo!=null && (v>=tgt.hi || v<=tgt.lo); }
+
+const wsdToday = new Date();
+const WSD_DEFAULT_MONTH = wsdToday.getFullYear()+'-'+String(wsdToday.getMonth()+1).padStart(2,'0');
+const WSD_STATE = { sel:null };
+const WSD_RANGE = {};   // per digester: {mode:'date'|'month'|'year', value:string}
+const WSD_VIEW = {};    // per digester: 'chart' | 'table'
+const wsdCharts = {};
+const wsdSparks = {};
+
+function wsdFilterRows(dig, mode, value){
+  const rows = WSD_BY_DIG[dig] || [];
+  if(!value) return rows.slice(-50);
+  if(mode==='date'){
+    const p = value.split('-').map(Number);
+    return rows.filter(r=> r.y===p[0] && r.mi===p[1]-1 && r.d===p[2]);
+  }
+  if(mode==='year') return rows.filter(r=> r.y===Number(value));
+  const p = value.split('-').map(Number);
+  return rows.filter(r=> r.y===p[0] && r.mi===p[1]-1);
+}
+
+function wsdRenderTiles(){
+  const wrap = document.getElementById('wsdTiles');
+  if(!wrap) return;
+  wrap.innerHTML = WSD_DIGESTERS.map(dig=> {
+    const rows = WSD_BY_DIG[dig] || [];
+    const last = rows[rows.length-1];
+    const tgt = wsdTarget(dig);
+    let val = '—', sub = '<span class="flat">— ไม่มีข้อมูล</span>', dot = '';
+    if(last){
+      val = chipMonFmt(last.weight, 1);
+      const alert = wsdIsAlert(last.weight, tgt);
+      dot = alert ? 'bad' : 'ok';
+      const dateStr = last.d+'/'+(last.mi+1)+'/'+last.y;
+      sub = '<span class="'+(alert?'up':'flat')+'">'+(alert?'⚠ นอกเป้า':'– ปกติ')+'</span> #'+(last.batchAcc??'—')+' · '+dateStr;
+    }
+    return '<div class="mon-tile" role="button" tabindex="0" data-dig="'+dig+'" style="--mon-rail:#0A2E55">'
+      + '<div class="mt-top"><span class="mt-ico">⚖️</span><span class="mt-name">Digester '+dig+'</span><span class="mt-dot '+dot+'"></span></div>'
+      + '<div class="mt-val">'+val+'<span class="mt-unit">ton</span></div>'
+      + '<div class="mt-row3"><span class="mt-sub">'+sub+'</span><span class="mt-spark-wrap"><canvas class="mt-spark" id="wsdSpark_'+dig+'"></canvas><i class="spark-live" id="wsdLive_'+dig+'" hidden></i></span></div>'
+      + '</div>';
+  }).join('');
+  WSD_DIGESTERS.forEach(dig=> {
+    const rows = (WSD_BY_DIG[dig]||[]).slice(-60);
+    if(wsdSparks[dig]){ try{ wsdSparks[dig].destroy(); }catch(e){} wsdSparks[dig] = null; }
+    if(!rows.length) return;
+    const cv = document.getElementById('wsdSpark_'+dig);
+    const live = document.getElementById('wsdLive_'+dig);
+    wsdSparks[dig] = chipMonMakeSpark(cv, live, rows.map(r=> ({ts:r.ts, v:r.weight})), '#0A2E55');
+  });
+}
+
+function wsdPlaceAlertDots(chart, alertIdx){
+  const wrap = chart.canvas.closest('.md-chart-wrap');
+  if(!wrap) return;
+  const existing = new Map(Array.from(wrap.querySelectorAll('.wsd-alert-dot')).map(el=> [el.dataset.i, el]));
+  const meta = chart.getDatasetMeta(0);
+  const seen = new Set();
+  alertIdx.forEach(i=> {
+    const p = meta.data[i];
+    if(!p || !isFinite(p.x) || !isFinite(p.y)) return;
+    seen.add(String(i));
+    let dot = existing.get(String(i));
+    if(!dot){ dot = document.createElement('i'); dot.className = 'wsd-alert-dot'; dot.dataset.i = String(i); wrap.appendChild(dot); }
+    dot.style.left = p.x+'px'; dot.style.top = p.y+'px';
+  });
+  existing.forEach((el,key)=> { if(!seen.has(key)) el.remove(); });
+}
+
+function wsdDrawChart(dig, rows, tgt){
+  const cv = document.getElementById('wsdChart_'+dig);
+  if(!cv) return;
+  const c = { ink2:cssVar('--ink-2'), grid:cssVar('--grid'), surface:cssVar('--surface'), border:cssVar('--border'), ink:cssVar('--ink') };
+  const labels = rows.map(r=> r.d+'/'+(r.mi+1)+' #'+(r.batchAcc??''));
+  const vals = rows.map(r=> r.weight);
+  const alertIdx = [];
+  rows.forEach((r,i)=> { if(wsdIsAlert(r.weight, tgt)) alertIdx.push(i); });
+  const flat = (v,col,lab)=> ({ type:'line', label:lab, data:labels.map(()=> v), borderColor:col, borderWidth:1.6,
+    borderDash:[7,3], pointRadius:0, fill:false, tension:0, order:5, datalabels:{display:false} });
+  const refs = [];
+  if(tgt.lo!=null) refs.push(flat(tgt.lo, '#12a150', 'Target Low '+tgt.lo));
+  if(tgt.hi!=null) refs.push(flat(tgt.hi, '#d4342c', 'Target High '+tgt.hi));
+  const allVals = vals.concat(refs.flatMap(r=> r.data)).filter(v=> v!=null);
+  let lo = allVals.length ? Math.min(...allVals) : -10, hi = allVals.length ? Math.max(...allVals) : 10;
+  const pad = (hi-lo)*0.18 || 2;
+  lo -= pad; hi += pad;
+  const cfg = {
+    data:{ labels, datasets:[
+      { type:'line', label:'Weight after discharge', data:vals, borderColor:'#0A2E55', backgroundColor:'#0A2E55',
+        borderWidth:1.6, pointRadius: rows.length>120 ? 0 : 2.6,
+        pointBackgroundColor:(ctx)=> alertIdx.includes(ctx.dataIndex) ? '#d4342c' : '#0A2E55',
+        pointBorderColor:(ctx)=> alertIdx.includes(ctx.dataIndex) ? '#d4342c' : '#0A2E55',
+        tension:.15, spanGaps:true, order:2, datalabels:{display:false} },
+      ...refs
+    ]},
+    options:{ responsive:true, maintainAspectRatio:false, animation:false, interaction:{mode:'index', intersect:false},
+      scales:{
+        x:{ grid:{display:false}, ticks:{color:c.ink2, font:{family:'IBM Plex Mono', size:10}, maxRotation:45, minRotation:0, autoSkip:true, maxTicksLimit:24} },
+        y:{ min:lo, max:hi, grid:{color:c.grid}, ticks:{color:c.ink2, font:{family:'IBM Plex Mono', size:10.5}} }
+      },
+      plugins:{ legend:{display:false},
+        tooltip:{ backgroundColor:c.surface, titleColor:c.ink, bodyColor:c.ink2, borderColor:c.border, borderWidth:1, padding:9,
+          callbacks:{
+            title:(items)=> { const r = rows[items[0].dataIndex]; return r ? (r.d+'/'+(r.mi+1)+'/'+r.y+' · Batch #'+(r.batchAcc??'—')+' · Shift '+(r.shift||'—')) : ''; },
+            label:(x)=> x.dataset.label ? (x.dataset.label+': '+(x.parsed.y==null?'—':x.parsed.y.toFixed(1))+' ton') : ''
+          } } }
+    },
+    plugins:[{ id:'wsdAlertDots', afterDraw:(chart)=> wsdPlaceAlertDots(chart, alertIdx) }]
+  };
+  if(wsdCharts[dig]){ try{ wsdCharts[dig].destroy(); }catch(e){} }
+  wsdCharts[dig] = new Chart(cv.getContext('2d'), cfg);
+  const leg = document.getElementById('wsdLegend_'+dig);
+  if(leg){
+    const items = ['<span class="item"><span class="box" style="background:#0A2E55"></span>Weight after discharge</span>'];
+    items.push('<span class="item"><span class="sw dashed" style="border-color:#12a150"></span>Target Low '+tgt.lo+'</span>');
+    items.push('<span class="item"><span class="sw dashed" style="border-color:#d4342c"></span>Target High '+tgt.hi+'</span>');
+    if(alertIdx.length) items.push('<span class="item"><span class="box" style="background:#d4342c"></span>'+alertIdx.length+' จุดนอกเป้า (กระพริบ)</span>');
+    leg.innerHTML = items.join('');
+  }
+}
+
+function wsdRenderBody(dig){
+  const body = document.getElementById('wsdBody');
+  if(!body) return;
+  const view = WSD_VIEW[dig] || 'chart';
+  document.querySelectorAll('#wsdDetail .md-viewbtn').forEach(b=> b.classList.toggle('on', b.dataset.view===view));
+  if(wsdCharts[dig]){ try{ wsdCharts[dig].destroy(); }catch(e){} wsdCharts[dig] = null; }
+  const rng = WSD_RANGE[dig] || { mode:'month', value:WSD_DEFAULT_MONTH };
+  const rows = wsdFilterRows(dig, rng.mode, rng.value);
+  const tgt = wsdTarget(dig);
+  const rangeNote = '<div class="md-rangenote">'+rows.length+' cooking batch'+(rows.length===1?'':'es')+'</div>';
+  if(view === 'table'){
+    body.innerHTML = '<div class="md-tablewrap"><table class="md-table wide"><thead><tr>'
+      + '<th>วันที่</th><th>Cooking Batch ACC.</th><th>Digester no.</th><th>ปริมาณไม้สับตาม Weight scale (GT)</th><th>Weight after discharge (ton)</th>'
+      + '</tr></thead><tbody>'
+      + rows.map(r=> {
+          const alert = wsdIsAlert(r.weight, tgt);
+          return '<tr'+(alert?' class="wsd-alert-row"':'')+'><td>'+r.d+'/'+(r.mi+1)+'/'+r.y+'</td><td class="num">'+(r.batchAcc??'—')+'</td><td class="num">'+r.dig+'</td><td class="num">'+(r.chipGT??'—')+'</td><td class="num">'+chipMonFmt(r.weight,1)+'</td></tr>';
+        }).join('')
+      + '</tbody></table></div>' + rangeNote;
+  } else {
+    body.innerHTML = '<div class="md-chart-wrap"><canvas id="wsdChart_'+dig+'"></canvas></div><div class="legend-row" id="wsdLegend_'+dig+'"></div>' + rangeNote;
+    wsdDrawChart(dig, rows, tgt);
+  }
+}
+
+function wsdRenderDetail(){
+  const panel = document.getElementById('wsdDetail');
+  if(!panel) return;
+  const dig = WSD_STATE.sel;
+  document.querySelectorAll('#wsdTiles .mon-tile').forEach(t=> t.classList.toggle('sel', +t.dataset.dig===dig));
+  if(!dig){ panel.hidden = true; panel.innerHTML = ''; return; }
+  panel.hidden = false;
+  const tgt = wsdTarget(dig);
+  if(!WSD_RANGE[dig]) WSD_RANGE[dig] = { mode:'month', value:WSD_DEFAULT_MONTH };
+  if(!WSD_VIEW[dig]) WSD_VIEW[dig] = 'chart';
+  const rng = WSD_RANGE[dig];
+  panel.innerHTML = `
+    <div class="md-head">
+      <span class="md-title">Digester ${dig} <span class="u">· น้ำหนักคงเหลือหลัง Discharge</span></span>
+      <span class="md-pills">
+        <button type="button" class="md-viewbtn" data-view="chart">กราฟ</button>
+        <button type="button" class="md-viewbtn" data-view="table">ตาราง</button>
+      </span>
+    </div>
+    <div class="ya-controls">
+      <div class="ya-picker">
+        <span class="yp-lbl">ช่วงข้อมูล</span>
+        <select id="wsdMode"><option value="date">วัน</option><option value="month">เดือน</option><option value="year">ปี</option></select>
+        <input type="date" id="wsdDate" hidden>
+        <input type="month" id="wsdMonth" hidden>
+        <select id="wsdYear" hidden></select>
+      </div>
+    </div>
+    <div class="md-target">
+      <span class="lbl">Target</span>
+      <span class="fld">LOW <input type="number" step="any" id="wsdTgtLo" value="${tgt.lo}"> ton</span>
+      <span class="fld">HIGH <input type="number" step="any" id="wsdTgtHi" value="${tgt.hi}"> ton</span>
+      <span class="note">ค่าเริ่มต้น −6 / 6 ตัน · จุดที่ ≥ High หรือ ≤ Low จะกระพริบสีแดงบนกราฟ</span>
+    </div>
+    <div class="md-body" id="wsdBody"></div>
+  `;
+  const modeEl = document.getElementById('wsdMode'), dateEl = document.getElementById('wsdDate'),
+        monthEl = document.getElementById('wsdMonth'), yearEl = document.getElementById('wsdYear');
+  const years = Array.from(new Set((WSD_BY_DIG[dig]||[]).map(r=> r.y))).sort();
+  yearEl.innerHTML = years.map(y=> '<option value="'+y+'">'+y+'</option>').join('');
+  modeEl.value = rng.mode;
+  dateEl.hidden = rng.mode!=='date'; monthEl.hidden = rng.mode!=='month'; yearEl.hidden = rng.mode!=='year';
+  if(rng.mode==='date') dateEl.value = rng.value||'';
+  else if(rng.mode==='month') monthEl.value = rng.value||WSD_DEFAULT_MONTH;
+  else if(rng.value) yearEl.value = rng.value;
+  const applyRange = ()=> {
+    const mode = modeEl.value;
+    dateEl.hidden = mode!=='date'; monthEl.hidden = mode!=='month'; yearEl.hidden = mode!=='year';
+    const value = mode==='date' ? dateEl.value : mode==='month' ? monthEl.value : yearEl.value;
+    WSD_RANGE[dig] = { mode, value };
+    wsdRenderBody(dig);
+  };
+  [modeEl, dateEl, monthEl, yearEl].forEach(el=> { el.addEventListener('change', applyRange); el.addEventListener('input', applyRange); });
+  const loEl = document.getElementById('wsdTgtLo'), hiEl = document.getElementById('wsdTgtHi');
+  const onTgt = ()=> {
+    const lo = loEl.value.trim()==='' ? -6 : +loEl.value;
+    const hi = hiEl.value.trim()==='' ? 6 : +hiEl.value;
+    wsdSetTarget(dig, lo, hi);
+    wsdRenderBody(dig);
+    wsdRenderTiles();
+    document.querySelectorAll('#wsdTiles .mon-tile').forEach(t=> t.classList.toggle('sel', +t.dataset.dig===dig));
+  };
+  loEl.addEventListener('change', onTgt);
+  hiEl.addEventListener('change', onTgt);
+  panel.querySelectorAll('.md-viewbtn').forEach(b=> b.addEventListener('click', ()=> { WSD_VIEW[dig] = b.dataset.view; wsdRenderBody(dig); }));
+  wsdRenderBody(dig);
+}
+
+function initWsd(){
+  if(!WSD_ROWS.length){
+    const wrap = document.getElementById('wsdTiles');
+    if(wrap) wrap.innerHTML = '<div class="empty-state"><div class="icon">⚖️</div><h2>ยังไม่มีข้อมูล</h2><p>ไม่พบข้อมูล Digester no. / Weight after discharge ในชีต "Cooking Condition" (gid=1561629878)</p></div>';
+    return;
+  }
+  wsdRenderTiles();
+  wsdRenderDetail();
+  const host = document.getElementById('wsdHost');
+  if(!host) return;
+  const toggle = (dig)=> {
+    WSD_STATE.sel = (WSD_STATE.sel===dig) ? null : dig;
+    wsdRenderDetail();
+    if(WSD_STATE.sel){ const d = document.getElementById('wsdDetail'); if(d) d.scrollIntoView({behavior:'smooth', block:'nearest'}); }
+  };
+  host.addEventListener('click', (e)=> {
+    const tile = e.target.closest('.mon-tile'); if(!tile) return;
+    toggle(+tile.dataset.dig);
+  });
+  host.addEventListener('keydown', (e)=> {
+    if(e.key!=='Enter' && e.key!==' ') return;
+    const tile = e.target.closest('.mon-tile'); if(!tile) return;
+    e.preventDefault();
+    toggle(+tile.dataset.dig);
+  });
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', ()=> { wsdRenderTiles(); wsdRenderDetail(); });
+}
+if(document.getElementById('wsdHost')) initWsd();
 
 /* ---- Notification Centre: real anomalies from the Yield monitor metrics —
    any scored metric whose latest reading sits outside its own ±3σ control band
