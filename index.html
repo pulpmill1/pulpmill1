@@ -1608,7 +1608,7 @@
           <button type="button" class="foot-toggle" data-target="wsdFoot" aria-expanded="false" aria-controls="wsdFoot">ดูรายละเอียด</button>
           <div class="foot" id="wsdFoot" hidden>
             ที่มา: Google Sheets tab "Weight Scale Dig." (<code>gid=1177773637</code>) · คอลัมน์วันที่รูปแบบ D/M/YYYY (วันก่อนเดือน) · Cooking Batch ACC., Digester no., ปริมาณไม้สับตาม Weight scale (GT) และ Weight after discharge (ton) resolve จากชื่อหัวตารางในชีตเดียวกัน<br>
-            จุดข้อมูลที่มีน้ำหนัก ≥ Target High หรือ ≤ Target Low จะแสดงเป็นวงกลมสีแดงกระพริบบนกราฟ · ตั้งค่า Target Low/High ได้เองต่อ Digester (ค่าเริ่มต้น −6 / 6 ตัน) เก็บไว้ในเบราว์เซอร์นี้<br>
+            จุดข้อมูลที่มีน้ำหนัก ≥ Target High หรือ ≤ Target Low ต่อเนื่องกันตั้งแต่ 3 batch ขึ้นไป จะแสดงเป็นวงกลมสีแดงกระพริบบนกราฟ (นับต่อเนื่อง หากไม่ถึง 3 ครั้งติดกันจะไม่ขึ้นจุด) · ตั้งค่า Target Low/High ได้เองต่อ Digester (ค่าเริ่มต้น −6 / 6 ตัน) เก็บไว้ในเบราว์เซอร์นี้<br>
             เมื่อเปิดหน้านี้ค่าเริ่มต้นจะแสดงข้อมูลของเดือนปัจจุบัน · เปลี่ยนช่วงเป็นรายวัน/รายเดือน/รายปีได้จากตัวเลือกด้านบนกราฟ · กดปุ่ม "ตาราง" เพื่อดูข้อมูลดิบแทนกราฟ
           </div>
         </section>
@@ -6637,6 +6637,23 @@ function wsdTarget(dig){
 }
 function wsdSetTarget(dig, lo, hi){ try{ localStorage.setItem('fl1_wsd_target_'+dig, JSON.stringify({lo, hi})); }catch(e){} }
 function wsdIsAlert(v, tgt){ return v!=null && tgt.hi!=null && tgt.lo!=null && (v>=tgt.hi || v<=tgt.lo); }
+/* จุดกระพริบเฉพาะเมื่อค่าเกินเป้า (>= High หรือ <= Low) ต่อเนื่องกันตั้งแต่ 3 batch ขึ้นไป — นับต่อเนื่อง
+   จากลำดับ batch เต็มของ digester นั้น (ไม่ใช่แค่ในช่วงที่กำลังดูอยู่) กันพลาดกรณี run คาบเกี่ยวรอยต่อเดือน/ปี
+   คืนค่าเป็น Set ของ "แถวข้อมูลเดิม" (object reference เดียวกับใน WSD_BY_DIG เพราะ .filter() ไม่ copy)
+   จึงเช็คสมาชิกได้ตรงๆ ไม่ว่าจะมองผ่าน view ไหน */
+function wsdComputeAlertSet(fullRows, tgt){
+  const flagged = new Set();
+  let i = 0;
+  while(i < fullRows.length){
+    if(wsdIsAlert(fullRows[i].weight, tgt)){
+      let j = i;
+      while(j < fullRows.length && wsdIsAlert(fullRows[j].weight, tgt)) j++;
+      if(j - i >= 3){ for(let k=i; k<j; k++) flagged.add(fullRows[k]); }
+      i = j;
+    } else i++;
+  }
+  return flagged;
+}
 
 const wsdToday = new Date();
 const WSD_DEFAULT_MONTH = wsdToday.getFullYear()+'-'+String(wsdToday.getMonth()+1).padStart(2,'0');
@@ -6706,14 +6723,14 @@ function wsdPlaceAlertDots(chart, alertIdx){
   existing.forEach((el,key)=> { if(!seen.has(key)) el.remove(); });
 }
 
-function wsdDrawChart(dig, rows, tgt){
+function wsdDrawChart(dig, rows, tgt, alertSet){
   const cv = document.getElementById('wsdChart_'+dig);
   if(!cv) return;
   const c = { ink2:cssVar('--ink-2'), grid:cssVar('--grid'), surface:cssVar('--surface'), border:cssVar('--border'), ink:cssVar('--ink') };
   const labels = rows.map(r=> r.d+'/'+(r.mi+1)+' #'+(r.batchAcc??''));
   const vals = rows.map(r=> r.weight);
   const alertIdx = [];
-  rows.forEach((r,i)=> { if(wsdIsAlert(r.weight, tgt)) alertIdx.push(i); });
+  rows.forEach((r,i)=> { if(alertSet.has(r)) alertIdx.push(i); });
   const flat = (v,col,lab)=> ({ type:'line', label:lab, data:labels.map(()=> v), borderColor:col, borderWidth:1.6,
     borderDash:[7,3], pointRadius:0, fill:false, tension:0, order:5, datalabels:{display:false} });
   const refs = [];
@@ -6753,7 +6770,7 @@ function wsdDrawChart(dig, rows, tgt){
     const items = ['<span class="item"><span class="box" style="background:#0A2E55"></span>Weight after discharge</span>'];
     items.push('<span class="item"><span class="sw dashed" style="border-color:#12a150"></span>Target Low '+tgt.lo+'</span>');
     items.push('<span class="item"><span class="sw dashed" style="border-color:#d4342c"></span>Target High '+tgt.hi+'</span>');
-    if(alertIdx.length) items.push('<span class="item"><span class="box" style="background:#d4342c"></span>'+alertIdx.length+' จุดนอกเป้า (กระพริบ)</span>');
+    if(alertIdx.length) items.push('<span class="item"><span class="box" style="background:#d4342c"></span>'+alertIdx.length+' จุดนอกเป้าต่อเนื่อง ≥3 batch (กระพริบ)</span>');
     leg.innerHTML = items.join('');
   }
 }
@@ -6767,19 +6784,20 @@ function wsdRenderBody(dig){
   const rng = WSD_RANGE[dig] || { mode:'month', value:WSD_DEFAULT_MONTH };
   const rows = wsdFilterRows(dig, rng.mode, rng.value);
   const tgt = wsdTarget(dig);
+  const alertSet = wsdComputeAlertSet(WSD_BY_DIG[dig] || [], tgt);
   const rangeNote = '<div class="md-rangenote">'+rows.length+' cooking batch'+(rows.length===1?'':'es')+'</div>';
   if(view === 'table'){
     body.innerHTML = '<div class="md-tablewrap"><table class="md-table wide"><thead><tr>'
       + '<th>วันที่</th><th>Cooking Batch ACC.</th><th>Digester no.</th><th>ปริมาณไม้สับตาม Weight scale (GT)</th><th>Weight after discharge (ton)</th>'
       + '</tr></thead><tbody>'
       + rows.map(r=> {
-          const alert = wsdIsAlert(r.weight, tgt);
+          const alert = alertSet.has(r);
           return '<tr'+(alert?' class="wsd-alert-row"':'')+'><td>'+r.d+'/'+(r.mi+1)+'/'+r.y+'</td><td class="num">'+(r.batchAcc??'—')+'</td><td class="num">'+r.dig+'</td><td class="num">'+(r.chipGT??'—')+'</td><td class="num">'+chipMonFmt(r.weight,1)+'</td></tr>';
         }).join('')
       + '</tbody></table></div>' + rangeNote;
   } else {
     body.innerHTML = '<div class="md-chart-wrap"><canvas id="wsdChart_'+dig+'"></canvas></div><div class="legend-row" id="wsdLegend_'+dig+'"></div>' + rangeNote;
-    wsdDrawChart(dig, rows, tgt);
+    wsdDrawChart(dig, rows, tgt, alertSet);
   }
 }
 
@@ -6815,7 +6833,7 @@ function wsdRenderDetail(){
       <span class="lbl">Target</span>
       <span class="fld">LOW <input type="number" step="any" id="wsdTgtLo" value="${tgt.lo}"> ton</span>
       <span class="fld">HIGH <input type="number" step="any" id="wsdTgtHi" value="${tgt.hi}"> ton</span>
-      <span class="note">ค่าเริ่มต้น −6 / 6 ตัน · จุดที่ ≥ High หรือ ≤ Low จะกระพริบสีแดงบนกราฟ</span>
+      <span class="note">ค่าเริ่มต้น −6 / 6 ตัน · จุดที่ ≥ High หรือ ≤ Low ต่อเนื่อง ≥3 batch จะกระพริบสีแดงบนกราฟ</span>
     </div>
     <div class="md-body" id="wsdBody"></div>
   `;
