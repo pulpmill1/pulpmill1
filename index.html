@@ -6630,9 +6630,9 @@ const WSD_METRICS = [
     targetNote:'ค่าเริ่มต้น −6 / 6 ตัน · จุดที่ ≥ High หรือ ≤ Low ต่อเนื่อง ≥3 batch จะกระพริบสีแดงบนกราฟ' },
   { id:'dpl5m3', valueKey:'dpl', dec:0, unit:'ton',
     th:'น้ำหนักหลัง Displacement 5 m3', tableColLabel:'Weight after DPL 5 m3 (ton)',
-    defaultLo:305, defaultHi:355,
+    defaultLo:305, defaultHi:335,
     isAlert:(v,tgt)=> v!=null && tgt.hi!=null && tgt.lo!=null && (v<tgt.lo || v>tgt.hi),
-    targetNote:'ค่าเริ่มต้น 305 / 355 ตัน · จุดที่ < Low หรือ > High ต่อเนื่อง ≥3 batch จะกระพริบสีแดงบนกราฟ' }
+    targetNote:'ค่าเริ่มต้น 305 / 335 ตัน · จุดที่ < Low หรือ > High ต่อเนื่อง ≥3 batch จะกระพริบสีแดงบนกราฟ' }
 ];
 
 const WSD_DIGESTERS = [1,2,3,4,5];
@@ -6717,7 +6717,9 @@ function wsdRenderTiles(metric){
     let val = '—', sub = '<span class="flat">— ไม่มีข้อมูล</span>', dot = '';
     if(last){
       val = chipMonFmt(last[metric.valueKey], metric.dec);
-      const alert = metric.isAlert(last[metric.valueKey], tgt);
+      // เตือน "นอกเป้า" เฉพาะเมื่อค่าล่าสุดเป็นส่วนหนึ่งของ run นอกเป้าต่อเนื่อง ≥3 batch ที่ยังไม่จบ
+      // (เงื่อนไขเดียวกับจุดกระพริบบนกราฟ) ไม่ใช่แค่ค่าล่าสุดค่าเดียวหลุดเป้า — ให้บล็อกย่อยตรงกับกราฟเสมอ
+      const alert = wsdComputeAlertSet(metric, rows, tgt).has(last);
       dot = alert ? 'bad' : 'ok';
       const dateStr = last.d+'/'+(last.mi+1)+'/'+last.y;
       sub = '<span class="'+(alert?'up':'flat')+'">'+(alert?'⚠ นอกเป้า':'– ปกติ')+'</span> #'+(last.batchAcc??'—')+' · '+dateStr;
