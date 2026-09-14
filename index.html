@@ -6589,19 +6589,37 @@ if(document.getElementById('chipMonHost')) initChipMon();
    3=Cooking Batch ACC., 4=Shift, 5=Digester no., 6=ปริมาณไม้สับตาม Weight scale (GT),
    7=Weight after discharge (ton). หนึ่งแถว = หนึ่ง cook (ไม่ใช่หนึ่งวัน) ต่างจากตารางอื่นในชีตนี้
    ที่เป็นรายวัน จึงต้อง parse แยกเป็นชุดของตัวเอง ไม่ผสมกับ CHIP_MON_ROWS ================== */
+/* หาแถว header ของตารางนี้เอง (ไม่ตายตัวว่าอยู่แถวไหน) แล้ว resolve คอลัมน์จาก "ชื่อหัวคอลัมน์" แทนตำแหน่ง
+   คงที่ — วิธีเดียวกับ resolveChipCol ด้านบนที่ใช้กับ chipWoodRows — กันพลาดถ้าชีตต้นทางแทรก/ย้ายคอลัมน์ */
+function wsdFindHeaderCol(headerRow, needle, fallback){
+  if(!headerRow) return fallback;
+  const idx = headerRow.findIndex(function(h){ return String(h||'').replace(/\s+/g,' ').trim().indexOf(needle) === 0; });
+  return idx >= 0 ? idx : fallback;
+}
+let WSD_HEADER_ROW = null;
+for(let hi=0; hi<cookingCondRows.length; hi++){
+  const hr = cookingCondRows[hi];
+  if(hr && hr.some(function(c){ return String(c||'').replace(/\s+/g,' ').trim().indexOf('Digester no') === 0; })){ WSD_HEADER_ROW = hr; break; }
+}
+const WSD_COL_BATCHACC = wsdFindHeaderCol(WSD_HEADER_ROW, 'Cooking Batch', 3);
+const WSD_COL_SHIFT    = wsdFindHeaderCol(WSD_HEADER_ROW, 'Shift', 4);
+const WSD_COL_DIG      = wsdFindHeaderCol(WSD_HEADER_ROW, 'Digester no', 5);
+const WSD_COL_CHIPGT   = wsdFindHeaderCol(WSD_HEADER_ROW, 'ปริมาณไม้สับ', 6);
+const WSD_COL_WEIGHT   = wsdFindHeaderCol(WSD_HEADER_ROW, 'Weight after discharge', 7);
+
 const WSD_DIGESTERS = [1,2,3,4,5];
 const WSD_ROWS = [];
 for(let wsdi=0; wsdi<cookingCondRows.length; wsdi++){
   const wr = cookingCondRows[wsdi];
   const wm = chipMonDre.exec(String((wr && wr[1]) || '').trim());
   if(!wm) continue;
-  const dig = parseSheetNum(wr[5]);
-  const weight = parseSheetNum(wr[7]);
+  const dig = parseSheetNum(wr[WSD_COL_DIG]);
+  const weight = parseSheetNum(wr[WSD_COL_WEIGHT]);
   if(dig==null || weight==null) continue;
   WSD_ROWS.push({
     y:+wm[3], mi:(+wm[2])-1, d:+wm[1], ts:new Date(+wm[3],(+wm[2])-1,+wm[1]).getTime(),
-    batchAcc: parseSheetNum(wr[3]), shift: String(wr[4]||'').trim(),
-    dig: dig, chipGT: parseSheetNum(wr[6]), weight: weight
+    batchAcc: parseSheetNum(wr[WSD_COL_BATCHACC]), shift: String(wr[WSD_COL_SHIFT]||'').trim(),
+    dig: dig, chipGT: parseSheetNum(wr[WSD_COL_CHIPGT]), weight: weight
   });
 }
 WSD_ROWS.sort((x,y)=> (x.batchAcc!=null && y.batchAcc!=null) ? (x.batchAcc-y.batchAcc) : (x.ts-y.ts));
