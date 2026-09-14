@@ -1607,7 +1607,7 @@
           </div>
           <button type="button" class="foot-toggle" data-target="wsdFoot" aria-expanded="false" aria-controls="wsdFoot">ดูรายละเอียด</button>
           <div class="foot" id="wsdFoot" hidden>
-            ที่มา: Google Sheets tab "Cooking Condition" (<code>gid=1561629878</code>) · คอลัมน์วันที่รูปแบบ D/M/YYYY (วันก่อนเดือน) · Cooking Batch ACC., Digester no., ปริมาณไม้สับตาม Weight scale (GT) และ Weight after discharge (ton) ดึงจากคอลัมน์ตรงในชีตเดียวกัน<br>
+            ที่มา: Google Sheets tab "Weight Scale Dig." (<code>gid=1177773637</code>) · คอลัมน์วันที่รูปแบบ D/M/YYYY (วันก่อนเดือน) · Cooking Batch ACC., Digester no., ปริมาณไม้สับตาม Weight scale (GT) และ Weight after discharge (ton) resolve จากชื่อหัวตารางในชีตเดียวกัน<br>
             จุดข้อมูลที่มีน้ำหนัก ≥ Target High หรือ ≤ Target Low จะแสดงเป็นวงกลมสีแดงกระพริบบนกราฟ · ตั้งค่า Target Low/High ได้เองต่อ Digester (ค่าเริ่มต้น −6 / 6 ตัน) เก็บไว้ในเบราว์เซอร์นี้<br>
             เมื่อเปิดหน้านี้ค่าเริ่มต้นจะแสดงข้อมูลของเดือนปัจจุบัน · เปลี่ยนช่วงเป็นรายวัน/รายเดือน/รายปีได้จากตัวเลือกด้านบนกราฟ · กดปุ่ม "ตาราง" เพื่อดูข้อมูลดิบแทนกราฟ
           </div>
@@ -1766,7 +1766,7 @@ const DAYS_IN_MONTH = [31,28,31,30,31,30,31,31,30,31,30,31];
    Daily (Act) gid=0, Daily (BG) gid=1682718600, Daily (Plan) gid=3664159, Daily (Loss) gid=786133815
    Monthly (Act) gid=1448795576, Monthly (Budget) gid=1872828527 */
 const SHEET_ID = '1dStWwliEd6YhSOL3oT8JNyWHZOuII5F-QVeubIrBS50';
-const SHEET_GIDS = { dailyAct:0, dailyBg:1682718600, dailyPlan:3664159, dailyLoss:786133815, monthlyAct:1448795576, monthlyBudget:1872828527, chipWood:632351488, cookingCond:1561629878 };
+const SHEET_GIDS = { dailyAct:0, dailyBg:1682718600, dailyPlan:3664159, dailyLoss:786133815, monthlyAct:1448795576, monthlyBudget:1872828527, chipWood:632351488, cookingCond:1561629878, weightScaleDig:1177773637 };
 function sheetCsvUrl(gid){ return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${gid}`; }
 
 // robust CSV parser: handles quoted fields, embedded commas, embedded newlines, doubled-quote escaping
@@ -1860,9 +1860,10 @@ function parseMonthlySheet(rows, labelWord){
   return byYear;
 }
 
-const [dailyActRows, dailyBgRows, dailyPlanRows, dailyLossRows, monthlyActRows, monthlyBudgetRows, chipWoodRows, cookingCondRows] = await Promise.all([
+const [dailyActRows, dailyBgRows, dailyPlanRows, dailyLossRows, monthlyActRows, monthlyBudgetRows, chipWoodRows, cookingCondRows, weightScaleDigRows] = await Promise.all([
   fetchSheetCsv(SHEET_GIDS.dailyAct), fetchSheetCsv(SHEET_GIDS.dailyBg), fetchSheetCsv(SHEET_GIDS.dailyPlan), fetchSheetCsv(SHEET_GIDS.dailyLoss),
   fetchSheetCsv(SHEET_GIDS.monthlyAct), fetchSheetCsv(SHEET_GIDS.monthlyBudget), fetchSheetCsv(SHEET_GIDS.chipWood), fetchSheetCsv(SHEET_GIDS.cookingCond),
+  fetchSheetCsv(SHEET_GIDS.weightScaleDig),
 ]);
 
 const dailyActParsed = parseDailySheet(dailyActRows, {numeric:true});
@@ -6584,11 +6585,11 @@ if(document.getElementById('chipMonHost')) initChipMon();
 
 /* ==================================================================================
    Weight Scale Digester — น้ำหนักคงเหลือหลัง Discharge ต่อ cooking batch, แยกตาม Digester 1-5
-   แหล่งข้อมูล: Google Sheets tab "Cooking Condition" (gid=1561629878), ตารางเดียวกับที่ใช้ดึง
-   "No of cooks" อยู่แล้ว (COOKING_BY_DATE ด้านบน) — คอลัมน์: 1=วันที่, 2=Cooking No.,
-   3=Cooking Batch ACC., 4=Shift, 5=Digester no., 6=ปริมาณไม้สับตาม Weight scale (GT),
-   7=Weight after discharge (ton). หนึ่งแถว = หนึ่ง cook (ไม่ใช่หนึ่งวัน) ต่างจากตารางอื่นในชีตนี้
-   ที่เป็นรายวัน จึงต้อง parse แยกเป็นชุดของตัวเอง ไม่ผสมกับ CHIP_MON_ROWS ================== */
+   แหล่งข้อมูล: Google Sheets tab "Weight Scale Dig." (gid=1177773637) — คอลัมน์ 1=วันที่
+   (ทุกชีตในไฟล์นี้ใช้คอลัมน์นี้เป็นวันที่เหมือนกัน) ส่วนคอลัมน์ Cooking Batch ACC. / Shift /
+   Digester no. / ปริมาณไม้สับตาม Weight scale / Weight after discharge resolve จาก "ชื่อหัวตาราง"
+   ด้านล่าง ไม่อิงตำแหน่งตายตัว กันพลาดถ้าชีตต้นทางแทรก/สลับคอลัมน์ในอนาคต หนึ่งแถว = หนึ่ง cook
+   (ไม่ใช่หนึ่งวัน) จึงต้อง parse แยกเป็นชุดของตัวเอง ไม่ผสมกับ CHIP_MON_ROWS ================== */
 /* หาแถว header ของตารางนี้เอง (ไม่ตายตัวว่าอยู่แถวไหน) แล้ว resolve คอลัมน์จาก "ชื่อหัวคอลัมน์" แทนตำแหน่ง
    คงที่ — วิธีเดียวกับ resolveChipCol ด้านบนที่ใช้กับ chipWoodRows — กันพลาดถ้าชีตต้นทางแทรก/ย้ายคอลัมน์ */
 function wsdFindHeaderCol(headerRow, needle, fallback){
@@ -6597,8 +6598,8 @@ function wsdFindHeaderCol(headerRow, needle, fallback){
   return idx >= 0 ? idx : fallback;
 }
 let WSD_HEADER_ROW = null;
-for(let hi=0; hi<cookingCondRows.length; hi++){
-  const hr = cookingCondRows[hi];
+for(let hi=0; hi<weightScaleDigRows.length; hi++){
+  const hr = weightScaleDigRows[hi];
   if(hr && hr.some(function(c){ return String(c||'').replace(/\s+/g,' ').trim().indexOf('Digester no') === 0; })){ WSD_HEADER_ROW = hr; break; }
 }
 const WSD_COL_BATCHACC = wsdFindHeaderCol(WSD_HEADER_ROW, 'Cooking Batch', 3);
@@ -6609,8 +6610,8 @@ const WSD_COL_WEIGHT   = wsdFindHeaderCol(WSD_HEADER_ROW, 'Weight after discharg
 
 const WSD_DIGESTERS = [1,2,3,4,5];
 const WSD_ROWS = [];
-for(let wsdi=0; wsdi<cookingCondRows.length; wsdi++){
-  const wr = cookingCondRows[wsdi];
+for(let wsdi=0; wsdi<weightScaleDigRows.length; wsdi++){
+  const wr = weightScaleDigRows[wsdi];
   const wm = chipMonDre.exec(String((wr && wr[1]) || '').trim());
   if(!wm) continue;
   const dig = parseSheetNum(wr[WSD_COL_DIG]);
@@ -6850,7 +6851,7 @@ function wsdRenderDetail(){
 function initWsd(){
   if(!WSD_ROWS.length){
     const wrap = document.getElementById('wsdTiles');
-    if(wrap) wrap.innerHTML = '<div class="empty-state"><div class="icon">⚖️</div><h2>ยังไม่มีข้อมูล</h2><p>ไม่พบข้อมูล Digester no. / Weight after discharge ในชีต "Cooking Condition" (gid=1561629878)</p></div>';
+    if(wrap) wrap.innerHTML = '<div class="empty-state"><div class="icon">⚖️</div><h2>ยังไม่มีข้อมูล</h2><p>ไม่พบข้อมูล Digester no. / Weight after discharge ในชีต "Weight Scale Dig." (gid=1177773637)</p></div>';
     return;
   }
   wsdRenderTiles();
