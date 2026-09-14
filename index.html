@@ -1600,16 +1600,24 @@
         <section class="page" data-page="yield-weightscale" hidden>
           <div class="mon-group">
             <div class="mon-group-head"><span class="gi">⚖️</span><span class="gt">น้ำหนักคงเหลือหลัง Discharge (Weight Scale Digester)</span><span class="gs">5 Digester · คลิกที่บล็อกเพื่อดูกราฟหลัก</span></div>
-            <div id="wsdHost">
-              <div class="mon-tiles" id="wsdTiles"></div>
-              <div class="mon-detail" id="wsdDetail" hidden></div>
+            <div id="wsdHost_discharge">
+              <div class="mon-tiles" id="wsdTiles_discharge"></div>
+              <div class="mon-detail" id="wsdDetail_discharge" hidden></div>
+            </div>
+          </div>
+          <div class="mon-group">
+            <div class="mon-group-head"><span class="gi">⚖️</span><span class="gt">น้ำหนักหลัง Displacement 5 m3 (Weight Scale Digester)</span><span class="gs">5 Digester · คลิกที่บล็อกเพื่อดูกราฟหลัก</span></div>
+            <div id="wsdHost_dpl5m3">
+              <div class="mon-tiles" id="wsdTiles_dpl5m3"></div>
+              <div class="mon-detail" id="wsdDetail_dpl5m3" hidden></div>
             </div>
           </div>
           <button type="button" class="foot-toggle" data-target="wsdFoot" aria-expanded="false" aria-controls="wsdFoot">ดูรายละเอียด</button>
           <div class="foot" id="wsdFoot" hidden>
-            ที่มา: Google Sheets tab "Weight Scale Dig." (<code>gid=1177773637</code>) · คอลัมน์วันที่รูปแบบ D/M/YYYY (วันก่อนเดือน) · Cooking Batch ACC., Digester no., ปริมาณไม้สับตาม Weight scale (GT) และ Weight after discharge (ton) resolve จากชื่อหัวตารางในชีตเดียวกัน<br>
-            จุดข้อมูลที่มีน้ำหนัก ≥ Target High หรือ ≤ Target Low ต่อเนื่องกันตั้งแต่ 3 batch ขึ้นไป จะแสดงเป็นวงกลมสีแดงกระพริบบนกราฟ (นับต่อเนื่อง หากไม่ถึง 3 ครั้งติดกันจะไม่ขึ้นจุด) · ตั้งค่า Target Low/High ได้เองต่อ Digester (ค่าเริ่มต้น −6 / 6 ตัน) เก็บไว้ในเบราว์เซอร์นี้<br>
-            เมื่อเปิดหน้านี้ค่าเริ่มต้นจะแสดงข้อมูลของเดือนปัจจุบัน · เปลี่ยนช่วงเป็นรายวัน/รายเดือน/รายปีได้จากตัวเลือกด้านบนกราฟ · กดปุ่ม "ตาราง" เพื่อดูข้อมูลดิบแทนกราฟ
+            ที่มา: Google Sheets tab "Weight Scale Dig." (<code>gid=1177773637</code>) · คอลัมน์วันที่รูปแบบ D/M/YYYY (วันก่อนเดือน) · Cooking Batch ACC., Digester no., ปริมาณไม้สับตาม Weight scale (GT), Weight after discharge (ton) และ Weight after DPL 5 m3 (ton) resolve จากชื่อหัวตารางในชีตเดียวกัน<br>
+            น้ำหนักคงเหลือหลัง Discharge: จุดที่ ≥ Target High หรือ ≤ Target Low ต่อเนื่องกันตั้งแต่ 3 batch ขึ้นไป (ในช่วงที่กำลังดูอยู่) จะกระพริบสีแดงบนกราฟ ค่าเริ่มต้น Target −6 / 6 ตัน<br>
+            น้ำหนักหลัง Displacement 5 m3: จุดที่ &lt; Target Low หรือ &gt; Target High ต่อเนื่องกันตั้งแต่ 3 batch ขึ้นไป (ในช่วงที่กำลังดูอยู่) จะกระพริบสีแดงบนกราฟ ค่าเริ่มต้น Target 305 / 355 ตัน<br>
+            ตั้งค่า Target Low/High ได้เองต่อ Digester ต่อกราฟ เก็บไว้ในเบราว์เซอร์นี้ · เมื่อเปิดหน้านี้ค่าเริ่มต้นจะแสดงข้อมูลของเดือนปัจจุบัน · เปลี่ยนช่วงเป็นรายวัน/รายเดือน/รายปีได้จากตัวเลือกด้านบนกราฟ · กดปุ่ม "ตาราง" เพื่อดูข้อมูลดิบแทนกราฟ
           </div>
         </section>
 
@@ -5024,7 +5032,7 @@ function applyLang(lang){
     if(typeof renderNotifCentre === 'function') renderNotifCentre();
     if(typeof renderYieldAnalysisTable === 'function') renderYieldAnalysisTable();
   }
-  if(typeof wsdRenderTiles === 'function' && document.getElementById('wsdHost')){ wsdRenderTiles(); wsdRenderDetail(); }
+  if(typeof wsdRenderTiles === 'function' && typeof WSD_METRICS !== 'undefined'){ WSD_METRICS.forEach(function(m){ if(document.getElementById('wsdHost_'+m.id)){ wsdRenderTiles(m); wsdRenderDetail(m); } }); }
   if(typeof i18nApplyPage === 'function') i18nApplyPage();
 }
 
@@ -6584,14 +6592,16 @@ function initChipMon(){
 if(document.getElementById('chipMonHost')) initChipMon();
 
 /* ==================================================================================
-   Weight Scale Digester — น้ำหนักคงเหลือหลัง Discharge ต่อ cooking batch, แยกตาม Digester 1-5
-   แหล่งข้อมูล: Google Sheets tab "Weight Scale Dig." (gid=1177773637) — คอลัมน์ 1=วันที่
-   (ทุกชีตในไฟล์นี้ใช้คอลัมน์นี้เป็นวันที่เหมือนกัน) ส่วนคอลัมน์ Cooking Batch ACC. / Shift /
-   Digester no. / ปริมาณไม้สับตาม Weight scale / Weight after discharge resolve จาก "ชื่อหัวตาราง"
-   ด้านล่าง ไม่อิงตำแหน่งตายตัว กันพลาดถ้าชีตต้นทางแทรก/สลับคอลัมน์ในอนาคต หนึ่งแถว = หนึ่ง cook
-   (ไม่ใช่หนึ่งวัน) จึงต้อง parse แยกเป็นชุดของตัวเอง ไม่ผสมกับ CHIP_MON_ROWS ================== */
-/* หาแถว header ของตารางนี้เอง (ไม่ตายตัวว่าอยู่แถวไหน) แล้ว resolve คอลัมน์จาก "ชื่อหัวคอลัมน์" แทนตำแหน่ง
-   คงที่ — วิธีเดียวกับ resolveChipCol ด้านบนที่ใช้กับ chipWoodRows — กันพลาดถ้าชีตต้นทางแทรก/ย้ายคอลัมน์ */
+   Weight Scale Digester — สอง metric ต่อ cooking batch จากชีตเดียวกัน แยกตาม Digester 1-5:
+   (1) น้ำหนักคงเหลือหลัง Discharge  (2) น้ำหนักหลัง Displacement 5 m3
+   แหล่งข้อมูล: Google Sheets tab "Weight Scale Dig." (gid=1177773637) — คอลัมน์แรกคือ "วันที่"
+   เลย (index 0 = column A, ไม่มีคอลัมน์ว่างนำหน้าแบบแท็บอื่นๆ ในไฟล์นี้ — ยืนยันจาก Google Sheets
+   เอง cell G3 = "Weight after discharge") ส่วนคอลัมน์อื่นๆ resolve จาก "ชื่อหัวตาราง" ไม่อิงตำแหน่ง
+   ตายตัว กันพลาดถ้าชีตต้นทางแทรก/สลับคอลัมน์ในอนาคต (วิธีเดียวกับ resolveChipCol ที่ใช้กับ
+   chipWoodRows) หนึ่งแถว = หนึ่ง cook (ไม่ใช่หนึ่งวัน) จึง parse แยกเป็นชุดของตัวเอง ไม่ผสมกับ
+   CHIP_MON_ROWS ทั้งสอง metric ใช้ WSD_ROWS/WSD_BY_DIG ชุดเดียวกัน (คนละ field ต่อแถว) แล้วทุก
+   ฟังก์ชัน render/chart/table ด้านล่างรับ "metric config" (WSD_METRICS) เป็นพารามิเตอร์แทนการ
+   copy โค้ดซ้ำสองชุด ================== */
 function wsdFindHeaderCol(headerRow, needle, fallback){
   if(!headerRow) return fallback;
   const idx = headerRow.findIndex(function(h){ return String(h||'').replace(/\s+/g,' ').trim().indexOf(needle) === 0; });
@@ -6602,14 +6612,28 @@ for(let hi=0; hi<weightScaleDigRows.length; hi++){
   const hr = weightScaleDigRows[hi];
   if(hr && hr.some(function(c){ return String(c||'').replace(/\s+/g,' ').trim().indexOf('Digester no') === 0; })){ WSD_HEADER_ROW = hr; break; }
 }
-/* คอลัมน์แรกของแท็บนี้คือ "วันที่" เลย (index 0 = column A) ไม่มีคอลัมน์ว่างนำหน้าแบบแท็บอื่นๆ
-   ในไฟล์นี้ — ยืนยันจาก Google Sheets เอง (cell G3 = "Weight after discharge") */
 const WSD_COL_DATE     = wsdFindHeaderCol(WSD_HEADER_ROW, 'วันที่', 0);
 const WSD_COL_BATCHACC = wsdFindHeaderCol(WSD_HEADER_ROW, 'Cooking Batch', 2);
 const WSD_COL_SHIFT    = wsdFindHeaderCol(WSD_HEADER_ROW, 'Shift', 3);
 const WSD_COL_DIG      = wsdFindHeaderCol(WSD_HEADER_ROW, 'Digester no', 4);
 const WSD_COL_CHIPGT   = wsdFindHeaderCol(WSD_HEADER_ROW, 'ปริมาณไม้สับ', 5);
 const WSD_COL_WEIGHT   = wsdFindHeaderCol(WSD_HEADER_ROW, 'Weight after discharge', 6);
+const WSD_COL_DPL      = wsdFindHeaderCol(WSD_HEADER_ROW, 'Weight after DPL', 7);
+
+/* metric config: valueKey ชี้ field ใน row object ด้านล่าง, isAlert รับ (value, target) คืน
+   true/false ตามเงื่อนไขกระพริบของ metric นั้นๆ (ทิศทาง/inclusive-exclusive ต่างกันตามที่ผู้ใช้ระบุ) */
+const WSD_METRICS = [
+  { id:'discharge', valueKey:'weight', dec:1, unit:'ton',
+    th:'น้ำหนักคงเหลือหลัง Discharge', tableColLabel:'Weight after discharge (ton)',
+    defaultLo:-6, defaultHi:6,
+    isAlert:(v,tgt)=> v!=null && tgt.hi!=null && tgt.lo!=null && (v>=tgt.hi || v<=tgt.lo),
+    targetNote:'ค่าเริ่มต้น −6 / 6 ตัน · จุดที่ ≥ High หรือ ≤ Low ต่อเนื่อง ≥3 batch จะกระพริบสีแดงบนกราฟ' },
+  { id:'dpl5m3', valueKey:'dpl', dec:0, unit:'ton',
+    th:'น้ำหนักหลัง Displacement 5 m3', tableColLabel:'Weight after DPL 5 m3 (ton)',
+    defaultLo:305, defaultHi:355,
+    isAlert:(v,tgt)=> v!=null && tgt.hi!=null && tgt.lo!=null && (v<tgt.lo || v>tgt.hi),
+    targetNote:'ค่าเริ่มต้น 305 / 355 ตัน · จุดที่ < Low หรือ > High ต่อเนื่อง ≥3 batch จะกระพริบสีแดงบนกราฟ' }
+];
 
 const WSD_DIGESTERS = [1,2,3,4,5];
 const WSD_ROWS = [];
@@ -6618,12 +6642,12 @@ for(let wsdi=0; wsdi<weightScaleDigRows.length; wsdi++){
   const wm = chipMonDre.exec(String((wr && wr[WSD_COL_DATE]) || '').trim());
   if(!wm) continue;
   const dig = parseSheetNum(wr[WSD_COL_DIG]);
-  const weight = parseSheetNum(wr[WSD_COL_WEIGHT]);
-  if(dig==null || weight==null) continue;
+  if(dig==null) continue;
   WSD_ROWS.push({
     y:+wm[3], mi:(+wm[2])-1, d:+wm[1], ts:new Date(+wm[3],(+wm[2])-1,+wm[1]).getTime(),
     batchAcc: parseSheetNum(wr[WSD_COL_BATCHACC]), shift: String(wr[WSD_COL_SHIFT]||'').trim(),
-    dig: dig, chipGT: parseSheetNum(wr[WSD_COL_CHIPGT]), weight: weight
+    dig: dig, chipGT: parseSheetNum(wr[WSD_COL_CHIPGT]),
+    weight: parseSheetNum(wr[WSD_COL_WEIGHT]), dpl: parseSheetNum(wr[WSD_COL_DPL])
   });
 }
 /* เรียงตามวันที่จริง ไม่ใช่ Cooking Batch ACC. — ชีตต้นทางรีเซ็ตเลข ACC. เป็นระยะ (ยืนยันจากข้อมูลจริง:
@@ -6632,28 +6656,30 @@ for(let wsdi=0; wsdi<weightScaleDigRows.length; wsdi++){
 WSD_ROWS.sort((x,y)=> x.ts - y.ts);
 const WSD_BY_DIG = {};
 WSD_DIGESTERS.forEach(n=> WSD_BY_DIG[n] = WSD_ROWS.filter(r=> r.dig===n));
+/* แถวของ digester นั้นๆ ที่ metric นี้มีค่าจริง (บางแถวอาจมี Weight after discharge แต่ยังไม่มี
+   Weight after DPL 5 m3 หรือกลับกัน) — ทุกจุดที่ใช้ WSD_BY_DIG เพื่อแสดง/กรองต้องกรอง null ออกก่อน */
+function wsdMetricRows(metric, dig){ return (WSD_BY_DIG[dig] || []).filter(r=> r[metric.valueKey]!=null); }
 
-function wsdTarget(dig){
-  try{ const raw = JSON.parse(localStorage.getItem('fl1_wsd_target_'+dig) || '{}');
-    return { lo: raw.lo!=null ? raw.lo : -6, hi: raw.hi!=null ? raw.hi : 6 }; }
-  catch(e){ return {lo:-6, hi:6}; }
+function wsdTarget(metric, dig){
+  try{ const raw = JSON.parse(localStorage.getItem('fl1_wsd_target_'+metric.id+'_'+dig) || '{}');
+    return { lo: raw.lo!=null ? raw.lo : metric.defaultLo, hi: raw.hi!=null ? raw.hi : metric.defaultHi }; }
+  catch(e){ return {lo:metric.defaultLo, hi:metric.defaultHi}; }
 }
-function wsdSetTarget(dig, lo, hi){ try{ localStorage.setItem('fl1_wsd_target_'+dig, JSON.stringify({lo, hi})); }catch(e){} }
-function wsdIsAlert(v, tgt){ return v!=null && tgt.hi!=null && tgt.lo!=null && (v>=tgt.hi || v<=tgt.lo); }
-/* จุดกระพริบเฉพาะเมื่อค่าเกินเป้า (>= High หรือ <= Low) ต่อเนื่องกันตั้งแต่ 3 batch ขึ้นไป — นับต่อเนื่อง
-   เฉพาะภายใน "ช่วงข้อมูลที่กำลังดูอยู่" (rows ที่ผ่าน wsdFilterRows แล้ว) ไม่ใช่ทั้งประวัติของ digester
-   เพื่อไม่ให้เห็นจุดกระพริบเดี่ยวๆ ที่ดูเหมือนขัดกับเงื่อนไข "≥3 ครั้งติดกัน" เวลาสมาชิกอีก 1-2 ตัวของ run
-   ตกไปอยู่นอกช่วงที่มองอยู่ (เช่น คาบเกี่ยวเดือนก่อนหน้า) — แลกกับ run ที่คาบเกี่ยวรอยต่อช่วงจะไม่ถูกนับ
-   ในทั้งสองฝั่ง ซึ่งเข้าใจง่ายกว่าสำหรับผู้ใช้จริง คืนค่าเป็น Set ของ "แถวข้อมูลเดิม" (object reference
-   เดียวกับใน WSD_BY_DIG เพราะ .filter() ไม่ copy) จึงเช็คสมาชิกได้ตรงๆ ไม่ว่าจะมองผ่าน view ไหน */
-function wsdComputeAlertSet(fullRows, tgt){
+function wsdSetTarget(metric, dig, lo, hi){ try{ localStorage.setItem('fl1_wsd_target_'+metric.id+'_'+dig, JSON.stringify({lo, hi})); }catch(e){} }
+/* จุดกระพริบเฉพาะเมื่อค่าเกินเป้าต่อเนื่องกันตั้งแต่ 3 batch ขึ้นไป — นับต่อเนื่องเฉพาะภายใน "ช่วงข้อมูล
+   ที่กำลังดูอยู่" (rows ที่ผ่าน wsdFilterRows แล้ว) ไม่ใช่ทั้งประวัติของ digester เพื่อไม่ให้เห็นจุด
+   กระพริบเดี่ยวๆ ที่ดูเหมือนขัดกับเงื่อนไข "≥3 ครั้งติดกัน" เวลาสมาชิกอีก 1-2 ตัวของ run ตกไปอยู่นอก
+   ช่วงที่มองอยู่ (เช่น คาบเกี่ยวเดือนก่อนหน้า) — แลกกับ run ที่คาบเกี่ยวรอยต่อช่วงจะไม่ถูกนับในทั้งสองฝั่ง
+   ซึ่งเข้าใจง่ายกว่าสำหรับผู้ใช้จริง คืนค่าเป็น Set ของ "แถวข้อมูลเดิม" (object reference เดียวกับใน
+   WSD_BY_DIG เพราะ .filter() ไม่ copy) จึงเช็คสมาชิกได้ตรงๆ ไม่ว่าจะมองผ่าน view ไหน */
+function wsdComputeAlertSet(metric, rows, tgt){
   const flagged = new Set();
   let i = 0;
-  while(i < fullRows.length){
-    if(wsdIsAlert(fullRows[i].weight, tgt)){
+  while(i < rows.length){
+    if(metric.isAlert(rows[i][metric.valueKey], tgt)){
       let j = i;
-      while(j < fullRows.length && wsdIsAlert(fullRows[j].weight, tgt)) j++;
-      if(j - i >= 3){ for(let k=i; k<j; k++) flagged.add(fullRows[k]); }
+      while(j < rows.length && metric.isAlert(rows[j][metric.valueKey], tgt)) j++;
+      if(j - i >= 3){ for(let k=i; k<j; k++) flagged.add(rows[k]); }
       i = j;
     } else i++;
   }
@@ -6662,14 +6688,15 @@ function wsdComputeAlertSet(fullRows, tgt){
 
 const wsdToday = new Date();
 const WSD_DEFAULT_MONTH = wsdToday.getFullYear()+'-'+String(wsdToday.getMonth()+1).padStart(2,'0');
-const WSD_STATE = { sel:null };
-const WSD_RANGE = {};   // per digester: {mode:'date'|'month'|'year', value:string}
-const WSD_VIEW = {};    // per digester: 'chart' | 'table'
-const wsdCharts = {};
-const wsdSparks = {};
+const WSD_STATE = {};   // per metric id: {sel: dig|null}
+const WSD_RANGE = {};   // per metric id, per digester: {mode:'date'|'month'|'year', value:string}
+const WSD_VIEW = {};    // per metric id, per digester: 'chart' | 'table'
+const wsdCharts = {};   // per metric id: active Chart instance
+const wsdSparks = {};   // per "metricId_dig": tile sparkline Chart instance
+WSD_METRICS.forEach(m=> { WSD_STATE[m.id] = {sel:null}; WSD_RANGE[m.id] = {}; WSD_VIEW[m.id] = {}; });
 
-function wsdFilterRows(dig, mode, value){
-  const rows = WSD_BY_DIG[dig] || [];
+function wsdFilterRows(metric, dig, mode, value){
+  const rows = wsdMetricRows(metric, dig);
   if(!value) return rows.slice(-50);
   if(mode==='date'){
     const p = value.split('-').map(Number);
@@ -6680,34 +6707,35 @@ function wsdFilterRows(dig, mode, value){
   return rows.filter(r=> r.y===p[0] && r.mi===p[1]-1);
 }
 
-function wsdRenderTiles(){
-  const wrap = document.getElementById('wsdTiles');
+function wsdRenderTiles(metric){
+  const wrap = document.getElementById('wsdTiles_'+metric.id);
   if(!wrap) return;
   wrap.innerHTML = WSD_DIGESTERS.map(dig=> {
-    const rows = WSD_BY_DIG[dig] || [];
+    const rows = wsdMetricRows(metric, dig);
     const last = rows[rows.length-1];
-    const tgt = wsdTarget(dig);
+    const tgt = wsdTarget(metric, dig);
     let val = '—', sub = '<span class="flat">— ไม่มีข้อมูล</span>', dot = '';
     if(last){
-      val = chipMonFmt(last.weight, 1);
-      const alert = wsdIsAlert(last.weight, tgt);
+      val = chipMonFmt(last[metric.valueKey], metric.dec);
+      const alert = metric.isAlert(last[metric.valueKey], tgt);
       dot = alert ? 'bad' : 'ok';
       const dateStr = last.d+'/'+(last.mi+1)+'/'+last.y;
       sub = '<span class="'+(alert?'up':'flat')+'">'+(alert?'⚠ นอกเป้า':'– ปกติ')+'</span> #'+(last.batchAcc??'—')+' · '+dateStr;
     }
     return '<div class="mon-tile" role="button" tabindex="0" data-dig="'+dig+'" style="--mon-rail:#0A2E55">'
       + '<div class="mt-top"><span class="mt-ico">⚖️</span><span class="mt-name">Digester '+dig+'</span><span class="mt-dot '+dot+'"></span></div>'
-      + '<div class="mt-val">'+val+'<span class="mt-unit">ton</span></div>'
-      + '<div class="mt-row3"><span class="mt-sub">'+sub+'</span><span class="mt-spark-wrap"><canvas class="mt-spark" id="wsdSpark_'+dig+'"></canvas><i class="spark-live" id="wsdLive_'+dig+'" hidden></i></span></div>'
+      + '<div class="mt-val">'+val+'<span class="mt-unit">'+metric.unit+'</span></div>'
+      + '<div class="mt-row3"><span class="mt-sub">'+sub+'</span><span class="mt-spark-wrap"><canvas class="mt-spark" id="wsdSpark_'+metric.id+'_'+dig+'"></canvas><i class="spark-live" id="wsdLive_'+metric.id+'_'+dig+'" hidden></i></span></div>'
       + '</div>';
   }).join('');
   WSD_DIGESTERS.forEach(dig=> {
-    const rows = (WSD_BY_DIG[dig]||[]).slice(-60);
-    if(wsdSparks[dig]){ try{ wsdSparks[dig].destroy(); }catch(e){} wsdSparks[dig] = null; }
+    const rows = wsdMetricRows(metric, dig).slice(-60);
+    const sparkKey = metric.id+'_'+dig;
+    if(wsdSparks[sparkKey]){ try{ wsdSparks[sparkKey].destroy(); }catch(e){} wsdSparks[sparkKey] = null; }
     if(!rows.length) return;
-    const cv = document.getElementById('wsdSpark_'+dig);
-    const live = document.getElementById('wsdLive_'+dig);
-    wsdSparks[dig] = chipMonMakeSpark(cv, live, rows.map(r=> ({ts:r.ts, v:r.weight})), '#0A2E55');
+    const cv = document.getElementById('wsdSpark_'+sparkKey);
+    const live = document.getElementById('wsdLive_'+sparkKey);
+    wsdSparks[sparkKey] = chipMonMakeSpark(cv, live, rows.map(r=> ({ts:r.ts, v:r[metric.valueKey]})), '#0A2E55');
   });
 }
 
@@ -6728,12 +6756,12 @@ function wsdPlaceAlertDots(chart, alertIdx){
   existing.forEach((el,key)=> { if(!seen.has(key)) el.remove(); });
 }
 
-function wsdDrawChart(dig, rows, tgt, alertSet){
-  const cv = document.getElementById('wsdChart_'+dig);
+function wsdDrawChart(metric, dig, rows, tgt, alertSet){
+  const cv = document.getElementById('wsdChart_'+metric.id);
   if(!cv) return;
   const c = { ink2:cssVar('--ink-2'), grid:cssVar('--grid'), surface:cssVar('--surface'), border:cssVar('--border'), ink:cssVar('--ink') };
   const labels = rows.map(r=> r.d+'/'+(r.mi+1)+' #'+(r.batchAcc??''));
-  const vals = rows.map(r=> r.weight);
+  const vals = rows.map(r=> r[metric.valueKey]);
   const alertIdx = [];
   rows.forEach((r,i)=> { if(alertSet.has(r)) alertIdx.push(i); });
   const flat = (v,col,lab)=> ({ type:'line', label:lab, data:labels.map(()=> v), borderColor:col, borderWidth:1.6,
@@ -6747,7 +6775,7 @@ function wsdDrawChart(dig, rows, tgt, alertSet){
   lo -= pad; hi += pad;
   const cfg = {
     data:{ labels, datasets:[
-      { type:'line', label:'Weight after discharge', data:vals, borderColor:'#0A2E55', backgroundColor:'#0A2E55',
+      { type:'line', label:metric.th, data:vals, borderColor:'#0A2E55', backgroundColor:'#0A2E55',
         borderWidth:1.6, pointRadius: rows.length>120 ? 0 : 2.6,
         pointBackgroundColor:(ctx)=> alertIdx.includes(ctx.dataIndex) ? '#d4342c' : '#0A2E55',
         pointBorderColor:(ctx)=> alertIdx.includes(ctx.dataIndex) ? '#d4342c' : '#0A2E55',
@@ -6763,16 +6791,16 @@ function wsdDrawChart(dig, rows, tgt, alertSet){
         tooltip:{ backgroundColor:c.surface, titleColor:c.ink, bodyColor:c.ink2, borderColor:c.border, borderWidth:1, padding:9,
           callbacks:{
             title:(items)=> { const r = rows[items[0].dataIndex]; return r ? (r.d+'/'+(r.mi+1)+'/'+r.y+' · Batch #'+(r.batchAcc??'—')+' · Shift '+(r.shift||'—')) : ''; },
-            label:(x)=> x.dataset.label ? (x.dataset.label+': '+(x.parsed.y==null?'—':x.parsed.y.toFixed(1))+' ton') : ''
+            label:(x)=> x.dataset.label ? (x.dataset.label+': '+(x.parsed.y==null?'—':x.parsed.y.toFixed(metric.dec))+' '+metric.unit) : ''
           } } }
     },
     plugins:[{ id:'wsdAlertDots', afterDraw:(chart)=> wsdPlaceAlertDots(chart, alertIdx) }]
   };
-  if(wsdCharts[dig]){ try{ wsdCharts[dig].destroy(); }catch(e){} }
-  wsdCharts[dig] = new Chart(cv.getContext('2d'), cfg);
-  const leg = document.getElementById('wsdLegend_'+dig);
+  if(wsdCharts[metric.id]){ try{ wsdCharts[metric.id].destroy(); }catch(e){} }
+  wsdCharts[metric.id] = new Chart(cv.getContext('2d'), cfg);
+  const leg = document.getElementById('wsdLegend_'+metric.id);
   if(leg){
-    const items = ['<span class="item"><span class="box" style="background:#0A2E55"></span>Weight after discharge</span>'];
+    const items = ['<span class="item"><span class="box" style="background:#0A2E55"></span>'+metric.th+'</span>'];
     items.push('<span class="item"><span class="sw dashed" style="border-color:#12a150"></span>Target Low '+tgt.lo+'</span>');
     items.push('<span class="item"><span class="sw dashed" style="border-color:#d4342c"></span>Target High '+tgt.hi+'</span>');
     if(alertIdx.length) items.push('<span class="item"><span class="box" style="background:#d4342c"></span>'+alertIdx.length+' จุดนอกเป้าต่อเนื่อง ≥3 batch (กระพริบ)</span>');
@@ -6780,46 +6808,46 @@ function wsdDrawChart(dig, rows, tgt, alertSet){
   }
 }
 
-function wsdRenderBody(dig){
-  const body = document.getElementById('wsdBody');
+function wsdRenderBody(metric, dig){
+  const body = document.getElementById('wsdBody_'+metric.id);
   if(!body) return;
-  const view = WSD_VIEW[dig] || 'chart';
-  document.querySelectorAll('#wsdDetail .md-viewbtn').forEach(b=> b.classList.toggle('on', b.dataset.view===view));
-  if(wsdCharts[dig]){ try{ wsdCharts[dig].destroy(); }catch(e){} wsdCharts[dig] = null; }
-  const rng = WSD_RANGE[dig] || { mode:'month', value:WSD_DEFAULT_MONTH };
-  const rows = wsdFilterRows(dig, rng.mode, rng.value);
-  const tgt = wsdTarget(dig);
-  const alertSet = wsdComputeAlertSet(rows, tgt);
+  const view = WSD_VIEW[metric.id][dig] || 'chart';
+  document.querySelectorAll('#wsdDetail_'+metric.id+' .md-viewbtn').forEach(b=> b.classList.toggle('on', b.dataset.view===view));
+  if(wsdCharts[metric.id]){ try{ wsdCharts[metric.id].destroy(); }catch(e){} wsdCharts[metric.id] = null; }
+  const rng = WSD_RANGE[metric.id][dig] || { mode:'month', value:WSD_DEFAULT_MONTH };
+  const rows = wsdFilterRows(metric, dig, rng.mode, rng.value);
+  const tgt = wsdTarget(metric, dig);
+  const alertSet = wsdComputeAlertSet(metric, rows, tgt);
   const rangeNote = '<div class="md-rangenote">'+rows.length+' cooking batch'+(rows.length===1?'':'es')+'</div>';
   if(view === 'table'){
     body.innerHTML = '<div class="md-tablewrap"><table class="md-table wide"><thead><tr>'
-      + '<th>วันที่</th><th>Cooking Batch ACC.</th><th>Digester no.</th><th>ปริมาณไม้สับตาม Weight scale (GT)</th><th>Weight after discharge (ton)</th>'
+      + '<th>วันที่</th><th>Cooking Batch ACC.</th><th>Digester no.</th><th>ปริมาณไม้สับตาม Weight scale (GT)</th><th>'+metric.tableColLabel+'</th>'
       + '</tr></thead><tbody>'
       + rows.map(r=> {
           const alert = alertSet.has(r);
-          return '<tr'+(alert?' class="wsd-alert-row"':'')+'><td>'+r.d+'/'+(r.mi+1)+'/'+r.y+'</td><td class="num">'+(r.batchAcc??'—')+'</td><td class="num">'+r.dig+'</td><td class="num">'+(r.chipGT??'—')+'</td><td class="num">'+chipMonFmt(r.weight,1)+'</td></tr>';
+          return '<tr'+(alert?' class="wsd-alert-row"':'')+'><td>'+r.d+'/'+(r.mi+1)+'/'+r.y+'</td><td class="num">'+(r.batchAcc??'—')+'</td><td class="num">'+r.dig+'</td><td class="num">'+(r.chipGT??'—')+'</td><td class="num">'+chipMonFmt(r[metric.valueKey], metric.dec)+'</td></tr>';
         }).join('')
       + '</tbody></table></div>' + rangeNote;
   } else {
-    body.innerHTML = '<div class="md-chart-wrap"><canvas id="wsdChart_'+dig+'"></canvas></div><div class="legend-row" id="wsdLegend_'+dig+'"></div>' + rangeNote;
-    wsdDrawChart(dig, rows, tgt, alertSet);
+    body.innerHTML = '<div class="md-chart-wrap"><canvas id="wsdChart_'+metric.id+'"></canvas></div><div class="legend-row" id="wsdLegend_'+metric.id+'"></div>' + rangeNote;
+    wsdDrawChart(metric, dig, rows, tgt, alertSet);
   }
 }
 
-function wsdRenderDetail(){
-  const panel = document.getElementById('wsdDetail');
+function wsdRenderDetail(metric){
+  const panel = document.getElementById('wsdDetail_'+metric.id);
   if(!panel) return;
-  const dig = WSD_STATE.sel;
-  document.querySelectorAll('#wsdTiles .mon-tile').forEach(t=> t.classList.toggle('sel', +t.dataset.dig===dig));
+  const dig = WSD_STATE[metric.id].sel;
+  document.querySelectorAll('#wsdTiles_'+metric.id+' .mon-tile').forEach(t=> t.classList.toggle('sel', +t.dataset.dig===dig));
   if(!dig){ panel.hidden = true; panel.innerHTML = ''; return; }
   panel.hidden = false;
-  const tgt = wsdTarget(dig);
-  if(!WSD_RANGE[dig]) WSD_RANGE[dig] = { mode:'month', value:WSD_DEFAULT_MONTH };
-  if(!WSD_VIEW[dig]) WSD_VIEW[dig] = 'chart';
-  const rng = WSD_RANGE[dig];
+  const tgt = wsdTarget(metric, dig);
+  if(!WSD_RANGE[metric.id][dig]) WSD_RANGE[metric.id][dig] = { mode:'month', value:WSD_DEFAULT_MONTH };
+  if(!WSD_VIEW[metric.id][dig]) WSD_VIEW[metric.id][dig] = 'chart';
+  const rng = WSD_RANGE[metric.id][dig];
   panel.innerHTML = `
     <div class="md-head">
-      <span class="md-title">Digester ${dig} <span class="u">· น้ำหนักคงเหลือหลัง Discharge</span></span>
+      <span class="md-title">Digester ${dig} <span class="u">· ${metric.th}</span></span>
       <span class="md-pills">
         <button type="button" class="md-viewbtn" data-view="chart">กราฟ</button>
         <button type="button" class="md-viewbtn" data-view="table">ตาราง</button>
@@ -6828,23 +6856,23 @@ function wsdRenderDetail(){
     <div class="ya-controls">
       <div class="ya-picker">
         <span class="yp-lbl">ช่วงข้อมูล</span>
-        <select id="wsdMode"><option value="date">วัน</option><option value="month">เดือน</option><option value="year">ปี</option></select>
-        <input type="date" id="wsdDate" hidden>
-        <input type="month" id="wsdMonth" hidden>
-        <select id="wsdYear" hidden></select>
+        <select id="wsdMode_${metric.id}"><option value="date">วัน</option><option value="month">เดือน</option><option value="year">ปี</option></select>
+        <input type="date" id="wsdDate_${metric.id}" hidden>
+        <input type="month" id="wsdMonth_${metric.id}" hidden>
+        <select id="wsdYear_${metric.id}" hidden></select>
       </div>
     </div>
     <div class="md-target">
       <span class="lbl">Target</span>
-      <span class="fld">LOW <input type="number" step="any" id="wsdTgtLo" value="${tgt.lo}"> ton</span>
-      <span class="fld">HIGH <input type="number" step="any" id="wsdTgtHi" value="${tgt.hi}"> ton</span>
-      <span class="note">ค่าเริ่มต้น −6 / 6 ตัน · จุดที่ ≥ High หรือ ≤ Low ต่อเนื่อง ≥3 batch จะกระพริบสีแดงบนกราฟ</span>
+      <span class="fld">LOW <input type="number" step="any" id="wsdTgtLo_${metric.id}" value="${tgt.lo}"> ${metric.unit}</span>
+      <span class="fld">HIGH <input type="number" step="any" id="wsdTgtHi_${metric.id}" value="${tgt.hi}"> ${metric.unit}</span>
+      <span class="note">${metric.targetNote}</span>
     </div>
-    <div class="md-body" id="wsdBody"></div>
+    <div class="md-body" id="wsdBody_${metric.id}"></div>
   `;
-  const modeEl = document.getElementById('wsdMode'), dateEl = document.getElementById('wsdDate'),
-        monthEl = document.getElementById('wsdMonth'), yearEl = document.getElementById('wsdYear');
-  const years = Array.from(new Set((WSD_BY_DIG[dig]||[]).map(r=> r.y))).sort();
+  const modeEl = document.getElementById('wsdMode_'+metric.id), dateEl = document.getElementById('wsdDate_'+metric.id),
+        monthEl = document.getElementById('wsdMonth_'+metric.id), yearEl = document.getElementById('wsdYear_'+metric.id);
+  const years = Array.from(new Set(wsdMetricRows(metric, dig).map(r=> r.y))).sort();
   yearEl.innerHTML = years.map(y=> '<option value="'+y+'">'+y+'</option>').join('');
   modeEl.value = rng.mode;
   dateEl.hidden = rng.mode!=='date'; monthEl.hidden = rng.mode!=='month'; yearEl.hidden = rng.mode!=='year';
@@ -6855,39 +6883,39 @@ function wsdRenderDetail(){
     const mode = modeEl.value;
     dateEl.hidden = mode!=='date'; monthEl.hidden = mode!=='month'; yearEl.hidden = mode!=='year';
     const value = mode==='date' ? dateEl.value : mode==='month' ? monthEl.value : yearEl.value;
-    WSD_RANGE[dig] = { mode, value };
-    wsdRenderBody(dig);
+    WSD_RANGE[metric.id][dig] = { mode, value };
+    wsdRenderBody(metric, dig);
   };
   [modeEl, dateEl, monthEl, yearEl].forEach(el=> { el.addEventListener('change', applyRange); el.addEventListener('input', applyRange); });
-  const loEl = document.getElementById('wsdTgtLo'), hiEl = document.getElementById('wsdTgtHi');
+  const loEl = document.getElementById('wsdTgtLo_'+metric.id), hiEl = document.getElementById('wsdTgtHi_'+metric.id);
   const onTgt = ()=> {
-    const lo = loEl.value.trim()==='' ? -6 : +loEl.value;
-    const hi = hiEl.value.trim()==='' ? 6 : +hiEl.value;
-    wsdSetTarget(dig, lo, hi);
-    wsdRenderBody(dig);
-    wsdRenderTiles();
-    document.querySelectorAll('#wsdTiles .mon-tile').forEach(t=> t.classList.toggle('sel', +t.dataset.dig===dig));
+    const lo = loEl.value.trim()==='' ? metric.defaultLo : +loEl.value;
+    const hi = hiEl.value.trim()==='' ? metric.defaultHi : +hiEl.value;
+    wsdSetTarget(metric, dig, lo, hi);
+    wsdRenderBody(metric, dig);
+    wsdRenderTiles(metric);
+    document.querySelectorAll('#wsdTiles_'+metric.id+' .mon-tile').forEach(t=> t.classList.toggle('sel', +t.dataset.dig===dig));
   };
   loEl.addEventListener('change', onTgt);
   hiEl.addEventListener('change', onTgt);
-  panel.querySelectorAll('.md-viewbtn').forEach(b=> b.addEventListener('click', ()=> { WSD_VIEW[dig] = b.dataset.view; wsdRenderBody(dig); }));
-  wsdRenderBody(dig);
+  panel.querySelectorAll('.md-viewbtn').forEach(b=> b.addEventListener('click', ()=> { WSD_VIEW[metric.id][dig] = b.dataset.view; wsdRenderBody(metric, dig); }));
+  wsdRenderBody(metric, dig);
 }
 
-function initWsd(){
-  if(!WSD_ROWS.length){
-    const wrap = document.getElementById('wsdTiles');
-    if(wrap) wrap.innerHTML = '<div class="empty-state"><div class="icon">⚖️</div><h2>ยังไม่มีข้อมูล</h2><p>ไม่พบข้อมูล Digester no. / Weight after discharge ในชีต "Weight Scale Dig." (gid=1177773637)</p></div>';
+function initWsdMetric(metric){
+  if(!WSD_DIGESTERS.some(dig=> wsdMetricRows(metric, dig).length)){
+    const wrap = document.getElementById('wsdTiles_'+metric.id);
+    if(wrap) wrap.innerHTML = '<div class="empty-state"><div class="icon">⚖️</div><h2>ยังไม่มีข้อมูล</h2><p>ไม่พบข้อมูล '+metric.th+' ในชีต "Weight Scale Dig." (gid=1177773637)</p></div>';
     return;
   }
-  wsdRenderTiles();
-  wsdRenderDetail();
-  const host = document.getElementById('wsdHost');
+  wsdRenderTiles(metric);
+  wsdRenderDetail(metric);
+  const host = document.getElementById('wsdHost_'+metric.id);
   if(!host) return;
   const toggle = (dig)=> {
-    WSD_STATE.sel = (WSD_STATE.sel===dig) ? null : dig;
-    wsdRenderDetail();
-    if(WSD_STATE.sel){ const d = document.getElementById('wsdDetail'); if(d) d.scrollIntoView({behavior:'smooth', block:'nearest'}); }
+    WSD_STATE[metric.id].sel = (WSD_STATE[metric.id].sel===dig) ? null : dig;
+    wsdRenderDetail(metric);
+    if(WSD_STATE[metric.id].sel){ const d = document.getElementById('wsdDetail_'+metric.id); if(d) d.scrollIntoView({behavior:'smooth', block:'nearest'}); }
   };
   host.addEventListener('click', (e)=> {
     const tile = e.target.closest('.mon-tile'); if(!tile) return;
@@ -6899,9 +6927,9 @@ function initWsd(){
     e.preventDefault();
     toggle(+tile.dataset.dig);
   });
-  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', ()=> { wsdRenderTiles(); wsdRenderDetail(); });
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', ()=> { wsdRenderTiles(metric); wsdRenderDetail(metric); });
 }
-if(document.getElementById('wsdHost')) initWsd();
+WSD_METRICS.forEach(m=> { if(document.getElementById('wsdHost_'+m.id)) initWsdMetric(m); });
 
 /* ---- Notification Centre: real anomalies from the Yield monitor metrics —
    any scored metric whose latest reading sits outside its own ±3σ control band
