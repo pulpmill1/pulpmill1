@@ -6626,7 +6626,10 @@ for(let wsdi=0; wsdi<weightScaleDigRows.length; wsdi++){
     dig: dig, chipGT: parseSheetNum(wr[WSD_COL_CHIPGT]), weight: weight
   });
 }
-WSD_ROWS.sort((x,y)=> (x.batchAcc!=null && y.batchAcc!=null) ? (x.batchAcc-y.batchAcc) : (x.ts-y.ts));
+/* เรียงตามวันที่จริง ไม่ใช่ Cooking Batch ACC. — ชีตต้นทางรีเซ็ตเลข ACC. เป็นระยะ (ยืนยันจากข้อมูลจริง:
+   ACC. 2721 ปรากฏทั้งวันที่ 17/04/2026 และ 14/09/2026) จึงไม่ใช่เลขสะสมตลอดปีที่ใช้เรียงลำดับเวลาได้
+   Array.sort เสถียร (stable) จึงรักษาลำดับเดิมในไฟล์ (เรียงตาม Cooking No. อยู่แล้ว) ของแถวที่วันที่ตรงกันไว้ */
+WSD_ROWS.sort((x,y)=> x.ts - y.ts);
 const WSD_BY_DIG = {};
 WSD_DIGESTERS.forEach(n=> WSD_BY_DIG[n] = WSD_ROWS.filter(r=> r.dig===n));
 
