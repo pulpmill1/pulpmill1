@@ -6602,17 +6602,20 @@ for(let hi=0; hi<weightScaleDigRows.length; hi++){
   const hr = weightScaleDigRows[hi];
   if(hr && hr.some(function(c){ return String(c||'').replace(/\s+/g,' ').trim().indexOf('Digester no') === 0; })){ WSD_HEADER_ROW = hr; break; }
 }
-const WSD_COL_BATCHACC = wsdFindHeaderCol(WSD_HEADER_ROW, 'Cooking Batch', 3);
-const WSD_COL_SHIFT    = wsdFindHeaderCol(WSD_HEADER_ROW, 'Shift', 4);
-const WSD_COL_DIG      = wsdFindHeaderCol(WSD_HEADER_ROW, 'Digester no', 5);
-const WSD_COL_CHIPGT   = wsdFindHeaderCol(WSD_HEADER_ROW, 'ปริมาณไม้สับ', 6);
-const WSD_COL_WEIGHT   = wsdFindHeaderCol(WSD_HEADER_ROW, 'Weight after discharge', 7);
+/* คอลัมน์แรกของแท็บนี้คือ "วันที่" เลย (index 0 = column A) ไม่มีคอลัมน์ว่างนำหน้าแบบแท็บอื่นๆ
+   ในไฟล์นี้ — ยืนยันจาก Google Sheets เอง (cell G3 = "Weight after discharge") */
+const WSD_COL_DATE     = wsdFindHeaderCol(WSD_HEADER_ROW, 'วันที่', 0);
+const WSD_COL_BATCHACC = wsdFindHeaderCol(WSD_HEADER_ROW, 'Cooking Batch', 2);
+const WSD_COL_SHIFT    = wsdFindHeaderCol(WSD_HEADER_ROW, 'Shift', 3);
+const WSD_COL_DIG      = wsdFindHeaderCol(WSD_HEADER_ROW, 'Digester no', 4);
+const WSD_COL_CHIPGT   = wsdFindHeaderCol(WSD_HEADER_ROW, 'ปริมาณไม้สับ', 5);
+const WSD_COL_WEIGHT   = wsdFindHeaderCol(WSD_HEADER_ROW, 'Weight after discharge', 6);
 
 const WSD_DIGESTERS = [1,2,3,4,5];
 const WSD_ROWS = [];
 for(let wsdi=0; wsdi<weightScaleDigRows.length; wsdi++){
   const wr = weightScaleDigRows[wsdi];
-  const wm = chipMonDre.exec(String((wr && wr[1]) || '').trim());
+  const wm = chipMonDre.exec(String((wr && wr[WSD_COL_DATE]) || '').trim());
   if(!wm) continue;
   const dig = parseSheetNum(wr[WSD_COL_DIG]);
   const weight = parseSheetNum(wr[WSD_COL_WEIGHT]);
