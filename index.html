@@ -6641,9 +6641,11 @@ function wsdTarget(dig){
 function wsdSetTarget(dig, lo, hi){ try{ localStorage.setItem('fl1_wsd_target_'+dig, JSON.stringify({lo, hi})); }catch(e){} }
 function wsdIsAlert(v, tgt){ return v!=null && tgt.hi!=null && tgt.lo!=null && (v>=tgt.hi || v<=tgt.lo); }
 /* จุดกระพริบเฉพาะเมื่อค่าเกินเป้า (>= High หรือ <= Low) ต่อเนื่องกันตั้งแต่ 3 batch ขึ้นไป — นับต่อเนื่อง
-   จากลำดับ batch เต็มของ digester นั้น (ไม่ใช่แค่ในช่วงที่กำลังดูอยู่) กันพลาดกรณี run คาบเกี่ยวรอยต่อเดือน/ปี
-   คืนค่าเป็น Set ของ "แถวข้อมูลเดิม" (object reference เดียวกับใน WSD_BY_DIG เพราะ .filter() ไม่ copy)
-   จึงเช็คสมาชิกได้ตรงๆ ไม่ว่าจะมองผ่าน view ไหน */
+   เฉพาะภายใน "ช่วงข้อมูลที่กำลังดูอยู่" (rows ที่ผ่าน wsdFilterRows แล้ว) ไม่ใช่ทั้งประวัติของ digester
+   เพื่อไม่ให้เห็นจุดกระพริบเดี่ยวๆ ที่ดูเหมือนขัดกับเงื่อนไข "≥3 ครั้งติดกัน" เวลาสมาชิกอีก 1-2 ตัวของ run
+   ตกไปอยู่นอกช่วงที่มองอยู่ (เช่น คาบเกี่ยวเดือนก่อนหน้า) — แลกกับ run ที่คาบเกี่ยวรอยต่อช่วงจะไม่ถูกนับ
+   ในทั้งสองฝั่ง ซึ่งเข้าใจง่ายกว่าสำหรับผู้ใช้จริง คืนค่าเป็น Set ของ "แถวข้อมูลเดิม" (object reference
+   เดียวกับใน WSD_BY_DIG เพราะ .filter() ไม่ copy) จึงเช็คสมาชิกได้ตรงๆ ไม่ว่าจะมองผ่าน view ไหน */
 function wsdComputeAlertSet(fullRows, tgt){
   const flagged = new Set();
   let i = 0;
@@ -6787,7 +6789,7 @@ function wsdRenderBody(dig){
   const rng = WSD_RANGE[dig] || { mode:'month', value:WSD_DEFAULT_MONTH };
   const rows = wsdFilterRows(dig, rng.mode, rng.value);
   const tgt = wsdTarget(dig);
-  const alertSet = wsdComputeAlertSet(WSD_BY_DIG[dig] || [], tgt);
+  const alertSet = wsdComputeAlertSet(rows, tgt);
   const rangeNote = '<div class="md-rangenote">'+rows.length+' cooking batch'+(rows.length===1?'':'es')+'</div>';
   if(view === 'table'){
     body.innerHTML = '<div class="md-tablewrap"><table class="md-table wide"><thead><tr>'
