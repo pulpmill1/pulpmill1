@@ -6233,7 +6233,7 @@ function initYaKappaRefModal(){
             legend:{display:false},
             title:{display:true, text:'Wood Consumption vs Cooking Kappa (Ref. R&D)', font:{size:13, weight:'700'}},
             subtitle:{display:true, text:['y = 0.0016x² − 0.0648x + 2.5801', 'R² = 1'], font:{size:11}, padding:{bottom:8}},
-            tooltip:{callbacks:{label:function(ctx){ return 'Kappa '+ctx.parsed.x.toFixed(1)+': '+ctx.parsed.y.toFixed(4)+' Bdt/Adt'; }}},
+            tooltip:{position:'cursorOffset', callbacks:{label:function(ctx){ return 'Kappa '+ctx.parsed.x.toFixed(1)+': '+ctx.parsed.y.toFixed(4)+' Bdt/Adt'; }}},
           },
           scales:{
             x:{type:'linear', title:{display:true, text:'cooking kappa'}, min:10, max:20, ticks:{stepSize:1}},
@@ -6579,7 +6579,7 @@ function chipMonDrawDetailChart(grpId, m, a, tgt){
         y:{ min:lo, max:hi, grid:{color:c.grid}, ticks:{color:c.ink2, font:{family:'IBM Plex Mono', size:10.5}, callback:(v)=> v.toLocaleString('en-US') } }
       },
       plugins:{ legend:{display:false},
-        tooltip:{ backgroundColor:c.surface, titleColor:c.ink, bodyColor:c.ink2, borderColor:c.border, borderWidth:1, padding:9,
+        tooltip:{ position:'cursorOffset', backgroundColor:c.surface, titleColor:c.ink, bodyColor:c.ink2, borderColor:c.border, borderWidth:1, padding:9,
           callbacks:{ label:(x)=> `${x.dataset.label}: ${x.parsed.y==null?'—':x.parsed.y.toLocaleString('en-US',{minimumFractionDigits:m.dec, maximumFractionDigits:m.dec})} ${m.unit}` } } }
     }
   };
@@ -6879,7 +6879,7 @@ function wsdDrawChart(metric, dig, rows, tgt, alertSet){
         y:{ min:lo, max:hi, grid:{color:c.grid}, ticks:{color:c.ink2, font:{family:'IBM Plex Mono', size:10.5}} }
       },
       plugins:{ legend:{display:false},
-        tooltip:{ backgroundColor:c.surface, titleColor:c.ink, bodyColor:c.ink2, borderColor:c.border, borderWidth:1, padding:9,
+        tooltip:{ position:'cursorOffset', backgroundColor:c.surface, titleColor:c.ink, bodyColor:c.ink2, borderColor:c.border, borderWidth:1, padding:9,
           callbacks:{
             title:(items)=> { const r = rows[items[0].dataIndex]; return r ? (r.d+'/'+(r.mi+1)+'/'+r.y+' · Batch #'+(r.batchAcc??'—')+' · Shift '+(r.shift||'—')) : ''; },
             label:(x)=> x.dataset.label ? (x.dataset.label+': '+(x.parsed.y==null?'—':x.parsed.y.toFixed(metric.dec))+' '+metric.unit) : ''
@@ -7190,7 +7190,7 @@ function rmwDrawChart(digIdx, rows){
         y:{ min:lo, max:hi, grid:{color:c.grid}, ticks:{color:c.ink2, font:{family:'IBM Plex Mono', size:10.5}} }
       },
       plugins:{ legend:{display:false},
-        tooltip:{ backgroundColor:c.surface, titleColor:c.ink, bodyColor:c.ink2, borderColor:c.border, borderWidth:1, padding:9,
+        tooltip:{ position:'cursorOffset', backgroundColor:c.surface, titleColor:c.ink, bodyColor:c.ink2, borderColor:c.border, borderWidth:1, padding:9,
           callbacks:{
             title:function(items){ const r = rows[items[0].dataIndex]; return r ? (r.d+'/'+(r.mi+1)+'/'+r.y) : ''; },
             label:function(x){
@@ -7491,7 +7491,7 @@ function wcdDrawChart(rows, unit){
         y1:{ position:'right', grid:{display:false}, ticks:{color:c.ink2, font:{family:'IBM Plex Mono', size:10.5}}, title:{display:true, text:'Revise weight / Weight scale ('+unit+')', color:c.ink2, font:{family:'IBM Plex Mono', size:10}} }
       },
       plugins:{ legend:{display:false},
-        tooltip:{ backgroundColor:c.surface, titleColor:c.ink, bodyColor:c.ink2, borderColor:c.border, borderWidth:1, padding:9,
+        tooltip:{ position:'cursorOffset', backgroundColor:c.surface, titleColor:c.ink, bodyColor:c.ink2, borderColor:c.border, borderWidth:1, padding:9,
           callbacks:{
             title:function(items){ const r = rows[items[0].dataIndex]; return r ? (r.d+'/'+(r.mi+1)+'/'+r.y+' · Batch #'+(r.batchAcc??'—')) : ''; },
             label:function(x){ return x.dataset.label ? (x.dataset.label+': '+(x.parsed.y==null?'—':x.parsed.y.toFixed(0))) : ''; }
