@@ -604,8 +604,6 @@
   .md-avgpick select:focus-visible,.md-avgpick input:focus-visible{outline:2px solid var(--accent);outline-offset:1px;}
   .md-avgval{font-size:11px;font-weight:800;color:var(--accent-ink);white-space:nowrap;}
   .md-body{margin-top:4px;}
-  .wcd-cmp{margin-top:18px;padding-top:14px;border-top:1px solid var(--border);}
-  .wcd-cmp .md-avgval{display:block;margin-top:8px;font-size:12px;}
   .md-tablewrap{max-height:280px;overflow:auto;border:1px solid var(--border);border-radius:10px;}
   table.md-table{width:100%;min-width:0;max-width:none;table-layout:fixed;border-collapse:collapse;font-size:12px;}
   table.md-table th{position:sticky;top:0;background:var(--accent-soft);color:var(--accent-ink);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.02em;padding:7px 10px;text-align:center;width:50%;}
@@ -1635,7 +1633,7 @@
             น้ำหนักคงเหลือหลัง Discharge: จุดที่ ≥ Target High หรือ ≤ Target Low ต่อเนื่องกันตั้งแต่ 3 batch ขึ้นไป (ในช่วงที่กำลังดูอยู่) จะกระพริบสีแดงบนกราฟ ค่าเริ่มต้น Target −6 / 6 ตัน<br>
             น้ำหนักหลัง Displacement 5 m3: จุดที่ &lt; Target Low หรือ &gt; Target High ต่อเนื่องกันตั้งแต่ 3 batch ขึ้นไป (ในช่วงที่กำลังดูอยู่) จะกระพริบสีแดงบนกราฟ ค่าเริ่มต้น Target 305 / 335 ตัน<br>
             น้ำหนักไม้สับในหน่วย GT เปรียบเทียบค่าเฉลี่ย 5 Digester: ที่มา Google Sheets tab "RM Wood-Yield" (<code>gid=632351488</code>) คอลัมน์ Digester1-5 (GT/batch) — % ของแต่ละ Digester คำนวณเอง = (GT/batch ของ Digester นั้นวันนั้น − ค่าเฉลี่ย GT/batch ของอีก 4 Digester ที่เหลือวันนั้น) ÷ ค่าเฉลี่ยของอีก 4 Digester × 100 จุดที่ &gt;5% หรือ &lt;-5% ต่อเนื่องกันตั้งแต่ 3 วันขึ้นไป (ในช่วงที่กำลังดูอยู่) จะกระพริบสีแดงบนกราฟ<br>
-            สรุปข้อมูล Diff น้ำหนักไม้สับใน Digester: รายวัน แยกตาม Digester จากผลรวม Revise weight และ ปริมาณไม้สับตาม Weight scale ของแต่ละวันในชีตเดียวกัน "Weight Scale Dig." · หน่วย GT แสดงค่าดิบ · หน่วย BDT คูณด้วย (100% − Chip moisture (Lab)% ของวันนั้น) ทีละวันก่อนรวม · เส้น Moisture (%) ดึงจากคอลัมน์ "Moisture (ราย Batch)" ในชีตเดียวกัน (คนละคอลัมน์กับ Chip moisture (Lab) ที่ใช้แปลงหน่วย BDT) · ด้านล่างกราฟมีตัวเปรียบเทียบ 2 ช่วง (เลือกวัน/เดือน/ปีแยกกันได้) แสดงผลรวม Diff Revise weight (BDT) ของแต่ละช่วงและผลต่างช่วงที่ 2−1<br>
+            สรุปข้อมูล Diff น้ำหนักไม้สับใน Digester: รายวัน แยกตาม Digester จากผลรวม Revise weight และ ปริมาณไม้สับตาม Weight scale ของแต่ละวันในชีตเดียวกัน "Weight Scale Dig." · หน่วย GT แสดงค่าดิบ · หน่วย BDT คูณด้วย (100% − Chip moisture (Lab)% ของวันนั้น) ทีละวันก่อนรวม<br>
             ตั้งค่า Target Low/High ได้เองต่อ Digester ต่อกราฟ (เฉพาะสองกราฟแรก) เก็บไว้ในเบราว์เซอร์นี้ · เมื่อเปิดหน้านี้ค่าเริ่มต้นจะแสดงข้อมูลของเดือนปัจจุบัน · เปลี่ยนช่วงเป็นรายวัน/รายเดือน/รายปีได้จากตัวเลือกด้านบนกราฟ · กดปุ่ม "ตาราง" เพื่อดูข้อมูลดิบแทนกราฟ
           </div>
         </section>
@@ -6702,7 +6700,6 @@ const WSD_COL_CHIPGT   = wsdFindHeaderCol(WSD_HEADER_ROW, 'ปริมาณไ
 const WSD_COL_WEIGHT   = wsdFindHeaderCol(WSD_HEADER_ROW, 'Weight after discharge', 6);
 const WSD_COL_DPL      = wsdFindHeaderCol(WSD_HEADER_ROW, 'Weight after DPL', 7);
 const WSD_COL_REVISE   = wsdFindHeaderCol(WSD_HEADER_ROW, 'Revise weight', 11);
-const WSD_COL_MOISTURE = wsdFindHeaderCol(WSD_HEADER_ROW, 'Moisture (ราย Batch)', 12);
 
 /* metric config: valueKey ชี้ field ใน row object ด้านล่าง, isAlert รับ (value, target) คืน
    true/false ตามเงื่อนไขกระพริบของ metric นั้นๆ (ทิศทาง/inclusive-exclusive ต่างกันตามที่ผู้ใช้ระบุ) */
@@ -6732,7 +6729,7 @@ for(let wsdi=0; wsdi<weightScaleDigRows.length; wsdi++){
     batchAcc: parseSheetNum(wr[WSD_COL_BATCHACC]), shift: String(wr[WSD_COL_SHIFT]||'').trim(),
     dig: dig, chipGT: parseSheetNum(wr[WSD_COL_CHIPGT]),
     weight: parseSheetNum(wr[WSD_COL_WEIGHT]), dpl: parseSheetNum(wr[WSD_COL_DPL]),
-    reviseWt: parseSheetNum(wr[WSD_COL_REVISE]), moisturePct: parseSheetNum(wr[WSD_COL_MOISTURE])
+    reviseWt: parseSheetNum(wr[WSD_COL_REVISE])
   });
 }
 /* เรียงตามวันที่จริง ไม่ใช่ Cooking Batch ACC. — ชีตต้นทางรีเซ็ตเลข ACC. เป็นระยะ (ยืนยันจากข้อมูลจริง:
@@ -7355,27 +7352,22 @@ function wcdRawValue(row, field){
   if(field==='reviseWt') return row.reviseWt;
   if(field==='chipGT') return row.chipGT;
   if(field==='diff') return (row.reviseWt!=null && row.chipGT!=null) ? (row.reviseWt - row.chipGT) : null;
-  if(field==='moisture') return row.moisturePct;
   return null;
 }
 function wcdValue(row, field, unit){
   const raw = wcdRawValue(row, field);
   if(raw==null) return null;
-  if(unit==='GT' || field==='moisture') return raw;
+  if(unit==='GT') return raw;
   const factor = wcdMoistureFactor(row.ts);
   return factor==null ? null : raw*factor;
 }
 
 const WCD_DEFAULT_MONTH = wsdToday.getFullYear()+'-'+String(wsdToday.getMonth()+1).padStart(2,'0');
-const WCD_PREV_MONTH_DATE = new Date(wsdToday.getFullYear(), wsdToday.getMonth()-1, 1);
-const WCD_PREV_MONTH = WCD_PREV_MONTH_DATE.getFullYear()+'-'+String(WCD_PREV_MONTH_DATE.getMonth()+1).padStart(2,'0');
 const WCD_STATE = { sel:null };
 const WCD_RANGE = {};  // per dig: {mode,value}
 const WCD_VIEW = {};   // per dig: 'chart' | 'table'
 const WCD_UNIT = {};   // per dig: 'GT' | 'BDT'
-const WCD_CMP = {};    // per dig: {p1:{mode,value}, p2:{mode,value}} — 2-period Diff Revise weight (BDT) comparison
 let wcdChart = null;
-let wcdCmpChart = null;
 const wcdSparks = {};
 
 function wcdFilterRows(dig, mode, value){
@@ -7385,72 +7377,6 @@ function wcdFilterRows(dig, mode, value){
   if(mode==='year') return rows.filter(function(r){ return r.y===Number(value); });
   const p = value.split('-').map(Number);
   return rows.filter(function(r){ return r.y===p[0] && r.mi===p[1]-1; });
-}
-/* ผลรวม Diff Revise weight (BDT) ของช่วงที่เลือก — เสมอเป็นหน่วย BDT ไม่ขึ้นกับตัวสลับ GT/BDT ของ
-   กราฟหลัก ใช้เฉพาะสำหรับสรุปเปรียบเทียบ 2 ช่วงด้านล่าง */
-function wcdCmpSum(dig, mode, value){
-  const rows = wcdFilterRows(dig, mode, value);
-  let sum = 0, any = false;
-  rows.forEach(function(r){ const v = wcdValue(r, 'diff', 'BDT'); if(v!=null){ sum += v; any = true; } });
-  return any ? sum : null;
-}
-function wcdDrawCmpChart(dig, p1, p2){
-  const cv = document.getElementById('wcdCmpChart');
-  if(!cv) return;
-  const c = { ink2:cssVar('--ink-2'), grid:cssVar('--grid'), surface:cssVar('--surface'), border:cssVar('--border'), ink:cssVar('--ink') };
-  const rows1 = wcdFilterRows(dig, p1.mode, p1.value);
-  const rows2 = wcdFilterRows(dig, p2.mode, p2.value);
-  const n = Math.max(rows1.length, rows2.length);
-  const labels = Array.from({length:n}, function(_,i){ return 'จุดที่ '+(i+1); });
-  const diff1 = Array.from({length:n}, function(_,i){ return i<rows1.length ? wcdValue(rows1[i],'diff','BDT') : null; });
-  const diff2 = Array.from({length:n}, function(_,i){ return i<rows2.length ? wcdValue(rows2[i],'diff','BDT') : null; });
-  const dense = n > 90;
-  const lbl1 = 'ช่วงที่ 1 · Diff Revise weight (BDT)', lbl2 = 'ช่วงที่ 2 · Diff Revise weight (BDT)';
-  const cfg = {
-    data:{ labels, datasets:[
-      { type:'line', label:lbl1, data:diff1, borderColor:'#0A2E55', backgroundColor:'#0A2E55',
-        borderWidth:1.6, pointRadius: dense?0:2.2, tension:.15, spanGaps:true, order:1, datalabels:{display:false} },
-      { type:'line', label:lbl2, data:diff2, borderColor:'#d4342c', backgroundColor:'#d4342c',
-        borderWidth:1.6, borderDash:[5,3], pointRadius: dense?0:2.2, tension:.15, spanGaps:true, order:2, datalabels:{display:false} }
-    ]},
-    options:{ responsive:true, maintainAspectRatio:false, animation:false, interaction:{mode:'index', intersect:false},
-      scales:{
-        x:{ grid:{display:false}, ticks:{color:c.ink2, font:{family:'IBM Plex Mono', size:10}, maxRotation:45, minRotation:0, autoSkip:true, maxTicksLimit:24} },
-        y:{ grid:{color:c.grid}, ticks:{color:c.ink2, font:{family:'IBM Plex Mono', size:10.5}}, title:{display:true, text:'Diff Revise weight (BDT)', color:c.ink2, font:{family:'IBM Plex Mono', size:10}} }
-      },
-      plugins:{ legend:{display:false},
-        tooltip:{ backgroundColor:c.surface, titleColor:c.ink, bodyColor:c.ink2, borderColor:c.border, borderWidth:1, padding:9,
-          callbacks:{
-            title:function(items){ return items.length ? labels[items[0].dataIndex] : ''; },
-            label:function(x){
-              const r = (x.datasetIndex===0 ? rows1 : rows2)[x.dataIndex];
-              const dateStr = r ? (r.d+'/'+(r.mi+1)+'/'+r.y+' #'+(r.batchAcc??'—')) : '—';
-              return (x.datasetIndex===0 ? 'ช่วงที่ 1' : 'ช่วงที่ 2')+' ('+dateStr+'): '+(x.parsed.y==null?'—':x.parsed.y.toFixed(0))+' BDT';
-            }
-          } } }
-    }
-  };
-  if(wcdCmpChart){ try{ wcdCmpChart.destroy(); }catch(e){} }
-  wcdCmpChart = new Chart(cv.getContext('2d'), cfg);
-  const leg = document.getElementById('wcdCmpLegend');
-  if(leg) leg.innerHTML = [
-    '<span class="item"><span class="box" style="background:#0A2E55"></span>'+lbl1+'</span>',
-    '<span class="item"><span class="sw dashed" style="border-color:#d4342c"></span>'+lbl2+'</span>'
-  ].join('');
-}
-function wcdRenderCmp(dig){
-  const cmp = WCD_CMP[dig];
-  if(!cmp) return;
-  const sum1 = wcdCmpSum(dig, cmp.p1.mode, cmp.p1.value);
-  const sum2 = wcdCmpSum(dig, cmp.p2.mode, cmp.p2.value);
-  const diff = (sum1!=null && sum2!=null) ? (sum2 - sum1) : null;
-  const summaryEl = document.getElementById('wcdCmpSummary');
-  if(summaryEl){
-    summaryEl.textContent = 'ผลรวม Diff Revise weight (BDT) ช่วงที่ 1: '+(sum1==null?'—':chipMonFmt(sum1,0))
-      +' · ช่วงที่ 2: '+(sum2==null?'—':chipMonFmt(sum2,0))
-      +' · Diff (ช่วงที่ 2 − 1): '+(diff==null?'—':chipMonFmt(diff,0))+' BDT';
-  }
-  wcdDrawCmpChart(dig, cmp.p1, cmp.p2);
 }
 function wcdRenderTiles(){
   const wrap = document.getElementById('wcdTiles');
@@ -7490,37 +7416,31 @@ function wcdDrawChart(rows, unit){
   const reviseVals = rows.map(function(r){ return wcdValue(r,'reviseWt',unit); });
   const scaleVals = rows.map(function(r){ return wcdValue(r,'chipGT',unit); });
   const diffVals = rows.map(function(r){ return wcdValue(r,'diff',unit); });
-  const moistureVals = rows.map(function(r){ return wcdValue(r,'moisture',unit); });
   const dense = rows.length > 90;
-  const lblRevise = 'Revise weight ('+unit+')', lblScale = 'ปริมาณไม้สับตาม Weight scale ('+unit+')', lblDiff = 'Diff Revise weight ('+unit+')', lblMoisture = 'Moisture (%)';
+  const lblRevise = 'Revise weight ('+unit+')', lblScale = 'ปริมาณไม้สับตาม Weight scale ('+unit+')', lblDiff = 'Diff Revise weight ('+unit+')';
   const cfg = {
     data:{ labels, datasets:[
       { type:'line', label:lblRevise, data:reviseVals, borderColor:'#0A2E55', backgroundColor:'#0A2E55',
         borderWidth:1.6, pointRadius: dense?0:2.2, tension:.15, spanGaps:true, order:2, yAxisID:'y1', datalabels:{display:false} },
       { type:'line', label:lblScale, data:scaleVals, borderColor:'#2A8C6E', backgroundColor:'#2A8C6E',
         borderWidth:1.6, pointRadius: dense?0:2.2, tension:.15, spanGaps:true, order:3, yAxisID:'y1', datalabels:{display:false} },
-      { type:'line', label:lblDiff, data:diffVals, borderColor:'#d4342c', backgroundColor:'#d4342c',
-        borderWidth:1.6, borderDash:[5,3], pointRadius: dense?0:2.2, tension:.15, spanGaps:true, order:1, yAxisID:'y', datalabels:{display:false} },
-      { type:'line', label:lblMoisture, data:moistureVals, borderColor:'#9C6ADE', backgroundColor:'#9C6ADE',
-        borderWidth:1.6, borderDash:[2,2], pointRadius: dense?0:2.2, tension:.15, spanGaps:true, order:4, yAxisID:'y2', datalabels:{display:false} }
+      { type:'line', label:lblDiff, data:diffVals, borderColor:'#1565C0', backgroundColor:'#1565C0',
+        borderWidth:1.6, borderDash:[5,3], pointRadius: dense?0:2.2, tension:.15, spanGaps:true, order:1, yAxisID:'y', datalabels:{display:false} }
     ]},
     options:{ responsive:true, maintainAspectRatio:false, animation:false, interaction:{mode:'index', intersect:false},
       scales:{
         x:{ grid:{display:false}, ticks:{color:c.ink2, font:{family:'IBM Plex Mono', size:10}, maxRotation:45, minRotation:0, autoSkip:true, maxTicksLimit:24} },
         /* Diff stays on the left (primary) axis, scaled to its own smaller range, so its swings
            are readable instead of being flattened by the much larger Revise/Weight-scale values —
-           those two share a secondary right-hand axis instead. Moisture (%) gets its own third
-           axis (also right-hand, offset further out by Chart.js automatically) since its 0-100
-           range doesn't share a sensible scale with either of the other two. */
-        y:{ position:'left', grid:{color:c.grid}, ticks:{color:c.ink2, font:{family:'IBM Plex Mono', size:10.5}}, title:{display:true, text:lblDiff, color:'#d4342c', font:{family:'IBM Plex Mono', size:10}} },
-        y1:{ position:'right', grid:{display:false}, ticks:{color:c.ink2, font:{family:'IBM Plex Mono', size:10.5}}, title:{display:true, text:'Revise weight / Weight scale ('+unit+')', color:c.ink2, font:{family:'IBM Plex Mono', size:10}} },
-        y2:{ position:'right', grid:{display:false}, ticks:{color:'#9C6ADE', font:{family:'IBM Plex Mono', size:10.5}}, title:{display:true, text:lblMoisture, color:'#9C6ADE', font:{family:'IBM Plex Mono', size:10}} }
+           those two share a secondary right-hand axis instead. */
+        y:{ position:'left', grid:{color:c.grid}, ticks:{color:c.ink2, font:{family:'IBM Plex Mono', size:10.5}}, title:{display:true, text:lblDiff, color:'#1565C0', font:{family:'IBM Plex Mono', size:10}} },
+        y1:{ position:'right', grid:{display:false}, ticks:{color:c.ink2, font:{family:'IBM Plex Mono', size:10.5}}, title:{display:true, text:'Revise weight / Weight scale ('+unit+')', color:c.ink2, font:{family:'IBM Plex Mono', size:10}} }
       },
       plugins:{ legend:{display:false},
         tooltip:{ backgroundColor:c.surface, titleColor:c.ink, bodyColor:c.ink2, borderColor:c.border, borderWidth:1, padding:9,
           callbacks:{
             title:function(items){ const r = rows[items[0].dataIndex]; return r ? (r.d+'/'+(r.mi+1)+'/'+r.y+' · Batch #'+(r.batchAcc??'—')) : ''; },
-            label:function(x){ if(!x.dataset.label) return ''; const suffix = x.dataset.label===lblMoisture ? '%' : ''; return x.dataset.label+': '+(x.parsed.y==null?'—':x.parsed.y.toFixed(x.dataset.label===lblMoisture?2:0))+suffix; }
+            label:function(x){ return x.dataset.label ? (x.dataset.label+': '+(x.parsed.y==null?'—':x.parsed.y.toFixed(0))) : ''; }
           } } }
     }
   };
@@ -7530,8 +7450,7 @@ function wcdDrawChart(rows, unit){
   if(leg) leg.innerHTML = [
     '<span class="item"><span class="box" style="background:#0A2E55"></span>'+lblRevise+'</span>',
     '<span class="item"><span class="box" style="background:#2A8C6E"></span>'+lblScale+'</span>',
-    '<span class="item"><span class="sw dashed" style="border-color:#d4342c"></span>'+lblDiff+'</span>',
-    '<span class="item"><span class="sw dashed" style="border-color:#9C6ADE"></span>'+lblMoisture+'</span>'
+    '<span class="item"><span class="sw dashed" style="border-color:#1565C0"></span>'+lblDiff+'</span>'
   ].join('');
 }
 
@@ -7548,11 +7467,11 @@ function wcdRenderBody(dig){
   const rangeNote = '<div class="md-rangenote">'+rows.length+' batch'+(rows.length===1?'':'es')+'</div>';
   if(view === 'table'){
     body.innerHTML = '<div class="md-tablewrap"><table class="md-table wide"><thead><tr>'
-      + '<th>วันที่</th><th>Cooking Batch ACC.</th><th>Revise weight ('+unit+')</th><th>ปริมาณไม้สับตาม Weight scale ('+unit+')</th><th>Diff ('+unit+')</th><th>Moisture (%)</th>'
+      + '<th>วันที่</th><th>Cooking Batch ACC.</th><th>Revise weight ('+unit+')</th><th>ปริมาณไม้สับตาม Weight scale ('+unit+')</th><th>Diff ('+unit+')</th>'
       + '</tr></thead><tbody>'
       + rows.map(function(r){
-          const rv = wcdValue(r,'reviseWt',unit), sv = wcdValue(r,'chipGT',unit), dv = wcdValue(r,'diff',unit), mv = r.moisturePct;
-          return '<tr><td>'+r.d+'/'+(r.mi+1)+'/'+r.y+'</td><td class="num">'+(r.batchAcc??'—')+'</td><td class="num">'+(rv==null?'—':chipMonFmt(rv,0))+'</td><td class="num">'+(sv==null?'—':chipMonFmt(sv,0))+'</td><td class="num">'+(dv==null?'—':chipMonFmt(dv,0))+'</td><td class="num">'+(mv==null?'—':chipMonFmt(mv,2)+'%')+'</td></tr>';
+          const rv = wcdValue(r,'reviseWt',unit), sv = wcdValue(r,'chipGT',unit), dv = wcdValue(r,'diff',unit);
+          return '<tr><td>'+r.d+'/'+(r.mi+1)+'/'+r.y+'</td><td class="num">'+(r.batchAcc??'—')+'</td><td class="num">'+(rv==null?'—':chipMonFmt(rv,0))+'</td><td class="num">'+(sv==null?'—':chipMonFmt(sv,0))+'</td><td class="num">'+(dv==null?'—':chipMonFmt(dv,0))+'</td></tr>';
         }).join('')
       + '</tbody></table></div>' + rangeNote;
   } else {
@@ -7571,9 +7490,7 @@ function wcdRenderDetail(){
   if(!WCD_RANGE[dig]) WCD_RANGE[dig] = { mode:'month', value:WCD_DEFAULT_MONTH };
   if(!WCD_VIEW[dig]) WCD_VIEW[dig] = 'chart';
   if(!WCD_UNIT[dig]) WCD_UNIT[dig] = 'GT';
-  if(!WCD_CMP[dig]) WCD_CMP[dig] = { p1:{mode:'month', value:WCD_PREV_MONTH}, p2:{mode:'month', value:WCD_DEFAULT_MONTH} };
   const rng = WCD_RANGE[dig];
-  const cmp = WCD_CMP[dig];
   panel.innerHTML = `
     <div class="md-head">
       <span class="md-title">Digester ${dig} <span class="u">· Diff น้ำหนักไม้สับ (Chip weight)</span></span>
@@ -7594,30 +7511,6 @@ function wcdRenderDetail(){
       </div>
     </div>
     <div class="md-body" id="wcdBody"></div>
-    <div class="wcd-cmp">
-      <div class="md-head">
-        <span class="md-title">เปรียบเทียบ 2 ช่วง <span class="u">· Diff Revise weight (BDT)</span></span>
-      </div>
-      <div class="ya-controls">
-        <div class="ya-picker">
-          <span class="yp-lbl">ช่วงที่ 1</span>
-          <select id="wcdCmpMode1"><option value="date">วัน</option><option value="month">เดือน</option><option value="year">ปี</option></select>
-          <input type="date" id="wcdCmpDate1" hidden>
-          <input type="month" id="wcdCmpMonth1" hidden>
-          <select id="wcdCmpYear1" hidden></select>
-        </div>
-        <div class="ya-picker">
-          <span class="yp-lbl">ช่วงที่ 2</span>
-          <select id="wcdCmpMode2"><option value="date">วัน</option><option value="month">เดือน</option><option value="year">ปี</option></select>
-          <input type="date" id="wcdCmpDate2" hidden>
-          <input type="month" id="wcdCmpMonth2" hidden>
-          <select id="wcdCmpYear2" hidden></select>
-        </div>
-      </div>
-      <div class="md-chart-wrap"><canvas id="wcdCmpChart"></canvas></div>
-      <div class="legend-row" id="wcdCmpLegend"></div>
-      <div class="md-avgval" id="wcdCmpSummary"></div>
-    </div>
   `;
   const modeEl = document.getElementById('wcdMode'), dateEl = document.getElementById('wcdDate'),
         monthEl = document.getElementById('wcdMonth'), yearEl = document.getElementById('wcdYear');
@@ -7639,28 +7532,6 @@ function wcdRenderDetail(){
   panel.querySelectorAll('.md-viewbtn[data-view]').forEach(function(b){ b.addEventListener('click', function(){ WCD_VIEW[dig] = b.dataset.view; wcdRenderBody(dig); }); });
   panel.querySelectorAll('.md-viewbtn[data-unit]').forEach(function(b){ b.addEventListener('click', function(){ WCD_UNIT[dig] = b.dataset.unit; wcdRenderBody(dig); }); });
   wcdRenderBody(dig);
-
-  ['1','2'].forEach(function(suffix){
-    const p = suffix==='1' ? 'p1' : 'p2';
-    const cModeEl = document.getElementById('wcdCmpMode'+suffix), cDateEl = document.getElementById('wcdCmpDate'+suffix),
-          cMonthEl = document.getElementById('wcdCmpMonth'+suffix), cYearEl = document.getElementById('wcdCmpYear'+suffix);
-    cYearEl.innerHTML = years.map(function(y){ return '<option value="'+y+'">'+y+'</option>'; }).join('');
-    const st = cmp[p];
-    cModeEl.value = st.mode;
-    cDateEl.hidden = st.mode!=='date'; cMonthEl.hidden = st.mode!=='month'; cYearEl.hidden = st.mode!=='year';
-    if(st.mode==='date') cDateEl.value = st.value||'';
-    else if(st.mode==='month') cMonthEl.value = st.value||WCD_DEFAULT_MONTH;
-    else if(st.value) cYearEl.value = st.value;
-    const applyCmp = function(){
-      const mode = cModeEl.value;
-      cDateEl.hidden = mode!=='date'; cMonthEl.hidden = mode!=='month'; cYearEl.hidden = mode!=='year';
-      const value = mode==='date' ? cDateEl.value : mode==='month' ? cMonthEl.value : cYearEl.value;
-      WCD_CMP[dig][p] = { mode, value };
-      wcdRenderCmp(dig);
-    };
-    [cModeEl, cDateEl, cMonthEl, cYearEl].forEach(function(el){ el.addEventListener('change', applyCmp); el.addEventListener('input', applyCmp); });
-  });
-  wcdRenderCmp(dig);
 }
 
 function initWcd(){
