@@ -604,6 +604,7 @@
   .md-avgpick select:focus-visible,.md-avgpick input:focus-visible{outline:2px solid var(--accent);outline-offset:1px;}
   .md-avgval{font-size:11px;font-weight:800;color:var(--accent-ink);white-space:nowrap;}
   .md-body{margin-top:4px;}
+  .wcd-sumtable{margin-top:18px;padding-top:14px;border-top:1px solid var(--border);}
   .md-tablewrap{max-height:280px;overflow:auto;border:1px solid var(--border);border-radius:10px;}
   table.md-table{width:100%;min-width:0;max-width:none;table-layout:fixed;border-collapse:collapse;font-size:12px;}
   table.md-table th{position:sticky;top:0;background:var(--accent-soft);color:var(--accent-ink);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.02em;padding:7px 10px;text-align:center;width:50%;}
@@ -7367,6 +7368,7 @@ const WCD_STATE = { sel:null };
 const WCD_RANGE = {};  // per dig: {mode,value}
 const WCD_VIEW = {};   // per dig: 'chart' | 'table'
 const WCD_UNIT = {};   // per dig: 'GT' | 'BDT'
+const WCD_SUM_GRAN = {}; // per dig: 'date' | 'month' | 'year' — granularity for the summary table below the chart
 let wcdChart = null;
 const wcdSparks = {};
 
@@ -7377,6 +7379,55 @@ function wcdFilterRows(dig, mode, value){
   if(mode==='year') return rows.filter(function(r){ return r.y===Number(value); });
   const p = value.split('-').map(Number);
   return rows.filter(function(r){ return r.y===p[0] && r.mi===p[1]-1; });
+}
+/* ตารางสรุปผลรวม: รวมทุก batch ของ digester นั้นในหน่วยวัน/เดือน/ปี — ต่างจากตาราง/กราฟด้านบนที่
+   กรองมาเพียง "ช่วงข้อมูล" เดียว, ตารางนี้ลิสต์ทุกช่วงเวลาที่มีข้อมูล ผลรวม BDT ใช้ค่าแปลงหน่วยราย
+   batch (ความชื้นของวันนั้นๆ) ก่อนรวม เช่นเดียวกับกราฟ/ตารางด้านบน — ผลลัพธ์เท่ากับ "ผลรวม Revise
+   weight (BDT) − ผลรวม Weight scale (BDT)" ไม่ว่าจะรวมก่อนหรือลบก่อนก็ได้ผลลัพธ์เดียวกัน */
+function wcdSummaryRows(dig, gran){
+  const rows = WCD_BY_DIG[dig] || [];
+  const map = new Map();
+  rows.forEach(function(r){
+    const key = gran==='date' ? (r.y+'-'+r.mi+'-'+r.d) : gran==='year' ? String(r.y) : (r.y+'-'+r.mi);
+    let e = map.get(key);
+    if(!e){ e = { y:r.y, mi:r.mi, d:r.d, ts:r.ts, scaleGT:0, reviseGT:0, scaleBDT:0, reviseBDT:0 }; map.set(key, e); }
+    const sGT = wcdRawValue(r,'chipGT'), rGT = wcdRawValue(r,'reviseWt');
+    const sBDT = wcdValue(r,'chipGT','BDT'), rBDT = wcdValue(r,'reviseWt','BDT');
+    if(sGT!=null) e.scaleGT += sGT;
+    if(rGT!=null) e.reviseGT += rGT;
+    if(sBDT!=null) e.scaleBDT += sBDT;
+    if(rBDT!=null) e.reviseBDT += rBDT;
+  });
+  const arr = Array.from(map.values());
+  arr.sort(function(a,b){ return a.ts-b.ts; });
+  return arr;
+}
+function wcdRenderSummaryTable(dig){
+  const wrap = document.getElementById('wcdSummaryTableWrap');
+  if(!wrap) return;
+  const gran = WCD_SUM_GRAN[dig] || 'month';
+  document.querySelectorAll('#wcdDetail .md-viewbtn[data-gran]').forEach(function(b){ b.classList.toggle('on', b.dataset.gran===gran); });
+  const rows = wcdSummaryRows(dig, gran);
+  const dateLabel = function(r){
+    if(gran==='date') return r.d+'/'+(r.mi+1)+'/'+r.y;
+    if(gran==='year') return String(r.y);
+    return MONTH_ABBR_TH[r.mi]+' '+r.y;
+  };
+  wrap.innerHTML = '<div class="md-tablewrap"><table class="md-table wide"><thead><tr>'
+    + '<th>วันเดือนปี</th><th>ปริมาณไม้สับตาม Weight scale (GT)</th><th>Revise weight (GT)</th><th>Diff Revise weight (GT)</th>'
+    + '<th>ปริมาณไม้สับตาม Weight scale (BDT)</th><th>Revise weight (BDT)</th><th>Diff Revise weight (BDT)</th>'
+    + '</tr></thead><tbody>'
+    + rows.map(function(r){
+        const diffGT = r.reviseGT - r.scaleGT, diffBDT = r.reviseBDT - r.scaleBDT;
+        return '<tr><td>'+dateLabel(r)+'</td>'
+          + '<td class="num">'+chipMonFmt(r.scaleGT,0)+'</td>'
+          + '<td class="num">'+chipMonFmt(r.reviseGT,0)+'</td>'
+          + '<td class="num">'+chipMonFmt(diffGT,0)+'</td>'
+          + '<td class="num">'+chipMonFmt(r.scaleBDT,0)+'</td>'
+          + '<td class="num">'+chipMonFmt(r.reviseBDT,0)+'</td>'
+          + '<td class="num">'+chipMonFmt(diffBDT,0)+'</td></tr>';
+      }).join('')
+    + '</tbody></table></div>';
 }
 function wcdRenderTiles(){
   const wrap = document.getElementById('wcdTiles');
@@ -7490,6 +7541,7 @@ function wcdRenderDetail(){
   if(!WCD_RANGE[dig]) WCD_RANGE[dig] = { mode:'month', value:WCD_DEFAULT_MONTH };
   if(!WCD_VIEW[dig]) WCD_VIEW[dig] = 'chart';
   if(!WCD_UNIT[dig]) WCD_UNIT[dig] = 'GT';
+  if(!WCD_SUM_GRAN[dig]) WCD_SUM_GRAN[dig] = 'month';
   const rng = WCD_RANGE[dig];
   panel.innerHTML = `
     <div class="md-head">
@@ -7511,6 +7563,17 @@ function wcdRenderDetail(){
       </div>
     </div>
     <div class="md-body" id="wcdBody"></div>
+    <div class="wcd-sumtable">
+      <div class="md-head">
+        <span class="md-title">สรุปข้อมูล Diff น้ำหนักไม้สับ (Chip weight) ใน Digester ช่วง (Set zero &amp; Span)</span>
+        <span class="md-pills">
+          <button type="button" class="md-viewbtn" data-gran="date">รายวัน</button>
+          <button type="button" class="md-viewbtn" data-gran="month">รายเดือน</button>
+          <button type="button" class="md-viewbtn" data-gran="year">รายปี</button>
+        </span>
+      </div>
+      <div id="wcdSummaryTableWrap"></div>
+    </div>
   `;
   const modeEl = document.getElementById('wcdMode'), dateEl = document.getElementById('wcdDate'),
         monthEl = document.getElementById('wcdMonth'), yearEl = document.getElementById('wcdYear');
@@ -7531,7 +7594,9 @@ function wcdRenderDetail(){
   [modeEl, dateEl, monthEl, yearEl].forEach(function(el){ el.addEventListener('change', applyRange); el.addEventListener('input', applyRange); });
   panel.querySelectorAll('.md-viewbtn[data-view]').forEach(function(b){ b.addEventListener('click', function(){ WCD_VIEW[dig] = b.dataset.view; wcdRenderBody(dig); }); });
   panel.querySelectorAll('.md-viewbtn[data-unit]').forEach(function(b){ b.addEventListener('click', function(){ WCD_UNIT[dig] = b.dataset.unit; wcdRenderBody(dig); }); });
+  panel.querySelectorAll('.md-viewbtn[data-gran]').forEach(function(b){ b.addEventListener('click', function(){ WCD_SUM_GRAN[dig] = b.dataset.gran; wcdRenderSummaryTable(dig); }); });
   wcdRenderBody(dig);
+  wcdRenderSummaryTable(dig);
 }
 
 function initWcd(){
