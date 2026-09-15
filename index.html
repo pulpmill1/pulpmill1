@@ -1612,12 +1612,20 @@
               <div class="mon-detail" id="wsdDetail_dpl5m3" hidden></div>
             </div>
           </div>
+          <div class="mon-group">
+            <div class="mon-group-head"><span class="gi">🪵</span><span class="gt">น้ำหนักไม้สับในหน่วย GT เปรียบเทียบจากค่าเฉลี่ยทั้ง 5 Digester</span><span class="gs">5 Digester · ผิดจากค่าเฉลี่ย &gt;5% หรือ &lt;-5% ต่อเนื่อง 3 วัน · คลิกที่บล็อกเพื่อดูกราฟหลัก</span></div>
+            <div id="rmwHost">
+              <div class="mon-tiles" id="rmwTiles"></div>
+              <div class="mon-detail" id="rmwDetail" hidden></div>
+            </div>
+          </div>
           <button type="button" class="foot-toggle" data-target="wsdFoot" aria-expanded="false" aria-controls="wsdFoot">ดูรายละเอียด</button>
           <div class="foot" id="wsdFoot" hidden>
             ที่มา: Google Sheets tab "Weight Scale Dig." (<code>gid=1177773637</code>) · คอลัมน์วันที่รูปแบบ D/M/YYYY (วันก่อนเดือน) · Cooking Batch ACC., Digester no., ปริมาณไม้สับตาม Weight scale (GT), Weight after discharge (ton) และ Weight after DPL 5 m3 (ton) resolve จากชื่อหัวตารางในชีตเดียวกัน<br>
             น้ำหนักคงเหลือหลัง Discharge: จุดที่ ≥ Target High หรือ ≤ Target Low ต่อเนื่องกันตั้งแต่ 3 batch ขึ้นไป (ในช่วงที่กำลังดูอยู่) จะกระพริบสีแดงบนกราฟ ค่าเริ่มต้น Target −6 / 6 ตัน<br>
-            น้ำหนักหลัง Displacement 5 m3: จุดที่ &lt; Target Low หรือ &gt; Target High ต่อเนื่องกันตั้งแต่ 3 batch ขึ้นไป (ในช่วงที่กำลังดูอยู่) จะกระพริบสีแดงบนกราฟ ค่าเริ่มต้น Target 305 / 355 ตัน<br>
-            ตั้งค่า Target Low/High ได้เองต่อ Digester ต่อกราฟ เก็บไว้ในเบราว์เซอร์นี้ · เมื่อเปิดหน้านี้ค่าเริ่มต้นจะแสดงข้อมูลของเดือนปัจจุบัน · เปลี่ยนช่วงเป็นรายวัน/รายเดือน/รายปีได้จากตัวเลือกด้านบนกราฟ · กดปุ่ม "ตาราง" เพื่อดูข้อมูลดิบแทนกราฟ
+            น้ำหนักหลัง Displacement 5 m3: จุดที่ &lt; Target Low หรือ &gt; Target High ต่อเนื่องกันตั้งแต่ 3 batch ขึ้นไป (ในช่วงที่กำลังดูอยู่) จะกระพริบสีแดงบนกราฟ ค่าเริ่มต้น Target 305 / 335 ตัน<br>
+            น้ำหนักไม้สับในหน่วย GT เปรียบเทียบค่าเฉลี่ย 5 Digester: ที่มา Google Sheets tab "RM Wood-Yield" (<code>gid=632351488</code>) คอลัมน์ Digester1-5 (GT/batch) และ Digester1-5 (%) — % คือค่าที่ชีตคำนวณเทียบกับค่าเฉลี่ยของทั้ง 5 Digester ในวันนั้นอยู่แล้ว จุดที่ &gt;5% หรือ &lt;-5% ต่อเนื่องกันตั้งแต่ 3 วันขึ้นไป (ในช่วงที่กำลังดูอยู่) จะกระพริบสีแดงบนกราฟ<br>
+            ตั้งค่า Target Low/High ได้เองต่อ Digester ต่อกราฟ (เฉพาะสองกราฟแรก) เก็บไว้ในเบราว์เซอร์นี้ · เมื่อเปิดหน้านี้ค่าเริ่มต้นจะแสดงข้อมูลของเดือนปัจจุบัน · เปลี่ยนช่วงเป็นรายวัน/รายเดือน/รายปีได้จากตัวเลือกด้านบนกราฟ · กดปุ่ม "ตาราง" เพื่อดูข้อมูลดิบแทนกราฟ
           </div>
         </section>
 
@@ -5033,6 +5041,7 @@ function applyLang(lang){
     if(typeof renderYieldAnalysisTable === 'function') renderYieldAnalysisTable();
   }
   if(typeof wsdRenderTiles === 'function' && typeof WSD_METRICS !== 'undefined'){ WSD_METRICS.forEach(function(m){ if(document.getElementById('wsdHost_'+m.id)){ wsdRenderTiles(m); wsdRenderDetail(m); } }); }
+  if(typeof rmwRenderTiles === 'function' && document.getElementById('rmwHost')){ rmwRenderTiles(); rmwRenderDetail(); }
   if(typeof i18nApplyPage === 'function') i18nApplyPage();
 }
 
@@ -6932,6 +6941,301 @@ function initWsdMetric(metric){
   window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', ()=> { wsdRenderTiles(metric); wsdRenderDetail(metric); });
 }
 WSD_METRICS.forEach(m=> { if(document.getElementById('wsdHost_'+m.id)) initWsdMetric(m); });
+
+/* ==================================================================================
+   RM Wood-Yield — น้ำหนักไม้สับ (GT/batch) รายวันของแต่ละ Digester เทียบกับค่าเฉลี่ยทั้ง 5 Digester
+   แหล่งข้อมูล: Google Sheets tab "RM Wood-Yield" (gid=632351488 — ตัวแปร chipWoodRows/CHIP_MON_ROWS
+   ที่ระบบดึงไว้อยู่แล้วสำหรับหน้า Yield) คอลัมน์ Digester1-5 (กลุ่ม "GT/batch") และ Digester1-5
+   (กลุ่ม "%" — ชีตคำนวณเทียบกับค่าเฉลี่ยของวันนั้นให้แล้ว) หาตำแหน่งคอลัมน์จากการเจอข้อความ
+   "Digester1" ซ้ำ 2 ครั้งในแถวเดียวกัน (ครั้งแรก = กลุ่ม GT, ครั้งสอง = กลุ่ม %) แทนตำแหน่งตายตัว
+   ข้อมูลเป็นรายวัน (หนึ่งแถว = หนึ่งวัน ไม่ใช่หนึ่ง cook แบบ Weight Scale Dig.) จึง reuse
+   CHIP_MON_ROWS ที่ parse วันที่ไว้แล้วแทนการ parse วันที่ซ้ำเอง ================== */
+function rmwFindHeaderRow(){
+  for(let hi=0; hi<chipWoodRows.length; hi++){
+    const hr = chipWoodRows[hi];
+    if(hr && hr.filter(function(c){ return String(c||'').trim()==='Digester1'; }).length >= 2) return hr;
+  }
+  return null;
+}
+const RMW_HEADER_ROW = rmwFindHeaderRow();
+function rmwFindDigCols(headerRow, occurrence, fallback){
+  if(!headerRow) return fallback;
+  let seen = 0;
+  for(let i=0; i<headerRow.length; i++){
+    if(String(headerRow[i]||'').trim()==='Digester1'){
+      if(seen===occurrence) return [i,i+1,i+2,i+3,i+4];
+      seen++;
+    }
+  }
+  return fallback;
+}
+const RMW_GT_COLS  = rmwFindDigCols(RMW_HEADER_ROW, 0, [87,88,89,90,91]);
+const RMW_PCT_COLS = rmwFindDigCols(RMW_HEADER_ROW, 1, [92,93,94,95,96]);
+const RMW_DIGESTERS = [1,2,3,4,5];
+
+const RMW_ROWS = CHIP_MON_ROWS.map(function(rc){
+  return {
+    y:rc.y, mi:rc.mi, d:rc.d, ts:rc.ts,
+    gt: RMW_GT_COLS.map(function(c){ return parseSheetNum(rc.r[c]); }),
+    pct: RMW_PCT_COLS.map(function(c){ return parseSheetNum(rc.r[c]); })
+  };
+}).filter(function(r){ return r.gt.some(function(v){ return v!=null; }); });
+RMW_ROWS.sort(function(a,b){ return a.ts-b.ts; });
+
+function rmwDigRows(digIdx){ return RMW_ROWS.filter(function(r){ return r.gt[digIdx]!=null; }); }
+function rmwIsAlert(pct){ return pct!=null && (pct>5 || pct<-5); }
+/* run ต่อเนื่อง ≥3 วัน เฉพาะภายในช่วงข้อมูลที่กำลังดูอยู่ (เหตุผลเดียวกับ wsdComputeAlertSet) */
+function rmwComputeAlertSet(rows, digIdx){
+  const flagged = new Set();
+  let i = 0;
+  while(i < rows.length){
+    if(rmwIsAlert(rows[i].pct[digIdx])){
+      let j = i;
+      while(j < rows.length && rmwIsAlert(rows[j].pct[digIdx])) j++;
+      if(j - i >= 3){ for(let k=i; k<j; k++) flagged.add(rows[k]); }
+      i = j;
+    } else i++;
+  }
+  return flagged;
+}
+
+const rmwToday = new Date();
+const RMW_DEFAULT_MONTH = rmwToday.getFullYear()+'-'+String(rmwToday.getMonth()+1).padStart(2,'0');
+const RMW_STATE = { sel:null };
+const RMW_RANGE = {};   // per digester: {mode, value}
+const RMW_VIEW = {};    // per digester: 'chart' | 'table'
+let rmwChart = null;
+const rmwSparks = {};
+
+function rmwFilterAllRows(mode, value){
+  if(!value) return RMW_ROWS.slice(-30);
+  if(mode==='date'){ const p = value.split('-').map(Number); return RMW_ROWS.filter(function(r){ return r.y===p[0] && r.mi===p[1]-1 && r.d===p[2]; }); }
+  if(mode==='year') return RMW_ROWS.filter(function(r){ return r.y===Number(value); });
+  const p = value.split('-').map(Number);
+  return RMW_ROWS.filter(function(r){ return r.y===p[0] && r.mi===p[1]-1; });
+}
+
+function rmwRenderTiles(){
+  const wrap = document.getElementById('rmwTiles');
+  if(!wrap) return;
+  wrap.innerHTML = RMW_DIGESTERS.map(function(dig){
+    const digIdx = dig-1;
+    const rows = rmwDigRows(digIdx);
+    const last = rows[rows.length-1];
+    let val = '—', sub = '<span class="flat">— ไม่มีข้อมูล</span>', dot = '';
+    if(last){
+      val = chipMonFmt(last.gt[digIdx], 0);
+      const alert = rmwComputeAlertSet(rows, digIdx).has(last);
+      dot = alert ? 'bad' : 'ok';
+      const dateStr = last.d+'/'+(last.mi+1)+'/'+last.y;
+      const pctStr = last.pct[digIdx]==null ? '' : ' ('+(last.pct[digIdx]>=0?'+':'')+chipMonFmt(last.pct[digIdx],1)+'%)';
+      sub = '<span class="'+(alert?'up':'flat')+'">'+(alert?'⚠ นอกเป้า':'– ปกติ')+'</span>'+pctStr+' · '+dateStr;
+    }
+    return '<div class="mon-tile" role="button" tabindex="0" data-dig="'+dig+'" style="--mon-rail:#0A2E55">'
+      + '<div class="mt-top"><span class="mt-ico">🪵</span><span class="mt-name">Digester '+dig+'</span><span class="mt-dot '+dot+'"></span></div>'
+      + '<div class="mt-val">'+val+'<span class="mt-unit">GT</span></div>'
+      + '<div class="mt-row3"><span class="mt-sub">'+sub+'</span><span class="mt-spark-wrap"><canvas class="mt-spark" id="rmwSpark_'+dig+'"></canvas><i class="spark-live" id="rmwLive_'+dig+'" hidden></i></span></div>'
+      + '</div>';
+  }).join('');
+  RMW_DIGESTERS.forEach(function(dig){
+    const digIdx = dig-1;
+    const rows = rmwDigRows(digIdx).slice(-60);
+    if(rmwSparks[dig]){ try{ rmwSparks[dig].destroy(); }catch(e){} rmwSparks[dig] = null; }
+    if(!rows.length) return;
+    const cv = document.getElementById('rmwSpark_'+dig);
+    const live = document.getElementById('rmwLive_'+dig);
+    rmwSparks[dig] = chipMonMakeSpark(cv, live, rows.map(function(r){ return {ts:r.ts, v:r.gt[digIdx]}; }), '#0A2E55');
+  });
+}
+
+function rmwPlaceAlertDots(chart, alertIdx){
+  const wrap = chart.canvas.closest('.md-chart-wrap');
+  if(!wrap) return;
+  const existing = new Map(Array.from(wrap.querySelectorAll('.wsd-alert-dot')).map(function(el){ return [el.dataset.i, el]; }));
+  const meta = chart.getDatasetMeta(0);
+  const seen = new Set();
+  alertIdx.forEach(function(i){
+    const p = meta.data[i];
+    if(!p || !isFinite(p.x) || !isFinite(p.y)) return;
+    seen.add(String(i));
+    let dot = existing.get(String(i));
+    if(!dot){ dot = document.createElement('i'); dot.className = 'wsd-alert-dot'; dot.dataset.i = String(i); wrap.appendChild(dot); }
+    dot.style.left = p.x+'px'; dot.style.top = p.y+'px';
+  });
+  existing.forEach(function(el,key){ if(!seen.has(key)) el.remove(); });
+}
+
+function rmwDrawChart(digIdx, rows){
+  const cv = document.getElementById('rmwChart');
+  if(!cv) return;
+  const c = { ink2:cssVar('--ink-2'), grid:cssVar('--grid'), surface:cssVar('--surface'), border:cssVar('--border'), ink:cssVar('--ink') };
+  const labels = rows.map(function(r){ return r.d+'/'+(r.mi+1); });
+  const vals = rows.map(function(r){ return r.gt[digIdx]; });
+  const avgVals = rows.map(function(r){
+    const vs = r.gt.filter(function(v){ return v!=null; });
+    return vs.length ? Math.round((vs.reduce(function(a,b){ return a+b; },0)/vs.length)*10)/10 : null;
+  });
+  const alertSet = rmwComputeAlertSet(rows, digIdx);
+  const alertIdx = [];
+  rows.forEach(function(r,i){ if(alertSet.has(r)) alertIdx.push(i); });
+  const allVals = vals.concat(avgVals).filter(function(v){ return v!=null; });
+  let lo = allVals.length ? Math.min.apply(null, allVals) : 0, hi = allVals.length ? Math.max.apply(null, allVals) : 1;
+  const pad = (hi-lo)*0.18 || 2;
+  lo -= pad; hi += pad;
+  const cfg = {
+    data:{ labels, datasets:[
+      { type:'line', label:'Digester '+(digIdx+1), data:vals, borderColor:'#0A2E55', backgroundColor:'#0A2E55',
+        borderWidth:1.6, pointRadius: rows.length>90 ? 0 : 2.6,
+        pointBackgroundColor:function(ctx){ return alertIdx.includes(ctx.dataIndex) ? '#d4342c' : '#0A2E55'; },
+        pointBorderColor:function(ctx){ return alertIdx.includes(ctx.dataIndex) ? '#d4342c' : '#0A2E55'; },
+        tension:.15, spanGaps:true, order:2, datalabels:{display:false} },
+      { type:'line', label:'ค่าเฉลี่ย 5 Digester', data:avgVals, borderColor:'#F0932B', borderWidth:1.6,
+        borderDash:[7,3], pointRadius:0, fill:false, tension:.15, spanGaps:true, order:5, datalabels:{display:false} }
+    ]},
+    options:{ responsive:true, maintainAspectRatio:false, animation:false, interaction:{mode:'index', intersect:false},
+      scales:{
+        x:{ grid:{display:false}, ticks:{color:c.ink2, font:{family:'IBM Plex Mono', size:10}, maxRotation:45, minRotation:0, autoSkip:true, maxTicksLimit:24} },
+        y:{ min:lo, max:hi, grid:{color:c.grid}, ticks:{color:c.ink2, font:{family:'IBM Plex Mono', size:10.5}} }
+      },
+      plugins:{ legend:{display:false},
+        tooltip:{ backgroundColor:c.surface, titleColor:c.ink, bodyColor:c.ink2, borderColor:c.border, borderWidth:1, padding:9,
+          callbacks:{
+            title:function(items){ const r = rows[items[0].dataIndex]; return r ? (r.d+'/'+(r.mi+1)+'/'+r.y) : ''; },
+            label:function(x){
+              if(x.dataset.label==='ค่าเฉลี่ย 5 Digester') return x.dataset.label+': '+(x.parsed.y==null?'—':x.parsed.y.toFixed(1))+' GT';
+              const r = rows[x.dataIndex]; const pct = r ? r.pct[digIdx] : null;
+              return x.dataset.label+': '+(x.parsed.y==null?'—':x.parsed.y.toFixed(0))+' GT'+(pct==null?'':' ('+(pct>=0?'+':'')+pct.toFixed(1)+'%)');
+            }
+          } } }
+    },
+    plugins:[{ id:'rmwAlertDots', afterDraw:function(chart){ rmwPlaceAlertDots(chart, alertIdx); } }]
+  };
+  if(rmwChart){ try{ rmwChart.destroy(); }catch(e){} }
+  rmwChart = new Chart(cv.getContext('2d'), cfg);
+  const leg = document.getElementById('rmwLegend');
+  if(leg){
+    const items = [
+      '<span class="item"><span class="box" style="background:#0A2E55"></span>Digester '+(digIdx+1)+'</span>',
+      '<span class="item"><span class="sw dashed" style="border-color:#F0932B"></span>ค่าเฉลี่ย 5 Digester</span>'
+    ];
+    if(alertIdx.length) items.push('<span class="item"><span class="box" style="background:#d4342c"></span>'+alertIdx.length+' วันผิดจากค่าเฉลี่ย &gt;5% ต่อเนื่อง ≥3 วัน (กระพริบ)</span>');
+    leg.innerHTML = items.join('');
+  }
+}
+
+function rmwRenderBody(dig){
+  const body = document.getElementById('rmwBody');
+  if(!body) return;
+  const digIdx = dig-1;
+  const view = RMW_VIEW[dig] || 'chart';
+  document.querySelectorAll('#rmwDetail .md-viewbtn').forEach(function(b){ b.classList.toggle('on', b.dataset.view===view); });
+  if(rmwChart){ try{ rmwChart.destroy(); }catch(e){} rmwChart = null; }
+  const rng = RMW_RANGE[dig] || { mode:'month', value:RMW_DEFAULT_MONTH };
+  const allRows = rmwFilterAllRows(rng.mode, rng.value);
+  const digRows = allRows.filter(function(r){ return r.gt[digIdx]!=null; });
+  const rangeNote = '<div class="md-rangenote">'+allRows.length+' day'+(allRows.length===1?'':'s')+'</div>';
+  if(view === 'table'){
+    body.innerHTML = '<div class="md-tablewrap"><table class="md-table wide"><thead><tr>'
+      + '<th>วันที่</th>'
+      + RMW_DIGESTERS.map(function(n){ return '<th>Digester '+n+' GT/batch</th>'; }).join('')
+      + RMW_DIGESTERS.map(function(n){ return '<th>Digester '+n+' %</th>'; }).join('')
+      + '</tr></thead><tbody>'
+      + allRows.map(function(r){
+          const anyAlert = r.pct.some(function(p){ return rmwIsAlert(p); });
+          const dateStr = r.d+'/'+(r.mi+1)+'/'+r.y;
+          const gtCells = r.gt.map(function(v){ return '<td class="num">'+(v==null?'—':chipMonFmt(v,0))+'</td>'; }).join('');
+          const pctCells = r.pct.map(function(v){
+            const bad = rmwIsAlert(v);
+            return '<td class="num"'+(bad?' style="color:#d4342c;font-weight:700"':'')+'>'+(v==null?'—':(v>=0?'+':'')+chipMonFmt(v,1)+'%')+'</td>';
+          }).join('');
+          return '<tr'+(anyAlert?' class="wsd-alert-row"':'')+'><td>'+dateStr+'</td>'+gtCells+pctCells+'</tr>';
+        }).join('')
+      + '</tbody></table></div>' + rangeNote;
+  } else {
+    body.innerHTML = '<div class="md-chart-wrap"><canvas id="rmwChart"></canvas></div><div class="legend-row" id="rmwLegend"></div>' + rangeNote;
+    rmwDrawChart(digIdx, digRows);
+  }
+}
+
+function rmwRenderDetail(){
+  const panel = document.getElementById('rmwDetail');
+  if(!panel) return;
+  const dig = RMW_STATE.sel;
+  document.querySelectorAll('#rmwTiles .mon-tile').forEach(function(t){ t.classList.toggle('sel', +t.dataset.dig===dig); });
+  if(!dig){ panel.hidden = true; panel.innerHTML = ''; return; }
+  panel.hidden = false;
+  if(!RMW_RANGE[dig]) RMW_RANGE[dig] = { mode:'month', value:RMW_DEFAULT_MONTH };
+  if(!RMW_VIEW[dig]) RMW_VIEW[dig] = 'chart';
+  const rng = RMW_RANGE[dig];
+  panel.innerHTML = `
+    <div class="md-head">
+      <span class="md-title">Digester ${dig} <span class="u">· น้ำหนักไม้สับ (GT) เทียบค่าเฉลี่ย 5 Digester</span></span>
+      <span class="md-pills">
+        <button type="button" class="md-viewbtn" data-view="chart">กราฟ</button>
+        <button type="button" class="md-viewbtn" data-view="table">ตาราง</button>
+      </span>
+    </div>
+    <div class="ya-controls">
+      <div class="ya-picker">
+        <span class="yp-lbl">ช่วงข้อมูล</span>
+        <select id="rmwMode"><option value="date">วัน</option><option value="month">เดือน</option><option value="year">ปี</option></select>
+        <input type="date" id="rmwDate" hidden>
+        <input type="month" id="rmwMonth" hidden>
+        <select id="rmwYear" hidden></select>
+      </div>
+    </div>
+    <div class="md-sub">เกณฑ์แจ้งเตือน: น้ำหนักไม้สับผิดจากค่าเฉลี่ยทั้ง 5 Digester มากกว่า +5% หรือน้อยกว่า −5% ต่อเนื่องกันตั้งแต่ 3 วันขึ้นไป (ตารางแสดงทั้ง 5 Digester เพื่อเทียบกัน)</div>
+    <div class="md-body" id="rmwBody"></div>
+  `;
+  const modeEl = document.getElementById('rmwMode'), dateEl = document.getElementById('rmwDate'),
+        monthEl = document.getElementById('rmwMonth'), yearEl = document.getElementById('rmwYear');
+  const years = Array.from(new Set(RMW_ROWS.map(function(r){ return r.y; }))).sort();
+  yearEl.innerHTML = years.map(function(y){ return '<option value="'+y+'">'+y+'</option>'; }).join('');
+  modeEl.value = rng.mode;
+  dateEl.hidden = rng.mode!=='date'; monthEl.hidden = rng.mode!=='month'; yearEl.hidden = rng.mode!=='year';
+  if(rng.mode==='date') dateEl.value = rng.value||'';
+  else if(rng.mode==='month') monthEl.value = rng.value||RMW_DEFAULT_MONTH;
+  else if(rng.value) yearEl.value = rng.value;
+  const applyRange = function(){
+    const mode = modeEl.value;
+    dateEl.hidden = mode!=='date'; monthEl.hidden = mode!=='month'; yearEl.hidden = mode!=='year';
+    const value = mode==='date' ? dateEl.value : mode==='month' ? monthEl.value : yearEl.value;
+    RMW_RANGE[dig] = { mode, value };
+    rmwRenderBody(dig);
+  };
+  [modeEl, dateEl, monthEl, yearEl].forEach(function(el){ el.addEventListener('change', applyRange); el.addEventListener('input', applyRange); });
+  panel.querySelectorAll('.md-viewbtn').forEach(function(b){ b.addEventListener('click', function(){ RMW_VIEW[dig] = b.dataset.view; rmwRenderBody(dig); }); });
+  rmwRenderBody(dig);
+}
+
+function initRmw(){
+  if(!RMW_ROWS.length){
+    const wrap = document.getElementById('rmwTiles');
+    if(wrap) wrap.innerHTML = '<div class="empty-state"><div class="icon">🪵</div><h2>ยังไม่มีข้อมูล</h2><p>ไม่พบข้อมูลน้ำหนักไม้สับเทียบค่าเฉลี่ย 5 Digester ในชีต "RM Wood-Yield" (gid=632351488)</p></div>';
+    return;
+  }
+  rmwRenderTiles();
+  rmwRenderDetail();
+  const host = document.getElementById('rmwHost');
+  if(!host) return;
+  const toggle = function(dig){
+    RMW_STATE.sel = (RMW_STATE.sel===dig) ? null : dig;
+    rmwRenderDetail();
+    if(RMW_STATE.sel){ const d = document.getElementById('rmwDetail'); if(d) d.scrollIntoView({behavior:'smooth', block:'nearest'}); }
+  };
+  host.addEventListener('click', function(e){
+    const tile = e.target.closest('.mon-tile'); if(!tile) return;
+    toggle(+tile.dataset.dig);
+  });
+  host.addEventListener('keydown', function(e){
+    if(e.key!=='Enter' && e.key!==' ') return;
+    const tile = e.target.closest('.mon-tile'); if(!tile) return;
+    e.preventDefault();
+    toggle(+tile.dataset.dig);
+  });
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(){ rmwRenderTiles(); rmwRenderDetail(); });
+}
+if(document.getElementById('rmwHost')) initRmw();
 
 /* ---- Notification Centre: real anomalies from the Yield monitor metrics —
    any scored metric whose latest reading sits outside its own ±3σ control band
