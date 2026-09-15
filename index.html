@@ -7421,16 +7421,20 @@ function wcdDrawChart(rows, unit){
   const cfg = {
     data:{ labels, datasets:[
       { type:'line', label:lblRevise, data:reviseVals, borderColor:'#0A2E55', backgroundColor:'#0A2E55',
-        borderWidth:1.6, pointRadius: dense?0:2.2, tension:.15, spanGaps:true, order:2, datalabels:{display:false} },
+        borderWidth:1.6, pointRadius: dense?0:2.2, tension:.15, spanGaps:true, order:2, yAxisID:'y1', datalabels:{display:false} },
       { type:'line', label:lblScale, data:scaleVals, borderColor:'#2A8C6E', backgroundColor:'#2A8C6E',
-        borderWidth:1.6, pointRadius: dense?0:2.2, tension:.15, spanGaps:true, order:3, datalabels:{display:false} },
+        borderWidth:1.6, pointRadius: dense?0:2.2, tension:.15, spanGaps:true, order:3, yAxisID:'y1', datalabels:{display:false} },
       { type:'line', label:lblDiff, data:diffVals, borderColor:'#d4342c', backgroundColor:'#d4342c',
-        borderWidth:1.6, borderDash:[5,3], pointRadius: dense?0:2.2, tension:.15, spanGaps:true, order:1, datalabels:{display:false} }
+        borderWidth:1.6, borderDash:[5,3], pointRadius: dense?0:2.2, tension:.15, spanGaps:true, order:1, yAxisID:'y', datalabels:{display:false} }
     ]},
     options:{ responsive:true, maintainAspectRatio:false, animation:false, interaction:{mode:'index', intersect:false},
       scales:{
         x:{ grid:{display:false}, ticks:{color:c.ink2, font:{family:'IBM Plex Mono', size:10}, maxRotation:45, minRotation:0, autoSkip:true, maxTicksLimit:24} },
-        y:{ grid:{color:c.grid}, ticks:{color:c.ink2, font:{family:'IBM Plex Mono', size:10.5}} }
+        /* Diff stays on the left (primary) axis, scaled to its own smaller range, so its swings
+           are readable instead of being flattened by the much larger Revise/Weight-scale values —
+           those two share a secondary right-hand axis instead. */
+        y:{ position:'left', grid:{color:c.grid}, ticks:{color:c.ink2, font:{family:'IBM Plex Mono', size:10.5}}, title:{display:true, text:lblDiff, color:'#d4342c', font:{family:'IBM Plex Mono', size:10}} },
+        y1:{ position:'right', grid:{display:false}, ticks:{color:c.ink2, font:{family:'IBM Plex Mono', size:10.5}}, title:{display:true, text:'Revise weight / Weight scale ('+unit+')', color:c.ink2, font:{family:'IBM Plex Mono', size:10}} }
       },
       plugins:{ legend:{display:false},
         tooltip:{ backgroundColor:c.surface, titleColor:c.ink, bodyColor:c.ink2, borderColor:c.border, borderWidth:1, padding:9,
