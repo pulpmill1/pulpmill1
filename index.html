@@ -612,6 +612,7 @@
   table.md-table tbody tr:nth-child(2n){background:var(--surface-2);}
   table.md-table.wide th,table.md-table.wide td{width:auto;}
   table.md-table tr.wsd-alert-row td{background:rgba(212,52,44,.12);color:#d4342c;font-weight:700;}
+  table.md-table td.wsd-alert-cell{background:rgba(212,52,44,.12);color:#d4342c;font-weight:700;}
   .wsd-alert-dot{position:absolute;width:9px;height:9px;border-radius:50%;background:#d4342c;box-shadow:0 0 5px #d4342c;transform:translate(-50%,-50%);pointer-events:none;z-index:3;}
   .wsd-alert-dot::after{content:"";position:absolute;left:50%;top:50%;width:9px;height:9px;margin:-4.5px 0 0 -4.5px;border-radius:50%;border:1.6px solid #d4342c;animation:sparkLivePulse 1.1s ease-out infinite;}
   @media (prefers-reduced-motion:reduce){.wsd-alert-dot::after{animation:none;}}
@@ -7147,20 +7148,22 @@ function rmwRenderBody(dig){
   const digRows = allRows.filter(function(r){ return r.gt[digIdx]!=null; });
   const rangeNote = '<div class="md-rangenote">'+allRows.length+' day'+(allRows.length===1?'':'s')+'</div>';
   if(view === 'table'){
+    // ไฮไลท์ราย "ช่อง" ตามเงื่อนไขเดียวกับจุดกระพริบบนกราฟ (ต่อเนื่อง ≥3 วัน ในช่วงที่กำลังดูอยู่)
+    // ไม่ใช่แค่ค่าเดี่ยวๆ เกิน ±5% — คำนวณแยกทีละ Digester เพราะแต่ละคอลัมน์มี run ของตัวเอง
+    const digAlertSets = RMW_DIGESTERS.map(function(n){ return rmwComputeAlertSet(allRows, n-1); });
     body.innerHTML = '<div class="md-tablewrap"><table class="md-table wide"><thead><tr>'
       + '<th>วันที่</th>'
       + RMW_DIGESTERS.map(function(n){ return '<th>Digester '+n+' (GT/batch)</th>'; }).join('')
       + RMW_DIGESTERS.map(function(n){ return '<th>Digester '+n+' (%)</th>'; }).join('')
       + '</tr></thead><tbody>'
       + allRows.map(function(r){
-          const anyAlert = r.pct.some(function(p){ return rmwIsAlert(p); });
           const dateStr = r.d+'/'+(r.mi+1)+'/'+r.y;
           const gtCells = r.gt.map(function(v){ return '<td class="num">'+(v==null?'—':chipMonFmt(v,0))+'</td>'; }).join('');
-          const pctCells = r.pct.map(function(v){
-            const bad = rmwIsAlert(v);
-            return '<td class="num"'+(bad?' style="color:#d4342c;font-weight:700"':'')+'>'+(v==null?'—':(v>=0?'+':'')+chipMonFmt(v,1)+'%')+'</td>';
+          const pctCells = r.pct.map(function(v, j){
+            const bad = digAlertSets[j].has(r);
+            return '<td class="num'+(bad?' wsd-alert-cell':'')+'">'+(v==null?'—':(v>=0?'+':'')+chipMonFmt(v,1)+'%')+'</td>';
           }).join('');
-          return '<tr'+(anyAlert?' class="wsd-alert-row"':'')+'><td>'+dateStr+'</td>'+gtCells+pctCells+'</tr>';
+          return '<tr><td>'+dateStr+'</td>'+gtCells+pctCells+'</tr>';
         }).join('')
       + '</tbody></table></div>' + rangeNote;
   } else {
