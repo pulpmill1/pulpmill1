@@ -1490,7 +1490,7 @@
                     <tr class="ya-sub" data-ya-in="g0"><td class="ya-label">- End. Prod. balance tank</td><td class="ya-unit">Adt/day</td><td class="num" id="yaCell_endProdBal_prev"></td><td class="num" id="yaCell_endProdBal_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
                     <tr class="ya-sub" data-ya-in="g0"><td class="ya-label">- No of cooks</td><td class="ya-unit">Cooks</td><td class="num" id="yaCell_noOfCooks_prev"></td><td class="num" id="yaCell_noOfCooks_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
                     <tr class="ya-sub" data-ya-in="g0"><td class="ya-label">- Chip/batch</td><td class="ya-unit">BDt/batch</td><td class="num" id="yaCell_chipPerBatch_prev"></td><td class="num" id="yaCell_chipPerBatch_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
-                    <tr class="ya-major" data-ya-group="g1"><td class="ya-label"><span class="yc">▾</span>1. Effect Chip weight</td><td class="ya-unit">Bdt/Adt</td><td class="num" id="yaCell_effChipWeight_prev"></td><td class="num" id="yaCell_effChipWeight_cur"></td><td class="num" id="yaCell_effChipWeight_diffbdt"></td><td class="num" id="yaCell_effChipWeight_diffpct"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-major" data-ya-group="g1"><td class="ya-label"><span class="yc">▾</span>1. Effect Chip weight</td><td class="ya-unit">Bdt/Adt</td><td class="num" id="yaCell_effChipWeight_prev"></td><td class="num" id="yaCell_effChipWeight_cur"></td><td class="num" id="yaCell_effChipWeight_diffbdt"></td><td class="num" id="yaCell_effChipWeight_diffpct"></td><td class="ya-remark" id="yaCell_effChipWeight_remark"></td></tr>
                     <tr class="ya-sub" data-ya-in="g1"><td class="ya-label">- Diff Chip Weight</td><td class="ya-unit">Bdt</td><td class="num" id="yaCell_diffChipWeight_prev"></td><td class="num" id="yaCell_diffChipWeight_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
                     <tr class="ya-major" data-ya-group="g2"><td class="ya-label"><span class="yc">▾</span>2. Effect Chip moisture</td><td class="ya-unit">Bdt/Adt</td><td class="num" id="yaCell_effMoisture_prev"></td><td class="num" id="yaCell_effMoisture_cur"></td><td class="num" id="yaCell_effMoisture_diffbdt"></td><td class="num" id="yaCell_effMoisture_diffpct"></td><td class="ya-remark" id="yaCell_effMoisture_remark"></td></tr>
                     <tr class="ya-sub" data-ya-in="g2"><td class="ya-label">- Chip moisture (Lab)</td><td class="ya-unit">%</td><td class="num" id="yaCell_moistureLab_prev"></td><td class="num" id="yaCell_moistureLab_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
@@ -5768,7 +5768,7 @@ function renderYaEffectChipWeight(){
   const vCur = yaEffectChipWeightValue('cur');
   prevEl.textContent = vPrev==null ? '—' : chipMonFmt(vPrev, 3);
   if(curEl) curEl.textContent = vCur==null ? '—' : chipMonFmt(vCur, 3);
-  yaRenderSimpleDiff(yaEffectChipWeightValue, 'yaCell_effChipWeight_diffbdt', 'yaCell_effChipWeight_diffpct', 'Chip weight');
+  yaRenderSimpleDiff(yaEffectChipWeightValue, 'yaCell_effChipWeight_diffbdt', 'yaCell_effChipWeight_diffpct', 'Chip weight', 'yaCell_effChipWeight_remark');
 }
 function yaEffectMoistureValue(which){
   const st = YA_STATE[which];
