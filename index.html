@@ -1633,7 +1633,7 @@
             น้ำหนักคงเหลือหลัง Discharge: จุดที่ ≥ Target High หรือ ≤ Target Low ต่อเนื่องกันตั้งแต่ 3 batch ขึ้นไป (ในช่วงที่กำลังดูอยู่) จะกระพริบสีแดงบนกราฟ ค่าเริ่มต้น Target −6 / 6 ตัน<br>
             น้ำหนักหลัง Displacement 5 m3: จุดที่ &lt; Target Low หรือ &gt; Target High ต่อเนื่องกันตั้งแต่ 3 batch ขึ้นไป (ในช่วงที่กำลังดูอยู่) จะกระพริบสีแดงบนกราฟ ค่าเริ่มต้น Target 305 / 335 ตัน<br>
             น้ำหนักไม้สับในหน่วย GT เปรียบเทียบค่าเฉลี่ย 5 Digester: ที่มา Google Sheets tab "RM Wood-Yield" (<code>gid=632351488</code>) คอลัมน์ Digester1-5 (GT/batch) — % ของแต่ละ Digester คำนวณเอง = (GT/batch ของ Digester นั้นวันนั้น − ค่าเฉลี่ย GT/batch ของอีก 4 Digester ที่เหลือวันนั้น) ÷ ค่าเฉลี่ยของอีก 4 Digester × 100 จุดที่ &gt;5% หรือ &lt;-5% ต่อเนื่องกันตั้งแต่ 3 วันขึ้นไป (ในช่วงที่กำลังดูอยู่) จะกระพริบสีแดงบนกราฟ<br>
-            สรุปข้อมูล Diff น้ำหนักไม้สับใน Digester: รายวัน แยกตาม Digester จากผลรวม Revise weight และ ปริมาณไม้สับตาม Weight scale ของแต่ละวันในชีตเดียวกัน · หน่วย GT แสดงค่าดิบ · หน่วย BDT คูณด้วย (100% − Chip moisture (Lab)% ของวันนั้น) ทีละวันก่อนรวม · ตัวเลขสรุปมุมขวาบนของกราฟ = ผลรวม Diff (BDT) ของทุกวันในช่วงที่เลือก<br>
+            สรุปข้อมูล Diff น้ำหนักไม้สับใน Digester: รายวัน แยกตาม Digester จากผลรวม Revise weight และ ปริมาณไม้สับตาม Weight scale ของแต่ละวันในชีตเดียวกัน "Weight Scale Dig." · หน่วย GT แสดงค่าดิบ · หน่วย BDT คูณด้วย (100% − Chip moisture (Lab)% ของวันนั้น) ทีละวันก่อนรวม<br>
             ตั้งค่า Target Low/High ได้เองต่อ Digester ต่อกราฟ (เฉพาะสองกราฟแรก) เก็บไว้ในเบราว์เซอร์นี้ · เมื่อเปิดหน้านี้ค่าเริ่มต้นจะแสดงข้อมูลของเดือนปัจจุบัน · เปลี่ยนช่วงเป็นรายวัน/รายเดือน/รายปีได้จากตัวเลือกด้านบนกราฟ · กดปุ่ม "ตาราง" เพื่อดูข้อมูลดิบแทนกราฟ
           </div>
         </section>
@@ -7385,15 +7385,6 @@ function wcdFilterRows(dig, mode, value){
   const p = value.split('-').map(Number);
   return rows.filter(function(r){ return r.y===p[0] && r.mi===p[1]-1; });
 }
-/* ผลรวมมุมขวาบน: Σ ต่อวันของ (Revise weight − ปริมาณไม้สับตาม Weight scale) × ปัจจัยความชื้นของวันนั้น
-   — คูณความชื้นทีละวันก่อนรวม (ตามที่ผู้ใช้ระบุ) จึงเท่ากับผลรวมของอนุกรม Diff หน่วย BDT นั่นเอง */
-function wcdSummarySum(dig, mode, value){
-  const rows = wcdFilterRows(dig, mode, value);
-  let sum = 0, any = false;
-  rows.forEach(function(r){ const v = wcdValue(r, 'diff', 'BDT'); if(v!=null){ sum += v; any = true; } });
-  return any ? sum : null;
-}
-
 function wcdRenderTiles(){
   const wrap = document.getElementById('wcdTiles');
   if(!wrap) return;
@@ -7433,13 +7424,14 @@ function wcdDrawChart(rows, unit){
   const scaleVals = rows.map(function(r){ return wcdValue(r,'chipGT',unit); });
   const diffVals = rows.map(function(r){ return wcdValue(r,'diff',unit); });
   const dense = rows.length > 90;
+  const lblRevise = 'Revise weight ('+unit+')', lblScale = 'ปริมาณไม้สับตาม Weight scale ('+unit+')', lblDiff = 'Diff Revise weight ('+unit+')';
   const cfg = {
     data:{ labels, datasets:[
-      { type:'line', label:'Revise weight', data:reviseVals, borderColor:'#0A2E55', backgroundColor:'#0A2E55',
+      { type:'line', label:lblRevise, data:reviseVals, borderColor:'#0A2E55', backgroundColor:'#0A2E55',
         borderWidth:1.6, pointRadius: dense?0:2.2, tension:.15, spanGaps:true, order:2, datalabels:{display:false} },
-      { type:'line', label:'ปริมาณไม้สับตาม Weight scale', data:scaleVals, borderColor:'#2A8C6E', backgroundColor:'#2A8C6E',
+      { type:'line', label:lblScale, data:scaleVals, borderColor:'#2A8C6E', backgroundColor:'#2A8C6E',
         borderWidth:1.6, pointRadius: dense?0:2.2, tension:.15, spanGaps:true, order:3, datalabels:{display:false} },
-      { type:'line', label:'Diff', data:diffVals, borderColor:'#d4342c', backgroundColor:'#d4342c',
+      { type:'line', label:lblDiff, data:diffVals, borderColor:'#d4342c', backgroundColor:'#d4342c',
         borderWidth:1.6, borderDash:[5,3], pointRadius: dense?0:2.2, tension:.15, spanGaps:true, order:1, datalabels:{display:false} }
     ]},
     options:{ responsive:true, maintainAspectRatio:false, animation:false, interaction:{mode:'index', intersect:false},
@@ -7451,7 +7443,7 @@ function wcdDrawChart(rows, unit){
         tooltip:{ backgroundColor:c.surface, titleColor:c.ink, bodyColor:c.ink2, borderColor:c.border, borderWidth:1, padding:9,
           callbacks:{
             title:function(items){ const r = rows[items[0].dataIndex]; return r ? (r.d+'/'+(r.mi+1)+'/'+r.y) : ''; },
-            label:function(x){ return x.dataset.label ? (x.dataset.label+': '+(x.parsed.y==null?'—':x.parsed.y.toFixed(0))+' '+unit) : ''; }
+            label:function(x){ return x.dataset.label ? (x.dataset.label+': '+(x.parsed.y==null?'—':x.parsed.y.toFixed(0))) : ''; }
           } } }
     }
   };
@@ -7459,9 +7451,9 @@ function wcdDrawChart(rows, unit){
   wcdChart = new Chart(cv.getContext('2d'), cfg);
   const leg = document.getElementById('wcdLegend');
   if(leg) leg.innerHTML = [
-    '<span class="item"><span class="box" style="background:#0A2E55"></span>Revise weight</span>',
-    '<span class="item"><span class="box" style="background:#2A8C6E"></span>ปริมาณไม้สับตาม Weight scale</span>',
-    '<span class="item"><span class="sw dashed" style="border-color:#d4342c"></span>Diff</span>'
+    '<span class="item"><span class="box" style="background:#0A2E55"></span>'+lblRevise+'</span>',
+    '<span class="item"><span class="box" style="background:#2A8C6E"></span>'+lblScale+'</span>',
+    '<span class="item"><span class="sw dashed" style="border-color:#d4342c"></span>'+lblDiff+'</span>'
   ].join('');
 }
 
@@ -7475,11 +7467,6 @@ function wcdRenderBody(dig){
   if(wcdChart){ try{ wcdChart.destroy(); }catch(e){} wcdChart = null; }
   const rng = WCD_RANGE[dig] || { mode:'month', value:WCD_DEFAULT_MONTH };
   const rows = wcdFilterRows(dig, rng.mode, rng.value);
-  const summaryEl = document.getElementById('wcdSummary');
-  if(summaryEl){
-    const sum = wcdSummarySum(dig, rng.mode, rng.value);
-    summaryEl.textContent = 'ผลรวม Diff (BDT) ในช่วงที่เลือก: '+(sum==null ? '—' : chipMonFmt(sum,0)+' BDT');
-  }
   const rangeNote = '<div class="md-rangenote">'+rows.length+' day'+(rows.length===1?'':'s')+'</div>';
   if(view === 'table'){
     body.innerHTML = '<div class="md-tablewrap"><table class="md-table wide"><thead><tr>'
@@ -7525,7 +7512,6 @@ function wcdRenderDetail(){
         <input type="month" id="wcdMonth" hidden>
         <select id="wcdYear" hidden></select>
       </div>
-      <span class="md-avgval" id="wcdSummary"></span>
     </div>
     <div class="md-body" id="wcdBody"></div>
   `;
