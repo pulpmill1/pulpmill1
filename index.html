@@ -6187,10 +6187,13 @@ function initYieldAnalysisControls(){
   }
   yaApplyMode('prev');
   yaApplyMode('cur');
-  // per-section collapse/expand — click a major row's label to toggle its own sub-rows
+  // per-section collapse/expand — starts collapsed by default, click a major row's label to
+  // reveal its own sub-rows
   document.querySelectorAll('.ya-table tr.ya-major[data-ya-group]').forEach(function(tr){
+    const g = tr.dataset.yaGroup;
+    tr.classList.add('ya-collapsed');
+    document.querySelectorAll('.ya-table [data-ya-in="'+g+'"]').forEach(function(row){ row.hidden = true; });
     tr.querySelector('.ya-label').addEventListener('click', function(){
-      const g = tr.dataset.yaGroup;
       const collapsed = tr.classList.toggle('ya-collapsed');
       document.querySelectorAll('.ya-table [data-ya-in="'+g+'"]').forEach(function(row){ row.hidden = collapsed; });
     });
