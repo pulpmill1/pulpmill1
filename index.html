@@ -1599,7 +1599,7 @@
 
         <section class="page" data-page="yield-weightscale" hidden>
           <div class="mon-group">
-            <div class="mon-group-head"><span class="gi">⚖️</span><span class="gt">น้ำหนักคงเหลือหลัง Discharge ≥ 6, ≤ -6 ton ต่อเนื่องกัน 3 ครั้ง</span><span class="gs">5 Digester · คลิกที่บล็อกเพื่อดูกราฟหลัก</span></div>
+            <div class="mon-group-head"><span class="gi">⚖️</span><span class="gt">น้ำหนักของหม้อต้มหลัง Discharge ≥ 6, ≤ -6 ton ต่อเนื่องกัน 3 ครั้ง</span><span class="gs">5 Digester · คลิกที่บล็อกเพื่อดูกราฟหลัก</span></div>
             <div id="wsdHost_discharge">
               <div class="mon-tiles" id="wsdTiles_discharge"></div>
               <div class="mon-detail" id="wsdDetail_discharge" hidden></div>
@@ -1624,7 +1624,7 @@
             ที่มา: Google Sheets tab "Weight Scale Dig." (<code>gid=1177773637</code>) · คอลัมน์วันที่รูปแบบ D/M/YYYY (วันก่อนเดือน) · Cooking Batch ACC., Digester no., ปริมาณไม้สับตาม Weight scale (GT), Weight after discharge (ton) และ Weight after DPL 5 m3 (ton) resolve จากชื่อหัวตารางในชีตเดียวกัน<br>
             น้ำหนักคงเหลือหลัง Discharge: จุดที่ ≥ Target High หรือ ≤ Target Low ต่อเนื่องกันตั้งแต่ 3 batch ขึ้นไป (ในช่วงที่กำลังดูอยู่) จะกระพริบสีแดงบนกราฟ ค่าเริ่มต้น Target −6 / 6 ตัน<br>
             น้ำหนักหลัง Displacement 5 m3: จุดที่ &lt; Target Low หรือ &gt; Target High ต่อเนื่องกันตั้งแต่ 3 batch ขึ้นไป (ในช่วงที่กำลังดูอยู่) จะกระพริบสีแดงบนกราฟ ค่าเริ่มต้น Target 305 / 335 ตัน<br>
-            น้ำหนักไม้สับในหน่วย GT เปรียบเทียบค่าเฉลี่ย 5 Digester: ที่มา Google Sheets tab "RM Wood-Yield" (<code>gid=632351488</code>) คอลัมน์ Digester1-5 (GT/batch) และ Digester1-5 (%) — % คือค่าที่ชีตคำนวณเทียบกับค่าเฉลี่ยของทั้ง 5 Digester ในวันนั้นอยู่แล้ว จุดที่ &gt;5% หรือ &lt;-5% ต่อเนื่องกันตั้งแต่ 3 วันขึ้นไป (ในช่วงที่กำลังดูอยู่) จะกระพริบสีแดงบนกราฟ<br>
+            น้ำหนักไม้สับในหน่วย GT เปรียบเทียบค่าเฉลี่ย 5 Digester: ที่มา Google Sheets tab "RM Wood-Yield" (<code>gid=632351488</code>) คอลัมน์ Digester1-5 (GT/batch) — % ของแต่ละ Digester คำนวณเอง = (GT/batch ของ Digester นั้นวันนั้น − ค่าเฉลี่ย GT/batch ของอีก 4 Digester ที่เหลือวันนั้น) ÷ ค่าเฉลี่ยของอีก 4 Digester × 100 จุดที่ &gt;5% หรือ &lt;-5% ต่อเนื่องกันตั้งแต่ 3 วันขึ้นไป (ในช่วงที่กำลังดูอยู่) จะกระพริบสีแดงบนกราฟ<br>
             ตั้งค่า Target Low/High ได้เองต่อ Digester ต่อกราฟ (เฉพาะสองกราฟแรก) เก็บไว้ในเบราว์เซอร์นี้ · เมื่อเปิดหน้านี้ค่าเริ่มต้นจะแสดงข้อมูลของเดือนปัจจุบัน · เปลี่ยนช่วงเป็นรายวัน/รายเดือน/รายปีได้จากตัวเลือกด้านบนกราฟ · กดปุ่ม "ตาราง" เพื่อดูข้อมูลดิบแทนกราฟ
           </div>
         </section>
@@ -6970,14 +6970,25 @@ function rmwFindDigCols(headerRow, occurrence, fallback){
   return fallback;
 }
 const RMW_GT_COLS  = rmwFindDigCols(RMW_HEADER_ROW, 0, [87,88,89,90,91]);
-const RMW_PCT_COLS = rmwFindDigCols(RMW_HEADER_ROW, 1, [92,93,94,95,96]);
 const RMW_DIGESTERS = [1,2,3,4,5];
 
+/* % ของ Digester N ในแต่ละวัน = (GT ของ Digester N วันนั้น − ค่าเฉลี่ย GT ของอีก 4 Digester ที่เหลือ
+   วันนั้น) ÷ ค่าเฉลี่ย GT ของอีก 4 Digester ที่เหลือ × 100 — คำนวณเองจาก GT/batch ดิบ ไม่ใช้คอลัมน์ %
+   ที่มีอยู่แล้วในชีต (ตามสูตรที่ผู้ใช้ระบุ: เทียบกับค่าเฉลี่ยของ "อีก 4 ตัว" ไม่รวมตัวเอง) */
+function rmwPctFor(gtArr, idx){
+  if(gtArr[idx]==null) return null;
+  const others = gtArr.filter(function(v,i){ return i!==idx && v!=null; });
+  if(!others.length) return null;
+  const avgOthers = others.reduce(function(a,b){ return a+b; }, 0)/others.length;
+  if(!avgOthers) return null;
+  return (gtArr[idx]-avgOthers)/avgOthers*100;
+}
+
 const RMW_ROWS = CHIP_MON_ROWS.map(function(rc){
+  const gt = RMW_GT_COLS.map(function(c){ return parseSheetNum(rc.r[c]); });
   return {
-    y:rc.y, mi:rc.mi, d:rc.d, ts:rc.ts,
-    gt: RMW_GT_COLS.map(function(c){ return parseSheetNum(rc.r[c]); }),
-    pct: RMW_PCT_COLS.map(function(c){ return parseSheetNum(rc.r[c]); })
+    y:rc.y, mi:rc.mi, d:rc.d, ts:rc.ts, gt:gt,
+    pct: gt.map(function(_,idx){ return rmwPctFor(gt, idx); })
   };
 }).filter(function(r){ return r.gt.some(function(v){ return v!=null; }); });
 RMW_ROWS.sort(function(a,b){ return a.ts-b.ts; });
@@ -7071,9 +7082,10 @@ function rmwDrawChart(digIdx, rows){
   const c = { ink2:cssVar('--ink-2'), grid:cssVar('--grid'), surface:cssVar('--surface'), border:cssVar('--border'), ink:cssVar('--ink') };
   const labels = rows.map(function(r){ return r.d+'/'+(r.mi+1); });
   const vals = rows.map(function(r){ return r.gt[digIdx]; });
+  // เส้นเฉลี่ยอ้างอิงบนกราฟ = ค่าเฉลี่ยของอีก 4 Digester ที่เหลือ (ตัวเดียวกับที่ใช้คำนวณ % เพื่อให้ตรงกัน)
   const avgVals = rows.map(function(r){
-    const vs = r.gt.filter(function(v){ return v!=null; });
-    return vs.length ? Math.round((vs.reduce(function(a,b){ return a+b; },0)/vs.length)*10)/10 : null;
+    const others = r.gt.filter(function(v,i){ return i!==digIdx && v!=null; });
+    return others.length ? Math.round((others.reduce(function(a,b){ return a+b; },0)/others.length)*10)/10 : null;
   });
   const alertSet = rmwComputeAlertSet(rows, digIdx);
   const alertIdx = [];
@@ -7089,7 +7101,7 @@ function rmwDrawChart(digIdx, rows){
         pointBackgroundColor:function(ctx){ return alertIdx.includes(ctx.dataIndex) ? '#d4342c' : '#0A2E55'; },
         pointBorderColor:function(ctx){ return alertIdx.includes(ctx.dataIndex) ? '#d4342c' : '#0A2E55'; },
         tension:.15, spanGaps:true, order:2, datalabels:{display:false} },
-      { type:'line', label:'ค่าเฉลี่ย 5 Digester', data:avgVals, borderColor:'#F0932B', borderWidth:1.6,
+      { type:'line', label:'ค่าเฉลี่ยอีก 4 Digester', data:avgVals, borderColor:'#F0932B', borderWidth:1.6,
         borderDash:[7,3], pointRadius:0, fill:false, tension:.15, spanGaps:true, order:5, datalabels:{display:false} }
     ]},
     options:{ responsive:true, maintainAspectRatio:false, animation:false, interaction:{mode:'index', intersect:false},
@@ -7102,7 +7114,7 @@ function rmwDrawChart(digIdx, rows){
           callbacks:{
             title:function(items){ const r = rows[items[0].dataIndex]; return r ? (r.d+'/'+(r.mi+1)+'/'+r.y) : ''; },
             label:function(x){
-              if(x.dataset.label==='ค่าเฉลี่ย 5 Digester') return x.dataset.label+': '+(x.parsed.y==null?'—':x.parsed.y.toFixed(1))+' GT';
+              if(x.dataset.label==='ค่าเฉลี่ยอีก 4 Digester') return x.dataset.label+': '+(x.parsed.y==null?'—':x.parsed.y.toFixed(1))+' GT';
               const r = rows[x.dataIndex]; const pct = r ? r.pct[digIdx] : null;
               return x.dataset.label+': '+(x.parsed.y==null?'—':x.parsed.y.toFixed(0))+' GT'+(pct==null?'':' ('+(pct>=0?'+':'')+pct.toFixed(1)+'%)');
             }
@@ -7116,7 +7128,7 @@ function rmwDrawChart(digIdx, rows){
   if(leg){
     const items = [
       '<span class="item"><span class="box" style="background:#0A2E55"></span>Digester '+(digIdx+1)+'</span>',
-      '<span class="item"><span class="sw dashed" style="border-color:#F0932B"></span>ค่าเฉลี่ย 5 Digester</span>'
+      '<span class="item"><span class="sw dashed" style="border-color:#F0932B"></span>ค่าเฉลี่ยอีก 4 Digester</span>'
     ];
     if(alertIdx.length) items.push('<span class="item"><span class="box" style="background:#d4342c"></span>'+alertIdx.length+' วันผิดจากค่าเฉลี่ย &gt;5% ต่อเนื่อง ≥3 วัน (กระพริบ)</span>');
     leg.innerHTML = items.join('');
@@ -7137,8 +7149,8 @@ function rmwRenderBody(dig){
   if(view === 'table'){
     body.innerHTML = '<div class="md-tablewrap"><table class="md-table wide"><thead><tr>'
       + '<th>วันที่</th>'
-      + RMW_DIGESTERS.map(function(n){ return '<th>Digester '+n+' GT/batch</th>'; }).join('')
-      + RMW_DIGESTERS.map(function(n){ return '<th>Digester '+n+' %</th>'; }).join('')
+      + RMW_DIGESTERS.map(function(n){ return '<th>Digester '+n+' (GT/batch)</th>'; }).join('')
+      + RMW_DIGESTERS.map(function(n){ return '<th>Digester '+n+' (%)</th>'; }).join('')
       + '</tr></thead><tbody>'
       + allRows.map(function(r){
           const anyAlert = r.pct.some(function(p){ return rmwIsAlert(p); });
