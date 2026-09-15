@@ -1490,8 +1490,8 @@
                     <tr class="ya-sub" data-ya-in="g0"><td class="ya-label">- End. Prod. balance tank</td><td class="ya-unit">Adt/day</td><td class="num" id="yaCell_endProdBal_prev"></td><td class="num" id="yaCell_endProdBal_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
                     <tr class="ya-sub" data-ya-in="g0"><td class="ya-label">- No of cooks</td><td class="ya-unit">Cooks</td><td class="num" id="yaCell_noOfCooks_prev"></td><td class="num" id="yaCell_noOfCooks_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
                     <tr class="ya-sub" data-ya-in="g0"><td class="ya-label">- Chip/batch</td><td class="ya-unit">BDt/batch</td><td class="num" id="yaCell_chipPerBatch_prev"></td><td class="num" id="yaCell_chipPerBatch_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
-                    <tr class="ya-major" data-ya-group="g1"><td class="ya-label"><span class="yc">▾</span>1. Effect Chip weight</td><td class="ya-unit">Bdt/Adt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
-                    <tr class="ya-sub" data-ya-in="g1"><td class="ya-label">- Diff Chip Weight (Pending Calc.)</td><td class="ya-unit">Bdt</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-major" data-ya-group="g1"><td class="ya-label"><span class="yc">▾</span>1. Effect Chip weight</td><td class="ya-unit">Bdt/Adt</td><td class="num" id="yaCell_effChipWeight_prev"></td><td class="num" id="yaCell_effChipWeight_cur"></td><td class="num" id="yaCell_effChipWeight_diffbdt"></td><td class="num" id="yaCell_effChipWeight_diffpct"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-sub" data-ya-in="g1"><td class="ya-label">- Diff Chip Weight</td><td class="ya-unit">Bdt</td><td class="num" id="yaCell_diffChipWeight_prev"></td><td class="num" id="yaCell_diffChipWeight_cur"></td><td class="num" id="yaCell_diffChipWeight_diffbdt"></td><td class="num"></td><td class="ya-remark"></td></tr>
                     <tr class="ya-major" data-ya-group="g2"><td class="ya-label"><span class="yc">▾</span>2. Effect Chip moisture</td><td class="ya-unit">Bdt/Adt</td><td class="num" id="yaCell_effMoisture_prev"></td><td class="num" id="yaCell_effMoisture_cur"></td><td class="num" id="yaCell_effMoisture_diffbdt"></td><td class="num" id="yaCell_effMoisture_diffpct"></td><td class="ya-remark" id="yaCell_effMoisture_remark"></td></tr>
                     <tr class="ya-sub" data-ya-in="g2"><td class="ya-label">- Chip moisture (Lab)</td><td class="ya-unit">%</td><td class="num" id="yaCell_moistureLab_prev"></td><td class="num" id="yaCell_moistureLab_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
                     <tr class="ya-sub" data-ya-in="g2"><td class="ya-label">- Chip moisture (Online)</td><td class="ya-unit">%</td><td class="num" id="yaCell_moistureOnline_prev"></td><td class="num" id="yaCell_moistureOnline_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
@@ -5712,6 +5712,67 @@ function yaSetDiffCell(el, v, dec){
    evaluated once per period column using that column's own picker, then Diff. Effect (Bdt/Adt and %)
    and the REMARK sentence are derived from both columns together — so this runs after BOTH columns
    are rendered, not per-column like yaPickValue-driven rows. */
+/* "1. Effect Chip weight" — "- Diff Chip Weight" sub-row (formula given directly by the user):
+   (SUM of "Revise weight" over the period − SUM of "ปริมาณไม้สับตาม Weight scale" over the period)
+   × (100% − Chip moisture (Lab)%), converting the GT (wet) difference to a BDT (bone-dry) figure.
+   Reads WSD_ROWS (Weight Scale Dig. tab, per-cook-batch, all 5 digesters combined) rather than
+   CHIP_MON_SERIES since those two source columns live on that sheet, not chipWoodRows. */
+function yaDiffChipWeightValue(which){
+  const st = YA_STATE[which];
+  if(!st.value) return null;
+  let rows;
+  if(st.mode==='date'){
+    const p = st.value.split('-').map(Number);
+    rows = WSD_ROWS.filter(function(r){ return r.y===p[0] && r.mi===p[1]-1 && r.d===p[2]; });
+  } else if(st.mode==='month'){
+    const p = st.value.split('-').map(Number);
+    rows = WSD_ROWS.filter(function(r){ return r.y===p[0] && r.mi===p[1]-1; });
+  } else if(st.mode==='year'){
+    const y = Number(st.value);
+    rows = WSD_ROWS.filter(function(r){ return r.y===y; });
+  } else return null;
+  if(!rows.length) return null;
+  const sumRevise = rows.reduce(function(a,r){ return r.reviseWt!=null ? a+r.reviseWt : a; }, 0);
+  const sumScale = rows.reduce(function(a,r){ return r.chipGT!=null ? a+r.chipGT : a; }, 0);
+  const moisture = yaPickValue('moistureLab', st.mode, st.value);
+  if(moisture==null) return null;
+  return (sumRevise - sumScale) * (100 - moisture) / 100;
+}
+function renderYaDiffChipWeight(){
+  const prevEl = document.getElementById('yaCell_diffChipWeight_prev');
+  if(!prevEl) return;
+  const curEl = document.getElementById('yaCell_diffChipWeight_cur');
+  const diffEl = document.getElementById('yaCell_diffChipWeight_diffbdt');
+  const vPrev = yaDiffChipWeightValue('prev');
+  const vCur = yaDiffChipWeightValue('cur');
+  prevEl.textContent = vPrev==null ? '—' : chipMonFmt(vPrev, 0);
+  if(curEl) curEl.textContent = vCur==null ? '—' : chipMonFmt(vCur, 0);
+  const diff = (vPrev!=null && vCur!=null) ? (vCur - vPrev) : null;
+  yaSetDiffCell(diffEl, diff, 0);
+}
+/* "1. Effect Chip weight" major row itself = Diff Chip Weight ÷ End Prod. (month/year) or
+   ÷ End Prod. balance tank (date/day) — same mode-based denominator switch yaYieldActualValue
+   already uses for the exact same "date mode uses the balance-tank figure" reason. Diff. Effect
+   columns (Bdt/Adt and %) reuse yaRenderSimpleDiff, same as every other Effect row: %  = diff ÷
+   Actual Yield's own ช่วงที่ 1 (prev) value. */
+function yaEffectChipWeightValue(which){
+  const st = YA_STATE[which];
+  const diffChip = yaDiffChipWeightValue(which);
+  if(diffChip==null) return null;
+  const ep = st.mode === 'date' ? yaPickValue('endProdBal', st.mode, st.value) : yaPickValue('endProd', st.mode, st.value);
+  if(ep==null || ep===0) return null;
+  return diffChip/ep;
+}
+function renderYaEffectChipWeight(){
+  const prevEl = document.getElementById('yaCell_effChipWeight_prev');
+  if(!prevEl) return;
+  const curEl = document.getElementById('yaCell_effChipWeight_cur');
+  const vPrev = yaEffectChipWeightValue('prev');
+  const vCur = yaEffectChipWeightValue('cur');
+  prevEl.textContent = vPrev==null ? '—' : chipMonFmt(vPrev, 3);
+  if(curEl) curEl.textContent = vCur==null ? '—' : chipMonFmt(vCur, 3);
+  yaRenderSimpleDiff(yaEffectChipWeightValue, 'yaCell_effChipWeight_diffbdt', 'yaCell_effChipWeight_diffpct', 'Chip weight');
+}
 function yaEffectMoistureValue(which){
   const st = YA_STATE[which];
   const w = yaPickValue('chipWeightScaleNet', st.mode, st.value);
@@ -6045,6 +6106,8 @@ function renderYieldAnalysisTable(){
   if(!document.getElementById('yaModePrev')) return;
   renderYieldAnalysisColumn('prev');
   renderYieldAnalysisColumn('cur');
+  renderYaDiffChipWeight();
+  renderYaEffectChipWeight();
   renderYaEffectMoisture();
   renderYaEffectWoodSpecies();
   renderYaEffectBark();
@@ -6073,6 +6136,8 @@ function yaApplyMode(which){
   const value = mode==='date' ? dateInp.value : mode==='month' ? monthInp.value : yearSel.value;
   YA_STATE[which] = { mode:mode, value:value || null };
   renderYieldAnalysisColumn(which);
+  renderYaDiffChipWeight();
+  renderYaEffectChipWeight();
   renderYaEffectMoisture();
   renderYaEffectWoodSpecies();
   renderYaEffectBark();
@@ -6599,8 +6664,6 @@ function initChipMon(){
     if(typeof renderNotifCentre === 'function') renderNotifCentre();
   });
 }
-if(document.getElementById('chipMonHost')) initChipMon();
-
 /* ==================================================================================
    Weight Scale Digester — สอง metric ต่อ cooking batch จากชีตเดียวกัน แยกตาม Digester 1-5:
    (1) น้ำหนักคงเหลือหลัง Discharge  (2) น้ำหนักหลัง Displacement 5 m3
@@ -6611,7 +6674,8 @@ if(document.getElementById('chipMonHost')) initChipMon();
    chipWoodRows) หนึ่งแถว = หนึ่ง cook (ไม่ใช่หนึ่งวัน) จึง parse แยกเป็นชุดของตัวเอง ไม่ผสมกับ
    CHIP_MON_ROWS ทั้งสอง metric ใช้ WSD_ROWS/WSD_BY_DIG ชุดเดียวกัน (คนละ field ต่อแถว) แล้วทุก
    ฟังก์ชัน render/chart/table ด้านล่างรับ "metric config" (WSD_METRICS) เป็นพารามิเตอร์แทนการ
-   copy โค้ดซ้ำสองชุด ================== */
+   copy โค้ดซ้ำสองชุด — ย้ายมาไว้ก่อน initChipMon() เพราะ Yield Analysis (เรียกจาก initChipMon)
+   ต้องใช้ WSD_ROWS ไปคำนวณแถว "Diff Chip Weight" ตั้งแต่ครั้งแรกที่ตารางเรนเดอร์ ================== */
 function wsdFindHeaderCol(headerRow, needle, fallback){
   if(!headerRow) return fallback;
   const idx = headerRow.findIndex(function(h){ return String(h||'').replace(/\s+/g,' ').trim().indexOf(needle) === 0; });
@@ -6629,6 +6693,7 @@ const WSD_COL_DIG      = wsdFindHeaderCol(WSD_HEADER_ROW, 'Digester no', 4);
 const WSD_COL_CHIPGT   = wsdFindHeaderCol(WSD_HEADER_ROW, 'ปริมาณไม้สับ', 5);
 const WSD_COL_WEIGHT   = wsdFindHeaderCol(WSD_HEADER_ROW, 'Weight after discharge', 6);
 const WSD_COL_DPL      = wsdFindHeaderCol(WSD_HEADER_ROW, 'Weight after DPL', 7);
+const WSD_COL_REVISE   = wsdFindHeaderCol(WSD_HEADER_ROW, 'Revise weight', 11);
 
 /* metric config: valueKey ชี้ field ใน row object ด้านล่าง, isAlert รับ (value, target) คืน
    true/false ตามเงื่อนไขกระพริบของ metric นั้นๆ (ทิศทาง/inclusive-exclusive ต่างกันตามที่ผู้ใช้ระบุ) */
@@ -6657,7 +6722,8 @@ for(let wsdi=0; wsdi<weightScaleDigRows.length; wsdi++){
     y:+wm[3], mi:(+wm[2])-1, d:+wm[1], ts:new Date(+wm[3],(+wm[2])-1,+wm[1]).getTime(),
     batchAcc: parseSheetNum(wr[WSD_COL_BATCHACC]), shift: String(wr[WSD_COL_SHIFT]||'').trim(),
     dig: dig, chipGT: parseSheetNum(wr[WSD_COL_CHIPGT]),
-    weight: parseSheetNum(wr[WSD_COL_WEIGHT]), dpl: parseSheetNum(wr[WSD_COL_DPL])
+    weight: parseSheetNum(wr[WSD_COL_WEIGHT]), dpl: parseSheetNum(wr[WSD_COL_DPL]),
+    reviseWt: parseSheetNum(wr[WSD_COL_REVISE])
   });
 }
 /* เรียงตามวันที่จริง ไม่ใช่ Cooking Batch ACC. — ชีตต้นทางรีเซ็ตเลข ACC. เป็นระยะ (ยืนยันจากข้อมูลจริง:
@@ -6666,6 +6732,9 @@ for(let wsdi=0; wsdi<weightScaleDigRows.length; wsdi++){
 WSD_ROWS.sort((x,y)=> x.ts - y.ts);
 const WSD_BY_DIG = {};
 WSD_DIGESTERS.forEach(n=> WSD_BY_DIG[n] = WSD_ROWS.filter(r=> r.dig===n));
+
+if(document.getElementById('chipMonHost')) initChipMon();
+
 /* แถวของ digester นั้นๆ ที่ metric นี้มีค่าจริง (บางแถวอาจมี Weight after discharge แต่ยังไม่มี
    Weight after DPL 5 m3 หรือกลับกัน) — ทุกจุดที่ใช้ WSD_BY_DIG เพื่อแสดง/กรองต้องกรอง null ออกก่อน */
 function wsdMetricRows(metric, dig){ return (WSD_BY_DIG[dig] || []).filter(r=> r[metric.valueKey]!=null); }
