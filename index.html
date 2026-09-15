@@ -1620,12 +1620,20 @@
               <div class="mon-detail" id="rmwDetail" hidden></div>
             </div>
           </div>
+          <div class="mon-group">
+            <div class="mon-group-head"><span class="gi">📊</span><span class="gt">สรุปข้อมูล Diff น้ำหนักไม้สับ (Chip weight) ใน Digester ช่วง (Set zero &amp; Span)</span><span class="gs">5 Digester · สลับหน่วย GT/BDT ได้ · คลิกที่บล็อกเพื่อดูกราฟหลัก</span></div>
+            <div id="wcdHost">
+              <div class="mon-tiles" id="wcdTiles"></div>
+              <div class="mon-detail" id="wcdDetail" hidden></div>
+            </div>
+          </div>
           <button type="button" class="foot-toggle" data-target="wsdFoot" aria-expanded="false" aria-controls="wsdFoot">ดูรายละเอียด</button>
           <div class="foot" id="wsdFoot" hidden>
             ที่มา: Google Sheets tab "Weight Scale Dig." (<code>gid=1177773637</code>) · คอลัมน์วันที่รูปแบบ D/M/YYYY (วันก่อนเดือน) · Cooking Batch ACC., Digester no., ปริมาณไม้สับตาม Weight scale (GT), Weight after discharge (ton) และ Weight after DPL 5 m3 (ton) resolve จากชื่อหัวตารางในชีตเดียวกัน<br>
             น้ำหนักคงเหลือหลัง Discharge: จุดที่ ≥ Target High หรือ ≤ Target Low ต่อเนื่องกันตั้งแต่ 3 batch ขึ้นไป (ในช่วงที่กำลังดูอยู่) จะกระพริบสีแดงบนกราฟ ค่าเริ่มต้น Target −6 / 6 ตัน<br>
             น้ำหนักหลัง Displacement 5 m3: จุดที่ &lt; Target Low หรือ &gt; Target High ต่อเนื่องกันตั้งแต่ 3 batch ขึ้นไป (ในช่วงที่กำลังดูอยู่) จะกระพริบสีแดงบนกราฟ ค่าเริ่มต้น Target 305 / 335 ตัน<br>
             น้ำหนักไม้สับในหน่วย GT เปรียบเทียบค่าเฉลี่ย 5 Digester: ที่มา Google Sheets tab "RM Wood-Yield" (<code>gid=632351488</code>) คอลัมน์ Digester1-5 (GT/batch) — % ของแต่ละ Digester คำนวณเอง = (GT/batch ของ Digester นั้นวันนั้น − ค่าเฉลี่ย GT/batch ของอีก 4 Digester ที่เหลือวันนั้น) ÷ ค่าเฉลี่ยของอีก 4 Digester × 100 จุดที่ &gt;5% หรือ &lt;-5% ต่อเนื่องกันตั้งแต่ 3 วันขึ้นไป (ในช่วงที่กำลังดูอยู่) จะกระพริบสีแดงบนกราฟ<br>
+            สรุปข้อมูล Diff น้ำหนักไม้สับใน Digester: รายวัน แยกตาม Digester จากผลรวม Revise weight และ ปริมาณไม้สับตาม Weight scale ของแต่ละวันในชีตเดียวกัน · หน่วย GT แสดงค่าดิบ · หน่วย BDT คูณด้วย (100% − Chip moisture (Lab)% ของวันนั้น) ทีละวันก่อนรวม · ตัวเลขสรุปมุมขวาบนของกราฟ = ผลรวม Diff (BDT) ของทุกวันในช่วงที่เลือก<br>
             ตั้งค่า Target Low/High ได้เองต่อ Digester ต่อกราฟ (เฉพาะสองกราฟแรก) เก็บไว้ในเบราว์เซอร์นี้ · เมื่อเปิดหน้านี้ค่าเริ่มต้นจะแสดงข้อมูลของเดือนปัจจุบัน · เปลี่ยนช่วงเป็นรายวัน/รายเดือน/รายปีได้จากตัวเลือกด้านบนกราฟ · กดปุ่ม "ตาราง" เพื่อดูข้อมูลดิบแทนกราฟ
           </div>
         </section>
@@ -7318,6 +7326,259 @@ function initRmw(){
   window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(){ rmwRenderTiles(); rmwRenderDetail(); });
 }
 if(document.getElementById('rmwHost')) initRmw();
+
+/* ==================================================================================
+   Weight Chip Diff — "สรุปข้อมูล Diff น้ำหนักไม้สับ (Chip weight) ใน Digester ช่วง (Set zero & Span)"
+   รายวัน แยกตาม Digester 1-5 จาก WSD_ROWS เดิม (Weight Scale Dig. — per-cook) รวมเป็นผลรวมต่อวันต่อ
+   digester ของ "Revise weight" กับ "ปริมาณไม้สับตาม Weight scale" แล้วสลับดูได้ 2 หน่วย:
+   GT = ค่าดิบ, BDT = คูณด้วย (100% − Chip moisture (Lab)% ของวันนั้น) ก่อนคำนวณ Diff — ใช้ค่าความชื้น
+   ของ "วันนั้น" เป็นรายวัน ไม่ใช่ค่าเฉลี่ยทั้งช่วง ต่างจากแถว Diff Chip Weight ใน Yield Analysis ที่ใช้
+   ค่าความชื้นเฉลี่ยทั้งช่วงกับผลรวมทั้งช่วง — ตามสูตรที่ผู้ใช้ระบุแยกกันไว้คนละจุด ================== */
+const WCD_DAILY = (function(){
+  const map = new Map();
+  WSD_ROWS.forEach(function(r){
+    if(r.chipGT==null && r.reviseWt==null) return;
+    const key = r.ts+'_'+r.dig;
+    let e = map.get(key);
+    if(!e){ e = { y:r.y, mi:r.mi, d:r.d, ts:r.ts, dig:r.dig, chipGT:0, reviseWt:0, hasGT:false, hasRevise:false }; map.set(key, e); }
+    if(r.chipGT!=null){ e.chipGT += r.chipGT; e.hasGT = true; }
+    if(r.reviseWt!=null){ e.reviseWt += r.reviseWt; e.hasRevise = true; }
+  });
+  const arr = Array.from(map.values());
+  arr.sort(function(a,b){ return a.ts-b.ts; });
+  return arr;
+})();
+const WCD_BY_DIG = {};
+WSD_DIGESTERS.forEach(function(n){ WCD_BY_DIG[n] = WCD_DAILY.filter(function(r){ return r.dig===n; }); });
+const WCD_MOISTURE_BY_TS = new Map((CHIP_MON_SERIES.moistureLab||[]).map(function(x){ return [x.ts, x.v]; }));
+function wcdMoistureFactor(ts){
+  const m = WCD_MOISTURE_BY_TS.get(ts);
+  return m==null ? null : (100-m)/100;
+}
+function wcdRawValue(day, field){
+  if(field==='reviseWt') return day.hasRevise ? day.reviseWt : null;
+  if(field==='chipGT') return day.hasGT ? day.chipGT : null;
+  if(field==='diff') return (day.hasRevise && day.hasGT) ? (day.reviseWt - day.chipGT) : null;
+  return null;
+}
+function wcdValue(day, field, unit){
+  const raw = wcdRawValue(day, field);
+  if(raw==null) return null;
+  if(unit==='GT') return raw;
+  const factor = wcdMoistureFactor(day.ts);
+  return factor==null ? null : raw*factor;
+}
+
+const WCD_DEFAULT_MONTH = wsdToday.getFullYear()+'-'+String(wsdToday.getMonth()+1).padStart(2,'0');
+const WCD_STATE = { sel:null };
+const WCD_RANGE = {};  // per dig: {mode,value}
+const WCD_VIEW = {};   // per dig: 'chart' | 'table'
+const WCD_UNIT = {};   // per dig: 'GT' | 'BDT'
+let wcdChart = null;
+const wcdSparks = {};
+
+function wcdFilterRows(dig, mode, value){
+  const rows = WCD_BY_DIG[dig] || [];
+  if(!value) return rows.slice(-30);
+  if(mode==='date'){ const p = value.split('-').map(Number); return rows.filter(function(r){ return r.y===p[0] && r.mi===p[1]-1 && r.d===p[2]; }); }
+  if(mode==='year') return rows.filter(function(r){ return r.y===Number(value); });
+  const p = value.split('-').map(Number);
+  return rows.filter(function(r){ return r.y===p[0] && r.mi===p[1]-1; });
+}
+/* ผลรวมมุมขวาบน: Σ ต่อวันของ (Revise weight − ปริมาณไม้สับตาม Weight scale) × ปัจจัยความชื้นของวันนั้น
+   — คูณความชื้นทีละวันก่อนรวม (ตามที่ผู้ใช้ระบุ) จึงเท่ากับผลรวมของอนุกรม Diff หน่วย BDT นั่นเอง */
+function wcdSummarySum(dig, mode, value){
+  const rows = wcdFilterRows(dig, mode, value);
+  let sum = 0, any = false;
+  rows.forEach(function(r){ const v = wcdValue(r, 'diff', 'BDT'); if(v!=null){ sum += v; any = true; } });
+  return any ? sum : null;
+}
+
+function wcdRenderTiles(){
+  const wrap = document.getElementById('wcdTiles');
+  if(!wrap) return;
+  wrap.innerHTML = WSD_DIGESTERS.map(function(dig){
+    const rows = WCD_BY_DIG[dig] || [];
+    const last = rows[rows.length-1];
+    let val = '—', sub = '<span class="flat">— ไม่มีข้อมูล</span>';
+    if(last){
+      const diffGT = wcdRawValue(last, 'diff');
+      val = diffGT==null ? '—' : chipMonFmt(diffGT, 0);
+      const dateStr = last.d+'/'+(last.mi+1)+'/'+last.y;
+      sub = '<span class="flat">Diff ล่าสุด</span> · '+dateStr;
+    }
+    return '<div class="mon-tile" role="button" tabindex="0" data-dig="'+dig+'" style="--mon-rail:#0A2E55">'
+      + '<div class="mt-top"><span class="mt-ico">📊</span><span class="mt-name">Digester '+dig+'</span></div>'
+      + '<div class="mt-val">'+val+'<span class="mt-unit">GT</span></div>'
+      + '<div class="mt-row3"><span class="mt-sub">'+sub+'</span><span class="mt-spark-wrap"><canvas class="mt-spark" id="wcdSpark_'+dig+'"></canvas><i class="spark-live" id="wcdLive_'+dig+'" hidden></i></span></div>'
+      + '</div>';
+  }).join('');
+  WSD_DIGESTERS.forEach(function(dig){
+    const rows = (WCD_BY_DIG[dig]||[]).slice(-60);
+    if(wcdSparks[dig]){ try{ wcdSparks[dig].destroy(); }catch(e){} wcdSparks[dig] = null; }
+    const pts = rows.map(function(r){ return { ts:r.ts, v:wcdRawValue(r,'diff') }; }).filter(function(x){ return x.v!=null; });
+    if(!pts.length) return;
+    const cv = document.getElementById('wcdSpark_'+dig);
+    const live = document.getElementById('wcdLive_'+dig);
+    wcdSparks[dig] = chipMonMakeSpark(cv, live, pts, '#0A2E55');
+  });
+}
+
+function wcdDrawChart(rows, unit){
+  const cv = document.getElementById('wcdChart');
+  if(!cv) return;
+  const c = { ink2:cssVar('--ink-2'), grid:cssVar('--grid'), surface:cssVar('--surface'), border:cssVar('--border'), ink:cssVar('--ink') };
+  const labels = rows.map(function(r){ return r.d+'/'+(r.mi+1); });
+  const reviseVals = rows.map(function(r){ return wcdValue(r,'reviseWt',unit); });
+  const scaleVals = rows.map(function(r){ return wcdValue(r,'chipGT',unit); });
+  const diffVals = rows.map(function(r){ return wcdValue(r,'diff',unit); });
+  const dense = rows.length > 90;
+  const cfg = {
+    data:{ labels, datasets:[
+      { type:'line', label:'Revise weight', data:reviseVals, borderColor:'#0A2E55', backgroundColor:'#0A2E55',
+        borderWidth:1.6, pointRadius: dense?0:2.2, tension:.15, spanGaps:true, order:2, datalabels:{display:false} },
+      { type:'line', label:'ปริมาณไม้สับตาม Weight scale', data:scaleVals, borderColor:'#2A8C6E', backgroundColor:'#2A8C6E',
+        borderWidth:1.6, pointRadius: dense?0:2.2, tension:.15, spanGaps:true, order:3, datalabels:{display:false} },
+      { type:'line', label:'Diff', data:diffVals, borderColor:'#d4342c', backgroundColor:'#d4342c',
+        borderWidth:1.6, borderDash:[5,3], pointRadius: dense?0:2.2, tension:.15, spanGaps:true, order:1, datalabels:{display:false} }
+    ]},
+    options:{ responsive:true, maintainAspectRatio:false, animation:false, interaction:{mode:'index', intersect:false},
+      scales:{
+        x:{ grid:{display:false}, ticks:{color:c.ink2, font:{family:'IBM Plex Mono', size:10}, maxRotation:45, minRotation:0, autoSkip:true, maxTicksLimit:24} },
+        y:{ grid:{color:c.grid}, ticks:{color:c.ink2, font:{family:'IBM Plex Mono', size:10.5}} }
+      },
+      plugins:{ legend:{display:false},
+        tooltip:{ backgroundColor:c.surface, titleColor:c.ink, bodyColor:c.ink2, borderColor:c.border, borderWidth:1, padding:9,
+          callbacks:{
+            title:function(items){ const r = rows[items[0].dataIndex]; return r ? (r.d+'/'+(r.mi+1)+'/'+r.y) : ''; },
+            label:function(x){ return x.dataset.label ? (x.dataset.label+': '+(x.parsed.y==null?'—':x.parsed.y.toFixed(0))+' '+unit) : ''; }
+          } } }
+    }
+  };
+  if(wcdChart){ try{ wcdChart.destroy(); }catch(e){} }
+  wcdChart = new Chart(cv.getContext('2d'), cfg);
+  const leg = document.getElementById('wcdLegend');
+  if(leg) leg.innerHTML = [
+    '<span class="item"><span class="box" style="background:#0A2E55"></span>Revise weight</span>',
+    '<span class="item"><span class="box" style="background:#2A8C6E"></span>ปริมาณไม้สับตาม Weight scale</span>',
+    '<span class="item"><span class="sw dashed" style="border-color:#d4342c"></span>Diff</span>'
+  ].join('');
+}
+
+function wcdRenderBody(dig){
+  const body = document.getElementById('wcdBody');
+  if(!body) return;
+  const view = WCD_VIEW[dig] || 'chart';
+  const unit = WCD_UNIT[dig] || 'GT';
+  document.querySelectorAll('#wcdDetail .md-viewbtn[data-view]').forEach(function(b){ b.classList.toggle('on', b.dataset.view===view); });
+  document.querySelectorAll('#wcdDetail .md-viewbtn[data-unit]').forEach(function(b){ b.classList.toggle('on', b.dataset.unit===unit); });
+  if(wcdChart){ try{ wcdChart.destroy(); }catch(e){} wcdChart = null; }
+  const rng = WCD_RANGE[dig] || { mode:'month', value:WCD_DEFAULT_MONTH };
+  const rows = wcdFilterRows(dig, rng.mode, rng.value);
+  const summaryEl = document.getElementById('wcdSummary');
+  if(summaryEl){
+    const sum = wcdSummarySum(dig, rng.mode, rng.value);
+    summaryEl.textContent = 'ผลรวม Diff (BDT) ในช่วงที่เลือก: '+(sum==null ? '—' : chipMonFmt(sum,0)+' BDT');
+  }
+  const rangeNote = '<div class="md-rangenote">'+rows.length+' day'+(rows.length===1?'':'s')+'</div>';
+  if(view === 'table'){
+    body.innerHTML = '<div class="md-tablewrap"><table class="md-table wide"><thead><tr>'
+      + '<th>วันที่</th><th>Revise weight ('+unit+')</th><th>ปริมาณไม้สับตาม Weight scale ('+unit+')</th><th>Diff ('+unit+')</th>'
+      + '</tr></thead><tbody>'
+      + rows.map(function(r){
+          const rv = wcdValue(r,'reviseWt',unit), sv = wcdValue(r,'chipGT',unit), dv = wcdValue(r,'diff',unit);
+          return '<tr><td>'+r.d+'/'+(r.mi+1)+'/'+r.y+'</td><td class="num">'+(rv==null?'—':chipMonFmt(rv,0))+'</td><td class="num">'+(sv==null?'—':chipMonFmt(sv,0))+'</td><td class="num">'+(dv==null?'—':chipMonFmt(dv,0))+'</td></tr>';
+        }).join('')
+      + '</tbody></table></div>' + rangeNote;
+  } else {
+    body.innerHTML = '<div class="md-chart-wrap"><canvas id="wcdChart"></canvas></div><div class="legend-row" id="wcdLegend"></div>' + rangeNote;
+    wcdDrawChart(rows, unit);
+  }
+}
+
+function wcdRenderDetail(){
+  const panel = document.getElementById('wcdDetail');
+  if(!panel) return;
+  const dig = WCD_STATE.sel;
+  document.querySelectorAll('#wcdTiles .mon-tile').forEach(function(t){ t.classList.toggle('sel', +t.dataset.dig===dig); });
+  if(!dig){ panel.hidden = true; panel.innerHTML = ''; return; }
+  panel.hidden = false;
+  if(!WCD_RANGE[dig]) WCD_RANGE[dig] = { mode:'month', value:WCD_DEFAULT_MONTH };
+  if(!WCD_VIEW[dig]) WCD_VIEW[dig] = 'chart';
+  if(!WCD_UNIT[dig]) WCD_UNIT[dig] = 'GT';
+  const rng = WCD_RANGE[dig];
+  panel.innerHTML = `
+    <div class="md-head">
+      <span class="md-title">Digester ${dig} <span class="u">· Diff น้ำหนักไม้สับ (Chip weight)</span></span>
+      <span class="md-pills">
+        <button type="button" class="md-viewbtn" data-unit="GT">GT</button>
+        <button type="button" class="md-viewbtn" data-unit="BDT">BDT</button>
+        <button type="button" class="md-viewbtn" data-view="chart">กราฟ</button>
+        <button type="button" class="md-viewbtn" data-view="table">ตาราง</button>
+      </span>
+    </div>
+    <div class="ya-controls">
+      <div class="ya-picker">
+        <span class="yp-lbl">ช่วงข้อมูล</span>
+        <select id="wcdMode"><option value="date">วัน</option><option value="month">เดือน</option><option value="year">ปี</option></select>
+        <input type="date" id="wcdDate" hidden>
+        <input type="month" id="wcdMonth" hidden>
+        <select id="wcdYear" hidden></select>
+      </div>
+      <span class="md-avgval" id="wcdSummary"></span>
+    </div>
+    <div class="md-body" id="wcdBody"></div>
+  `;
+  const modeEl = document.getElementById('wcdMode'), dateEl = document.getElementById('wcdDate'),
+        monthEl = document.getElementById('wcdMonth'), yearEl = document.getElementById('wcdYear');
+  const years = Array.from(new Set((WCD_BY_DIG[dig]||[]).map(function(r){ return r.y; }))).sort();
+  yearEl.innerHTML = years.map(function(y){ return '<option value="'+y+'">'+y+'</option>'; }).join('');
+  modeEl.value = rng.mode;
+  dateEl.hidden = rng.mode!=='date'; monthEl.hidden = rng.mode!=='month'; yearEl.hidden = rng.mode!=='year';
+  if(rng.mode==='date') dateEl.value = rng.value||'';
+  else if(rng.mode==='month') monthEl.value = rng.value||WCD_DEFAULT_MONTH;
+  else if(rng.value) yearEl.value = rng.value;
+  const applyRange = function(){
+    const mode = modeEl.value;
+    dateEl.hidden = mode!=='date'; monthEl.hidden = mode!=='month'; yearEl.hidden = mode!=='year';
+    const value = mode==='date' ? dateEl.value : mode==='month' ? monthEl.value : yearEl.value;
+    WCD_RANGE[dig] = { mode, value };
+    wcdRenderBody(dig);
+  };
+  [modeEl, dateEl, monthEl, yearEl].forEach(function(el){ el.addEventListener('change', applyRange); el.addEventListener('input', applyRange); });
+  panel.querySelectorAll('.md-viewbtn[data-view]').forEach(function(b){ b.addEventListener('click', function(){ WCD_VIEW[dig] = b.dataset.view; wcdRenderBody(dig); }); });
+  panel.querySelectorAll('.md-viewbtn[data-unit]').forEach(function(b){ b.addEventListener('click', function(){ WCD_UNIT[dig] = b.dataset.unit; wcdRenderBody(dig); }); });
+  wcdRenderBody(dig);
+}
+
+function initWcd(){
+  if(!WCD_DAILY.length){
+    const wrap = document.getElementById('wcdTiles');
+    if(wrap) wrap.innerHTML = '<div class="empty-state"><div class="icon">📊</div><h2>ยังไม่มีข้อมูล</h2><p>ไม่พบข้อมูล Revise weight / ปริมาณไม้สับตาม Weight scale ในชีต "Weight Scale Dig."</p></div>';
+    return;
+  }
+  wcdRenderTiles();
+  wcdRenderDetail();
+  const host = document.getElementById('wcdHost');
+  if(!host) return;
+  const toggle = function(dig){
+    WCD_STATE.sel = (WCD_STATE.sel===dig) ? null : dig;
+    wcdRenderDetail();
+    if(WCD_STATE.sel){ const d = document.getElementById('wcdDetail'); if(d) d.scrollIntoView({behavior:'smooth', block:'nearest'}); }
+  };
+  host.addEventListener('click', function(e){
+    const tile = e.target.closest('.mon-tile'); if(!tile) return;
+    toggle(+tile.dataset.dig);
+  });
+  host.addEventListener('keydown', function(e){
+    if(e.key!=='Enter' && e.key!==' ') return;
+    const tile = e.target.closest('.mon-tile'); if(!tile) return;
+    e.preventDefault();
+    toggle(+tile.dataset.dig);
+  });
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(){ wcdRenderTiles(); wcdRenderDetail(); });
+}
+if(document.getElementById('wcdHost')) initWcd();
 
 /* ---- Notification Centre: real anomalies from the Yield monitor metrics —
    any scored metric whose latest reading sits outside its own ±3σ control band
