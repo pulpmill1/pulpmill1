@@ -7403,11 +7403,12 @@ function initYieldAnalysisControlsWeekly(){
       el.addEventListener('input', function(){ yaApplyModeWeekly(Suffix.toLowerCase()); });
     });
   });
-  // default: ช่วงที่ 1 = the week containing the day before yesterday (mode "week"),
-  // ช่วงที่ 2 = yesterday (mode "date")
+  // default: ช่วงที่ 1 = a week that does NOT contain today — subtracting exactly 7 days always
+  // lands one whole ISO week earlier, guaranteed outside today's own week regardless of which day
+  // of the week "today" is (mode "week") — ช่วงที่ 2 = yesterday (mode "date")
   const now = new Date();
-  const dayBeforeYesterday = new Date(now.getFullYear(), now.getMonth(), now.getDate()-2);
-  document.getElementById('yaWWeekPrev').value = yawDateToWeekValue(dayBeforeYesterday);
+  const weekBeforeThisOne = new Date(now.getFullYear(), now.getMonth(), now.getDate()-7);
+  document.getElementById('yaWWeekPrev').value = yawDateToWeekValue(weekBeforeThisOne);
   document.getElementById('yaWDateCur').value = yadDateStr(-1);
   yaApplyModeWeekly('prev');
   yaApplyModeWeekly('cur');
