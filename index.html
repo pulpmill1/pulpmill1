@@ -1447,15 +1447,17 @@
               <div class="ya-controls">
                 <div class="ya-picker">
                   <span class="yp-lbl">ช่วงที่ 1</span>
-                  <select id="yaDModePrev"><option value="date" selected>วัน</option><option value="month">เดือน</option><option value="year">ปี</option></select>
+                  <select id="yaDModePrev"><option value="date" selected>วัน</option><option value="week">สัปดาห์</option><option value="month">เดือน</option><option value="year">ปี</option></select>
                   <input type="date" id="yaDDatePrev">
+                  <input type="week" id="yaDWeekPrev" hidden>
                   <input type="month" id="yaDMonthPrev" hidden>
                   <select id="yaDYearPrev" hidden></select>
                 </div>
                 <div class="ya-picker">
                   <span class="yp-lbl">ช่วงที่ 2</span>
-                  <select id="yaDModeCur"><option value="date" selected>วัน</option><option value="month">เดือน</option><option value="year">ปี</option></select>
+                  <select id="yaDModeCur"><option value="date" selected>วัน</option><option value="week">สัปดาห์</option><option value="month">เดือน</option><option value="year">ปี</option></select>
                   <input type="date" id="yaDDateCur">
+                  <input type="week" id="yaDWeekCur" hidden>
                   <input type="month" id="yaDMonthCur" hidden>
                   <select id="yaDYearCur" hidden></select>
                 </div>
@@ -1532,15 +1534,17 @@
               <div class="ya-controls">
                 <div class="ya-picker">
                   <span class="yp-lbl">ช่วงที่ 1</span>
-                  <select id="yaModePrev"><option value="date">วัน</option><option value="month" selected>เดือน</option><option value="year">ปี</option></select>
+                  <select id="yaModePrev"><option value="date">วัน</option><option value="week">สัปดาห์</option><option value="month" selected>เดือน</option><option value="year">ปี</option></select>
                   <input type="date" id="yaDatePrev" hidden>
+                  <input type="week" id="yaWeekPrev" hidden>
                   <input type="month" id="yaMonthPrev">
                   <select id="yaYearPrev" hidden></select>
                 </div>
                 <div class="ya-picker">
                   <span class="yp-lbl">ช่วงที่ 2</span>
-                  <select id="yaModeCur"><option value="date">วัน</option><option value="month" selected>เดือน</option><option value="year">ปี</option></select>
+                  <select id="yaModeCur"><option value="date">วัน</option><option value="week">สัปดาห์</option><option value="month" selected>เดือน</option><option value="year">ปี</option></select>
                   <input type="date" id="yaDateCur" hidden>
+                  <input type="week" id="yaWeekCur" hidden>
                   <input type="month" id="yaMonthCur">
                   <select id="yaYearCur" hidden></select>
                 </div>
@@ -4551,7 +4555,6 @@ const TX_EN = {
   '🖨️ พิมพ์ / บันทึกเป็น PDF':'🖨️ Print / Save as PDF',
   '📄 ส่งออก CSV (เปิดได้ใน Excel)':'📄 Export CSV (opens in Excel)',
   'ยังไม่พบค่าผิดปกติในขณะนี้':'No anomalies detected right now.',
-  'สรุปข้อมูลวิเคราะห์ Yield เปรียบเทียบโรงเยื่อ 1 (Monthly)':'Yield Analysis Summary — Pulp Mill 1 (Monthly)',
   'แตกผลต่าง Yield ระหว่างสองเดือนตามปัจจัย — รอสูตร/ค่าคำนวณ ช่องข้อมูลยังเว้นว่างไว้ก่อน':'Breaks the Yield change between two months down by factor — cells are left blank pending the mill-specific formulas',
   '5 ค่า · คลิกที่บล็อกเพื่อดูประวัติ':'5 metrics · click a tile for its history',
   '3 ค่า · คลิกที่บล็อกเพื่อดูประวัติ':'3 metrics · click a tile for its history',
@@ -5706,6 +5709,18 @@ function yaYieldActualValue(mode, value){
   const ep = mode === 'date' ? yaPickValue('endProdBal', mode, value) : yaPickValue('endProd', mode, value);
   return (w!=null && ep!=null && ep!==0) ? (w/ep) : null;
 }
+/* ISO-8601 week: value is the native <input type="week"> format "YYYY-Www" (e.g. "2026-W38").
+   Week 1 is the week containing that year's first Thursday, i.e. the Monday on/before Jan 4. */
+function yaWeekRange(value){
+  const m = /^(\d{4})-W(\d{2})$/.exec(value||'');
+  if(!m) return null;
+  const year = +m[1], week = +m[2];
+  const jan4 = new Date(year, 0, 4);
+  const jan4Day = jan4.getDay() || 7; // Mon=1..Sun=7
+  const start = new Date(year, 0, 4 - jan4Day + 1 + (week-1)*7);
+  const end = new Date(start.getFullYear(), start.getMonth(), start.getDate()+6);
+  return { start, end };
+}
 function yaPickValue(key, mode, value){
   if(key === 'yieldBdt') return yaYieldActualValue(mode, value);
   const s = CHIP_MON_SERIES[key];
@@ -5714,6 +5729,15 @@ function yaPickValue(key, mode, value){
     const parts = value.split('-').map(Number);
     const hit = s.find(function(x){ return x.y===parts[0] && x.mi===(parts[1]-1) && x.d===parts[2]; });
     return hit ? hit.v : null;
+  }
+  if(mode==='week'){
+    const range = yaWeekRange(value);
+    if(!range) return null;
+    const startTs = range.start.getTime(), endTs = range.end.getTime();
+    const rows = s.filter(function(x){ return x.ts >= startTs && x.ts <= endTs; });
+    if(!rows.length) return null;
+    const sum = rows.reduce(function(a,b){ return a+b.v; }, 0);
+    return YA_SUM_KEYS.has(key) ? sum : sum/rows.length;
   }
   if(mode==='month'){
     const parts = value.split('-').map(Number);
@@ -5737,6 +5761,12 @@ function yaHeaderLabel(st){
   if(st.mode==='date'){
     const p = st.value.split('-').map(Number);
     return EN ? (MONTH_ABBR_EN[p[1]-1]+' '+p[2]+', '+p[0]) : (p[2]+' '+MONTH_ABBR_TH[p[1]-1]+' '+p[0]);
+  }
+  if(st.mode==='week'){
+    const range = yaWeekRange(st.value);
+    if(!range) return '—';
+    const fmtD = function(d){ return d.getDate()+'/'+(d.getMonth()+1); };
+    return fmtD(range.start)+'–'+fmtD(range.end)+' '+range.end.getFullYear();
   }
   if(st.mode==='month'){
     const p = st.value.split('-').map(Number);
@@ -5843,6 +5873,11 @@ function yaDiffChipWeightValue(which){
   if(st.mode==='date'){
     const p = st.value.split('-').map(Number);
     rows = WSD_ROWS.filter(function(r){ return r.y===p[0] && r.mi===p[1]-1 && r.d===p[2]; });
+  } else if(st.mode==='week'){
+    const range = yaWeekRange(st.value);
+    if(!range) return null;
+    const startTs = range.start.getTime(), endTs = range.end.getTime();
+    rows = WSD_ROWS.filter(function(r){ return r.ts >= startTs && r.ts <= endTs; });
   } else if(st.mode==='month'){
     const p = st.value.split('-').map(Number);
     rows = WSD_ROWS.filter(function(r){ return r.y===p[0] && r.mi===p[1]-1; });
@@ -6243,14 +6278,16 @@ function yaApplyMode(which){
   const Suffix = which==='prev' ? 'Prev' : 'Cur';
   const modeSel = document.getElementById('yaMode'+Suffix);
   const dateInp = document.getElementById('yaDate'+Suffix);
+  const weekInp = document.getElementById('yaWeek'+Suffix);
   const monthInp = document.getElementById('yaMonth'+Suffix);
   const yearSel = document.getElementById('yaYear'+Suffix);
   if(!modeSel) return;
   const mode = modeSel.value;
   dateInp.hidden = mode!=='date';
+  weekInp.hidden = mode!=='week';
   monthInp.hidden = mode!=='month';
   yearSel.hidden = mode!=='year';
-  const value = mode==='date' ? dateInp.value : mode==='month' ? monthInp.value : yearSel.value;
+  const value = mode==='date' ? dateInp.value : mode==='week' ? weekInp.value : mode==='month' ? monthInp.value : yearSel.value;
   YA_STATE[which] = { mode:mode, value:value || null };
   renderYieldAnalysisColumn(which);
   renderYaDiffChipWeight();
@@ -6276,7 +6313,7 @@ function initYieldAnalysisControls(){
   ['Prev','Cur'].forEach(function(Suffix){
     const yearSel = document.getElementById('yaYear'+Suffix);
     if(yearSel) yearSel.innerHTML = years.map(function(y){ return '<option value="'+y+'">'+y+'</option>'; }).join('');
-    ['yaMode'+Suffix, 'yaDate'+Suffix, 'yaMonth'+Suffix, 'yaYear'+Suffix].forEach(function(id){
+    ['yaMode'+Suffix, 'yaDate'+Suffix, 'yaWeek'+Suffix, 'yaMonth'+Suffix, 'yaYear'+Suffix].forEach(function(id){
       const el = document.getElementById(id);
       if(!el) return;
       // both events: native date/month pickers don't reliably fire "change" the same
@@ -6415,6 +6452,11 @@ function yadDiffChipWeightValue(which){
   if(st.mode==='date'){
     const p = st.value.split('-').map(Number);
     rows = WSD_ROWS.filter(function(r){ return r.y===p[0] && r.mi===p[1]-1 && r.d===p[2]; });
+  } else if(st.mode==='week'){
+    const range = yaWeekRange(st.value);
+    if(!range) return null;
+    const startTs = range.start.getTime(), endTs = range.end.getTime();
+    rows = WSD_ROWS.filter(function(r){ return r.ts >= startTs && r.ts <= endTs; });
   } else if(st.mode==='month'){
     const p = st.value.split('-').map(Number);
     rows = WSD_ROWS.filter(function(r){ return r.y===p[0] && r.mi===p[1]-1; });
@@ -6748,14 +6790,16 @@ function yaApplyModeDaily(which){
   const Suffix = which==='prev' ? 'Prev' : 'Cur';
   const modeSel = document.getElementById('yaDMode'+Suffix);
   const dateInp = document.getElementById('yaDDate'+Suffix);
+  const weekInp = document.getElementById('yaDWeek'+Suffix);
   const monthInp = document.getElementById('yaDMonth'+Suffix);
   const yearSel = document.getElementById('yaDYear'+Suffix);
   if(!modeSel) return;
   const mode = modeSel.value;
   dateInp.hidden = mode!=='date';
+  weekInp.hidden = mode!=='week';
   monthInp.hidden = mode!=='month';
   yearSel.hidden = mode!=='year';
-  const value = mode==='date' ? dateInp.value : mode==='month' ? monthInp.value : yearSel.value;
+  const value = mode==='date' ? dateInp.value : mode==='week' ? weekInp.value : mode==='month' ? monthInp.value : yearSel.value;
   YAD_STATE[which] = { mode:mode, value:value || null };
   renderYieldAnalysisTableDaily();
 }
@@ -6777,7 +6821,7 @@ function initYieldAnalysisControlsDaily(){
   ['Prev','Cur'].forEach(function(Suffix){
     const yearSel = document.getElementById('yaDYear'+Suffix);
     if(yearSel) yearSel.innerHTML = years.map(function(y){ return '<option value="'+y+'">'+y+'</option>'; }).join('');
-    ['yaDMode'+Suffix, 'yaDDate'+Suffix, 'yaDMonth'+Suffix, 'yaDYear'+Suffix].forEach(function(id){
+    ['yaDMode'+Suffix, 'yaDDate'+Suffix, 'yaDWeek'+Suffix, 'yaDMonth'+Suffix, 'yaDYear'+Suffix].forEach(function(id){
       const el = document.getElementById(id);
       if(!el) return;
       el.addEventListener('change', function(){ yaApplyModeDaily(Suffix.toLowerCase()); });
