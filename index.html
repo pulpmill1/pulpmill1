@@ -5374,11 +5374,15 @@ function chipMonAnalyse(key, meta){
     r2 = ssTot ? Math.max(0, 1 - ssRes/ssTot) : 0;
   }
   // calendar periods, anchored on the metric's own latest logged day
-  const monV = (y,mi) => s.filter(x=> x.y===y && x.mi===mi).map(x=> x.v);
+  const monRows = (y,mi) => s.filter(x=> x.y===y && x.mi===mi);
   const pmi = anchor.mi===0 ? 11 : anchor.mi-1, py = anchor.mi===0 ? anchor.y-1 : anchor.y;
-  const curMon = monV(anchor.y, anchor.mi);
-  const last7 = s.slice(-7).map(x=> x.v);
-  const yrVals = s.filter(x=> x.y===anchor.y).map(x=> x.v);
+  const curMonRows = monRows(anchor.y, anchor.mi);
+  const prevMonRows = monRows(py, pmi);
+  const last7Rows = s.slice(-7);
+  const yrValsRows = s.filter(x=> x.y===anchor.y);
+  const curMon = curMonRows.map(x=> x.v);
+  const last7 = last7Rows.map(x=> x.v);
+  const yrVals = yrValsRows.map(x=> x.v);
   // month-end estimate: (Σ this month + remaining calendar days × 7-day mean) ÷ (logged days + remaining)
   const dim = new Date(anchor.y, anchor.mi+1, 0).getDate();
   const remaining = Math.max(0, dim - anchor.d);
@@ -5395,7 +5399,28 @@ function chipMonAnalyse(key, meta){
     health = Math.max(0, Math.min(100, Math.round(100 - Math.max(0, blended-1)*28)));
   }
   return { anchor, prev, median, mad, sigma, bandLo, bandHi, dev, r2, slope, baseN:base.length,
-    curMon, prevMon:monV(py,pmi), last7, yrVals, est, remaining, dim, pmi, py, health };
+    curMon, prevMon:prevMonRows.map(x=> x.v), last7, yrVals, est, remaining, dim, pmi, py, health,
+    curMonRows, prevMonRows, last7Rows, yrValsRows };
+}
+/* Yield · BDt/ADt only: the summary strip's 7-day/month/year cells sum Chip (Weight scale หักลบ
+   เฉ่งกอง) and End Prod. across the same dates independently, THEN divide — a period ratio-of-
+   sums, not an average of each day's own already-computed Yield value. The single-day "Latest"
+   cell divides by End Prod. balance tank instead of End Prod. for that same reason: balance-tank
+   production is the day-level figure, while End Prod. itself is more meaningful summed over a
+   longer period. rows are entries from CHIP_MON_SERIES.yieldBdt (used only for their .ts) — the
+   actual numerator/denominator values are looked up from their own series by matching date. */
+function chipMonYieldRatioSum(rows, denomKey){
+  if(!rows || !rows.length) return null;
+  const numSeries = CHIP_MON_SERIES.chipWeightScaleNet, denSeries = CHIP_MON_SERIES[denomKey];
+  if(!numSeries || !denSeries) return null;
+  const numByTs = new Map(numSeries.map(x=> [x.ts, x.v]));
+  const denByTs = new Map(denSeries.map(x=> [x.ts, x.v]));
+  let numSum = 0, denSum = 0, any = false;
+  rows.forEach(function(r){
+    const n = numByTs.get(r.ts), d = denByTs.get(r.ts);
+    if(n!=null && d!=null){ numSum += n; denSum += d; any = true; }
+  });
+  return (any && denSum) ? numSum/denSum : null;
 }
 
 /* ---- target store (per metric, browser-local) ---- */
@@ -6416,6 +6441,18 @@ function chipMonRenderDetail(grpId){
   const devTrackPct = a.dev==null ? 50 : Math.max(2, Math.min(98, 50 + (a.dev/3)*50));
   const devOut = a.dev!=null && Math.abs(a.dev) > 3;
 
+  /* Yield · BDt/ADt: the summary strip below (Latest / 7 วัน / current+previous month / year) uses
+     Σ Chip (Weight scale หักลบเฉ่งกอง) ÷ Σ End Prod. for the 7-day/month/year cells, and Chip
+     (Weight scale หักลบเฉ่งกอง) ÷ End Prod. balance tank for the single-day "Latest" cell — a
+     ratio-of-sums per the mill's own convention, not a mean of each day's already-computed Yield.
+     Every other metric keeps chipMonMean() over its raw values, unchanged. */
+  const isYieldStrip = key==='yieldBdt';
+  const stripLatest = isYieldStrip ? chipMonYieldRatioSum([a.anchor], 'endProdBal') : a.anchor.v;
+  const strip7d = isYieldStrip ? chipMonYieldRatioSum(a.last7Rows, 'endProd') : chipMonMean(a.last7);
+  const stripCurMon = isYieldStrip ? chipMonYieldRatioSum(a.curMonRows, 'endProd') : chipMonMean(a.curMon);
+  const stripPrevMon = isYieldStrip ? chipMonYieldRatioSum(a.prevMonRows, 'endProd') : chipMonMean(a.prevMon);
+  const stripYr = isYieldStrip ? chipMonYieldRatioSum(a.yrValsRows, 'endProd') : chipMonMean(a.yrVals);
+
   panel.innerHTML = `
     <div class="md-head">
       <span class="md-title">${m.th} <span class="u">· ${m.unit}</span></span>
@@ -6447,11 +6484,11 @@ function chipMonRenderDetail(grpId){
     </div>
 
     <div class="md-strip">
-      <div class="md-cell hero"><div class="ck">Latest</div><div class="cv">${chipMonFmt(a.anchor.v, m.dec)}<small> ${m.unit}</small></div><div class="cs">${anchorDate}</div></div>
-      <div class="md-cell"><div class="ck">7 วัน</div><div class="cv">${chipMonTrendArrow(a.anchor.v, chipMonMean(a.last7))} ${chipMonFmt(chipMonMean(a.last7), m.dec)}</div><div class="cs">ค่าเฉลี่ย ${a.last7.length} วันล่าสุด</div></div>
-      <div class="md-cell"><div class="ck">${curLbl}</div><div class="cv">${chipMonTrendArrow(a.anchor.v, chipMonMean(a.curMon))} ${chipMonFmt(chipMonMean(a.curMon), m.dec)}</div><div class="cs">เฉลี่ย ${a.curMon.length} วันที่บันทึก</div></div>
-      <div class="md-cell"><div class="ck">${prevLbl}</div><div class="cv">${chipMonTrendArrow(a.anchor.v, chipMonMean(a.prevMon))} ${chipMonFmt(chipMonMean(a.prevMon), m.dec)}</div><div class="cs">เฉลี่ย ${a.prevMon.length} วันที่บันทึก</div></div>
-      <div class="md-cell"><div class="ck">${a.anchor.y}</div><div class="cv">${chipMonTrendArrow(a.anchor.v, chipMonMean(a.yrVals))} ${chipMonFmt(chipMonMean(a.yrVals), m.dec)}</div><div class="cs">เฉลี่ย ${a.yrVals.length} วันที่บันทึก</div></div>
+      <div class="md-cell hero"><div class="ck">Latest</div><div class="cv">${chipMonFmt(stripLatest, m.dec)}<small> ${m.unit}</small></div><div class="cs">${anchorDate}</div></div>
+      <div class="md-cell"><div class="ck">7 วัน</div><div class="cv">${chipMonTrendArrow(stripLatest, strip7d)} ${chipMonFmt(strip7d, m.dec)}</div><div class="cs">${isYieldStrip?'':'ค่าเฉลี่ย '}${a.last7.length} วันล่าสุด</div></div>
+      <div class="md-cell"><div class="ck">${curLbl}</div><div class="cv">${chipMonTrendArrow(stripLatest, stripCurMon)} ${chipMonFmt(stripCurMon, m.dec)}</div><div class="cs">${isYieldStrip?'':'เฉลี่ย '}${a.curMon.length} วันที่บันทึก</div></div>
+      <div class="md-cell"><div class="ck">${prevLbl}</div><div class="cv">${chipMonTrendArrow(stripLatest, stripPrevMon)} ${chipMonFmt(stripPrevMon, m.dec)}</div><div class="cs">${isYieldStrip?'':'เฉลี่ย '}${a.prevMon.length} วันที่บันทึก</div></div>
+      <div class="md-cell"><div class="ck">${a.anchor.y}</div><div class="cv">${chipMonTrendArrow(stripLatest, stripYr)} ${chipMonFmt(stripYr, m.dec)}</div><div class="cs">${isYieldStrip?'':'เฉลี่ย '}${a.yrVals.length} วันที่บันทึก</div></div>
       <div class="md-cell"><div class="ck">Est. ${MONTH_ABBR_TH[a.anchor.mi]} สิ้นเดือน</div><div class="cv">${chipMonTrendArrow(a.anchor.v, a.est)} ${a.est==null ? '—' : chipMonFmt(a.est, m.dec)}</div><div class="cs">${a.est==null ? 'ต้องมี ≥ 3 วัน' : `${a.curMon.length} วันจริง + ${a.remaining} วันที่อัตรา 7 วัน`}</div></div>
       <div class="md-cell"><div class="ck">Deviation</div><div class="cv ${a.dev==null?'':a.dev<0?'neg':'pos'}">${a.dev==null?'—':(a.dev>=0?'+':'')+a.dev.toFixed(1)+'σ'}</div>
         <div class="md-track"><span class="z"></span><span class="m ${devOut?'out':''}" style="left:${devTrackPct}%"></span></div></div>
