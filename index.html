@@ -620,9 +620,19 @@
   .md-sub{font-size:11px;color:var(--ink-3);margin-bottom:12px;}
 
   /* ---- Yield Analysis bridge table (under the Yield chart) ---- */
-  .ya-head{display:flex;align-items:baseline;gap:8px;margin:16px 0 8px;flex-wrap:wrap;}
+  .ya-head{display:flex;align-items:baseline;gap:8px;margin:16px 0 8px;flex-wrap:wrap;cursor:pointer;user-select:none;}
   .ya-head .yt{font-size:13.5px;font-weight:800;color:var(--ink);}
   .ya-head .ys{font-size:11px;color:var(--ink-3);}
+  .ya-head .yhc{display:inline-block;width:12px;font-size:10px;color:var(--ink-3);transition:transform .15s;}
+  .ya-head.ya-card-collapsed .yhc{transform:rotate(-90deg);}
+  /* ---- Overview section: 3 auto-generated analysis paragraphs side by side, always visible
+     (the cards themselves — picker/summary/table — collapse below their heading by default) ---- */
+  .ya-overview{margin:16px 0 20px;}
+  .ya-overview-head{font-size:14.5px;font-weight:800;color:var(--ink);margin-bottom:10px;}
+  .ya-overview-grid{display:grid;grid-template-columns:repeat(3, 1fr);gap:16px;}
+  @media (max-width:900px){ .ya-overview-grid{grid-template-columns:1fr;} }
+  .ya-overview-col{background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;font-size:12px;color:var(--ink-2);}
+  .ya-overview-title{font-size:12.5px;font-weight:800;color:var(--ink);margin-bottom:8px;}
   .ya-controls{display:flex;flex-wrap:wrap;gap:16px;margin-bottom:10px;}
   .ya-picker{display:flex;align-items:center;gap:6px;background:var(--surface-2);border:1px solid var(--border);border-radius:9px;padding:6px 10px;}
   .ya-picker .yp-lbl{font-size:10.5px;font-weight:700;color:var(--ink-2);white-space:nowrap;}
@@ -647,13 +657,13 @@
   table.ya-table .tr-good{color:#12a150;}
   .ya-summary{margin-bottom:14px;font-size:12px;color:var(--ink-2);}
   .ya-summary .rn-head{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border);}
-  .ya-summary .ys-body{font-weight:300;line-height:1.9;}
-  .ya-summary .ys-red{color:#d4342c;font-weight:600;}
-  .ya-summary .ys-green{color:#12a150;font-weight:600;}
-  .ya-summary .ys-top{font-weight:700;color:var(--ink);margin-bottom:6px;}
-  .ya-summary .ys-group{font-weight:500;color:var(--ink);margin-top:4px;text-decoration:underline;}
-  .ya-summary .ys-item{padding-left:16px;}
-  .ya-summary .ys-sub{padding-left:32px;display:block;font-size:11px;}
+  .ya-summary .ys-body,.ya-overview-col .ys-body{font-weight:300;line-height:1.9;}
+  .ya-summary .ys-red,.ya-overview-col .ys-red{color:#d4342c;font-weight:600;}
+  .ya-summary .ys-green,.ya-overview-col .ys-green{color:#12a150;font-weight:600;}
+  .ya-summary .ys-top,.ya-overview-col .ys-top{font-weight:700;color:var(--ink);margin-bottom:6px;}
+  .ya-summary .ys-group,.ya-overview-col .ys-group{font-weight:500;color:var(--ink);margin-top:4px;text-decoration:underline;}
+  .ya-summary .ys-item,.ya-overview-col .ys-item{padding-left:16px;}
+  .ya-summary .ys-sub,.ya-overview-col .ys-sub{padding-left:32px;display:block;font-size:11px;}
   .ya-refnote{margin-top:10px;font-size:12px;color:var(--ink-2);}
   .ya-refnote .rn-head{font-weight:700;color:var(--ink);margin-bottom:4px;}
   .ya-refnote ol{margin:0;padding-left:18px;font-weight:300;}
@@ -1443,7 +1453,25 @@
               <div class="mon-tiles" id="chipTiles_yield" hidden></div>
               <div class="mon-detail" id="chipDetail_yield" hidden></div>
 
-              <div class="ya-head"><span class="yt">สรุปข้อมูลวิเคราะห์ Yield เปรียบเทียบโรงเยื่อ 1 (Daily)</span><span class="ys">แตกผลต่าง Yield ระหว่างสองช่วงตามปัจจัย — ช่อง Effect รอสูตรคำนวณเฉพาะโรงงาน ค่าที่ดึงได้จาก Google Sheet แล้วจะแสดงในคอลัมน์ช่วงที่ 1/2</span></div>
+              <div class="ya-overview">
+                <div class="ya-overview-head">ภาพรวมสรุปข้อมูลวิเคราะห์ Yield เปรียบเทียบโรงเยื่อ 1</div>
+                <div class="ya-overview-grid">
+                  <div class="ya-overview-col">
+                    <div class="ya-overview-title">สรุปข้อมูลวิเคราะห์ Yield เปรียบเทียบโรงเยื่อ 1 (Daily)</div>
+                    <div class="ys-body" id="yaOverviewBody_daily"></div>
+                  </div>
+                  <div class="ya-overview-col">
+                    <div class="ya-overview-title">สรุปข้อมูลวิเคราะห์ Yield เปรียบเทียบโรงเยื่อ 1 (Weekly)</div>
+                    <div class="ys-body" id="yaOverviewBody_weekly"></div>
+                  </div>
+                  <div class="ya-overview-col">
+                    <div class="ya-overview-title">สรุปข้อมูลวิเคราะห์ Yield เปรียบเทียบโรงเยื่อ 1 (Monthly)</div>
+                    <div class="ys-body" id="yaOverviewBody_monthly"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="ya-head ya-card-collapsed" data-ya-card="daily"><span class="yhc">▾</span><span class="yt">สรุปข้อมูลวิเคราะห์ Yield เปรียบเทียบโรงเยื่อ 1 (Daily)</span><span class="ys">แตกผลต่าง Yield ระหว่างสองช่วงตามปัจจัย — ช่อง Effect รอสูตรคำนวณเฉพาะโรงงาน ค่าที่ดึงได้จาก Google Sheet แล้วจะแสดงในคอลัมน์ช่วงที่ 1/2</span></div>
+              <div class="ya-card-body" id="yaCardBody_daily" hidden>
               <div class="ya-controls">
                 <div class="ya-picker">
                   <span class="yp-lbl">ช่วงที่ 1</span>
@@ -1530,7 +1558,9 @@
                   </tbody>
                 </table>
               </div>
-              <div class="ya-head"><span class="yt">สรุปข้อมูลวิเคราะห์ Yield เปรียบเทียบโรงเยื่อ 1 (Weekly)</span><span class="ys">แตกผลต่าง Yield ระหว่างสองช่วงตามปัจจัย — ช่อง Effect รอสูตรคำนวณเฉพาะโรงงาน ค่าที่ดึงได้จาก Google Sheet แล้วจะแสดงในคอลัมน์ช่วงที่ 1/2</span></div>
+              </div>
+              <div class="ya-head ya-card-collapsed" data-ya-card="weekly"><span class="yhc">▾</span><span class="yt">สรุปข้อมูลวิเคราะห์ Yield เปรียบเทียบโรงเยื่อ 1 (Weekly)</span><span class="ys">แตกผลต่าง Yield ระหว่างสองช่วงตามปัจจัย — ช่อง Effect รอสูตรคำนวณเฉพาะโรงงาน ค่าที่ดึงได้จาก Google Sheet แล้วจะแสดงในคอลัมน์ช่วงที่ 1/2</span></div>
+              <div class="ya-card-body" id="yaCardBody_weekly" hidden>
               <div class="ya-controls">
                 <div class="ya-picker">
                   <span class="yp-lbl">ช่วงที่ 1</span>
@@ -1617,7 +1647,9 @@
                   </tbody>
                 </table>
               </div>
-              <div class="ya-head"><span class="yt">สรุปข้อมูลวิเคราะห์ Yield เปรียบเทียบโรงเยื่อ 1 (Monthly)</span><span class="ys">แตกผลต่าง Yield ระหว่างสองช่วงตามปัจจัย — ช่อง Effect รอสูตรคำนวณเฉพาะโรงงาน ค่าที่ดึงได้จาก Google Sheet แล้วจะแสดงในคอลัมน์ช่วงที่ 1/2</span></div>
+              </div>
+              <div class="ya-head ya-card-collapsed" data-ya-card="monthly"><span class="yhc">▾</span><span class="yt">สรุปข้อมูลวิเคราะห์ Yield เปรียบเทียบโรงเยื่อ 1 (Monthly)</span><span class="ys">แตกผลต่าง Yield ระหว่างสองช่วงตามปัจจัย — ช่อง Effect รอสูตรคำนวณเฉพาะโรงงาน ค่าที่ดึงได้จาก Google Sheet แล้วจะแสดงในคอลัมน์ช่วงที่ 1/2</span></div>
+              <div class="ya-card-body" id="yaCardBody_monthly" hidden>
               <div class="ya-controls">
                 <div class="ya-picker">
                   <span class="yp-lbl">ช่วงที่ 1</span>
@@ -1703,6 +1735,7 @@
                     <tr class="ya-major"><td class="ya-label">11. Unknow</td><td class="ya-unit">Bdt/Adt</td><td class="num"></td><td class="num"></td><td class="num" id="yaCell_effUnknown_diffbdt"></td><td class="num" id="yaCell_effUnknown_diffpct"></td><td class="ya-remark">- Target เครื่องมือวัดที่ยอมรับได้ ±3%</td></tr>
                   </tbody>
                 </table>
+              </div>
               </div>
               <div class="ya-refnote">
                 <div class="rn-head">Remark: References Yield</div>
@@ -6276,15 +6309,22 @@ function yaSummaryNum(v, dec){
   if(v<0) return '<span class="ys-green">'+txt+'</span>';
   return txt;
 }
+/* Also mirrors the same generated HTML into the always-visible "ภาพรวม" overview column for
+   this period, since the card's own picker/summary/table collapse below the heading by default —
+   see initYaCardCollapse(). */
+function yaSetOverview(key, html){
+  const el = document.getElementById('yaOverviewBody_'+key);
+  if(el) el.innerHTML = html;
+}
 function renderYaSummary(){
   const box = document.getElementById('yaSummary');
   const body = document.getElementById('yaSummaryBody');
   if(!box || !body) return;
   const yieldPrevEl = document.getElementById('yaCell_yieldBdt_prev');
-  if(!yieldPrevEl){ box.hidden = true; return; }
+  if(!yieldPrevEl){ box.hidden = true; yaSetOverview('monthly', ''); return; }
   const yieldDiff = yaReadDiffNum('yaCell_yieldBdt_diffbdt');
   const yieldPct = yaReadDiffNum('yaCell_yieldBdt_diffpct');
-  if(document.getElementById('yaCell_yieldBdt_diffbdt').textContent === '—'){ box.hidden = true; return; }
+  if(document.getElementById('yaCell_yieldBdt_diffbdt').textContent === '—'){ box.hidden = true; yaSetOverview('monthly', ''); return; }
   box.hidden = false;
   const curLabel = yaHeaderLabel(YA_STATE.cur);
   const prevLabel = yaHeaderLabel(YA_STATE.prev);
@@ -6328,6 +6368,7 @@ function renderYaSummary(){
     html += '<div class="ys-group">Unknow (อื่นๆ) ('+yaSummaryNum(unknownDiff,3)+' Bdt/Adt, '+yaSummaryNum(unknownPct,2)+'%)</div>';
   }
   body.innerHTML = html;
+  yaSetOverview('monthly', html);
 }
 /* "Yield Actual" row's own REMARK — a plain sentence, not the "จาก Effect X" shape every other
    row's remark uses, so it doesn't fit yaRenderSimpleDiff's built-in remark generation; reads the
@@ -6796,10 +6837,10 @@ function renderYadSummary(){
   const body = document.getElementById('yaDSummaryBody');
   if(!box || !body) return;
   const yieldPrevEl = document.getElementById('yaDCell_yieldBdt_prev');
-  if(!yieldPrevEl){ box.hidden = true; return; }
+  if(!yieldPrevEl){ box.hidden = true; yaSetOverview('daily', ''); return; }
   const yieldDiff = yaReadDiffNum('yaDCell_yieldBdt_diffbdt');
   const yieldPct = yaReadDiffNum('yaDCell_yieldBdt_diffpct');
-  if(document.getElementById('yaDCell_yieldBdt_diffbdt').textContent === '—'){ box.hidden = true; return; }
+  if(document.getElementById('yaDCell_yieldBdt_diffbdt').textContent === '—'){ box.hidden = true; yaSetOverview('daily', ''); return; }
   box.hidden = false;
   const curLabel = yaHeaderLabel(YAD_STATE.cur);
   const prevLabel = yaHeaderLabel(YAD_STATE.prev);
@@ -6843,6 +6884,7 @@ function renderYadSummary(){
     html += '<div class="ys-group">Unknow (อื่นๆ) ('+yaSummaryNum(unknownDiff,3)+' Bdt/Adt, '+yaSummaryNum(unknownPct,2)+'%)</div>';
   }
   body.innerHTML = html;
+  yaSetOverview('daily', html);
 }
 function renderYadYieldActualRemark(){
   const remarkEl = document.getElementById('yaDCell_yieldBdt_remark');
@@ -7282,10 +7324,10 @@ function renderYawSummary(){
   const body = document.getElementById('yaWSummaryBody');
   if(!box || !body) return;
   const yieldPrevEl = document.getElementById('yaWCell_yieldBdt_prev');
-  if(!yieldPrevEl){ box.hidden = true; return; }
+  if(!yieldPrevEl){ box.hidden = true; yaSetOverview('weekly', ''); return; }
   const yieldDiff = yaReadDiffNum('yaWCell_yieldBdt_diffbdt');
   const yieldPct = yaReadDiffNum('yaWCell_yieldBdt_diffpct');
-  if(document.getElementById('yaWCell_yieldBdt_diffbdt').textContent === '—'){ box.hidden = true; return; }
+  if(document.getElementById('yaWCell_yieldBdt_diffbdt').textContent === '—'){ box.hidden = true; yaSetOverview('weekly', ''); return; }
   box.hidden = false;
   const curLabel = yaHeaderLabel(YAW_STATE.cur);
   const prevLabel = yaHeaderLabel(YAW_STATE.prev);
@@ -7329,6 +7371,7 @@ function renderYawSummary(){
     html += '<div class="ys-group">Unknow (อื่นๆ) ('+yaSummaryNum(unknownDiff,3)+' Bdt/Adt, '+yaSummaryNum(unknownPct,2)+'%)</div>';
   }
   body.innerHTML = html;
+  yaSetOverview('weekly', html);
 }
 function renderYawYieldActualRemark(){
   const remarkEl = document.getElementById('yaWCell_yieldBdt_remark');
@@ -7864,12 +7907,24 @@ function chipMonAssess(m, a, tgt){
 }
 
 /* ---- init ---- */
+function initYaCardCollapse(){
+  document.querySelectorAll('.ya-head[data-ya-card]').forEach(function(head){
+    const key = head.dataset.yaCard;
+    const body = document.getElementById('yaCardBody_'+key);
+    if(!body) return;
+    head.addEventListener('click', function(){
+      const collapsed = head.classList.toggle('ya-card-collapsed');
+      body.hidden = collapsed;
+    });
+  });
+}
 function initChipMon(){
   if(!CHIP_MON_ROWS.length) return;
   renderExecKpiPanel();
   initYieldAnalysisControls();
   initYieldAnalysisControlsDaily();
   initYieldAnalysisControlsWeekly();
+  initYaCardCollapse();
   CHIP_MON_GROUPS.forEach(grp=> {
     chipMonRenderTiles(grp);
     // every group starts collapsed (tiles only) — except 'yield', which has no tile of its
