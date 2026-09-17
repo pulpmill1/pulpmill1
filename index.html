@@ -1966,7 +1966,7 @@
                 <label for="lpPeriodPreset">ช่วงเวลา</label>
                 <select id="lpPeriodPreset">
                   <option value="all">All Data 2021-2026</option>
-                  <option value="fullYear">Full Year</option>
+                  <option value="fullYear" selected>Full Year</option>
                   <option value="singleMonth">เดือนเดียว</option>
                   <option value="monthRange">Start Month ถึง End Month</option>
                   <option value="last3">Last 3 Months</option>
@@ -2027,6 +2027,12 @@
               <span class="item"><span class="sw" style="border-color:#d4342c;"></span>Cumulative Loss %</span>
             </div>
           </div>
+
+          <details class="dtable" id="lpVitalFewDetails" open>
+            <summary><span class="dtable-label">Vital Few (80%) — สำหรับพิจารณา CM / PM</span></summary>
+            <div class="hint" style="margin-top:10px;">รายการที่ทำให้ Cumulative Loss สะสมถึง 80% ตามมุมมอง Pareto By ที่เลือกด้านบน — ใช้ประกอบการพิจารณาว่าแต่ละรายการควรเป็น Corrective Maintenance (CM) หรือ Preventive Maintenance (PM) เครื่องหมายที่ติ๊กในตารางนี้เป็นการทำเครื่องหมายชั่วคราวบนหน้าจอเท่านั้น เพื่อช่วยพิจารณา — ไม่ถูกบันทึกลงชีทต้นทางหรือที่ใดๆ และจะหายไปเมื่อโหลดหน้าใหม่หรือเปลี่ยน Filter</div>
+            <div class="tbl-wrap"><table id="lpVitalFewTable"></table></div>
+          </details>
 
           <div class="card">
             <div class="chart-head"><div class="chart-title">Monthly Loss Trend</div></div>
@@ -9323,7 +9329,7 @@ function lpClassifyAll(allRows){
 
 /* ---- state ---- */
 const LP_STATE = {
-  period: { mode:'all' },
+  period: { mode:'absoluteRange', fromYear:'2026', fromMonth:0, toYear:'2026', toMonth:11 },
   eqNum:'all', eqName:'all', type:'all', subtype:'all', clsSource:'all', clsConf:'all',
   paretoBy:'eqNumType',
 };
@@ -9538,6 +9544,7 @@ async function initLoss8020Dashboard(){
     LP_DATA = await lpFetchAll();
     lpPopulateFilterOptions();
     lpWireFilterEvents();
+    lpSyncStateFromUI();
     lpRenderAll();
     if(PAGE_META['loss-production']) PAGE_META['loss-production'].hasData = true;
   }catch(err){
@@ -9659,6 +9666,7 @@ function lpRenderAll(){
   lpRenderUpdatedStamp();
   lpRenderKpis(filtered);
   lpRenderPareto(filtered);
+  lpRenderVitalFewTable(filtered);
   lpRenderTrend(filtered);
   lpRenderMatrix();
   lpRenderDetail(filtered);
@@ -9698,9 +9706,6 @@ function lpRenderKpis(filtered){
   grid.innerHTML = tiles.map(t=>`<div class="lp-kpi-card"><div class="lp-kpi-label">${t.label}</div><div class="lp-kpi-value">${t.value}</div></div>`).join('');
 }
 
-function lpParetoAxisLabel(by){
-  return by==='eqNum' ? 'Equipment Tag' : by==='eqName' ? 'Equipment Name' : by==='type' ? 'Type' : 'Sub Type';
-}
 function lpRenderPareto(filtered){
   const canvas = document.getElementById('lpParetoChart');
   if(!canvas) return;
@@ -9751,6 +9756,32 @@ function lpRenderPareto(filtered){
   };
   if(LP_CHARTS.pareto){ LP_CHARTS.pareto.data = cfg.data; LP_CHARTS.pareto.options = cfg.options; LP_CHARTS.pareto.update(); }
   else { LP_CHARTS.pareto = new Chart(canvas.getContext('2d'), cfg); }
+}
+
+function lpParetoByLabel(by){
+  return by==='eqNumType' ? 'EQ num : Type' : by==='eqNum' ? 'Equipment Tag' : by==='eqName' ? 'Equipment Name' : by==='type' ? 'Type' : 'Sub Type';
+}
+function lpRenderVitalFewTable(filtered){
+  const wrap = document.getElementById('lpVitalFewTable');
+  if(!wrap) return;
+  const { groups, crossIdx } = lpBuildPareto(filtered, LP_STATE.paretoBy);
+  const vital = crossIdx>=0 ? groups.slice(0, crossIdx+1) : groups;
+  const colLabel = lpParetoByLabel(LP_STATE.paretoBy);
+  const head = `<thead><tr><th>Rank</th><th>${colLabel}</th><th>Loss ADT</th><th>Loss Share %</th><th>Cumulative %</th><th>Loss Records</th><th>CM</th><th>PM</th></tr></thead>`;
+  const body = vital.map((g,i)=> `<tr>`
+      + `<td>${i+1}</td><td style="text-align:left;">${lpEsc(g.label)}</td>`
+      + `<td>${lpFmtNum(g.loss)}</td><td>${g.share.toFixed(1)}%</td><td>${g.cumShare.toFixed(1)}%</td><td>${g.records}</td>`
+      + `<td><input type="checkbox" class="lp-vf-cm" aria-label="CM"></td>`
+      + `<td><input type="checkbox" class="lp-vf-pm" aria-label="PM"></td>`
+      + `</tr>`).join('');
+  wrap.innerHTML = head + `<tbody>${body || '<tr><td colspan="8" class="loss-empty">No loss data for selected period</td></tr>'}</tbody>`;
+  // one CM/PM shouldn't usually both apply to the same line — checking one softly unchecks the other, but the user can still tick both if they mean it
+  wrap.querySelectorAll('.lp-vf-cm').forEach((cb,i)=>{
+    cb.addEventListener('change', ()=>{ if(cb.checked){ const pm = wrap.querySelectorAll('.lp-vf-pm')[i]; if(pm && !pm.dataset.userTouched) pm.checked = false; } });
+  });
+  wrap.querySelectorAll('.lp-vf-pm').forEach((cb)=>{
+    cb.addEventListener('change', ()=>{ cb.dataset.userTouched = '1'; });
+  });
 }
 
 function lpRenderTrend(filtered){
