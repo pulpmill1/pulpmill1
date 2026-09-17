@@ -736,6 +736,8 @@
   .lp-dq-sub{border:1px solid var(--border); border-radius:10px; padding:8px 12px; margin-bottom:8px; background:var(--surface-2);}
   .lp-dq-sub summary{cursor:pointer; font-size:12.5px; color:var(--ink);}
   .lp-dq-list{margin-top:8px; max-height:220px; overflow-y:auto; font-size:11.5px; color:var(--ink-2); line-height:1.7;}
+  .lp-vf-text{white-space:normal; word-break:break-word; line-height:1.55; font-size:12px; color:var(--ink);}
+  #lpVitalFewTable td, #lpVitalFewTable th{vertical-align:top;}
   .lp-review-toolbar{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin:12px 0;}
   .lp-review-toolbar label{font-size:12.5px; color:var(--ink-2); display:flex; align-items:center; gap:6px;}
   #lpReviewCount{font-size:11.5px; color:var(--ink-3);}
@@ -2030,7 +2032,7 @@
 
           <details class="dtable" id="lpVitalFewDetails" open>
             <summary><span class="dtable-label">Vital Few (80%) — สำหรับพิจารณา CM / PM</span></summary>
-            <div class="hint" style="margin-top:10px;">รายการที่ทำให้ Cumulative Loss สะสมถึง 80% ตามมุมมอง Pareto By ที่เลือกด้านบน — คอลัมน์ CM / PM แสดงข้อความจากชีทต้นทางตรงๆ เมื่อมีการกรอกไว้แล้ว หากยังไม่มีข้อมูลจะแสดงเป็นช่องติ๊กให้ทำเครื่องหมายชั่วคราวบนหน้าจอเพื่อช่วยพิจารณาเท่านั้น (ไม่ถูกบันทึกลงชีทต้นทางหรือที่ใดๆ และจะหายไปเมื่อโหลดหน้าใหม่หรือเปลี่ยน Filter)</div>
+            <div class="hint" style="margin-top:10px;">รายการที่ทำให้ Cumulative Loss สะสมถึง 80% ตามมุมมอง Pareto By ที่เลือกด้านบน — คอลัมน์ CM / PM แสดงข้อความเต็มจากชีทต้นทางตรงๆ (ไม่มีการตัดข้อความ) ส่วนรายการที่ยังไม่ได้กรอกในชีทจะเว้นว่างไว้</div>
             <div class="tbl-wrap"><table id="lpVitalFewTable"></table></div>
           </details>
 
@@ -9766,11 +9768,11 @@ function lpRenderPareto(filtered){
 function lpParetoByLabel(by){
   return by==='eqNumType' ? 'EQ num : Type' : by==='eqNum' ? 'Equipment Tag' : by==='eqName' ? 'Equipment Name' : by==='type' ? 'Type' : 'Sub Type';
 }
-function lpVfActionCell(textSet, cls){
+function lpVfActionCell(textSet){
   if(textSet && textSet.size){
-    return `<td style="text-align:left;"><div class="loss-text">${lpEsc([...textSet].join(' / '))}</div></td>`;
+    return `<td style="text-align:left;"><div class="lp-vf-text">${lpEsc([...textSet].join(' / ')).replace(/\n/g,'<br>')}</div></td>`;
   }
-  return `<td><input type="checkbox" class="${cls}" aria-label="${cls==='lp-vf-cm'?'CM':'PM'}"></td>`;
+  return `<td></td>`;
 }
 function lpRenderVitalFewTable(filtered){
   const wrap = document.getElementById('lpVitalFewTable');
@@ -9782,8 +9784,8 @@ function lpRenderVitalFewTable(filtered){
   const body = vital.map((g,i)=> `<tr>`
       + `<td>${i+1}</td><td style="text-align:left;">${lpEsc(g.label)}</td>`
       + `<td>${lpFmtNum(g.loss)}</td><td>${g.share.toFixed(1)}%</td><td>${g.cumShare.toFixed(1)}%</td><td>${g.records}</td>`
-      + lpVfActionCell(g.cmSet, 'lp-vf-cm')
-      + lpVfActionCell(g.pmSet, 'lp-vf-pm')
+      + lpVfActionCell(g.cmSet)
+      + lpVfActionCell(g.pmSet)
       + `</tr>`).join('');
   wrap.innerHTML = head + `<tbody>${body || '<tr><td colspan="8" class="loss-empty">No loss data for selected period</td></tr>'}</tbody>`;
 }
