@@ -706,6 +706,43 @@
   .md-chart-wrap{position:relative;height:250px;margin-top:4px;}
   .md-assess{font-size:11.5px;line-height:1.7;color:var(--ink-2);background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:11px 13px;margin-top:12px;}
   .md-assess b{color:var(--ink);}
+
+  /* ---- Loss 80:20 dashboard ---- */
+  .lp-head{display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap;}
+  .lp-updated{font-size:11.5px; color:var(--ink-3); white-space:nowrap; display:flex; align-items:center; gap:6px;}
+  .lp-filters{display:flex; flex-wrap:wrap; gap:10px 14px; align-items:flex-end;}
+  .lp-filters .field{min-width:150px;}
+  .lp-filters select{width:100%;}
+  .lp-filters select[multiple]{min-height:104px; width:100%;}
+  .lp-reset-btn{font:inherit; font-weight:700; font-size:12px; color:var(--accent-ink); background:var(--accent-soft); border:1px solid var(--border); border-radius:10px; padding:8px 14px; cursor:pointer; white-space:nowrap;}
+  .lp-reset-btn:hover{opacity:.85;}
+  .lp-kpi-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:10px; margin:16px 0;}
+  .lp-kpi-card{background:var(--surface); border:1px solid var(--border); border-radius:14px; box-shadow:var(--shadow); padding:13px 15px; min-width:0;}
+  .lp-kpi-label{font-size:10.5px; font-weight:700; color:var(--ink-2); text-transform:uppercase; letter-spacing:.02em; line-height:1.4;}
+  .lp-kpi-value{font-family:"IBM Plex Mono",monospace; font-size:15px; font-weight:700; color:var(--ink); margin-top:6px; line-height:1.35; word-break:break-word;}
+  .lp-badge{font-size:10px; font-weight:700; padding:2px 8px; border-radius:20px; display:inline-block; white-space:nowrap;}
+  .lp-src-original{background:var(--accent-soft); color:var(--accent-ink);}
+  .lp-src-ai-classified{background:rgba(255,153,0,.16); color:#a15c00;}
+  .lp-src-needs-review{background:rgba(212,52,44,.14); color:#b02318;}
+  .lp-conf-high{background:rgba(0,169,39,.16); color:#0d7a26;}
+  .lp-conf-medium{background:rgba(255,153,0,.16); color:#a15c00;}
+  .lp-conf-low{background:rgba(212,52,44,.14); color:#b02318;}
+  tr.lp-eq-row{cursor:pointer;}
+  tr.lp-eq-row:hover{background:var(--surface-2);}
+  tr.lp-eq-top td{font-weight:700;}
+  tr.lp-eq-top{background:var(--accent-soft);}
+  .lp-dq-summary{font-size:12px; font-weight:700; color:var(--ink); margin-bottom:10px;}
+  .lp-dq-item{font-size:12.5px; color:var(--ink-2); padding:6px 0;}
+  .lp-dq-sub{border:1px solid var(--border); border-radius:10px; padding:8px 12px; margin-bottom:8px; background:var(--surface-2);}
+  .lp-dq-sub summary{cursor:pointer; font-size:12.5px; color:var(--ink);}
+  .lp-dq-list{margin-top:8px; max-height:220px; overflow-y:auto; font-size:11.5px; color:var(--ink-2); line-height:1.7;}
+  .lp-review-toolbar{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin:12px 0;}
+  .lp-review-toolbar label{font-size:12.5px; color:var(--ink-2); display:flex; align-items:center; gap:6px;}
+  #lpReviewCount{font-size:11.5px; color:var(--ink-3);}
+  @media (max-width:640px){
+    .lp-kpi-grid{grid-template-columns:repeat(auto-fit,minmax(140px,1fr));}
+    .lp-filters .field{min-width:130px; flex:1 1 130px;}
+  }
 </style>
 
 <div class="app">
@@ -763,7 +800,7 @@
           <button class="nav-item" data-page="process-qualitytopm"><span class="nav-label" data-i18n-nav="navProcessQualityToPm">Quality to pm</span></button>
         </div>
       </div>
-      <button class="nav-item" data-page="loss-production"><span style="display:flex; align-items:center; min-width:0;"><span class="nav-ico">📉</span><span class="nav-label" data-i18n-nav="navLossProduction">Loss production</span></span></button>
+      <button class="nav-item" data-page="loss-production"><span style="display:flex; align-items:center; min-width:0;"><span class="nav-ico">📉</span><span class="nav-label" data-i18n-nav="navLossProduction">Loss 80:20</span></span></button>
     </nav>
     <div class="sidebar-foot">
       <a class="nav-source-link" href="https://docs.google.com/spreadsheets/d/1dStWwliEd6YhSOL3oT8JNyWHZOuII5F-QVeubIrBS50/edit" target="_blank" rel="noopener noreferrer" title="เปิด Google Sheet ต้นทางที่ Dashboard นี้ดึงข้อมูลมา">
@@ -1912,10 +1949,115 @@
         </section>
 
         <section class="page" data-page="loss-production" hidden>
-          <div class="empty-state">
-            <div class="icon">📉</div>
-            <h2>Loss Production Dashboard</h2>
-            <p>หน้านี้ยังไม่มีข้อมูล — รอเชื่อมต่อแหล่งข้อมูล Loss Production จาก Google Sheets<br>แจ้งลิงก์ชีทและชื่อแท็บที่ต้องการดึงข้อมูลได้เลยครับ</p>
+          <div id="lpBody">
+          <div class="card">
+            <div class="lp-head">
+              <div>
+                <div class="chart-title">Loss 80:20 Dashboard</div>
+                <div class="hint">Pareto analysis ของ Loss Production (ADT) — ดึงข้อมูลสดจาก Google Sheet "Loss 80:20 dashboard sorce" (แท็บ 2021–2026) · หน่วย: <b>ADT</b></div>
+              </div>
+              <div class="lp-updated" id="lpUpdated">กำลังโหลดข้อมูล…</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="lp-filters">
+              <div class="field">
+                <label for="lpPeriodPreset">ช่วงเวลา</label>
+                <select id="lpPeriodPreset">
+                  <option value="all">All Data 2021-2026</option>
+                  <option value="fullYear">Full Year</option>
+                  <option value="singleMonth">เดือนเดียว</option>
+                  <option value="monthRange">Start Month ถึง End Month</option>
+                  <option value="last3">Last 3 Months</option>
+                  <option value="last6">Last 6 Months</option>
+                  <option value="ytd">Year to Date</option>
+                  <option value="sameMonthsMultiYear">เดือนเดียวกันข้ามหลายปี</option>
+                  <option value="custom">Custom Period</option>
+                </select>
+              </div>
+              <div class="field"><label for="lpYearA">ปี / From Year</label><select id="lpYearA"></select></div>
+              <div class="field"><label for="lpMonthA">เดือน / From Month</label><select id="lpMonthA"></select></div>
+              <div class="field"><label for="lpYearB">To Year</label><select id="lpYearB"></select></div>
+              <div class="field"><label for="lpMonthB">To Month</label><select id="lpMonthB"></select></div>
+              <div class="field"><label for="lpMultiYears">เลือกหลายปี (Ctrl/Cmd+คลิก)</label><select id="lpMultiYears" multiple></select></div>
+              <div class="field"><label for="lpFilterEqNum">EQ num</label><select id="lpFilterEqNum"></select></div>
+              <div class="field"><label for="lpFilterEqName">EQ name</label><select id="lpFilterEqName"></select></div>
+              <div class="field"><label for="lpFilterType">Type</label><select id="lpFilterType"></select></div>
+              <div class="field"><label for="lpFilterSubtype">Sub Type</label><select id="lpFilterSubtype"></select></div>
+              <div class="field">
+                <label for="lpFilterClsSource">Classification Source</label>
+                <select id="lpFilterClsSource">
+                  <option value="all">ทั้งหมด</option><option value="Original">Original</option>
+                  <option value="AI Classified">AI Classified</option><option value="Needs Review">Needs Review</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="lpFilterClsConf">Classification Confidence</label>
+                <select id="lpFilterClsConf">
+                  <option value="all">ทั้งหมด</option><option value="High">High</option>
+                  <option value="Medium">Medium</option><option value="Low">Low</option>
+                </select>
+              </div>
+              <div class="field"><label>&nbsp;</label><button type="button" class="lp-reset-btn" id="lpResetFilters">รีเซ็ต Filter</button></div>
+            </div>
+          </div>
+
+          <div class="lp-kpi-grid" id="lpKpiGrid"></div>
+
+          <div class="card">
+            <div class="toolbar">
+              <div class="field">
+                <label for="lpParetoBy">Pareto By</label>
+                <select id="lpParetoBy">
+                  <option value="eqNum">Equipment Tag</option>
+                  <option value="eqName">Equipment Name</option>
+                  <option value="type">Type</option>
+                  <option value="subtype">Sub Type</option>
+                </select>
+              </div>
+              <div class="hint" id="lpParetoHint"></div>
+            </div>
+            <div class="chart-head"><div class="chart-title">Pareto Loss 80:20</div></div>
+            <div class="chart-wrap" style="height:400px;"><canvas id="lpParetoChart"></canvas></div>
+            <div class="legend-row">
+              <span class="item"><span class="box" style="background:var(--accent);"></span>Vital Few (สะสมไม่เกิน 80%)</span>
+              <span class="item"><span class="box" style="background:var(--ink-3);"></span>Trivial Many</span>
+              <span class="item"><span class="sw" style="border-color:#d4342c;"></span>Cumulative Loss %</span>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="chart-head"><div class="chart-title">Monthly Loss Trend</div></div>
+            <div class="chart-wrap"><canvas id="lpTrendChart"></canvas></div>
+            <div class="hint">คลิกที่แท่งเดือนใดเพื่อกรอง Pareto และตารางด้านล่างเฉพาะเดือนนั้นโดยอัตโนมัติ</div>
+          </div>
+
+          <details class="dtable" id="lpMatrixDetails" open>
+            <summary><span class="dtable-label">Equipment Loss Matrix</span></summary>
+            <div class="tbl-wrap"><table id="lpMatrixTable"></table></div>
+          </details>
+
+          <details class="dtable" id="lpDetailDetails">
+            <summary><span class="dtable-label">Loss Detail</span></summary>
+            <div class="tbl-wrap"><table id="lpDetailTable"></table></div>
+          </details>
+
+          <details class="dtable" id="lpReviewDetails">
+            <summary><span class="dtable-label">Classification Review</span></summary>
+            <div class="lp-review-toolbar">
+              <label><input type="checkbox" id="lpReviewOnlyLow"> แสดงเฉพาะ Low Confidence / Needs Review</label>
+              <span id="lpReviewCount"></span>
+            </div>
+            <div class="tbl-wrap"><table id="lpReviewTable"></table></div>
+          </details>
+
+          <details class="dtable" id="lpDqDetails">
+            <summary><span class="dtable-label">Data Quality Check</span></summary>
+            <div id="lpDqBody" style="margin-top:12px;"></div>
+          </details>
+
+          <div class="foot" id="lpFoot"></div>
           </div>
         </section>
 
@@ -4599,14 +4741,14 @@ const PAGE_META = {
   'process-brownstock':{th:'Brown stock', en:'Brown stock', hasData:false},
   'process-bleaching':{th:'Bleaching', en:'Bleaching', hasData:false},
   'process-qualitytopm':{th:'Quality to pm', en:'Quality to pm', hasData:false},
-  'loss-production':{th:'Loss production', en:'Loss production', hasData:false},
+  'loss-production':{th:'Loss 80:20', en:'Loss 80:20', hasData:false},
 };
 
 const I18N = {
   th:{
     navProduction:'Production', navProductionPm1:'Pulp mill 1', navProductionPm2:'Pulp mill 2', navProductionPm12:'Pulp mill 1+2', navYield:'Yield', navYieldWeightScale:'Weight scale digester', navCost:'Cost', navCostBu21:'Bu21 cost', navCostProductive:'Productive cost', navCostUnitConsumption:'Unit consumption',
     navProcessArea:'Process area', navProcessRawMaterial:'Raw material', navProcessCooking:'Cooking', navProcessBrownStock:'Brown stock', navProcessBleaching:'Bleaching', navProcessQualityToPm:'Quality to pm',
-    navLossProduction:'Loss production',
+    navLossProduction:'Loss 80:20',
     searchPlaceholder:'ค้นหา KPI (Search metrics)',
     lastDataAt:'ข้อมูลล่าสุด ณ', noDataYet:'ยังไม่เชื่อมต่อแหล่งข้อมูล',
     refreshTitle:'รีเฟรชข้อมูลล่าสุด (โหลดหน้าใหม่ — ดึงข้อมูลสดจาก Google Sheets ทันที)',
@@ -4625,7 +4767,7 @@ const I18N = {
   en:{
     navProduction:'Production', navProductionPm1:'Pulp mill 1', navProductionPm2:'Pulp mill 2', navProductionPm12:'Pulp mill 1+2', navYield:'Yield', navYieldWeightScale:'Weight scale digester', navCost:'Cost', navCostBu21:'Bu21 cost', navCostProductive:'Productive cost', navCostUnitConsumption:'Unit consumption',
     navProcessArea:'Process area', navProcessRawMaterial:'Raw material', navProcessCooking:'Cooking', navProcessBrownStock:'Brown stock', navProcessBleaching:'Bleaching', navProcessQualityToPm:'Quality to pm',
-    navLossProduction:'Loss production',
+    navLossProduction:'Loss 80:20',
     searchPlaceholder:'Search metrics',
     lastDataAt:'Latest data as of', noDataYet:'No data source connected yet',
     refreshTitle:'Refresh latest data (reloads the page — fetches live data directly from Google Sheets)',
@@ -8990,6 +9132,768 @@ if(notifListEl){
 if(document.getElementById('chipMonHost')) renderNotifCentre();
 const moreNotifBtnEl2 = document.getElementById('moreNotifBtn');
 if(moreNotifBtnEl2) moreNotifBtnEl2.addEventListener('click', ()=>{ const mm = document.getElementById('tbMoreMenu'); if(mm) mm.hidden = true; if(notifBtnEl2) notifBtnEl2.click(); });
+
+/* ===================== Loss 80:20 Dashboard ("loss-production" page) =====================
+   Live-fetches the "Loss 80:20 dashboard sorce" Google Sheet (tabs 2021..2026), client-side,
+   on every page load — never hardcoded, never written back to the source sheet.
+   Wrapped in its own try/catch (see initLoss8020Dashboard) so a failure here can never break
+   the rest of the dashboard (production/yield/cost/process pages stay unaffected). */
+const LP_SHEET_ID = '1bY5nzXap71jk9_yqnKy9lQtnwZuU7-wuy3oGiYrKTUA';
+const LP_YEARS = ['2021','2022','2023','2024','2025','2026'];
+const LP_MONTH_ORDER = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const LP_MONTH_MARKERS = new Set(['Total Loss','Recovery','Total Loss - Recovery pulp']);
+const LP_FOOTER_MARKERS = new Set(['Production Budget','Production Actual']);
+function lpSheetCsvUrl(sheetName){
+  return `https://docs.google.com/spreadsheets/d/${LP_SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}`;
+}
+function lpNorm(s){ if(s==null) return ''; return String(s).replace(/\s+/g,' ').trim(); }
+/* Date start/end in this sheet are day-first (D/M/YYYY) — confirmed against raw values such
+   as 22/2/2021 (day=22 can only be the day). Do not "fix" this back to month-first. */
+function lpParseDate(s){
+  s = lpNorm(s);
+  if(!s || s === '-') return null;
+  const m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if(!m) return null;
+  const d = +m[1], mo = +m[2]-1, y = +m[3];
+  const dt = new Date(y, mo, d);
+  return isNaN(dt.getTime()) ? null : dt;
+}
+function lpParseLoss(raw){
+  if(raw==null) return null;
+  let t = String(raw).trim();
+  if(t==='') return null;
+  const neg = /^\(.*\)$/.test(t);
+  if(neg) t = t.slice(1,-1);
+  t = t.replace(/,/g,'');
+  const n = Number(t);
+  return Number.isFinite(n) ? Math.abs(n) : null;
+}
+function lpParseYearSheet(year, csvRows){
+  let headerRowIdx = -1;
+  for(let i=0;i<Math.min(csvRows.length,10);i++){
+    if(csvRows[i].some(v=>lpNorm(v)==='Month')){ headerRowIdx=i; break; }
+  }
+  if(headerRowIdx===-1) throw new Error('ไม่พบแถว Header (Month) ใน sheet '+year);
+  const headers = csvRows[headerRowIdx];
+  const col = {};
+  headers.forEach((h,i)=>{
+    const hn = lpNorm(h); if(!hn) return;
+    const hl = hn.toLowerCase();
+    if(hl==='month') col.month=i;
+    else if(hl==='date start') col.dateStart=i;
+    else if(hl==='date end') col.dateEnd=i;
+    else if(hl==='time start') col.timeStart=i;
+    else if(hl==='time end') col.timeEnd=i;
+    else if(hl==='eq num') col.eqNum=i;
+    else if(hl==='eq name') col.eqName=i;
+    else if(hl==='sub type') col.subtype=i;
+    else if(hl==='type') col.type=i;
+    else if(hl.startsWith('loss production') && hl.includes('adt')) col.lossAdt=i;
+    else if(hl.startsWith('loss production')) col.desc=i;
+  });
+  const get = (arr,key)=> key in col ? lpNorm(arr[col[key]]) : '';
+  const rows = [];
+  const monthTotals = {};
+  const annualFooter = {};
+  let curMonth = null, inFooter = false, seq = 0;
+  for(let i=headerRowIdx+1;i<csvRows.length;i++){
+    const arr = csvRows[i];
+    const descMarker = get(arr,'desc');
+    if(LP_FOOTER_MARKERS.has(descMarker)){ annualFooter[descMarker]=lpParseLoss(arr[col.lossAdt]); inFooter=true; continue; }
+    if(LP_MONTH_MARKERS.has(descMarker)){
+      const val = lpParseLoss(arr[col.lossAdt]);
+      if(inFooter) annualFooter[descMarker]=val;
+      else { monthTotals[curMonth]=monthTotals[curMonth]||{}; monthTotals[curMonth][descMarker]=val; }
+      continue;
+    }
+    const monthCell = get(arr,'month');
+    const eqNum = get(arr,'eqNum'), eqName = get(arr,'eqName');
+    const typ = get(arr,'type'), sub = get(arr,'subtype');
+    const desc = descMarker;
+    const lossRawCell = 'lossAdt' in col ? arr[col.lossAdt] : null;
+    const hasContent = !!(desc || eqNum || eqName || typ || sub || (lossRawCell!=null && lpNorm(lossRawCell)!==''));
+    if(!hasContent) continue;
+    if(monthCell) curMonth = monthCell;
+    seq++;
+    rows.push({
+      year, row:i+1, seq, month:curMonth, monthIndex: curMonth ? LP_MONTH_ORDER.indexOf(curMonth) : -1,
+      dateStart: 'dateStart' in col ? lpParseDate(arr[col.dateStart]) : null,
+      dateEnd: 'dateEnd' in col ? lpParseDate(arr[col.dateEnd]) : null,
+      timeStart: 'timeStart' in col ? lpNorm(arr[col.timeStart]) : '',
+      timeEnd: 'timeEnd' in col ? lpNorm(arr[col.timeEnd]) : '',
+      eqNum, eqName, originalType:typ, originalSubType:sub, desc,
+      lossAdt: lpParseLoss(lossRawCell),
+      sourceRowId: year+'-'+String(seq).padStart(4,'0'),
+      dateAccuracy: (('dateStart' in col) && lpParseDate(arr[col.dateStart])) ? 'Exact' : 'Month Only',
+    });
+  }
+  return { rows, monthTotals, annualFooter };
+}
+/* ---- Classification engine: built live from the sheet's own already-labeled rows (2021 is
+   the main reference, per spec, but any other year's rows that already carry Type + Sub Type
+   are equally "Original" source data and reinforce the very same vocabulary) ---- */
+const LP_STOPWORDS = new Set(("a an the of to in on for with from at by is are was were be been being " +
+  "and or but if then case due change new plan repair start after before during " +
+  "loss slow production prod pro bd break down damage fix fixed high low drop trip " +
+  "day days hour hours hr hrs min mins time times not no yes have has had system " +
+  "line pipe piping process unit plant total net avg average per day month year " +
+  "วัน เดือน ปี การ ที่ ทำให้ เนื่องจาก จาก ของ ใน ไป มา ได้ ไม่ ให้ ต้อง เพื่อ และ กับ").split(' '));
+function lpTokenize(s){
+  s = String(s||'').toLowerCase().replace(/[()\[\]{}.,:;/\\!?"'`~*_+=<>|]/g,' ');
+  const toks = s.split(/\s+/).filter(t=>t.length>=2 && !LP_STOPWORDS.has(t) && !/^\d+$/.test(t));
+  const out = toks.slice();
+  for(let i=0;i<toks.length-1;i++) out.push(toks[i]+' '+toks[i+1]);
+  return out;
+}
+function lpNormEq(s){ return String(s||'').replace(/[\s.\-]/g,'').toUpperCase(); }
+function lpBuildClassifier(allRows){
+  const refRows = allRows.filter(r=>r.originalType && r.originalSubType);
+  const eqIndex = new Map(), tokIndex = new Map(), pairCount = new Map(), pairLabel = new Map();
+  const pairKey = (t,s)=> t+''+s;
+  const bump = (map,key,sub,n)=>{ let m=map.get(key); if(!m){ m=new Map(); map.set(key,m); } m.set(sub,(m.get(sub)||0)+n); };
+  refRows.forEach(r=>{
+    const pk = pairKey(r.originalType, r.originalSubType);
+    pairCount.set(pk,(pairCount.get(pk)||0)+1);
+    pairLabel.set(pk,[r.originalType,r.originalSubType]);
+    const eq = lpNormEq(r.eqNum);
+    if(eq && !/[ก-๙]/.test(eq)) bump(eqIndex, eq, pk, 1);
+    new Set(lpTokenize(r.desc+' '+r.eqName)).forEach(t=>bump(tokIndex,t,pk,1));
+  });
+  const tokSpread = new Map();
+  tokIndex.forEach((m,t)=>tokSpread.set(t,m.size));
+  const maxSpread = Math.max(2, Math.round(pairCount.size*0.08));
+  function classify(desc, eqName, eqNum){
+    const eq = lpNormEq(eqNum);
+    if(eq && eqIndex.has(eq)){
+      const m = eqIndex.get(eq);
+      let total=0, bestPk=null, bestN=0;
+      m.forEach((n,pk)=>{ total+=n; if(n>bestN){ bestN=n; bestPk=pk; } });
+      const ratio = bestN/total;
+      if(total>=3 && ratio>=0.7){
+        const [t,s] = pairLabel.get(bestPk);
+        const conf = (ratio>=0.85 && total>=4) ? 'High':'Medium';
+        return { type:t, subtype:s, source:'AI Classified', confidence:conf,
+          reason:`EQ num '${eqNum}' ตรงกับประวัติ ${bestN}/${total} ครั้งที่เคยจำแนกเป็น ${t}/${s}` };
+      }
+    }
+    const toks = lpTokenize(desc+' '+(eqName||''));
+    const scores = new Map(), matchedToks = new Map();
+    toks.forEach(t=>{
+      const m = tokIndex.get(t); if(!m) return;
+      const spread = tokSpread.get(t)||0; if(spread>maxSpread) return;
+      const weight = 1/spread;
+      m.forEach((n,pk)=>{
+        scores.set(pk,(scores.get(pk)||0)+weight*n);
+        if(!matchedToks.has(pk)) matchedToks.set(pk,new Set());
+        matchedToks.get(pk).add(t);
+      });
+    });
+    if(scores.size===0) return { type:'Unclassified', subtype:'Needs Review', source:'Needs Review', confidence:'Low', reason:'ไม่พบคำสำคัญที่ตรงกับข้อมูลอ้างอิง (2021 และรายการที่จำแนกไว้แล้ว)' };
+    const ranked = [...scores.entries()].sort((a,b)=>b[1]-a[1]);
+    const [bestPk,bestScore] = ranked[0];
+    const secondScore = ranked.length>1 ? ranked[1][1] : 0;
+    if(bestScore<1.2) return { type:'Unclassified', subtype:'Needs Review', source:'Needs Review', confidence:'Low', reason:'คำสำคัญที่พบไม่ชัดเจนพอ (ต่ำกว่าเกณฑ์ความมั่นใจ)' };
+    const margin = bestScore ? (bestScore-secondScore)/bestScore : 0;
+    const nDistinct = matchedToks.get(bestPk).size;
+    const conf = (bestScore>=2.5 && margin>=0.4 && nDistinct>=2) ? 'High':'Medium';
+    const [t,s] = pairLabel.get(bestPk);
+    const matchedList = [...matchedToks.get(bestPk)].sort((a,b)=>b.length-a.length).slice(0,4);
+    return { type:t, subtype:s, source:'AI Classified', confidence:conf,
+      reason:`พบคำสำคัญ [${matchedList.join(', ')}] → ${t}/${s} (คะแนน ${bestScore.toFixed(2)})` };
+  }
+  return { classify, refCount:refRows.length, pairCount:pairCount.size };
+}
+function lpClassifyAll(allRows){
+  const engine = lpBuildClassifier(allRows);
+  allRows.forEach(r=>{
+    if(r.originalType && r.originalSubType){
+      r.classifiedType = r.originalType; r.classifiedSubType = r.originalSubType;
+      r.classificationSource = 'Original'; r.classificationConfidence = 'High';
+      r.classificationReason = 'มี Type/Sub Type ระบุไว้ในชีทต้นทางโดยตรง';
+    } else {
+      const res = engine.classify(r.desc, r.eqName, r.eqNum);
+      r.classifiedType = res.type; r.classifiedSubType = res.subtype;
+      r.classificationSource = res.source; r.classificationConfidence = res.confidence;
+      r.classificationReason = res.reason;
+    }
+  });
+  return engine;
+}
+
+/* ---- state ---- */
+const LP_STATE = {
+  period: { mode:'all' },
+  eqNum:'all', eqName:'all', type:'all', subtype:'all', clsSource:'all', clsConf:'all',
+  paretoBy:'eqNum',
+};
+let LP_DATA = null; // { rows, monthTotals, footer, dq, engine, fetchedAt }
+let LP_CHARTS = {};
+
+function lpMonthLabel(year, mi, lang){
+  const abbrEn = LP_MONTH_ORDER[mi];
+  return lang==='en' ? (abbrEn+' '+year) : (abbrEn+' '+year);
+}
+function lpFmtNum(n, dec){
+  if(n==null || !Number.isFinite(n)) return '–';
+  return n.toLocaleString('en-US', {minimumFractionDigits:dec||0, maximumFractionDigits:dec||0});
+}
+function lpEqLabel(r){ return r.eqName ? (r.eqNum ? r.eqNum+' — '+r.eqName : r.eqName) : (r.eqNum || 'N/A (ไม่มี EQ num)'); }
+
+/* ---- period helpers ---- */
+function lpAllMonthKeys(){
+  // chronological list of {year, mi} that actually exist in the fetched data
+  const set = new Set();
+  LP_DATA.rows.forEach(r=>{ if(r.monthIndex>=0) set.add(r.year+'-'+r.monthIndex); });
+  return [...set].map(k=>{ const [y,m]=k.split('-'); return {year:y, mi:+m}; })
+    .sort((a,b)=> (+a.year*12+a.mi) - (+b.year*12+b.mi));
+}
+function lpLatestMonthKey(){
+  const all = lpAllMonthKeys();
+  return all.length ? all[all.length-1] : {year:LP_YEARS[LP_YEARS.length-1], mi:11};
+}
+function lpInPeriod(r, period){
+  if(!period || period.mode==='all') return true;
+  if(r.monthIndex<0) return false;
+  if(period.mode==='sameMonthsAcrossYears'){
+    return period.years.includes(r.year) && r.monthIndex>=period.fromMonth && r.monthIndex<=period.toMonth;
+  }
+  const key = (+r.year)*12 + r.monthIndex;
+  const fromKey = (+period.fromYear)*12 + period.fromMonth;
+  const toKey = (+period.toYear)*12 + period.toMonth;
+  return key>=fromKey && key<=toKey;
+}
+function lpPeriodLabel(period){
+  const EN = currentLang==='en';
+  if(!period || period.mode==='all') return EN? 'All data 2021–2026' : 'ข้อมูลทั้งหมด 2021–2026';
+  if(period.mode==='sameMonthsAcrossYears'){
+    const mFrom = LP_MONTH_ORDER[period.fromMonth], mTo = LP_MONTH_ORDER[period.toMonth];
+    return `${mFrom}${period.fromMonth!==period.toMonth?'-'+mTo:''} · ${period.years.join(', ')}`;
+  }
+  if(period.fromYear===period.toYear && period.fromMonth===period.toMonth){
+    return `${LP_MONTH_ORDER[period.fromMonth]} ${period.fromYear}`;
+  }
+  if(period.fromYear===period.toYear && period.fromMonth===0 && period.toMonth===11){
+    return (period.fromYear==='2026' ? '2026 YTD' : `Full Year ${period.fromYear}`);
+  }
+  if(period.fromYear===period.toYear){
+    return `${LP_MONTH_ORDER[period.fromMonth]}-${LP_MONTH_ORDER[period.toMonth]} ${period.fromYear}`;
+  }
+  return `${LP_MONTH_ORDER[period.fromMonth]} ${period.fromYear} – ${LP_MONTH_ORDER[period.toMonth]} ${period.toYear}`;
+}
+
+/* ---- filtering ---- */
+function lpApplyFilters(rows, state, opts){
+  opts = opts || {};
+  return rows.filter(r=>{
+    if(!opts.skipPeriod && !lpInPeriod(r, state.period)) return false;
+    if(state.eqNum!=='all' && (r.eqNum||'N/A')!==state.eqNum) return false;
+    if(state.eqName!=='all' && (r.eqName||'N/A')!==state.eqName) return false;
+    if(state.type!=='all' && r.classifiedType!==state.type) return false;
+    if(state.subtype!=='all' && r.classifiedSubType!==state.subtype) return false;
+    if(state.clsSource!=='all' && r.classificationSource!==state.clsSource) return false;
+    if(state.clsConf!=='all' && r.classificationConfidence!==state.clsConf) return false;
+    return true;
+  });
+}
+
+/* ---- aggregation ---- */
+function lpSum(rows){ return rows.reduce((a,r)=>a+(r.lossAdt||0),0); }
+function lpGroupSum(rows, keyFn, labelFn){
+  const m = new Map();
+  rows.forEach(r=>{
+    const k = keyFn(r);
+    if(!m.has(k)) m.set(k, {key:k, label:labelFn(r), loss:0, records:0});
+    const g = m.get(k);
+    g.loss += (r.lossAdt||0);
+    g.records += 1;
+  });
+  return [...m.values()];
+}
+function lpBuildPareto(rows, by){
+  let keyFn, labelFn;
+  if(by==='eqNum') { keyFn=r=>r.eqNum||'__NA__'; labelFn=r=> r.eqNum ? lpEqLabel(r) : 'N/A (ไม่มี EQ num)'; }
+  else if(by==='eqName') { keyFn=r=>r.eqName||'__NA__'; labelFn=r=>r.eqName||'N/A (ไม่มี EQ name)'; }
+  else if(by==='type') { keyFn=r=>r.classifiedType||'Unclassified'; labelFn=r=>r.classifiedType||'Unclassified'; }
+  else { keyFn=r=>r.classifiedSubType||'Needs Review'; labelFn=r=>r.classifiedSubType||'Needs Review'; }
+  const groups = lpGroupSum(rows, keyFn, labelFn).sort((a,b)=>b.loss-a.loss);
+  const total = lpSum(rows);
+  let cum = 0, crossIdx = -1;
+  groups.forEach((g,i)=>{
+    g.share = total ? g.loss/total*100 : 0;
+    cum += g.loss;
+    g.cumShare = total ? cum/total*100 : 0;
+    if(crossIdx===-1 && g.cumShare>=80) crossIdx = i;
+  });
+  groups.forEach((g,i)=>{ g.vitalFew = crossIdx>=0 && i<=crossIdx; });
+  return { groups, crossIdx, total };
+}
+function lpBuildMonthlyTrend(rows){
+  const m = new Map();
+  rows.forEach(r=>{
+    if(r.monthIndex<0) return;
+    const k = r.year+'-'+r.monthIndex;
+    if(!m.has(k)) m.set(k, {year:r.year, mi:r.monthIndex, loss:0, records:0, byEq:new Map(), byType:new Map()});
+    const g = m.get(k);
+    g.loss += (r.lossAdt||0); g.records += 1;
+    const eqK = r.eqNum||'N/A'; g.byEq.set(eqK, (g.byEq.get(eqK)||0)+(r.lossAdt||0));
+    const tyK = r.classifiedType||'Unclassified'; g.byType.set(tyK, (g.byType.get(tyK)||0)+(r.lossAdt||0));
+  });
+  const list = [...m.values()].sort((a,b)=>(+a.year*12+a.mi)-(+b.year*12+b.mi));
+  list.forEach(g=>{
+    let topEq=null, topEqV=-1; g.byEq.forEach((v,k)=>{ if(v>topEqV){ topEqV=v; topEq=k; } });
+    let topTy=null, topTyV=-1; g.byType.forEach((v,k)=>{ if(v>topTyV){ topTyV=v; topTy=k; } });
+    g.topEquipment = topEq; g.topType = topTy;
+  });
+  return list;
+}
+function lpBuildEquipmentMatrix(rows){
+  const m = new Map();
+  rows.forEach(r=>{
+    const key = r.eqNum || '__NA__';
+    const isNaBucket = key === '__NA__';
+    if(!m.has(key)) m.set(key, {eqNum:r.eqNum||'', eqName: isNaBucket ? '' : (r.eqName||''), byYear:{}, records:0, cumulative:0, eqNameVariants:new Set()});
+    const g = m.get(key);
+    g.byYear[r.year] = (g.byYear[r.year]||0) + (r.lossAdt||0);
+    g.records += 1; g.cumulative += (r.lossAdt||0);
+    if(!isNaBucket){
+      if(r.eqName) g.eqNameVariants.add(r.eqName);
+      if(!g.eqName && r.eqName) g.eqName = r.eqName;
+    }
+  });
+  const list = [...m.values()].sort((a,b)=>b.cumulative-a.cumulative);
+  list.forEach((g,i)=>{ g.rank = i+1; });
+  return list;
+}
+function lpDistinctSorted(rows, fn){
+  return [...new Set(rows.map(fn).filter(v=>v))].sort((a,b)=>a.localeCompare(b));
+}
+
+/* ---- Data Quality ---- */
+function lpBuildDataQuality(allRows, monthTotalsByYear){
+  const dq = { missingMonth:[], missingEqNum:[], nonNumericLoss:[], blankTypeSubtype:[], unclassified:[],
+    lowConfidence:[], eqTagVariants:[], dupRisk:[], monthlyMismatch:[] };
+  allRows.forEach(r=>{
+    if(!r.month || r.monthIndex<0) dq.missingMonth.push(r);
+    if(!r.eqNum) dq.missingEqNum.push(r);
+    if(r.lossAdt==null) dq.nonNumericLoss.push(r);
+    if(!r.originalType || !r.originalSubType) dq.blankTypeSubtype.push(r);
+    if(r.classifiedType==='Unclassified') dq.unclassified.push(r);
+    if(r.classificationConfidence==='Low') dq.lowConfidence.push(r);
+  });
+  // equipment tag written in multiple forms: same normalized tag, different raw spellings
+  const eqForms = new Map();
+  allRows.forEach(r=>{ if(!r.eqNum) return; const norm = lpNormEq(r.eqNum);
+    if(!eqForms.has(norm)) eqForms.set(norm, new Set());
+    eqForms.get(norm).add(r.eqNum);
+  });
+  eqForms.forEach((set,norm)=>{ if(set.size>1) dq.eqTagVariants.push({norm, variants:[...set]}); });
+  // duplicate-risk: identical year+month+eqNum+desc+lossAdt
+  const seen = new Map();
+  allRows.forEach(r=>{
+    const k = [r.year,r.month,r.eqNum,r.desc,r.lossAdt].join('|');
+    if(!seen.has(k)) seen.set(k,[]);
+    seen.get(k).push(r);
+  });
+  seen.forEach(list=>{ if(list.length>1) dq.dupRisk.push(...list); });
+  // monthly total reconciliation, only where the source sheet provides a numeric Total Loss
+  Object.keys(monthTotalsByYear).forEach(year=>{
+    const mt = monthTotalsByYear[year];
+    Object.keys(mt).forEach(month=>{
+      const sheetTotal = mt[month]['Total Loss'];
+      if(sheetTotal==null) return;
+      const computed = lpSum(allRows.filter(r=>r.year===year && r.month===month));
+      if(Math.abs(computed - sheetTotal) > 0.01){
+        dq.monthlyMismatch.push({year, month, sheetTotal, computed, diff: computed-sheetTotal});
+      }
+    });
+  });
+  return dq;
+}
+
+/* ---- fetch + boot ---- */
+async function lpFetchAll(){
+  const texts = await Promise.all(LP_YEARS.map(y=> fetch(lpSheetCsvUrl(y)).then(r=>{
+    if(!r.ok) throw new Error('โหลดชีทปี '+y+' ไม่สำเร็จ (HTTP '+r.status+')');
+    return r.text();
+  })));
+  let allRows = [];
+  const monthTotals = {}, footer = {};
+  LP_YEARS.forEach((y,i)=>{
+    const csvRows = parseSheetCSV(texts[i]);
+    const { rows, monthTotals:mt, annualFooter } = lpParseYearSheet(y, csvRows);
+    allRows = allRows.concat(rows);
+    monthTotals[y] = mt; footer[y] = annualFooter;
+  });
+  const engine = lpClassifyAll(allRows);
+  const dq = lpBuildDataQuality(allRows, monthTotals);
+  return { rows: allRows, monthTotals, footer, engine, dq, fetchedAt: new Date() };
+}
+
+async function initLoss8020Dashboard(){
+  const page = document.querySelector('.page[data-page="loss-production"]');
+  if(!page) return;
+  try{
+    LP_DATA = await lpFetchAll();
+    lpPopulateFilterOptions();
+    lpWireFilterEvents();
+    lpRenderAll();
+    if(PAGE_META['loss-production']) PAGE_META['loss-production'].hasData = true;
+  }catch(err){
+    console.error('Loss 80:20 dashboard load error', err);
+    const body = document.getElementById('lpBody');
+    if(body){
+      body.innerHTML = '<div class="empty-state"><div class="icon">⚠️</div><h2>โหลดข้อมูล Loss 80:20 ไม่สำเร็จ</h2>'
+        + '<p>'+ (err && err.message ? err.message : String(err)) +'<br>กรุณาตรวจสอบสิทธิ์การเข้าถึง Google Sheet ต้นทาง (ต้องแชร์แบบ "Anyone with the link can view")</p></div>';
+    }
+  }
+}
+
+/* ---- filter UI ---- */
+function lpOpt(value, label, selected){ return `<option value="${value}"${selected?' selected':''}>${label}</option>`; }
+function lpPopulateFilterOptions(){
+  const rows = LP_DATA.rows;
+  const yearOpts = LP_YEARS.map(y=>lpOpt(y,y)).join('');
+  const monthOpts = LP_MONTH_ORDER.map((m,i)=>lpOpt(i,m)).join('');
+  ['lpYearA','lpYearB'].forEach(id=>{ const el=document.getElementById(id); if(el) el.innerHTML = yearOpts; });
+  ['lpMonthA','lpMonthB'].forEach(id=>{ const el=document.getElementById(id); if(el) el.innerHTML = monthOpts; });
+  const yA = document.getElementById('lpYearA'); if(yA) yA.value = LP_YEARS[LP_YEARS.length-1];
+  const yB = document.getElementById('lpYearB'); if(yB) yB.value = LP_YEARS[LP_YEARS.length-1];
+  const multiYears = document.getElementById('lpMultiYears');
+  if(multiYears) multiYears.innerHTML = LP_YEARS.map(y=>lpOpt(y,y,true)).join('');
+
+  const eqNums = lpDistinctSorted(rows, r=>r.eqNum);
+  const eqNames = lpDistinctSorted(rows, r=>r.eqName);
+  const types = lpDistinctSorted(rows, r=>r.classifiedType);
+  const subtypes = lpDistinctSorted(rows, r=>r.classifiedSubType);
+  const setSel = (id, values, allLabel)=>{
+    const el = document.getElementById(id); if(!el) return;
+    el.innerHTML = lpOpt('all', allLabel) + values.map(v=>lpOpt(v,v)).join('');
+  };
+  setSel('lpFilterEqNum', eqNums, 'EQ num — ทั้งหมด');
+  setSel('lpFilterEqName', eqNames, 'EQ name — ทั้งหมด');
+  setSel('lpFilterType', types, 'Type — ทั้งหมด');
+  setSel('lpFilterSubtype', subtypes, 'Sub Type — ทั้งหมด');
+}
+function lpComputePeriodFromUI(){
+  const preset = document.getElementById('lpPeriodPreset').value;
+  const yA = document.getElementById('lpYearA').value;
+  const mA = +document.getElementById('lpMonthA').value;
+  const yB = document.getElementById('lpYearB').value;
+  const mB = +document.getElementById('lpMonthB').value;
+  const latest = lpLatestMonthKey();
+  if(preset==='all') return { mode:'all' };
+  if(preset==='fullYear') return { mode:'absoluteRange', fromYear:yA, fromMonth:0, toYear:yA, toMonth:11 };
+  if(preset==='singleMonth') return { mode:'absoluteRange', fromYear:yA, fromMonth:mA, toYear:yA, toMonth:mA };
+  if(preset==='monthRange' || preset==='custom') return { mode:'absoluteRange', fromYear:yA, fromMonth:mA, toYear:yB, toMonth:mB };
+  if(preset==='ytd') return { mode:'absoluteRange', fromYear:yA, fromMonth:0, toYear:yA, toMonth: (yA===latest.year? latest.mi : 11) };
+  if(preset==='last3' || preset==='last6'){
+    const span = preset==='last3' ? 3 : 6;
+    const toKey = (+latest.year)*12 + latest.mi;
+    const fromKey = toKey - (span-1);
+    return { mode:'absoluteRange', fromYear:String(Math.floor(fromKey/12)), fromMonth: ((fromKey%12)+12)%12, toYear:latest.year, toMonth:latest.mi };
+  }
+  if(preset==='sameMonthsMultiYear'){
+    const sel = [...document.getElementById('lpMultiYears').selectedOptions].map(o=>o.value);
+    return { mode:'sameMonthsAcrossYears', years: sel.length?sel:LP_YEARS, fromMonth:mA, toMonth:mB };
+  }
+  return { mode:'all' };
+}
+function lpUpdatePeriodControlsVisibility(){
+  const preset = document.getElementById('lpPeriodPreset').value;
+  const show = (id, on)=>{ const el = document.getElementById(id); if(el) el.closest('.field').hidden = !on; };
+  show('lpYearA', preset!=='all' && preset!=='last3' && preset!=='last6');
+  show('lpMonthA', preset==='singleMonth' || preset==='monthRange' || preset==='custom' || preset==='sameMonthsMultiYear');
+  show('lpYearB', preset==='monthRange' || preset==='custom');
+  show('lpMonthB', preset==='monthRange' || preset==='custom' || preset==='sameMonthsMultiYear');
+  show('lpMultiYears', preset==='sameMonthsMultiYear');
+}
+function lpWireFilterEvents(){
+  const ids = ['lpPeriodPreset','lpYearA','lpMonthA','lpYearB','lpMonthB','lpMultiYears',
+    'lpFilterEqNum','lpFilterEqName','lpFilterType','lpFilterSubtype','lpFilterClsSource','lpFilterClsConf','lpParetoBy'];
+  ids.forEach(id=>{
+    const el = document.getElementById(id); if(!el) return;
+    el.addEventListener('change', ()=>{
+      if(id==='lpPeriodPreset') lpUpdatePeriodControlsVisibility();
+      lpSyncStateFromUI();
+      lpRenderAll();
+    });
+  });
+  const resetBtn = document.getElementById('lpResetFilters');
+  if(resetBtn) resetBtn.addEventListener('click', ()=>{
+    document.getElementById('lpPeriodPreset').value = 'all';
+    ['lpFilterEqNum','lpFilterEqName','lpFilterType','lpFilterSubtype','lpFilterClsSource','lpFilterClsConf'].forEach(id=>{
+      const el = document.getElementById(id); if(el) el.value = 'all';
+    });
+    lpUpdatePeriodControlsVisibility();
+    lpSyncStateFromUI();
+    lpRenderAll();
+  });
+  const reviewChk = document.getElementById('lpReviewOnlyLow');
+  if(reviewChk) reviewChk.addEventListener('change', ()=> lpRenderReviewTable());
+  lpUpdatePeriodControlsVisibility();
+}
+function lpSyncStateFromUI(){
+  LP_STATE.period = lpComputePeriodFromUI();
+  LP_STATE.eqNum = document.getElementById('lpFilterEqNum').value;
+  LP_STATE.eqName = document.getElementById('lpFilterEqName').value;
+  LP_STATE.type = document.getElementById('lpFilterType').value;
+  LP_STATE.subtype = document.getElementById('lpFilterSubtype').value;
+  LP_STATE.clsSource = document.getElementById('lpFilterClsSource').value;
+  LP_STATE.clsConf = document.getElementById('lpFilterClsConf').value;
+  LP_STATE.paretoBy = document.getElementById('lpParetoBy').value;
+}
+function lpSetPeriodToSingleMonth(year, mi){
+  document.getElementById('lpPeriodPreset').value = 'singleMonth';
+  document.getElementById('lpYearA').value = year;
+  document.getElementById('lpMonthA').value = mi;
+  lpUpdatePeriodControlsVisibility();
+  lpSyncStateFromUI();
+  lpRenderAll();
+}
+
+/* ---- master render ---- */
+function lpRenderAll(){
+  const filtered = lpApplyFilters(LP_DATA.rows, LP_STATE);
+  lpRenderUpdatedStamp();
+  lpRenderKpis(filtered);
+  lpRenderPareto(filtered);
+  lpRenderTrend(filtered);
+  lpRenderMatrix();
+  lpRenderDetail(filtered);
+  lpRenderReviewTable();
+  lpRenderDataQuality();
+  lpRenderFoot(filtered);
+}
+function lpRenderUpdatedStamp(){
+  const el = document.getElementById('lpUpdated');
+  if(!el) return;
+  const d = LP_DATA.fetchedAt;
+  const pad = n=>String(n).padStart(2,'0');
+  el.innerHTML = `<span class="tb-live-badge"><span class="lp"></span>LIVE</span> อัปเดตล่าสุด: ${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+function lpRenderKpis(filtered){
+  const grid = document.getElementById('lpKpiGrid');
+  if(!grid) return;
+  const totalLoss = lpSum(filtered);
+  const allExceptPeriod = lpApplyFilters(LP_DATA.rows, LP_STATE, {skipPeriod:true});
+  const cumulativeAll = lpSum(allExceptPeriod);
+  const recordCount = filtered.length;
+  const byEq = lpGroupSum(filtered, r=>r.eqNum||'__NA__', r=> r.eqNum ? lpEqLabel(r) : 'N/A (ไม่มี EQ num)').sort((a,b)=>b.loss-a.loss)[0];
+  const byType = lpGroupSum(filtered, r=>r.classifiedType||'Unclassified', r=>r.classifiedType||'Unclassified').sort((a,b)=>b.loss-a.loss)[0];
+  const bySub = lpGroupSum(filtered, r=>r.classifiedSubType||'Needs Review', r=>r.classifiedSubType||'Needs Review').sort((a,b)=>b.loss-a.loss)[0];
+  const unclassifiedCount = filtered.filter(r=>r.classifiedType==='Unclassified').length;
+  const tiles = [
+    { label:'Total Loss (ADT) — ช่วงที่เลือก', value: lpFmtNum(totalLoss)+' ADT' },
+    { label:'Cumulative Loss 2021–2026 (ADT)', value: lpFmtNum(cumulativeAll)+' ADT' },
+    { label:'จำนวน Loss Records', value: lpFmtNum(recordCount) },
+    { label:'Equipment ที่มี Loss สูงสุด', value: byEq ? byEq.label+' ('+lpFmtNum(byEq.loss)+' ADT)' : 'N/A' },
+    { label:'Type ที่มี Loss สูงสุด', value: byType ? byType.label+' ('+lpFmtNum(byType.loss)+' ADT)' : 'N/A' },
+    { label:'Sub Type ที่มี Loss สูงสุด', value: bySub ? bySub.label+' ('+lpFmtNum(bySub.loss)+' ADT)' : 'N/A' },
+    { label:'จำนวนรายการ Unclassified', value: lpFmtNum(unclassifiedCount) },
+    { label:'ช่วงเวลาที่เลือก', value: lpPeriodLabel(LP_STATE.period) },
+  ];
+  grid.innerHTML = tiles.map(t=>`<div class="lp-kpi-card"><div class="lp-kpi-label">${t.label}</div><div class="lp-kpi-value">${t.value}</div></div>`).join('');
+}
+
+function lpParetoAxisLabel(by){
+  return by==='eqNum' ? 'Equipment Tag' : by==='eqName' ? 'Equipment Name' : by==='type' ? 'Type' : 'Sub Type';
+}
+function lpRenderPareto(filtered){
+  const canvas = document.getElementById('lpParetoChart');
+  if(!canvas) return;
+  const { groups, crossIdx, total } = lpBuildPareto(filtered, LP_STATE.paretoBy);
+  const hintEl = document.getElementById('lpParetoHint');
+  if(hintEl){
+    hintEl.textContent = groups.length===0 ? 'ไม่มีข้อมูล Loss ในช่วงเวลาที่เลือก'
+      : (crossIdx>=0
+        ? `Vital Few: ${crossIdx+1} จาก ${groups.length} รายการแรก ทำให้ Cumulative Loss ข้าม 80% (แรกสุดคือ "${groups[crossIdx].label}")`
+        : `ยังไม่ถึง 80% Cumulative Loss ภายใน ${groups.length} รายการที่มี`);
+  }
+  const top = groups.slice(0, 25);
+  const accent = cssVar('--accent') || '#0E7C86';
+  const muted = cssVar('--ink-3') || '#84949A';
+  const inkColor = cssVar('--ink');
+  const gridColor = cssVar('--border');
+  const barColors = top.map(g=> g.vitalFew ? accent : muted);
+  const cfg = {
+    data: {
+      labels: top.map(g=>g.label),
+      datasets: [
+        { type:'bar', label:'Loss ADT', data: top.map(g=>g.loss), backgroundColor: barColors, order:2, yAxisID:'y' },
+        { type:'line', label:'Cumulative Loss %', data: top.map(g=>g.cumShare), borderColor:'#d4342c', backgroundColor:'#d4342c',
+          borderWidth:2, pointRadius:2, tension:0.15, order:1, yAxisID:'y1' },
+        { type:'line', label:'80% reference', data: top.map(()=>80), borderColor: muted, borderDash:[6,4], borderWidth:1.5, pointRadius:0, order:0, yAxisID:'y1' },
+      ]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      interaction:{ mode:'index', intersect:false },
+      plugins:{
+        legend:{ labels:{ color: inkColor } },
+        datalabels:{ display:false },
+        tooltip:{ callbacks:{
+          afterBody:(items)=>{
+            const i = items[0].dataIndex; const g = top[i];
+            return [`Rank: ${i+1}`, `Loss ADT: ${lpFmtNum(g.loss)}`, `Loss Share: ${g.share.toFixed(1)}%`, `Cumulative: ${g.cumShare.toFixed(1)}%`, `Loss Records: ${g.records}`];
+          }
+        }}
+      },
+      scales:{
+        x:{ ticks:{ color: inkColor, autoSkip:false, maxRotation:60, minRotation:30 }, grid:{ color: gridColor } },
+        y:{ position:'left', title:{ display:true, text:'Loss ADT', color: inkColor }, ticks:{ color: inkColor }, grid:{ color: gridColor } },
+        y1:{ position:'right', min:0, max:100, title:{ display:true, text:'Cumulative %', color: inkColor }, ticks:{ color: inkColor }, grid:{ drawOnChartArea:false } },
+      }
+    }
+  };
+  if(LP_CHARTS.pareto){ LP_CHARTS.pareto.data = cfg.data; LP_CHARTS.pareto.options = cfg.options; LP_CHARTS.pareto.update(); }
+  else { LP_CHARTS.pareto = new Chart(canvas.getContext('2d'), cfg); }
+}
+
+function lpRenderTrend(filtered){
+  const canvas = document.getElementById('lpTrendChart');
+  if(!canvas) return;
+  const list = lpBuildMonthlyTrend(filtered);
+  const inkColor = cssVar('--ink'), gridColor = cssVar('--border'), accent = cssVar('--accent') || '#0E7C86';
+  const labels = list.map(g=> LP_MONTH_ORDER[g.mi]+' '+g.year);
+  const cfg = {
+    type:'bar',
+    data:{ labels, datasets:[{ label:'Total Loss ADT', data:list.map(g=>g.loss), backgroundColor: accent }] },
+    options:{
+      responsive:true, maintainAspectRatio:false, onClick:(evt,elements)=>{
+        if(!elements || !elements.length) return;
+        const g = list[elements[0].index];
+        if(g) lpSetPeriodToSingleMonth(g.year, g.mi);
+      },
+      plugins:{ legend:{ display:false }, datalabels:{ display:false },
+        tooltip:{ callbacks:{ afterBody:(items)=>{
+          const g = list[items[0].dataIndex];
+          return [`Records: ${g.records}`, `Top Equipment: ${g.topEquipment||'N/A'}`, `Top Type: ${g.topType||'N/A'}`, 'คลิกเพื่อกรองเฉพาะเดือนนี้'];
+        } } }
+      },
+      scales:{ x:{ ticks:{ color:inkColor, autoSkip:true, maxRotation:60, minRotation:30 }, grid:{ color:gridColor } },
+        y:{ ticks:{ color:inkColor }, grid:{ color:gridColor }, title:{ display:true, text:'Loss ADT', color:inkColor } } }
+    }
+  };
+  if(LP_CHARTS.trend){ LP_CHARTS.trend.data = cfg.data; LP_CHARTS.trend.options = cfg.options; LP_CHARTS.trend.update(); }
+  else { LP_CHARTS.trend = new Chart(canvas.getContext('2d'), cfg); }
+}
+
+function lpEntityFilteredRows(){
+  return LP_DATA.rows.filter(r=>{
+    if(LP_STATE.eqName!=='all' && (r.eqName||'N/A')!==LP_STATE.eqName) return false;
+    if(LP_STATE.type!=='all' && r.classifiedType!==LP_STATE.type) return false;
+    if(LP_STATE.subtype!=='all' && r.classifiedSubType!==LP_STATE.subtype) return false;
+    if(LP_STATE.clsSource!=='all' && r.classificationSource!==LP_STATE.clsSource) return false;
+    if(LP_STATE.clsConf!=='all' && r.classificationConfidence!==LP_STATE.clsConf) return false;
+    return true;
+  });
+}
+function lpRenderMatrix(){
+  const wrap = document.getElementById('lpMatrixTable');
+  if(!wrap) return;
+  const rows = lpEntityFilteredRows();
+  const matrix = lpBuildEquipmentMatrix(rows);
+  const maxCum = matrix.length ? matrix[0].cumulative : 0;
+  const head = `<thead><tr><th>Rank</th><th>EQ Tag</th><th>EQ Name</th>${LP_YEARS.map(y=>`<th>${y==='2026'?'2026 YTD':y}</th>`).join('')}<th>Cumulative Loss</th><th>Loss Records</th></tr></thead>`;
+  const body = matrix.map(g=>{
+    const isTop = g.cumulative===maxCum && maxCum>0;
+    return `<tr class="lp-eq-row${isTop?' lp-eq-top':''}" data-eqnum="${(g.eqNum||'').replace(/"/g,'&quot;')}">`
+      + `<td>${g.rank}</td><td>${g.eqNum||'N/A'}</td><td>${g.eqName||'–'}</td>`
+      + LP_YEARS.map(y=> `<td>${g.byYear[y]!=null ? lpFmtNum(g.byYear[y]) : '–'}</td>`).join('')
+      + `<td><b>${lpFmtNum(g.cumulative)}</b></td><td>${g.records}</td></tr>`;
+  }).join('');
+  wrap.innerHTML = head + `<tbody>${body || '<tr><td colspan="11" class="loss-empty">No loss data for selected period</td></tr>'}</tbody>`;
+  wrap.querySelectorAll('tr.lp-eq-row').forEach(tr=>{
+    tr.addEventListener('click', ()=>{
+      const eq = tr.dataset.eqnum;
+      const sel = document.getElementById('lpFilterEqNum');
+      if(sel && eq){ sel.value = eq; lpSyncStateFromUI(); lpRenderAll(); }
+      const details = document.getElementById('lpDetailDetails');
+      if(details){ details.open = true; details.scrollIntoView({behavior:'smooth', block:'start'}); }
+    });
+  });
+}
+
+function lpRenderDetail(filtered){
+  const wrap = document.getElementById('lpDetailTable');
+  if(!wrap) return;
+  const sorted = filtered.slice().sort((a,b)=> (+b.year*12+b.monthIndex) - (+a.year*12+a.monthIndex) || (b.lossAdt||0)-(a.lossAdt||0));
+  const head = `<thead><tr><th>Year</th><th>Month</th><th>Date</th><th>EQ num</th><th>EQ name</th><th>Type</th><th>Sub Type</th><th class="c-loss">Loss Description</th><th>Loss ADT</th><th>Source</th><th>Confidence</th><th class="c-loss">Reason</th></tr></thead>`;
+  const body = sorted.map(r=>{
+    const dateStr = r.dateStart ? `${r.dateStart.getDate()}/${r.dateStart.getMonth()+1}/${r.dateStart.getFullYear()}` : (r.dateAccuracy==='Month Only' ? 'Month only' : '–');
+    return `<tr><td>${r.year}</td><td>${r.month||'N/A'}</td><td>${dateStr}</td><td>${r.eqNum||'N/A'}</td><td>${r.eqName||'–'}</td>`
+      + `<td>${r.classifiedType||'Unclassified'}</td><td>${r.classifiedSubType||'Needs Review'}</td>`
+      + `<td class="c-loss"><div class="loss-text">${lpEsc(r.desc)}</div></td>`
+      + `<td>${r.lossAdt!=null ? lpFmtNum(r.lossAdt) : 'N/A'}</td>`
+      + `<td><span class="lp-badge lp-src-${lpSlug(r.classificationSource)}">${r.classificationSource}</span></td>`
+      + `<td><span class="lp-badge lp-conf-${lpSlug(r.classificationConfidence)}">${r.classificationConfidence}</span></td>`
+      + `<td class="c-loss"><div class="loss-text">${lpEsc(r.classificationReason)}</div></td></tr>`;
+  }).join('');
+  wrap.innerHTML = head + `<tbody>${body || '<tr><td colspan="12" class="loss-empty">No loss data for selected period</td></tr>'}</tbody>`;
+}
+
+function lpRenderReviewTable(){
+  const wrap = document.getElementById('lpReviewTable');
+  if(!wrap) return;
+  const onlyLow = document.getElementById('lpReviewOnlyLow');
+  const onlyLowChecked = onlyLow ? onlyLow.checked : false;
+  let rows = LP_DATA.rows.filter(r=> r.classificationSource!=='Original');
+  if(onlyLowChecked) rows = rows.filter(r=> r.classificationConfidence==='Low' || r.classificationSource==='Needs Review');
+  rows = rows.sort((a,b)=> (+b.year*12+b.monthIndex) - (+a.year*12+a.monthIndex));
+  const head = `<thead><tr><th>Year</th><th>Month</th><th>EQ num</th><th class="c-loss">Loss Description</th><th>Original Type</th><th>Suggested Type</th><th>Suggested Sub Type</th><th>Confidence</th><th class="c-loss">Reason</th></tr></thead>`;
+  const body = rows.map(r=> `<tr><td>${r.year}</td><td>${r.month||'N/A'}</td><td>${r.eqNum||'N/A'}</td>`
+      + `<td class="c-loss"><div class="loss-text">${lpEsc(r.desc)}</div></td>`
+      + `<td>${r.originalType||'<span class="loss-empty">(ว่าง)</span>'}</td>`
+      + `<td>${r.classifiedType}</td><td>${r.classifiedSubType}</td>`
+      + `<td><span class="lp-badge lp-conf-${lpSlug(r.classificationConfidence)}">${r.classificationConfidence}</span></td>`
+      + `<td class="c-loss"><div class="loss-text">${lpEsc(r.classificationReason)}</div></td></tr>`).join('');
+  wrap.innerHTML = head + `<tbody>${body || '<tr><td colspan="9" class="loss-empty">ไม่มีรายการที่ต้องตรวจสอบ</td></tr>'}</tbody>`;
+  const countEl = document.getElementById('lpReviewCount');
+  if(countEl) countEl.textContent = rows.length + ' รายการ';
+}
+
+function lpRenderDataQuality(){
+  const body = document.getElementById('lpDqBody');
+  if(!body) return;
+  const dq = LP_DATA.dq;
+  const conf = { High:0, Medium:0, Low:0 };
+  let original=0, needsReview=0;
+  LP_DATA.rows.forEach(r=>{
+    if(r.classificationSource==='Original') original++;
+    else if(r.classificationSource==='Needs Review') needsReview++;
+    else conf[r.classificationConfidence] = (conf[r.classificationConfidence]||0)+1;
+  });
+  const section = (title, list, renderItem)=>{
+    if(!list.length) return `<div class="lp-dq-item lp-dq-ok"><b>${title}:</b> ไม่พบ</div>`;
+    const items = list.slice(0,30).map(renderItem).join('');
+    return `<details class="lp-dq-sub"><summary><b>${title}:</b> ${list.length} รายการ</summary><div class="lp-dq-list">${items}${list.length>30?`<div class="loss-empty">…และอีก ${list.length-30} รายการ</div>`:''}</div></details>`;
+  };
+  let html = '';
+  html += `<div class="lp-dq-summary">Classification: Original ${original} · High ${conf.High||0} · Medium ${conf.Medium||0} · Low ${conf.Low||0} · Needs Review ${needsReview}</div>`;
+  html += section('แถวที่ไม่มี Month', dq.missingMonth, r=>`<div>${r.year} row ${r.row}: ${lpEsc(r.desc.slice(0,60))}</div>`);
+  html += section('แถวที่ไม่มี EQ num', dq.missingEqNum, r=>`<div>${r.year} ${r.month||''} row ${r.row}: ${lpEsc(r.desc.slice(0,60))}</div>`);
+  html += section('Loss ที่ไม่ใช่ตัวเลข', dq.nonNumericLoss, r=>`<div>${r.year} row ${r.row}: ${lpEsc(r.desc.slice(0,60))}</div>`);
+  html += section('Type/Sub Type ว่างในต้นฉบับ', dq.blankTypeSubtype, r=>`<div>${r.year} ${r.month||''} row ${r.row} → จำแนกเป็น ${r.classifiedType}/${r.classifiedSubType} (${r.classificationConfidence})</div>`);
+  html += section('รายการ Unclassified', dq.unclassified, r=>`<div>${r.year} ${r.month||''} row ${r.row}: ${lpEsc(r.desc.slice(0,60))}</div>`);
+  html += section('รายการ Low Confidence', dq.lowConfidence, r=>`<div>${r.year} ${r.month||''} row ${r.row}: ${lpEsc(r.desc.slice(0,60))}</div>`);
+  html += section('Equipment Tag ที่เขียนหลายรูปแบบ', dq.eqTagVariants, v=>`<div>${v.variants.join(' / ')}</div>`);
+  html += section('แถวที่เสี่ยงถูกนับซ้ำ', dq.dupRisk, r=>`<div>${r.year} ${r.month||''} row ${r.row}: ${lpEsc(r.desc.slice(0,60))} (${lpFmtNum(r.lossAdt)} ADT)</div>`);
+  html += section('ยอด Loss รายเดือนที่ไม่ตรงกับแถว Total เดิม', dq.monthlyMismatch, m=>`<div>${m.year} ${m.month}: ต้นฉบับ Total Loss = ${lpFmtNum(m.sheetTotal)}, คำนวณได้ ${lpFmtNum(m.computed)} (ต่าง ${lpFmtNum(m.diff)})</div>`);
+  body.innerHTML = html;
+}
+
+function lpRenderFoot(filtered){
+  const el = document.getElementById('lpFoot');
+  if(!el) return;
+  el.innerHTML = `ดึงข้อมูลสดจาก Google Sheet "Loss 80:20 dashboard sorce" (แท็บ 2021–2026) — เฉพาะ Loss Production (ADT) เท่านั้น ไม่รวม Compensate loss/Recovery/Net Loss ·
+    Type/Sub Type ที่ไม่มีในต้นฉบับจะถูกจำแนกด้วยกฎคำสำคัญที่สร้างจากข้อมูลปี 2021 และรายการที่จำแนกไว้แล้วในปีอื่น (ดูตาราง Classification Review) ·
+    ไม่มีการแก้ไขข้อมูล สูตร หรือรูปแบบใดๆ ในชีทต้นทาง.`;
+}
+function lpEsc(s){ const d=document.createElement('div'); d.textContent = s==null?'':String(s); return d.innerHTML; }
+function lpSlug(s){ return String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,'-'); }
+
+initLoss8020Dashboard();
 
 applyLang(currentLang);
 showPage('production-pm1');
