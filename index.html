@@ -9186,7 +9186,7 @@ function lpParseYearSheet(year, csvRows){
     else if(hl==='time start') col.timeStart=i;
     else if(hl==='time end') col.timeEnd=i;
     else if(hl==='eq num') col.eqNum=i;
-    else if(hl==='eq name') col.eqName=i;
+    else if(hl==='eq name' || hl==='eq type') col.eqName=i;
     else if(hl==='sub type') col.subtype=i;
     else if(hl==='type') col.type=i;
     else if(hl.startsWith('loss production') && hl.includes('adt')) col.lossAdt=i;
