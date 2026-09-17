@@ -2010,10 +2010,10 @@
               <div class="field">
                 <label for="lpParetoBy">Pareto By</label>
                 <select id="lpParetoBy">
+                  <option value="type" selected>Type</option>
+                  <option value="subtype">Sub Type</option>
                   <option value="eqNum">Equipment Tag</option>
                   <option value="eqName">Equipment Name</option>
-                  <option value="type">Type</option>
-                  <option value="subtype">Sub Type</option>
                 </select>
               </div>
               <div class="hint" id="lpParetoHint"></div>
@@ -9324,7 +9324,7 @@ function lpClassifyAll(allRows){
 const LP_STATE = {
   period: { mode:'all' },
   eqNum:'all', eqName:'all', type:'all', subtype:'all', clsSource:'all', clsConf:'all',
-  paretoBy:'eqNum',
+  paretoBy:'type',
 };
 let LP_DATA = null; // { rows, monthTotals, footer, dq, engine, fetchedAt }
 let LP_CHARTS = {};
