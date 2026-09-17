@@ -2010,7 +2010,8 @@
               <div class="field">
                 <label for="lpParetoBy">Pareto By</label>
                 <select id="lpParetoBy">
-                  <option value="type" selected>Type</option>
+                  <option value="eqNumType" selected>EQ num : Type</option>
+                  <option value="type">Type</option>
                   <option value="subtype">Sub Type</option>
                   <option value="eqNum">Equipment Tag</option>
                   <option value="eqName">Equipment Name</option>
@@ -9324,7 +9325,7 @@ function lpClassifyAll(allRows){
 const LP_STATE = {
   period: { mode:'all' },
   eqNum:'all', eqName:'all', type:'all', subtype:'all', clsSource:'all', clsConf:'all',
-  paretoBy:'type',
+  paretoBy:'eqNumType',
 };
 let LP_DATA = null; // { rows, monthTotals, footer, dq, engine, fetchedAt }
 let LP_CHARTS = {};
@@ -9411,7 +9412,8 @@ function lpGroupSum(rows, keyFn, labelFn){
 }
 function lpBuildPareto(rows, by){
   let keyFn, labelFn;
-  if(by==='eqNum') { keyFn=r=>r.eqNum||'__NA__'; labelFn=r=> r.eqNum ? lpEqLabel(r) : 'N/A (ไม่มี EQ num)'; }
+  if(by==='eqNumType') { keyFn=r=>(r.eqNum||'__NA__')+'␟'+(r.classifiedType||'Unclassified'); labelFn=r=> (r.eqNum||'N/A')+' : '+(r.classifiedType||'Unclassified'); }
+  else if(by==='eqNum') { keyFn=r=>r.eqNum||'__NA__'; labelFn=r=> r.eqNum ? lpEqLabel(r) : 'N/A (ไม่มี EQ num)'; }
   else if(by==='eqName') { keyFn=r=>r.eqName||'__NA__'; labelFn=r=>r.eqName||'N/A (ไม่มี EQ name)'; }
   else if(by==='type') { keyFn=r=>r.classifiedType||'Unclassified'; labelFn=r=>r.classifiedType||'Unclassified'; }
   else { keyFn=r=>r.classifiedSubType||'Needs Review'; labelFn=r=>r.classifiedSubType||'Needs Review'; }
@@ -9720,10 +9722,11 @@ function lpRenderPareto(filtered){
     data: {
       labels: top.map(g=>g.label),
       datasets: [
-        { type:'bar', label:'Loss ADT', data: top.map(g=>g.loss), backgroundColor: barColors, order:2, yAxisID:'y' },
+        { type:'bar', label:'Loss ADT', data: top.map(g=>g.loss), backgroundColor: barColors, order:2, yAxisID:'y',
+          datalabels:{ display:true, anchor:'end', align:'top', offset:2, color: inkColor, font:{ size:10, weight:'600' }, formatter: v => lpFmtNum(v) } },
         { type:'line', label:'Cumulative Loss %', data: top.map(g=>g.cumShare), borderColor:'#d4342c', backgroundColor:'#d4342c',
-          borderWidth:2, pointRadius:2, tension:0.15, order:1, yAxisID:'y1' },
-        { type:'line', label:'80% reference', data: top.map(()=>80), borderColor: muted, borderDash:[6,4], borderWidth:1.5, pointRadius:0, order:0, yAxisID:'y1' },
+          borderWidth:2, pointRadius:2, tension:0.15, order:1, yAxisID:'y1', datalabels:{ display:false } },
+        { type:'line', label:'80% reference', data: top.map(()=>80), borderColor: muted, borderDash:[6,4], borderWidth:1.5, pointRadius:0, order:0, yAxisID:'y1', datalabels:{ display:false } },
       ]
     },
     options: {
@@ -9741,7 +9744,7 @@ function lpRenderPareto(filtered){
       },
       scales:{
         x:{ ticks:{ color: inkColor, autoSkip:false, maxRotation:60, minRotation:30 }, grid:{ color: gridColor } },
-        y:{ position:'left', title:{ display:true, text:'Loss ADT', color: inkColor }, ticks:{ color: inkColor }, grid:{ color: gridColor } },
+        y:{ position:'left', grace:'12%', title:{ display:true, text:'Loss ADT', color: inkColor }, ticks:{ color: inkColor }, grid:{ color: gridColor } },
         y1:{ position:'right', min:0, max:100, title:{ display:true, text:'Cumulative %', color: inkColor }, ticks:{ color: inkColor }, grid:{ drawOnChartArea:false } },
       }
     }
