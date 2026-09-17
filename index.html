@@ -738,6 +738,10 @@
   .lp-dq-list{margin-top:8px; max-height:220px; overflow-y:auto; font-size:11.5px; color:var(--ink-2); line-height:1.7;}
   .lp-vf-text{white-space:normal; word-break:break-word; line-height:1.55; font-size:12px; color:var(--ink);}
   #lpVitalFewTable td, #lpVitalFewTable th{vertical-align:top;}
+  .lp-vf-toolbar{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-top:12px;}
+  .lp-vf-toolbar label{font-size:12.5px; color:var(--ink-2); display:flex; align-items:center; gap:6px; cursor:pointer;}
+  #lpVfCount{font-size:11.5px; color:var(--ink-3);}
+  #lpVitalFewTable td.lp-vf-show{width:36px; text-align:center;}
   .lp-review-toolbar{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin:12px 0;}
   .lp-review-toolbar label{font-size:12.5px; color:var(--ink-2); display:flex; align-items:center; gap:6px;}
   #lpReviewCount{font-size:11.5px; color:var(--ink-3);}
@@ -2033,6 +2037,10 @@
           <details class="dtable" id="lpVitalFewDetails" open>
             <summary><span class="dtable-label">Vital Few (80%) — สำหรับพิจารณา CM / PM</span></summary>
             <div class="hint" style="margin-top:10px;">รายการที่ทำให้ Cumulative Loss สะสมถึง 80% ตามมุมมอง Pareto By ที่เลือกด้านบน — คอลัมน์ CM / PM แสดงข้อความเต็มจากชีทต้นทางตรงๆ (ไม่มีการตัดข้อความ) ส่วนรายการที่ยังไม่ได้กรอกในชีทจะเว้นว่างไว้</div>
+            <div class="lp-vf-toolbar">
+              <label><input type="checkbox" id="lpVfSelectAll" checked> เลือก/ไม่เลือกทั้งหมด</label>
+              <span id="lpVfCount"></span>
+            </div>
             <div class="tbl-wrap"><table id="lpVitalFewTable"></table></div>
           </details>
 
@@ -9646,6 +9654,18 @@ function lpWireFilterEvents(){
   });
   const reviewChk = document.getElementById('lpReviewOnlyLow');
   if(reviewChk) reviewChk.addEventListener('change', ()=> lpRenderReviewTable());
+  const vfSelectAll = document.getElementById('lpVfSelectAll');
+  if(vfSelectAll) vfSelectAll.addEventListener('change', ()=>{
+    const wrap = document.getElementById('lpVitalFewTable');
+    if(!wrap) return;
+    wrap.querySelectorAll('.lp-vf-showchk').forEach(cb=>{
+      cb.checked = vfSelectAll.checked;
+      const tr = cb.closest('tr');
+      if(tr) tr.hidden = !cb.checked;
+    });
+    vfSelectAll.indeterminate = false;
+    lpVfUpdateCount();
+  });
   lpUpdatePeriodControlsVisibility();
 }
 function lpSyncStateFromUI(){
@@ -9780,14 +9800,45 @@ function lpRenderVitalFewTable(filtered){
   const { groups, crossIdx } = lpBuildPareto(filtered, LP_STATE.paretoBy);
   const vital = crossIdx>=0 ? groups.slice(0, crossIdx+1) : groups;
   const colLabel = lpParetoByLabel(LP_STATE.paretoBy);
-  const head = `<thead><tr><th>Rank</th><th>${colLabel}</th><th>Loss ADT</th><th>Loss Share %</th><th>Cumulative %</th><th>Loss Records</th><th class="c-loss">CM</th><th class="c-loss">PM</th></tr></thead>`;
+  const head = `<thead><tr><th>แสดง</th><th>Rank</th><th>${colLabel}</th><th>Loss ADT</th><th>Loss Share %</th><th>Cumulative %</th><th>Loss Records</th><th class="c-loss">CM</th><th class="c-loss">PM</th></tr></thead>`;
   const body = vital.map((g,i)=> `<tr>`
+      + `<td class="lp-vf-show"><input type="checkbox" class="lp-vf-showchk" data-rank="${i+1}" checked aria-label="แสดงลำดับ ${i+1}"></td>`
       + `<td>${i+1}</td><td style="text-align:left;">${lpEsc(g.label)}</td>`
       + `<td>${lpFmtNum(g.loss)}</td><td>${g.share.toFixed(1)}%</td><td>${g.cumShare.toFixed(1)}%</td><td>${g.records}</td>`
       + lpVfActionCell(g.cmSet)
       + lpVfActionCell(g.pmSet)
       + `</tr>`).join('');
-  wrap.innerHTML = head + `<tbody>${body || '<tr><td colspan="8" class="loss-empty">No loss data for selected period</td></tr>'}</tbody>`;
+  wrap.innerHTML = head + `<tbody>${body || '<tr><td colspan="9" class="loss-empty">No loss data for selected period</td></tr>'}</tbody>`;
+  lpVfWireShowControls(vital.length);
+}
+function lpVfUpdateCount(){
+  const wrap = document.getElementById('lpVitalFewTable');
+  const countEl = document.getElementById('lpVfCount');
+  if(!wrap || !countEl) return;
+  const total = wrap.querySelectorAll('.lp-vf-showchk').length;
+  const shown = wrap.querySelectorAll('.lp-vf-showchk:checked').length;
+  countEl.textContent = total ? `กำลังแสดง ${shown} จาก ${total} รายการ` : '';
+}
+function lpVfWireShowControls(total){
+  const wrap = document.getElementById('lpVitalFewTable');
+  if(!wrap) return;
+  const selectAllReset = document.getElementById('lpVfSelectAll');
+  if(selectAllReset){ selectAllReset.checked = true; selectAllReset.indeterminate = false; }
+  wrap.querySelectorAll('.lp-vf-showchk').forEach(cb=>{
+    cb.addEventListener('change', ()=>{
+      const tr = cb.closest('tr');
+      if(tr) tr.hidden = !cb.checked;
+      lpVfUpdateCount();
+      const selectAll = document.getElementById('lpVfSelectAll');
+      if(selectAll){
+        const all = wrap.querySelectorAll('.lp-vf-showchk');
+        const checked = wrap.querySelectorAll('.lp-vf-showchk:checked');
+        selectAll.checked = all.length===checked.length;
+        selectAll.indeterminate = checked.length>0 && checked.length<all.length;
+      }
+    });
+  });
+  lpVfUpdateCount();
 }
 
 function lpRenderTrend(filtered){
