@@ -2030,7 +2030,7 @@
 
           <details class="dtable" id="lpVitalFewDetails" open>
             <summary><span class="dtable-label">Vital Few (80%) — สำหรับพิจารณา CM / PM</span></summary>
-            <div class="hint" style="margin-top:10px;">รายการที่ทำให้ Cumulative Loss สะสมถึง 80% ตามมุมมอง Pareto By ที่เลือกด้านบน — ใช้ประกอบการพิจารณาว่าแต่ละรายการควรเป็น Corrective Maintenance (CM) หรือ Preventive Maintenance (PM) เครื่องหมายที่ติ๊กในตารางนี้เป็นการทำเครื่องหมายชั่วคราวบนหน้าจอเท่านั้น เพื่อช่วยพิจารณา — ไม่ถูกบันทึกลงชีทต้นทางหรือที่ใดๆ และจะหายไปเมื่อโหลดหน้าใหม่หรือเปลี่ยน Filter</div>
+            <div class="hint" style="margin-top:10px;">รายการที่ทำให้ Cumulative Loss สะสมถึง 80% ตามมุมมอง Pareto By ที่เลือกด้านบน — คอลัมน์ CM / PM แสดงข้อความจากชีทต้นทางตรงๆ เมื่อมีการกรอกไว้แล้ว หากยังไม่มีข้อมูลจะแสดงเป็นช่องติ๊กให้ทำเครื่องหมายชั่วคราวบนหน้าจอเพื่อช่วยพิจารณาเท่านั้น (ไม่ถูกบันทึกลงชีทต้นทางหรือที่ใดๆ และจะหายไปเมื่อโหลดหน้าใหม่หรือเปลี่ยน Filter)</div>
             <div class="tbl-wrap"><table id="lpVitalFewTable"></table></div>
           </details>
 
@@ -9195,6 +9195,8 @@ function lpParseYearSheet(year, csvRows){
     else if(hl==='eq name' || hl==='eq type') col.eqName=i;
     else if(hl==='sub type') col.subtype=i;
     else if(hl==='type') col.type=i;
+    else if(hl==='cm') col.cm=i;
+    else if(hl==='pm') col.pm=i;
     else if(hl.startsWith('loss production') && hl.includes('adt')) col.lossAdt=i;
     else if(hl.startsWith('loss production')) col.desc=i;
   });
@@ -9229,6 +9231,7 @@ function lpParseYearSheet(year, csvRows){
       timeStart: 'timeStart' in col ? lpNorm(arr[col.timeStart]) : '',
       timeEnd: 'timeEnd' in col ? lpNorm(arr[col.timeEnd]) : '',
       eqNum, eqName, originalType:typ, originalSubType:sub, desc,
+      cm: get(arr,'cm'), pm: get(arr,'pm'),
       lossAdt: lpParseLoss(lossRawCell),
       sourceRowId: year+'-'+String(seq).padStart(4,'0'),
       dateAccuracy: (('dateStart' in col) && lpParseDate(arr[col.dateStart])) ? 'Exact' : 'Month Only',
@@ -9409,10 +9412,12 @@ function lpGroupSum(rows, keyFn, labelFn){
   const m = new Map();
   rows.forEach(r=>{
     const k = keyFn(r);
-    if(!m.has(k)) m.set(k, {key:k, label:labelFn(r), loss:0, records:0});
+    if(!m.has(k)) m.set(k, {key:k, label:labelFn(r), loss:0, records:0, cmSet:new Set(), pmSet:new Set()});
     const g = m.get(k);
     g.loss += (r.lossAdt||0);
     g.records += 1;
+    if(r.cm) g.cmSet.add(r.cm);
+    if(r.pm) g.pmSet.add(r.pm);
   });
   return [...m.values()];
 }
@@ -9761,27 +9766,26 @@ function lpRenderPareto(filtered){
 function lpParetoByLabel(by){
   return by==='eqNumType' ? 'EQ num : Type' : by==='eqNum' ? 'Equipment Tag' : by==='eqName' ? 'Equipment Name' : by==='type' ? 'Type' : 'Sub Type';
 }
+function lpVfActionCell(textSet, cls){
+  if(textSet && textSet.size){
+    return `<td style="text-align:left;"><div class="loss-text">${lpEsc([...textSet].join(' / '))}</div></td>`;
+  }
+  return `<td><input type="checkbox" class="${cls}" aria-label="${cls==='lp-vf-cm'?'CM':'PM'}"></td>`;
+}
 function lpRenderVitalFewTable(filtered){
   const wrap = document.getElementById('lpVitalFewTable');
   if(!wrap) return;
   const { groups, crossIdx } = lpBuildPareto(filtered, LP_STATE.paretoBy);
   const vital = crossIdx>=0 ? groups.slice(0, crossIdx+1) : groups;
   const colLabel = lpParetoByLabel(LP_STATE.paretoBy);
-  const head = `<thead><tr><th>Rank</th><th>${colLabel}</th><th>Loss ADT</th><th>Loss Share %</th><th>Cumulative %</th><th>Loss Records</th><th>CM</th><th>PM</th></tr></thead>`;
+  const head = `<thead><tr><th>Rank</th><th>${colLabel}</th><th>Loss ADT</th><th>Loss Share %</th><th>Cumulative %</th><th>Loss Records</th><th class="c-loss">CM</th><th class="c-loss">PM</th></tr></thead>`;
   const body = vital.map((g,i)=> `<tr>`
       + `<td>${i+1}</td><td style="text-align:left;">${lpEsc(g.label)}</td>`
       + `<td>${lpFmtNum(g.loss)}</td><td>${g.share.toFixed(1)}%</td><td>${g.cumShare.toFixed(1)}%</td><td>${g.records}</td>`
-      + `<td><input type="checkbox" class="lp-vf-cm" aria-label="CM"></td>`
-      + `<td><input type="checkbox" class="lp-vf-pm" aria-label="PM"></td>`
+      + lpVfActionCell(g.cmSet, 'lp-vf-cm')
+      + lpVfActionCell(g.pmSet, 'lp-vf-pm')
       + `</tr>`).join('');
   wrap.innerHTML = head + `<tbody>${body || '<tr><td colspan="8" class="loss-empty">No loss data for selected period</td></tr>'}</tbody>`;
-  // one CM/PM shouldn't usually both apply to the same line — checking one softly unchecks the other, but the user can still tick both if they mean it
-  wrap.querySelectorAll('.lp-vf-cm').forEach((cb,i)=>{
-    cb.addEventListener('change', ()=>{ if(cb.checked){ const pm = wrap.querySelectorAll('.lp-vf-pm')[i]; if(pm && !pm.dataset.userTouched) pm.checked = false; } });
-  });
-  wrap.querySelectorAll('.lp-vf-pm').forEach((cb)=>{
-    cb.addEventListener('change', ()=>{ cb.dataset.userTouched = '1'; });
-  });
 }
 
 function lpRenderTrend(filtered){
@@ -9853,18 +9857,20 @@ function lpRenderDetail(filtered){
   const wrap = document.getElementById('lpDetailTable');
   if(!wrap) return;
   const sorted = filtered.slice().sort((a,b)=> (+b.year*12+b.monthIndex) - (+a.year*12+a.monthIndex) || (b.lossAdt||0)-(a.lossAdt||0));
-  const head = `<thead><tr><th>Year</th><th>Month</th><th>Date</th><th>EQ num</th><th>EQ name</th><th>Type</th><th>Sub Type</th><th class="c-loss">Loss Description</th><th>Loss ADT</th><th>Source</th><th>Confidence</th><th class="c-loss">Reason</th></tr></thead>`;
+  const head = `<thead><tr><th>Year</th><th>Month</th><th>Date</th><th>EQ num</th><th>EQ name</th><th>Type</th><th>Sub Type</th><th class="c-loss">Loss Description</th><th>Loss ADT</th><th class="c-loss">CM</th><th class="c-loss">PM</th><th>Source</th><th>Confidence</th><th class="c-loss">Reason</th></tr></thead>`;
   const body = sorted.map(r=>{
     const dateStr = r.dateStart ? `${r.dateStart.getDate()}/${r.dateStart.getMonth()+1}/${r.dateStart.getFullYear()}` : (r.dateAccuracy==='Month Only' ? 'Month only' : '–');
     return `<tr><td>${r.year}</td><td>${r.month||'N/A'}</td><td>${dateStr}</td><td>${r.eqNum||'N/A'}</td><td>${r.eqName||'–'}</td>`
       + `<td>${r.classifiedType||'Unclassified'}</td><td>${r.classifiedSubType||'Needs Review'}</td>`
       + `<td class="c-loss"><div class="loss-text">${lpEsc(r.desc)}</div></td>`
       + `<td>${r.lossAdt!=null ? lpFmtNum(r.lossAdt) : 'N/A'}</td>`
+      + `<td class="c-loss"><div class="loss-text">${r.cm ? lpEsc(r.cm) : '<span class="loss-empty">–</span>'}</div></td>`
+      + `<td class="c-loss"><div class="loss-text">${r.pm ? lpEsc(r.pm) : '<span class="loss-empty">–</span>'}</div></td>`
       + `<td><span class="lp-badge lp-src-${lpSlug(r.classificationSource)}">${r.classificationSource}</span></td>`
       + `<td><span class="lp-badge lp-conf-${lpSlug(r.classificationConfidence)}">${r.classificationConfidence}</span></td>`
       + `<td class="c-loss"><div class="loss-text">${lpEsc(r.classificationReason)}</div></td></tr>`;
   }).join('');
-  wrap.innerHTML = head + `<tbody>${body || '<tr><td colspan="12" class="loss-empty">No loss data for selected period</td></tr>'}</tbody>`;
+  wrap.innerHTML = head + `<tbody>${body || '<tr><td colspan="14" class="loss-empty">No loss data for selected period</td></tr>'}</tbody>`;
 }
 
 function lpRenderReviewTable(){
