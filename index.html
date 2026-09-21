@@ -6728,7 +6728,7 @@ const YA_SUMMARY_EFFECTS = [
   {name:'Wood species', diffId:'yaCell_effWood_diffbdt', pctId:'yaCell_effWood_diffpct', extra:true},
   {name:'Chip size', diffId:'yaCell_effChipSize_diffbdt', pctId:'yaCell_effChipSize_diffpct'},
   {name:'Bark', diffId:'yaCell_effBark_diffbdt', pctId:'yaCell_effBark_diffpct'},
-  {name:'Kappa no.', diffId:'yaCell_effKappa_diffbdt', pctId:'yaCell_effKappa_diffpct'},
+  {name:'Kappa no.', diffId:'yaCell_effKappa_diffbdt', pctId:'yaCell_effKappa_diffpct', valuePrevId:'yaCell_kappaCook_prev', valueCurId:'yaCell_kappaCook_cur'},
   {name:'Sulphidity', diffId:'yaCell_effSulphidity_diffbdt', pctId:'yaCell_effSulphidity_diffpct'},
   {name:'Diff. prod. balance', diffId:'yaCell_effDiffBalance_diffbdt', pctId:'yaCell_effDiffBalance_diffpct'},
   {name:'Pulp accumulate in tank', diffId:'yaCell_effTankBuildup_diffbdt', pctId:'yaCell_effTankBuildup_diffpct'},
@@ -6771,12 +6771,18 @@ function renderYaSummary(){
     const d = yaReadDiffNum(e.diffId);
     if(d === 0) return null;
     const p = yaReadDiffNum(e.pctId);
-    return { name:e.name, d:d, p:p, extra:e.extra };
+    return { name:e.name, d:d, p:p, extra:e.extra, valuePrevId:e.valuePrevId, valueCurId:e.valueCurId };
   }).filter(Boolean);
   const worseItems = items.filter(function(it){ return it.d > 0; }).sort(function(a,b){ return Math.abs(b.d)-Math.abs(a.d); });
   const betterItems = items.filter(function(it){ return it.d < 0; }).sort(function(a,b){ return Math.abs(b.d)-Math.abs(a.d); });
   function itemLine(it){
-    let line = '<div class="ys-item">- '+it.name+' ('+yaSummaryNum(it.d,3)+' Bdt/Adt, '+yaSummaryNum(it.p,2)+'%)</div>';
+    let name = it.name;
+    if(it.valuePrevId && it.valueCurId){
+      const pv = document.getElementById(it.valuePrevId);
+      const cv = document.getElementById(it.valueCurId);
+      if(pv && cv) name += ' '+pv.textContent+' to '+cv.textContent;
+    }
+    let line = '<div class="ys-item">- '+name+' ('+yaSummaryNum(it.d,3)+' Bdt/Adt, '+yaSummaryNum(it.p,2)+'%)</div>';
     if(it.extra){
       const bd = yaWoodSpeciesBreakdown();
       if(bd.worse.length) line += '<div class="ys-sub">แย่ลงจาก Wood species '+bd.worse.join(', ')+'</div>';
@@ -7259,7 +7265,7 @@ const YAD_SUMMARY_EFFECTS = [
   {name:'Wood species', diffId:'yaDCell_effWood_diffbdt', pctId:'yaDCell_effWood_diffpct', extra:true},
   {name:'Chip size', diffId:'yaDCell_effChipSize_diffbdt', pctId:'yaDCell_effChipSize_diffpct'},
   {name:'Bark', diffId:'yaDCell_effBark_diffbdt', pctId:'yaDCell_effBark_diffpct'},
-  {name:'Kappa no.', diffId:'yaDCell_effKappa_diffbdt', pctId:'yaDCell_effKappa_diffpct'},
+  {name:'Kappa no.', diffId:'yaDCell_effKappa_diffbdt', pctId:'yaDCell_effKappa_diffpct', valuePrevId:'yaDCell_kappaCook_prev', valueCurId:'yaDCell_kappaCook_cur'},
   {name:'Sulphidity', diffId:'yaDCell_effSulphidity_diffbdt', pctId:'yaDCell_effSulphidity_diffpct'},
   {name:'Diff. prod. balance', diffId:'yaDCell_effDiffBalance_diffbdt', pctId:'yaDCell_effDiffBalance_diffpct'},
   {name:'Pulp accumulate in tank', diffId:'yaDCell_effTankBuildup_diffbdt', pctId:'yaDCell_effTankBuildup_diffpct'},
@@ -7288,12 +7294,18 @@ function renderYadSummary(){
     const d = yaReadDiffNum(e.diffId);
     if(d === 0) return null;
     const p = yaReadDiffNum(e.pctId);
-    return { name:e.name, d:d, p:p, extra:e.extra };
+    return { name:e.name, d:d, p:p, extra:e.extra, valuePrevId:e.valuePrevId, valueCurId:e.valueCurId };
   }).filter(Boolean);
   const worseItems = items.filter(function(it){ return it.d > 0; }).sort(function(a,b){ return Math.abs(b.d)-Math.abs(a.d); });
   const betterItems = items.filter(function(it){ return it.d < 0; }).sort(function(a,b){ return Math.abs(b.d)-Math.abs(a.d); });
   function itemLine(it){
-    let line = '<div class="ys-item">- '+it.name+' ('+yaSummaryNum(it.d,3)+' Bdt/Adt, '+yaSummaryNum(it.p,2)+'%)</div>';
+    let name = it.name;
+    if(it.valuePrevId && it.valueCurId){
+      const pv = document.getElementById(it.valuePrevId);
+      const cv = document.getElementById(it.valueCurId);
+      if(pv && cv) name += ' '+pv.textContent+' to '+cv.textContent;
+    }
+    let line = '<div class="ys-item">- '+name+' ('+yaSummaryNum(it.d,3)+' Bdt/Adt, '+yaSummaryNum(it.p,2)+'%)</div>';
     if(it.extra){
       const bd = yadWoodSpeciesBreakdown();
       if(bd.worse.length) line += '<div class="ys-sub">แย่ลงจาก Wood species '+bd.worse.join(', ')+'</div>';
@@ -7747,7 +7759,7 @@ const YAW_SUMMARY_EFFECTS = [
   {name:'Wood species', diffId:'yaWCell_effWood_diffbdt', pctId:'yaWCell_effWood_diffpct', extra:true},
   {name:'Chip size', diffId:'yaWCell_effChipSize_diffbdt', pctId:'yaWCell_effChipSize_diffpct'},
   {name:'Bark', diffId:'yaWCell_effBark_diffbdt', pctId:'yaWCell_effBark_diffpct'},
-  {name:'Kappa no.', diffId:'yaWCell_effKappa_diffbdt', pctId:'yaWCell_effKappa_diffpct'},
+  {name:'Kappa no.', diffId:'yaWCell_effKappa_diffbdt', pctId:'yaWCell_effKappa_diffpct', valuePrevId:'yaWCell_kappaCook_prev', valueCurId:'yaWCell_kappaCook_cur'},
   {name:'Sulphidity', diffId:'yaWCell_effSulphidity_diffbdt', pctId:'yaWCell_effSulphidity_diffpct'},
   {name:'Diff. prod. balance', diffId:'yaWCell_effDiffBalance_diffbdt', pctId:'yaWCell_effDiffBalance_diffpct'},
   {name:'Pulp accumulate in tank', diffId:'yaWCell_effTankBuildup_diffbdt', pctId:'yaWCell_effTankBuildup_diffpct'},
@@ -7776,12 +7788,18 @@ function renderYawSummary(){
     const d = yaReadDiffNum(e.diffId);
     if(d === 0) return null;
     const p = yaReadDiffNum(e.pctId);
-    return { name:e.name, d:d, p:p, extra:e.extra };
+    return { name:e.name, d:d, p:p, extra:e.extra, valuePrevId:e.valuePrevId, valueCurId:e.valueCurId };
   }).filter(Boolean);
   const worseItems = items.filter(function(it){ return it.d > 0; }).sort(function(a,b){ return Math.abs(b.d)-Math.abs(a.d); });
   const betterItems = items.filter(function(it){ return it.d < 0; }).sort(function(a,b){ return Math.abs(b.d)-Math.abs(a.d); });
   function itemLine(it){
-    let line = '<div class="ys-item">- '+it.name+' ('+yaSummaryNum(it.d,3)+' Bdt/Adt, '+yaSummaryNum(it.p,2)+'%)</div>';
+    let name = it.name;
+    if(it.valuePrevId && it.valueCurId){
+      const pv = document.getElementById(it.valuePrevId);
+      const cv = document.getElementById(it.valueCurId);
+      if(pv && cv) name += ' '+pv.textContent+' to '+cv.textContent;
+    }
+    let line = '<div class="ys-item">- '+name+' ('+yaSummaryNum(it.d,3)+' Bdt/Adt, '+yaSummaryNum(it.p,2)+'%)</div>';
     if(it.extra){
       const bd = yawWoodSpeciesBreakdown();
       if(bd.worse.length) line += '<div class="ys-sub">แย่ลงจาก Wood species '+bd.worse.join(', ')+'</div>';
@@ -8241,7 +8259,7 @@ const YAWW_SUMMARY_EFFECTS = [
   {name:'Wood species', diffId:'yaWWCell_effWood_diffbdt', pctId:'yaWWCell_effWood_diffpct', extra:true},
   {name:'Chip size', diffId:'yaWWCell_effChipSize_diffbdt', pctId:'yaWWCell_effChipSize_diffpct'},
   {name:'Bark', diffId:'yaWWCell_effBark_diffbdt', pctId:'yaWWCell_effBark_diffpct'},
-  {name:'Kappa no.', diffId:'yaWWCell_effKappa_diffbdt', pctId:'yaWWCell_effKappa_diffpct'},
+  {name:'Kappa no.', diffId:'yaWWCell_effKappa_diffbdt', pctId:'yaWWCell_effKappa_diffpct', valuePrevId:'yaWWCell_kappaCook_prev', valueCurId:'yaWWCell_kappaCook_cur'},
   {name:'Sulphidity', diffId:'yaWWCell_effSulphidity_diffbdt', pctId:'yaWWCell_effSulphidity_diffpct'},
   {name:'Diff. prod. balance', diffId:'yaWWCell_effDiffBalance_diffbdt', pctId:'yaWWCell_effDiffBalance_diffpct'},
   {name:'Pulp accumulate in tank', diffId:'yaWWCell_effTankBuildup_diffbdt', pctId:'yaWWCell_effTankBuildup_diffpct'},
@@ -8270,12 +8288,18 @@ function renderYawwSummary(){
     const d = yaReadDiffNum(e.diffId);
     if(d === 0) return null;
     const p = yaReadDiffNum(e.pctId);
-    return { name:e.name, d:d, p:p, extra:e.extra };
+    return { name:e.name, d:d, p:p, extra:e.extra, valuePrevId:e.valuePrevId, valueCurId:e.valueCurId };
   }).filter(Boolean);
   const worseItems = items.filter(function(it){ return it.d > 0; }).sort(function(a,b){ return Math.abs(b.d)-Math.abs(a.d); });
   const betterItems = items.filter(function(it){ return it.d < 0; }).sort(function(a,b){ return Math.abs(b.d)-Math.abs(a.d); });
   function itemLine(it){
-    let line = '<div class="ys-item">- '+it.name+' ('+yaSummaryNum(it.d,3)+' Bdt/Adt, '+yaSummaryNum(it.p,2)+'%)</div>';
+    let name = it.name;
+    if(it.valuePrevId && it.valueCurId){
+      const pv = document.getElementById(it.valuePrevId);
+      const cv = document.getElementById(it.valueCurId);
+      if(pv && cv) name += ' '+pv.textContent+' to '+cv.textContent;
+    }
+    let line = '<div class="ys-item">- '+name+' ('+yaSummaryNum(it.d,3)+' Bdt/Adt, '+yaSummaryNum(it.p,2)+'%)</div>';
     if(it.extra){
       const bd = yawwWoodSpeciesBreakdown();
       if(bd.worse.length) line += '<div class="ys-sub">แย่ลงจาก Wood species '+bd.worse.join(', ')+'</div>';
@@ -8734,7 +8758,7 @@ const YAYB_SUMMARY_EFFECTS = [
   {name:'Wood species', diffId:'yaYBCell_effWood_diffbdt', pctId:'yaYBCell_effWood_diffpct', extra:true},
   {name:'Chip size', diffId:'yaYBCell_effChipSize_diffbdt', pctId:'yaYBCell_effChipSize_diffpct'},
   {name:'Bark', diffId:'yaYBCell_effBark_diffbdt', pctId:'yaYBCell_effBark_diffpct'},
-  {name:'Kappa no.', diffId:'yaYBCell_effKappa_diffbdt', pctId:'yaYBCell_effKappa_diffpct'},
+  {name:'Kappa no.', diffId:'yaYBCell_effKappa_diffbdt', pctId:'yaYBCell_effKappa_diffpct', valuePrevId:'yaYBCell_kappaCook_prev', valueCurId:'yaYBCell_kappaCook_cur'},
   {name:'Sulphidity', diffId:'yaYBCell_effSulphidity_diffbdt', pctId:'yaYBCell_effSulphidity_diffpct'},
   {name:'Diff. prod. balance', diffId:'yaYBCell_effDiffBalance_diffbdt', pctId:'yaYBCell_effDiffBalance_diffpct'},
   {name:'Pulp accumulate in tank', diffId:'yaYBCell_effTankBuildup_diffbdt', pctId:'yaYBCell_effTankBuildup_diffpct'},
@@ -8763,12 +8787,18 @@ function renderYaybSummary(){
     const d = yaReadDiffNum(e.diffId);
     if(d === 0) return null;
     const p = yaReadDiffNum(e.pctId);
-    return { name:e.name, d:d, p:p, extra:e.extra };
+    return { name:e.name, d:d, p:p, extra:e.extra, valuePrevId:e.valuePrevId, valueCurId:e.valueCurId };
   }).filter(Boolean);
   const worseItems = items.filter(function(it){ return it.d > 0; }).sort(function(a,b){ return Math.abs(b.d)-Math.abs(a.d); });
   const betterItems = items.filter(function(it){ return it.d < 0; }).sort(function(a,b){ return Math.abs(b.d)-Math.abs(a.d); });
   function itemLine(it){
-    let line = '<div class="ys-item">- '+it.name+' ('+yaSummaryNum(it.d,3)+' Bdt/Adt, '+yaSummaryNum(it.p,2)+'%)</div>';
+    let name = it.name;
+    if(it.valuePrevId && it.valueCurId){
+      const pv = document.getElementById(it.valuePrevId);
+      const cv = document.getElementById(it.valueCurId);
+      if(pv && cv) name += ' '+pv.textContent+' to '+cv.textContent;
+    }
+    let line = '<div class="ys-item">- '+name+' ('+yaSummaryNum(it.d,3)+' Bdt/Adt, '+yaSummaryNum(it.p,2)+'%)</div>';
     if(it.extra){
       const bd = yaybWoodSpeciesBreakdown();
       if(bd.worse.length) line += '<div class="ys-sub">แย่ลงจาก Wood species '+bd.worse.join(', ')+'</div>';
@@ -9227,7 +9257,7 @@ const YAMB_SUMMARY_EFFECTS = [
   {name:'Wood species', diffId:'yaMBCell_effWood_diffbdt', pctId:'yaMBCell_effWood_diffpct', extra:true},
   {name:'Chip size', diffId:'yaMBCell_effChipSize_diffbdt', pctId:'yaMBCell_effChipSize_diffpct'},
   {name:'Bark', diffId:'yaMBCell_effBark_diffbdt', pctId:'yaMBCell_effBark_diffpct'},
-  {name:'Kappa no.', diffId:'yaMBCell_effKappa_diffbdt', pctId:'yaMBCell_effKappa_diffpct'},
+  {name:'Kappa no.', diffId:'yaMBCell_effKappa_diffbdt', pctId:'yaMBCell_effKappa_diffpct', valuePrevId:'yaMBCell_kappaCook_prev', valueCurId:'yaMBCell_kappaCook_cur'},
   {name:'Sulphidity', diffId:'yaMBCell_effSulphidity_diffbdt', pctId:'yaMBCell_effSulphidity_diffpct'},
   {name:'Diff. prod. balance', diffId:'yaMBCell_effDiffBalance_diffbdt', pctId:'yaMBCell_effDiffBalance_diffpct'},
   {name:'Pulp accumulate in tank', diffId:'yaMBCell_effTankBuildup_diffbdt', pctId:'yaMBCell_effTankBuildup_diffpct'},
@@ -9256,12 +9286,18 @@ function renderYambSummary(){
     const d = yaReadDiffNum(e.diffId);
     if(d === 0) return null;
     const p = yaReadDiffNum(e.pctId);
-    return { name:e.name, d:d, p:p, extra:e.extra };
+    return { name:e.name, d:d, p:p, extra:e.extra, valuePrevId:e.valuePrevId, valueCurId:e.valueCurId };
   }).filter(Boolean);
   const worseItems = items.filter(function(it){ return it.d > 0; }).sort(function(a,b){ return Math.abs(b.d)-Math.abs(a.d); });
   const betterItems = items.filter(function(it){ return it.d < 0; }).sort(function(a,b){ return Math.abs(b.d)-Math.abs(a.d); });
   function itemLine(it){
-    let line = '<div class="ys-item">- '+it.name+' ('+yaSummaryNum(it.d,3)+' Bdt/Adt, '+yaSummaryNum(it.p,2)+'%)</div>';
+    let name = it.name;
+    if(it.valuePrevId && it.valueCurId){
+      const pv = document.getElementById(it.valuePrevId);
+      const cv = document.getElementById(it.valueCurId);
+      if(pv && cv) name += ' '+pv.textContent+' to '+cv.textContent;
+    }
+    let line = '<div class="ys-item">- '+name+' ('+yaSummaryNum(it.d,3)+' Bdt/Adt, '+yaSummaryNum(it.p,2)+'%)</div>';
     if(it.extra){
       const bd = yambWoodSpeciesBreakdown();
       if(bd.worse.length) line += '<div class="ys-sub">แย่ลงจาก Wood species '+bd.worse.join(', ')+'</div>';
