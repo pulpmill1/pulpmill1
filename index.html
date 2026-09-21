@@ -5501,18 +5501,21 @@ const COL_NO_OF_COOKS = 900;
    built from the one confirmed real example ("Over size >45.0 mm" / "Acc1+2+Pin 28.6-4.8", no
    trailing "mm."/period, hyphens not en-dashes) applied to the sibling columns nearby; if any of
    these still read "—", the fix is only ever this one string, not more of this comment's reasoning. */
-const COL_MOIST_LAB = resolveChipCol('Chip Moisture (Lab)', 9999);
-const COL_BULK_DENSITY = resolveChipCol('Bulk density', 9999);
-const COL_BULK_DENSITY_DRY = resolveChipCol('Bulk density × Dryness', 9999);
-const COL_DRYNESS = resolveChipCol('Dryness', 9999);
-const COL_FINE = resolveChipCol('Fine < 4.8 mm', 9999);
-const COL_PIN = resolveChipCol('Pin 9.5-4.8 mm', 9999);
-const COL_ACCEPT2 = resolveChipCol('Accept 2 22.2-9.5 mm', 9999);
-const COL_ACCEPT1 = resolveChipCol('Accept 1 28.6-22.2 mm', 9999);
-const COL_OVER_THICK = resolveChipCol('Over Thick 45.0-28.6 mm', 9999);
-const COL_OVER_SIZE = resolveChipCol('Over size >45.0 mm', 9999);
-const COL_ACC_PIN = resolveChipCol('Acc1+2+Pin 28.6-4.8', 9999);
-const COL_BARK = resolveChipCol('Bark', 9999);
+/* Confirmed by the mill directly (screenshots of the header row): a "Pulp 1 " prefix disambiguates
+   this block from an unrelated "Production 1 " block that shares the exact same metric names
+   further along the same sheet — "Pulp 1 ..." is the one this dashboard has always shown for these. */
+const COL_MOIST_LAB = resolveChipCol('Pulp 1 Chip Moisture (Lab)', 9999);
+const COL_BULK_DENSITY = resolveChipCol('Pulp 1 Bulk density', 9999);
+const COL_BULK_DENSITY_DRY = resolveChipCol('Pulp 1 Bulk density *Dryness', 9999);
+const COL_DRYNESS = resolveChipCol('Pulp 1 Chip Dryness', 9999);
+const COL_FINE = resolveChipCol('Pulp 1 Fine <4.8', 9999);
+const COL_PIN = resolveChipCol('Pulp 1 Pin 9.5-4.8', 9999);
+const COL_ACCEPT2 = resolveChipCol('Pulp 1 Accept 2 22.2-9.5', 9999);
+const COL_ACCEPT1 = resolveChipCol('Pulp 1 Accept 2 28.6-22.2', 9999);
+const COL_OVER_THICK = resolveChipCol('Pulp 1 Over Thick 45.0-28.6', 9999);
+const COL_OVER_SIZE = resolveChipCol('Pulp 1 Over size >45.0 mm', 9999);
+const COL_ACC_PIN = resolveChipCol('Pulp 1 Acc2+2+Pin 28.6-4.8', 9999);
+const COL_BARK = resolveChipCol('Pulp 1 Bark', 9999);
 const COL_WOOD_K58 = resolveChipCol('K58', 9999);
 const COL_WOOD_K7 = resolveChipCol('K7', 9999);
 const COL_WOOD_SEED = resolveChipCol('Seed', 9999);
