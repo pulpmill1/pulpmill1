@@ -1737,6 +1737,95 @@
                 </table>
               </div>
               </div>
+              <div class="ya-head ya-card-collapsed" data-ya-card="weekly-weekly"><span class="yhc">▾</span><span class="yt">สรุปข้อมูลวิเคราะห์ Yield เปรียบเทียบโรงเยื่อ 1 (Weekly-Weekly)</span><span class="ys">แตกผลต่าง Yield ระหว่างสองช่วงตามปัจจัย — ช่อง Effect รอสูตรคำนวณเฉพาะโรงงาน ค่าที่ดึงได้จาก Google Sheet แล้วจะแสดงในคอลัมน์ช่วงที่ 1/2</span></div>
+              <div class="ya-card-body" id="yaCardBody_weekly-weekly" hidden>
+              <div class="ya-controls">
+                <div class="ya-picker">
+                  <span class="yp-lbl">ช่วงที่ 1</span>
+                  <select id="yaWWModePrev"><option value="date">วัน</option><option value="week" selected>สัปดาห์</option><option value="month">เดือน</option><option value="year">ปี</option></select>
+                  <input type="date" id="yaWWDatePrev" hidden>
+                  <input type="week" id="yaWWWeekPrev">
+                  <input type="month" id="yaWWMonthPrev" hidden>
+                  <select id="yaWWYearPrev" hidden></select>
+                </div>
+                <div class="ya-picker">
+                  <span class="yp-lbl">ช่วงที่ 2</span>
+                  <select id="yaWWModeCur"><option value="date">วัน</option><option value="week" selected>สัปดาห์</option><option value="month">เดือน</option><option value="year">ปี</option></select>
+                  <input type="date" id="yaWWDateCur" hidden>
+                  <input type="week" id="yaWWWeekCur">
+                  <input type="month" id="yaWWMonthCur" hidden>
+                  <select id="yaWWYearCur" hidden></select>
+                </div>
+              </div>
+              <div class="ya-summary" id="yaWWSummary" hidden>
+                <div class="ys-body" id="yaWWSummaryBody"></div>
+              </div>
+              <div class="ya-wrap">
+                <table class="ya-table">
+                  <colgroup>
+                    <col style="width:218px"><col style="width:84px"><col style="width:84px"><col style="width:84px"><col style="width:84px"><col style="width:84px"><col style="width:155px">
+                  </colgroup>
+                  <thead>
+                    <tr>
+                      <th rowspan="2"></th>
+                      <th rowspan="2"><strong>Unit</strong></th>
+                      <th rowspan="2" id="yaWWColPrev">Aug 2026</th>
+                      <th rowspan="2" id="yaWWColCur">Sep 2026</th>
+                      <th colspan="2">Diff. Effect</th>
+                      <th rowspan="2">REMARK</th>
+                    </tr>
+                    <tr>
+                      <th>Bdt/Adt</th>
+                      <th>%</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr class="ya-major" data-ya-group="wwg0"><td class="ya-label"><span class="yc">▾</span>Yield Actual</td><td class="ya-unit">Bdt/Adt</td><td class="num" id="yaWWCell_yieldBdt_prev"></td><td class="num" id="yaWWCell_yieldBdt_cur"></td><td class="num" id="yaWWCell_yieldBdt_diffbdt"></td><td class="num" id="yaWWCell_yieldBdt_diffpct"></td><td class="ya-remark" id="yaWWCell_yieldBdt_remark"></td></tr>
+                    <tr class="ya-sub" data-ya-in="wwg0"><td class="ya-label">- Chip (Weight scale)</td><td class="ya-unit">BDt/day</td><td class="num" id="yaWWCell_chipWeightScale_prev"></td><td class="num" id="yaWWCell_chipWeightScale_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-sub" data-ya-in="wwg0"><td class="ya-label">- Chip (Weight scale หักลบเฉ่งกอง)</td><td class="ya-unit">BDt/day</td><td class="num" id="yaWWCell_chipWeightScaleNet_prev"></td><td class="num" id="yaWWCell_chipWeightScaleNet_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-sub" data-ya-in="wwg0"><td class="ya-label">- End. Prod.</td><td class="ya-unit">Adt/day</td><td class="num" id="yaWWCell_endProd_prev"></td><td class="num" id="yaWWCell_endProd_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-sub" data-ya-in="wwg0"><td class="ya-label">- End. Prod. balance tank</td><td class="ya-unit">Adt/day</td><td class="num" id="yaWWCell_endProdBal_prev"></td><td class="num" id="yaWWCell_endProdBal_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-sub" data-ya-in="wwg0"><td class="ya-label">- No of cooks</td><td class="ya-unit">Cooks</td><td class="num" id="yaWWCell_noOfCooks_prev"></td><td class="num" id="yaWWCell_noOfCooks_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-sub" data-ya-in="wwg0"><td class="ya-label">- Chip/batch</td><td class="ya-unit">BDt/batch</td><td class="num" id="yaWWCell_chipPerBatch_prev"></td><td class="num" id="yaWWCell_chipPerBatch_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-major" data-ya-group="wwg1"><td class="ya-label"><span class="yc">▾</span>1. Effect Chip weight</td><td class="ya-unit">Bdt/Adt</td><td class="num" id="yaWWCell_effChipWeight_prev"></td><td class="num" id="yaWWCell_effChipWeight_cur"></td><td class="num" id="yaWWCell_effChipWeight_diffbdt"></td><td class="num" id="yaWWCell_effChipWeight_diffpct"></td><td class="ya-remark" id="yaWWCell_effChipWeight_remark"></td></tr>
+                    <tr class="ya-sub" data-ya-in="wwg1"><td class="ya-label">- Diff Chip Weight</td><td class="ya-unit">Bdt</td><td class="num" id="yaWWCell_diffChipWeight_prev"></td><td class="num" id="yaWWCell_diffChipWeight_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-major" data-ya-group="wwg2"><td class="ya-label"><span class="yc">▾</span>2. Effect Chip moisture</td><td class="ya-unit">Bdt/Adt</td><td class="num" id="yaWWCell_effMoisture_prev"></td><td class="num" id="yaWWCell_effMoisture_cur"></td><td class="num" id="yaWWCell_effMoisture_diffbdt"></td><td class="num" id="yaWWCell_effMoisture_diffpct"></td><td class="ya-remark" id="yaWWCell_effMoisture_remark"></td></tr>
+                    <tr class="ya-sub" data-ya-in="wwg2"><td class="ya-label">- Chip moisture (Lab)</td><td class="ya-unit">%</td><td class="num" id="yaWWCell_moistureLab_prev"></td><td class="num" id="yaWWCell_moistureLab_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-sub" data-ya-in="wwg2"><td class="ya-label">- Chip moisture (Online)</td><td class="ya-unit">%</td><td class="num" id="yaWWCell_moistureOnline_prev"></td><td class="num" id="yaWWCell_moistureOnline_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-major" data-ya-group="wwg3"><td class="ya-label"><span class="yc">▾</span>3. Effect Wood species</td><td class="ya-unit">Bdt/Adt</td><td class="num" id="yaWWCell_effWood_prev"></td><td class="num" id="yaWWCell_effWood_cur"></td><td class="num" id="yaWWCell_effWood_diffbdt"></td><td class="num" id="yaWWCell_effWood_diffpct"></td><td class="ya-remark" id="yaWWCell_effWood_remark"></td></tr>
+                    <tr class="ya-sub" data-ya-in="wwg3"><td class="ya-label">- K58</td><td class="ya-unit">%</td><td class="num" id="yaWWCell_woodK58_prev"></td><td class="num" id="yaWWCell_woodK58_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark">- Ref. R&amp;D K58 Yield 1.883 Bdt/Adt</td></tr>
+                    <tr class="ya-sub" data-ya-in="wwg3"><td class="ya-label">- K7</td><td class="ya-unit">%</td><td class="num" id="yaWWCell_woodK7_prev"></td><td class="num" id="yaWWCell_woodK7_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark">- Ref. R&amp;D K7 Yield 2.033 Bdt/Adt</td></tr>
+                    <tr class="ya-sub" data-ya-in="wwg3"><td class="ya-label">- Seed</td><td class="ya-unit">%</td><td class="num" id="yaWWCell_woodSeed_prev"></td><td class="num" id="yaWWCell_woodSeed_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark">- Ref. R&amp;D Seed Yield 2.090 Bdt/Adt</td></tr>
+                    <tr class="ya-sub" data-ya-in="wwg3"><td class="ya-label">- Other</td><td class="ya-unit">%</td><td class="num" id="yaWWCell_woodOther_prev"></td><td class="num" id="yaWWCell_woodOther_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark">- Ref. R&amp;D Other Yield 2.010 Bdt/Adt</td></tr>
+                    <tr class="ya-sub" data-ya-in="wwg3"><td class="ya-label">- St&gt;1 m</td><td class="ya-unit">%</td><td class="num" id="yaWWCell_woodSt1m_prev"></td><td class="num" id="yaWWCell_woodSt1m_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark">- Ref. R&amp;D St&gt;1 m Yield 2.127 Bdt/Adt</td></tr>
+                    <tr class="ya-major" data-ya-group="wwg4"><td class="ya-label"><span class="yc">▾</span>4. Effect Chip size</td><td class="ya-unit">%</td><td class="num" id="yaWWCell_effChipSize_prev"></td><td class="num" id="yaWWCell_effChipSize_cur"></td><td class="num" id="yaWWCell_effChipSize_diffbdt"></td><td class="num" id="yaWWCell_effChipSize_diffpct"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-sub" data-ya-in="wwg4"><td class="ya-label">- Chip size 8-10 mm.</td><td class="ya-unit">%</td><td class="num" id="yaWWCell_chipSize810_prev"></td><td class="num" id="yaWWCell_chipSize810_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-major" data-ya-group="wwg5"><td class="ya-label"><span class="yc">▾</span>5. Effect Bark</td><td class="ya-unit">%</td><td class="num" id="yaWWCell_effBarkVal_prev"></td><td class="num" id="yaWWCell_effBarkVal_cur"></td><td class="num" id="yaWWCell_effBark_diffbdt"></td><td class="num" id="yaWWCell_effBark_diffpct"></td><td class="ya-remark" id="yaWWCell_effBark_remark"></td></tr>
+                    <tr class="ya-sub" data-ya-in="wwg5"><td class="ya-label">- Bark</td><td class="ya-unit">%</td><td class="num" id="yaWWCell_bark_prev"></td><td class="num" id="yaWWCell_bark_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-major" data-ya-group="wwg6"><td class="ya-label"><span class="yc">▾</span>6. Effect Kappa no.</td><td class="ya-unit">Bdt/Adt</td><td class="num" id="yaWWCell_effKappa_prev"></td><td class="num" id="yaWWCell_effKappa_cur"></td><td class="num" id="yaWWCell_effKappa_diffbdt"></td><td class="num" id="yaWWCell_effKappa_diffpct"></td><td class="ya-remark" id="yaWWCell_effKappa_remark"></td></tr>
+                    <tr class="ya-sub" data-ya-in="wwg6"><td class="ya-label">- Kappa no.</td><td class="ya-unit">-</td><td class="num" id="yaWWCell_kappaCook_prev"></td><td class="num" id="yaWWCell_kappaCook_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark ya-remark-clickable" id="yaWWKappaRefRemark">- Ref. R&amp;D Kappa 12 → 13: Effect Yield 0.025 Bdt/Adt, 1.22%, Kappa 13 → 14: Wood Consumption ลดลง 0.023 Bdt/Adt, 1.08%</td></tr>
+                    <tr class="ya-sub" data-ya-in="wwg6"><td class="ya-label">- SD Kappa</td><td class="ya-unit">-</td><td class="num" id="yaWWCell_sdKappa_prev"></td><td class="num" id="yaWWCell_sdKappa_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-sub" data-ya-in="wwg6"><td class="ya-label">- CV Kappa</td><td class="ya-unit">%</td><td class="num" id="yaWWCell_cvKappa_prev"></td><td class="num" id="yaWWCell_cvKappa_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-major" data-ya-group="wwg7"><td class="ya-label"><span class="yc">▾</span>7. Effect Sulphidity</td><td class="ya-unit">%</td><td class="num" id="yaWWCell_effSulphidity_prev"></td><td class="num" id="yaWWCell_effSulphidity_cur"></td><td class="num" id="yaWWCell_effSulphidity_diffbdt"></td><td class="num" id="yaWWCell_effSulphidity_diffpct"></td><td class="ya-remark" id="yaWWCell_effSulphidity_remark"></td></tr>
+                    <tr class="ya-sub" data-ya-in="wwg7"><td class="ya-label">- Sulphidity</td><td class="ya-unit">%</td><td class="num" id="yaWWCell_sulphidity_prev"></td><td class="num" id="yaWWCell_sulphidity_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark">- Ref. R&amp;D 1%Sulphidity Effect Yield 0.008 Bdt/Adt</td></tr>
+                    <tr class="ya-major" data-ya-group="wwg8"><td class="ya-label"><span class="yc">▾</span>8. Effect Diff. prod. balance</td><td class="ya-unit">Bdt/Adt</td><td class="num" id="yaWWCell_effDiffBalance_prev"></td><td class="num" id="yaWWCell_effDiffBalance_cur"></td><td class="num" id="yaWWCell_effDiffBalance_diffbdt"></td><td class="num" id="yaWWCell_effDiffBalance_diffpct"></td><td class="ya-remark" id="yaWWCell_effDiffBalance_remark"></td></tr>
+                    <tr class="ya-sub" data-ya-in="wwg8"><td class="ya-label">- %Diff. production</td><td class="ya-unit">-</td><td class="num" id="yaWWCell_diffBalance_prev"></td><td class="num" id="yaWWCell_diffBalance_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-major" data-ya-group="wwg9"><td class="ya-label"><span class="yc">▾</span>9. Effect Pulp accumulate in tank</td><td class="ya-unit">Bdt/Adt</td><td class="num" id="yaWWCell_effTankBuildup_prev"></td><td class="num" id="yaWWCell_effTankBuildup_cur"></td><td class="num" id="yaWWCell_effTankBuildup_diffbdt"></td><td class="num" id="yaWWCell_effTankBuildup_diffpct"></td><td class="ya-remark" id="yaWWCell_effTankBuildup_remark"></td></tr>
+                    <tr class="ya-sub" data-ya-in="wwg9"><td class="ya-label">- Pulp accumulate in tank</td><td class="ya-unit">Adt</td><td class="num" id="yaWWCell_tankBuildup_prev"></td><td class="num" id="yaWWCell_tankBuildup_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-major" data-ya-group="wwg10"><td class="ya-label"><span class="yc">▾</span>10. Effect Waste</td><td class="ya-unit">Bdt/Adt</td><td class="num" id="yaWWCell_effWaste_prev"></td><td class="num" id="yaWWCell_effWaste_cur"></td><td class="num" id="yaWWCell_effWaste_diffbdt"></td><td class="num" id="yaWWCell_effWaste_diffpct"></td><td class="ya-remark" id="yaWWCell_effWaste_remark"></td></tr>
+                    <tr class="ya-sub2" data-ya-in="wwg10"><td class="ya-label">Effect (Knot+White)</td><td class="ya-unit">Bdt/Adt</td><td class="num" id="yaWWCell_effKnotWhite_prev"></td><td class="num" id="yaWWCell_effKnotWhite_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-sub3" data-ya-in="wwg10"><td class="ya-label">Knot + White reject</td><td class="ya-unit">kg/ADT</td><td class="num" id="yaWWCell_kwRejectAdt_prev"></td><td class="num" id="yaWWCell_kwRejectAdt_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-sub3" data-ya-in="wwg10"><td class="ya-label">Knot + White reject</td><td class="ya-unit">kg</td><td class="num" id="yaWWCell_kwReject_prev"></td><td class="num" id="yaWWCell_kwReject_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-sub2" data-ya-in="wwg10"><td class="ya-label">Effect (TSS)</td><td class="ya-unit">Bdt/Adt</td><td class="num" id="yaWWCell_effTss_prev"></td><td class="num" id="yaWWCell_effTss_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-sub3" data-ya-in="wwg10"><td class="ya-label">Volume to ETP</td><td class="ya-unit">m3</td><td class="num" id="yaWWCell_volEtp_prev"></td><td class="num" id="yaWWCell_volEtp_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-sub3" data-ya-in="wwg10"><td class="ya-label">TSS (- Base Target 300 mg/l)</td><td class="ya-unit">mg/l</td><td class="num" id="yaWWCell_tssBaseTarget_prev"></td><td class="num" id="yaWWCell_tssBaseTarget_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-sub3" data-ya-in="wwg10"><td class="ya-label">TSS</td><td class="ya-unit">mg/l</td><td class="num" id="yaWWCell_tssEtp_prev"></td><td class="num" id="yaWWCell_tssEtp_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-sub3" data-ya-in="wwg10"><td class="ya-label">Excess Fiber to ETP</td><td class="ya-unit">ADT</td><td class="num" id="yaWWCell_excessFiberEtp_prev"></td><td class="num" id="yaWWCell_excessFiberEtp_cur"></td><td class="num"></td><td class="num"></td><td class="ya-remark"></td></tr>
+                    <tr class="ya-major"><td class="ya-label">11. Unknow</td><td class="ya-unit">Bdt/Adt</td><td class="num"></td><td class="num"></td><td class="num" id="yaWWCell_effUnknown_diffbdt"></td><td class="num" id="yaWWCell_effUnknown_diffpct"></td><td class="ya-remark">- Target เครื่องมือวัดที่ยอมรับได้ ±3%</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              </div>
               <div class="ya-refnote">
                 <div class="rn-head">Remark: References Yield</div>
                 <ol>
@@ -5258,6 +5347,7 @@ function applyLang(lang){
     if(typeof renderYieldAnalysisTable === 'function') renderYieldAnalysisTable();
     if(typeof renderYieldAnalysisTableDaily === 'function') renderYieldAnalysisTableDaily();
     if(typeof renderYieldAnalysisTableWeekly === 'function') renderYieldAnalysisTableWeekly();
+    if(typeof renderYieldAnalysisTableWW === 'function') renderYieldAnalysisTableWW();
   }
   if(typeof wsdRenderTiles === 'function' && typeof WSD_METRICS !== 'undefined'){ WSD_METRICS.forEach(function(m){ if(document.getElementById('wsdHost_'+m.id)){ wsdRenderTiles(m); wsdRenderDetail(m); } }); }
   if(typeof rmwRenderTiles === 'function' && document.getElementById('rmwHost')){ rmwRenderTiles(); rmwRenderDetail(); }
@@ -7457,6 +7547,497 @@ function initYieldAnalysisControlsWeekly(){
   yaApplyModeWeekly('cur');
   initYaKappaRefModal('yaWKappaRefRemark');
 }
+/* ==================================================================================
+   Yield Analysis — "Weekly-Weekly" instance. Same card/table format and formulas as
+   "Monthly"/"Daily"/"Weekly" above, reusing every instance-agnostic helper (yaPickValue,
+   yaHeaderLabel, yaKappaEffectYield, yaTrendPrefix, yaSetDiffCell, yaReadDiffNum, yaSummaryNum,
+   YA_ROW_KEYS, YA_SUM_KEYS, YA_WOOD_SPECIES, yaWeekRange) as-is, pointed at its own period state
+   (YAWW_STATE) and its own "yaWWCell_"-prefixed DOM ids / "wwg0..wwg10" group ids. Default:
+   ช่วงที่ 1 = the previous ISO week, ช่วงที่ 2 = the ISO week containing today (both mode "week").
+   ================================================================================== */
+const YAWW_STATE = { prev:{mode:'week', value:null}, cur:{mode:'week', value:null} };
+const YAWW_MIRROR_MAJOR = [
+  {key:'chipSize810', prevId:'yaWWCell_effChipSize_prev', curId:'yaWWCell_effChipSize_cur'},
+  {key:'bark',         prevId:'yaWWCell_effBarkVal_prev',  curId:'yaWWCell_effBarkVal_cur'},
+  {key:'sulphidity',   prevId:'yaWWCell_effSulphidity_prev', curId:'yaWWCell_effSulphidity_cur'},
+];
+function yawwEffectDiffBalanceValue(which){
+  const st = YAWW_STATE[which];
+  const yld = yaPickValue('yieldBdt', st.mode, st.value);
+  const db = yaPickValue('diffBalance', st.mode, st.value);
+  return (yld!=null && db!=null) ? -(yld * db/100) : null;
+}
+function yawwEffectTankBuildupValue(which){
+  const st = YAWW_STATE[which];
+  const w = yaPickValue('chipWeightScaleNet', st.mode, st.value);
+  const ep = yaPickValue('endProd', st.mode, st.value);
+  const tank = yaPickValue('tankBuildup', st.mode, st.value);
+  return (w!=null && ep!=null && ep!==0 && tank!=null && (ep+tank)!==0) ? (w/ep - w/(ep+tank)) : null;
+}
+function yawwEffectWasteChain(which){
+  const st = YAWW_STATE[which];
+  const tssRaw = yaPickValue('tssEtp', st.mode, st.value);
+  const tssBase = tssRaw==null ? null : (tssRaw - 300);
+  const volEtpV = yaPickValue('volEtp', st.mode, st.value);
+  const excessFiber = (volEtpV!=null && tssBase!=null)
+    ? (((volEtpV*1000/86400) * tssBase * 86.4/(1000*1000)) / 0.9) : null;
+  const kwAdt = yaPickValue('kwRejectAdt', st.mode, st.value);
+  const effKw = kwAdt==null ? null : (kwAdt/1000*0.40);
+  const yld2 = yaPickValue('yieldBdt', st.mode, st.value);
+  const epBal = st.mode === 'date' ? yaPickValue('endProdBal', st.mode, st.value) : yaPickValue('endProd', st.mode, st.value);
+  const w2 = yaPickValue('chipWeightScaleNet', st.mode, st.value);
+  const tssDenom = (epBal!=null && excessFiber!=null) ? (epBal + excessFiber) : null;
+  const effTss = (yld2!=null && w2!=null && tssDenom!=null && tssDenom!==0) ? (yld2 - w2/tssDenom) : null;
+  const effWaste = (effKw!=null && effTss!=null) ? (effKw + effTss) : null;
+  return { tssBase, excessFiber, effKw, effTss, effWaste };
+}
+function renderYieldAnalysisColumnWW(which){
+  const st = YAWW_STATE[which];
+  YA_ROW_KEYS.forEach(function(key){
+    const el = document.getElementById('yaWWCell_'+key+'_'+which);
+    if(!el) return;
+    const v = yaPickValue(key, st.mode, st.value);
+    const meta = CHIP_MON_META.find(function(x){ return x.key===key; });
+    el.textContent = v==null ? '—' : chipMonFmt(v, meta ? meta.dec : 2);
+  });
+  const cvEl = document.getElementById('yaWWCell_cvKappa_'+which);
+  if(cvEl){
+    const sd = yaPickValue('sdKappa', st.mode, st.value);
+    const kp = yaPickValue('kappaCook', st.mode, st.value);
+    const cv = (sd!=null && kp!=null && kp!==0) ? (sd/kp*100) : null;
+    cvEl.textContent = cv==null ? '—' : chipMonFmt(cv, 2);
+  }
+  const effKappaEl = document.getElementById('yaWWCell_effKappa_'+which);
+  if(effKappaEl){
+    const kp2 = yaPickValue('kappaCook', st.mode, st.value);
+    const eff = yaKappaEffectYield(kp2);
+    effKappaEl.textContent = eff==null ? '—' : chipMonFmt(eff, 3);
+  }
+  const effDiffBalEl = document.getElementById('yaWWCell_effDiffBalance_'+which);
+  if(effDiffBalEl){
+    const effDb = yawwEffectDiffBalanceValue(which);
+    effDiffBalEl.textContent = effDb==null ? '—' : chipMonFmt(effDb, 3);
+  }
+  const effTankEl = document.getElementById('yaWWCell_effTankBuildup_'+which);
+  if(effTankEl){
+    const effTank = yawwEffectTankBuildupValue(which);
+    effTankEl.textContent = effTank==null ? '—' : chipMonFmt(effTank, 3);
+  }
+  const waste = yawwEffectWasteChain(which);
+  const tssBaseEl = document.getElementById('yaWWCell_tssBaseTarget_'+which);
+  if(tssBaseEl) tssBaseEl.textContent = waste.tssBase==null ? '—' : chipMonFmt(waste.tssBase, 0);
+  const excessFiberEl = document.getElementById('yaWWCell_excessFiberEtp_'+which);
+  if(excessFiberEl) excessFiberEl.textContent = waste.excessFiber==null ? '—' : chipMonFmt(waste.excessFiber, 3);
+  const effKnotWhiteEl = document.getElementById('yaWWCell_effKnotWhite_'+which);
+  if(effKnotWhiteEl) effKnotWhiteEl.textContent = waste.effKw==null ? '—' : chipMonFmt(waste.effKw, 3);
+  const effTssEl = document.getElementById('yaWWCell_effTss_'+which);
+  if(effTssEl) effTssEl.textContent = waste.effTss==null ? '—' : chipMonFmt(waste.effTss, 3);
+  const effWasteEl = document.getElementById('yaWWCell_effWaste_'+which);
+  if(effWasteEl) effWasteEl.textContent = waste.effWaste==null ? '—' : chipMonFmt(waste.effWaste, 3);
+  YAWW_MIRROR_MAJOR.forEach(function(m){
+    const el = document.getElementById(which==='prev' ? m.prevId : m.curId);
+    if(!el) return;
+    const v = yaPickValue(m.key, st.mode, st.value);
+    const meta = CHIP_MON_META.find(function(x){ return x.key===m.key; });
+    el.textContent = v==null ? '—' : chipMonFmt(v, meta ? meta.dec : 2);
+  });
+  const headEl = document.getElementById(which==='prev' ? 'yaWWColPrev' : 'yaWWColCur');
+  if(headEl) headEl.textContent = yaHeaderLabel(st);
+}
+function yawwDiffChipWeightValue(which){
+  const st = YAWW_STATE[which];
+  if(!st.value) return null;
+  let rows;
+  if(st.mode==='date'){
+    const p = st.value.split('-').map(Number);
+    rows = WSD_ROWS.filter(function(r){ return r.y===p[0] && r.mi===p[1]-1 && r.d===p[2]; });
+  } else if(st.mode==='week'){
+    const range = yaWeekRange(st.value);
+    if(!range) return null;
+    const startTs = range.start.getTime(), endTs = range.end.getTime();
+    rows = WSD_ROWS.filter(function(r){ return r.ts >= startTs && r.ts <= endTs; });
+  } else if(st.mode==='month'){
+    const p = st.value.split('-').map(Number);
+    rows = WSD_ROWS.filter(function(r){ return r.y===p[0] && r.mi===p[1]-1; });
+  } else if(st.mode==='year'){
+    const y = Number(st.value);
+    rows = WSD_ROWS.filter(function(r){ return r.y===y; });
+  } else return null;
+  if(!rows.length) return null;
+  const sumRevise = rows.reduce(function(a,r){ return r.reviseWt!=null ? a+r.reviseWt : a; }, 0);
+  const sumScale = rows.reduce(function(a,r){ return r.chipGT!=null ? a+r.chipGT : a; }, 0);
+  const moisture = yaPickValue('moistureLab', st.mode, st.value);
+  if(moisture==null) return null;
+  return (sumRevise - sumScale) * (100 - moisture) / 100;
+}
+function renderYawwDiffChipWeight(){
+  const prevEl = document.getElementById('yaWWCell_diffChipWeight_prev');
+  if(!prevEl) return;
+  const curEl = document.getElementById('yaWWCell_diffChipWeight_cur');
+  const vPrev = yawwDiffChipWeightValue('prev');
+  const vCur = yawwDiffChipWeightValue('cur');
+  prevEl.textContent = vPrev==null ? '—' : chipMonFmt(vPrev, 0);
+  if(curEl) curEl.textContent = vCur==null ? '—' : chipMonFmt(vCur, 0);
+}
+function yawwEffectChipWeightValue(which){
+  const st = YAWW_STATE[which];
+  const diffChip = yawwDiffChipWeightValue(which);
+  if(diffChip==null) return null;
+  const ep = st.mode === 'date' ? yaPickValue('endProdBal', st.mode, st.value) : yaPickValue('endProd', st.mode, st.value);
+  if(ep==null || ep===0) return null;
+  return diffChip/ep;
+}
+function renderYawwEffectChipWeight(){
+  const prevEl = document.getElementById('yaWWCell_effChipWeight_prev');
+  if(!prevEl) return;
+  const curEl = document.getElementById('yaWWCell_effChipWeight_cur');
+  const vPrev = yawwEffectChipWeightValue('prev');
+  const vCur = yawwEffectChipWeightValue('cur');
+  prevEl.textContent = vPrev==null ? '—' : chipMonFmt(vPrev, 3);
+  if(curEl) curEl.textContent = vCur==null ? '—' : chipMonFmt(vCur, 3);
+  yawwRenderSimpleDiff(yawwEffectChipWeightValue, 'yaWWCell_effChipWeight_diffbdt', 'yaWWCell_effChipWeight_diffpct', 'Chip weight', 'yaWWCell_effChipWeight_remark');
+}
+function yawwEffectMoistureValue(which){
+  const st = YAWW_STATE[which];
+  const w = yaPickValue('chipWeightScaleNet', st.mode, st.value);
+  const lab = yaPickValue('moistureLab', st.mode, st.value);
+  const online = yaPickValue('moistureOnline', st.mode, st.value);
+  const ep = yaPickValue('endProd', st.mode, st.value);
+  if(w==null || lab==null || online==null || ep==null || ep===0) return null;
+  const a = w*(1 - lab/100)/ep;
+  const b = w*(1 - online/100)/ep;
+  return a - b;
+}
+function renderYawwEffectMoisture(){
+  const prevEl = document.getElementById('yaWWCell_effMoisture_prev');
+  if(!prevEl) return;
+  const curEl = document.getElementById('yaWWCell_effMoisture_cur');
+  const diffEl = document.getElementById('yaWWCell_effMoisture_diffbdt');
+  const pctEl = document.getElementById('yaWWCell_effMoisture_diffpct');
+  const remarkEl = document.getElementById('yaWWCell_effMoisture_remark');
+  const vPrev = yawwEffectMoistureValue('prev');
+  const vCur = yawwEffectMoistureValue('cur');
+  prevEl.textContent = vPrev==null ? '—' : chipMonFmt(vPrev, 3);
+  curEl.textContent = vCur==null ? '—' : chipMonFmt(vCur, 3);
+  const diff = (vPrev!=null && vCur!=null) ? (vCur - vPrev) : null;
+  const yieldPrev = yaPickValue('yieldBdt', YAWW_STATE.prev.mode, YAWW_STATE.prev.value);
+  const pct = (diff!=null && yieldPrev) ? (diff/yieldPrev*100) : null;
+  yaSetDiffCell(diffEl, diff, 3);
+  yaSetDiffCell(pctEl, pct, 2);
+  if(remarkEl){
+    const prefix = yaTrendPrefix(diff);
+    remarkEl.textContent = (prefix==null || pct==null) ? '' :
+      prefix+'Effect Chip moisture diff '+chipMonFmt(diff,3)+' Bdt/Adt, '+chipMonFmt(pct,2)+'%';
+  }
+}
+function yawwEffectWoodValue(which){
+  const st = YAWW_STATE[which];
+  let sum = 0;
+  for(const sp of YA_WOOD_SPECIES){
+    const v = yaPickValue(sp.key, st.mode, st.value);
+    if(v==null) return null;
+    sum += (v/100) * sp.factor;
+  }
+  return sum;
+}
+function renderYawwEffectWoodSpecies(){
+  const prevEl = document.getElementById('yaWWCell_effWood_prev');
+  if(!prevEl) return;
+  const curEl = document.getElementById('yaWWCell_effWood_cur');
+  const diffEl = document.getElementById('yaWWCell_effWood_diffbdt');
+  const pctEl = document.getElementById('yaWWCell_effWood_diffpct');
+  const remarkEl = document.getElementById('yaWWCell_effWood_remark');
+  const vPrev = yawwEffectWoodValue('prev');
+  const vCur = yawwEffectWoodValue('cur');
+  prevEl.textContent = vPrev==null ? '—' : chipMonFmt(vPrev, 3);
+  curEl.textContent = vCur==null ? '—' : chipMonFmt(vCur, 3);
+  const diff = (vPrev!=null && vCur!=null) ? (vCur - vPrev) : null;
+  const yieldPrev = yaPickValue('yieldBdt', YAWW_STATE.prev.mode, YAWW_STATE.prev.value);
+  const pct = (diff!=null && yieldPrev) ? (diff/yieldPrev*100) : null;
+  yaSetDiffCell(diffEl, diff, 3);
+  yaSetDiffCell(pctEl, pct, 2);
+  if(!remarkEl) return;
+  const prefix = yaTrendPrefix(diff);
+  if(prefix==null || pct==null){ remarkEl.innerHTML = ''; return; }
+  const bd = yawwWoodSpeciesBreakdown();
+  let html = prefix+'Effect Wood species '+chipMonFmt(diff,3)+' Bdt/Adt, '+chipMonFmt(pct,2)+' %';
+  const worseLine = bd.worse.length ? ('<br>- แย่ลงจาก Wood species '+bd.worse.join(', ')) : '';
+  const betterLine = bd.better.length ? ('<br>- ดีขึ้นจาก Wood species '+bd.better.join(', ')) : '';
+  html += diff < 0 ? (betterLine + worseLine) : (worseLine + betterLine);
+  remarkEl.innerHTML = html;
+}
+function yawwWoodSpeciesBreakdown(){
+  const worse = [], better = [];
+  YA_WOOD_SPECIES.forEach(function(sp){
+    const p = yaPickValue(sp.key, YAWW_STATE.prev.mode, YAWW_STATE.prev.value);
+    const c = yaPickValue(sp.key, YAWW_STATE.cur.mode, YAWW_STATE.cur.value);
+    if(p==null || c==null) return;
+    const d = c - p;
+    if(d === 0) return;
+    const entry = sp.name+' '+(d>0 ? '+' : '')+chipMonFmt(d,1)+'%';
+    const worsened = sp.worseWhenUp ? (d > 0) : (d < 0);
+    if(worsened) worse.push(entry); else better.push(entry);
+  });
+  return { worse: worse, better: better };
+}
+function renderYawwEffectBark(){
+  const diffBdtEl = document.getElementById('yaWWCell_effBark_diffbdt');
+  if(!diffBdtEl) return;
+  const diffPctEl = document.getElementById('yaWWCell_effBark_diffpct');
+  const remarkEl = document.getElementById('yaWWCell_effBark_remark');
+  const bPrev = yaPickValue('bark', YAWW_STATE.prev.mode, YAWW_STATE.prev.value);
+  const bCur = yaPickValue('bark', YAWW_STATE.cur.mode, YAWW_STATE.cur.value);
+  const diffPct = (bPrev!=null && bCur!=null) ? (bCur - bPrev) : null;
+  const yieldPrev = yaPickValue('yieldBdt', YAWW_STATE.prev.mode, YAWW_STATE.prev.value);
+  const diffBdt = (diffPct!=null && yieldPrev!=null) ? (diffPct/100*yieldPrev) : null;
+  yaSetDiffCell(diffPctEl, diffPct, 2);
+  yaSetDiffCell(diffBdtEl, diffBdt, 3);
+  if(remarkEl){
+    const prefix = yaTrendPrefix(diffBdt);
+    remarkEl.textContent = (prefix==null || diffPct==null) ? '' :
+      prefix+'Effect Bark '+chipMonFmt(diffBdt,3)+' Bdt/Adt, '+chipMonFmt(diffPct,2)+'%';
+  }
+}
+function renderYawwEffectKappaDiff(){
+  const diffBdtEl = document.getElementById('yaWWCell_effKappa_diffbdt');
+  if(!diffBdtEl) return;
+  const diffPctEl = document.getElementById('yaWWCell_effKappa_diffpct');
+  const kPrev = yaPickValue('kappaCook', YAWW_STATE.prev.mode, YAWW_STATE.prev.value);
+  const kCur = yaPickValue('kappaCook', YAWW_STATE.cur.mode, YAWW_STATE.cur.value);
+  const effPrev = yaKappaEffectYield(kPrev);
+  const effCur = yaKappaEffectYield(kCur);
+  const diff = (effPrev!=null && effCur!=null) ? (effCur - effPrev) : null;
+  const yieldPrev = yaPickValue('yieldBdt', YAWW_STATE.prev.mode, YAWW_STATE.prev.value);
+  const pct = (diff!=null && yieldPrev) ? (diff/yieldPrev*100) : null;
+  yaSetDiffCell(diffBdtEl, diff, 3);
+  yaSetDiffCell(diffPctEl, pct, 2);
+  const remarkEl = document.getElementById('yaWWCell_effKappa_remark');
+  if(remarkEl){
+    const prefix = yaTrendPrefix(diff);
+    remarkEl.textContent = (prefix==null || pct==null) ? '' :
+      prefix+'Effect Kappa no. '+chipMonFmt(diff,3)+' Bdt/Adt, '+chipMonFmt(pct,2)+'%';
+  }
+}
+function renderYawwEffectChipSizeDiff(){
+  const diffBdtEl = document.getElementById('yaWWCell_effChipSize_diffbdt');
+  if(!diffBdtEl) return;
+  const diffPctEl = document.getElementById('yaWWCell_effChipSize_diffpct');
+  const vPrev = yaPickValue('chipSize810', YAWW_STATE.prev.mode, YAWW_STATE.prev.value);
+  const vCur = yaPickValue('chipSize810', YAWW_STATE.cur.mode, YAWW_STATE.cur.value);
+  if(vPrev==null && vCur==null){
+    yaSetDiffCell(diffBdtEl, 0, 3);
+    yaSetDiffCell(diffPctEl, 0, 2);
+    return;
+  }
+  const diff = (vPrev!=null && vCur!=null) ? (vCur - vPrev) : null;
+  const yieldPrev = yaPickValue('yieldBdt', YAWW_STATE.prev.mode, YAWW_STATE.prev.value);
+  const pct = (diff!=null && yieldPrev) ? (diff/yieldPrev*100) : null;
+  yaSetDiffCell(diffBdtEl, diff, 3);
+  yaSetDiffCell(diffPctEl, pct, 2);
+}
+function renderYawwEffectSulphidityDiff(){
+  const diffBdtEl = document.getElementById('yaWWCell_effSulphidity_diffbdt');
+  if(!diffBdtEl) return;
+  const diffPctEl = document.getElementById('yaWWCell_effSulphidity_diffpct');
+  const sPrev = yaPickValue('sulphidity', YAWW_STATE.prev.mode, YAWW_STATE.prev.value);
+  const sCur = yaPickValue('sulphidity', YAWW_STATE.cur.mode, YAWW_STATE.cur.value);
+  const diff = (sPrev!=null && sCur!=null) ? -(sCur - sPrev)*0.008 : null;
+  const yieldPrev = yaPickValue('yieldBdt', YAWW_STATE.prev.mode, YAWW_STATE.prev.value);
+  const pct = (diff!=null && yieldPrev) ? (diff/yieldPrev*100) : null;
+  yaSetDiffCell(diffBdtEl, diff, 3);
+  yaSetDiffCell(diffPctEl, pct, 2);
+  const remarkEl = document.getElementById('yaWWCell_effSulphidity_remark');
+  if(remarkEl){
+    const prefix = yaTrendPrefix(diff);
+    remarkEl.textContent = (prefix==null || pct==null) ? '' :
+      prefix+'Effect Sulphidity '+chipMonFmt(diff,3)+' Bdt/Adt, '+chipMonFmt(pct,2)+'%';
+  }
+}
+function yawwRenderSimpleDiff(valueFn, diffBdtId, diffPctId, rowName, remarkId){
+  const diffBdtEl = document.getElementById(diffBdtId);
+  if(!diffBdtEl) return;
+  const diffPctEl = document.getElementById(diffPctId);
+  const vPrev = valueFn('prev');
+  const vCur = valueFn('cur');
+  const diff = (vPrev!=null && vCur!=null) ? (vCur - vPrev) : null;
+  const yieldPrev = yaPickValue('yieldBdt', YAWW_STATE.prev.mode, YAWW_STATE.prev.value);
+  const pct = (diff!=null && yieldPrev) ? (diff/yieldPrev*100) : null;
+  yaSetDiffCell(diffBdtEl, diff, 3);
+  yaSetDiffCell(diffPctEl, pct, 2);
+  if(remarkId){
+    const remarkEl = document.getElementById(remarkId);
+    if(remarkEl){
+      const prefix = yaTrendPrefix(diff);
+      remarkEl.textContent = (prefix==null || pct==null) ? '' :
+        prefix+'Effect '+rowName+' '+chipMonFmt(diff,3)+' Bdt/Adt, '+chipMonFmt(pct,2)+'%';
+    }
+  }
+}
+function renderYawwEffectUnknown(){
+  const diffBdtEl = document.getElementById('yaWWCell_effUnknown_diffbdt');
+  if(!diffBdtEl) return;
+  const diffPctEl = document.getElementById('yaWWCell_effUnknown_diffpct');
+  const knownEffectIds = [
+    'yaWWCell_effChipWeight_diffbdt', 'yaWWCell_effMoisture_diffbdt', 'yaWWCell_effWood_diffbdt',
+    'yaWWCell_effChipSize_diffbdt', 'yaWWCell_effBark_diffbdt', 'yaWWCell_effKappa_diffbdt',
+    'yaWWCell_effSulphidity_diffbdt', 'yaWWCell_effDiffBalance_diffbdt', 'yaWWCell_effTankBuildup_diffbdt',
+    'yaWWCell_effWaste_diffbdt',
+  ];
+  let sum = yaReadDiffNum('yaWWCell_yieldBdt_diffbdt');
+  knownEffectIds.forEach(function(id){ sum -= yaReadDiffNum(id); });
+  yaSetDiffCell(diffBdtEl, sum, 3);
+  const yieldPrev = yaPickValue('yieldBdt', YAWW_STATE.prev.mode, YAWW_STATE.prev.value);
+  const pct = yieldPrev ? (sum/yieldPrev*100) : null;
+  yaSetDiffCell(diffPctEl, pct, 2);
+}
+const YAWW_SUMMARY_EFFECTS = [
+  {name:'Chip Weight', diffId:'yaWWCell_effChipWeight_diffbdt', pctId:'yaWWCell_effChipWeight_diffpct'},
+  {name:'Chip moisture', diffId:'yaWWCell_effMoisture_diffbdt', pctId:'yaWWCell_effMoisture_diffpct'},
+  {name:'Wood species', diffId:'yaWWCell_effWood_diffbdt', pctId:'yaWWCell_effWood_diffpct', extra:true},
+  {name:'Chip size', diffId:'yaWWCell_effChipSize_diffbdt', pctId:'yaWWCell_effChipSize_diffpct'},
+  {name:'Bark', diffId:'yaWWCell_effBark_diffbdt', pctId:'yaWWCell_effBark_diffpct'},
+  {name:'Kappa no.', diffId:'yaWWCell_effKappa_diffbdt', pctId:'yaWWCell_effKappa_diffpct'},
+  {name:'Sulphidity', diffId:'yaWWCell_effSulphidity_diffbdt', pctId:'yaWWCell_effSulphidity_diffpct'},
+  {name:'Diff. prod. balance', diffId:'yaWWCell_effDiffBalance_diffbdt', pctId:'yaWWCell_effDiffBalance_diffpct'},
+  {name:'Pulp accumulate in tank', diffId:'yaWWCell_effTankBuildup_diffbdt', pctId:'yaWWCell_effTankBuildup_diffpct'},
+  {name:'Waste', diffId:'yaWWCell_effWaste_diffbdt', pctId:'yaWWCell_effWaste_diffpct'},
+];
+function renderYawwSummary(){
+  const box = document.getElementById('yaWWSummary');
+  const body = document.getElementById('yaWWSummaryBody');
+  if(!box || !body) return;
+  const yieldPrevEl = document.getElementById('yaWWCell_yieldBdt_prev');
+  if(!yieldPrevEl){ box.hidden = true; return; }
+  const yieldDiff = yaReadDiffNum('yaWWCell_yieldBdt_diffbdt');
+  const yieldPct = yaReadDiffNum('yaWWCell_yieldBdt_diffpct');
+  if(document.getElementById('yaWWCell_yieldBdt_diffbdt').textContent === '—'){ box.hidden = true; return; }
+  box.hidden = false;
+  const curLabel = yaHeaderLabel(YAWW_STATE.cur);
+  const prevLabel = yaHeaderLabel(YAWW_STATE.prev);
+  const curYieldVal = document.getElementById('yaWWCell_yieldBdt_cur').textContent;
+  const prevYieldVal = document.getElementById('yaWWCell_yieldBdt_prev').textContent;
+  const trendWord = yieldDiff > 0 ? 'แย่ลง' : yieldDiff < 0 ? 'ดีขึ้น' : '';
+  let html = '<div class="ys-top">&gt;&gt; Yield Actual '+curLabel+' '+curYieldVal+' Bdt/Adt เทียบ '+prevLabel+' '+prevYieldVal+' Bdt/Adt '+trendWord+
+    ' ('+yaSummaryNum(yieldDiff,3)+' Bdt/Adt, '+yaSummaryNum(yieldPct,2)+'%)</div>';
+  const items = YAWW_SUMMARY_EFFECTS.map(function(e){
+    const el = document.getElementById(e.diffId);
+    if(!el) return null;
+    const d = yaReadDiffNum(e.diffId);
+    if(d === 0) return null;
+    const p = yaReadDiffNum(e.pctId);
+    return { name:e.name, d:d, p:p, extra:e.extra };
+  }).filter(Boolean);
+  const worseItems = items.filter(function(it){ return it.d > 0; }).sort(function(a,b){ return Math.abs(b.d)-Math.abs(a.d); });
+  const betterItems = items.filter(function(it){ return it.d < 0; }).sort(function(a,b){ return Math.abs(b.d)-Math.abs(a.d); });
+  function itemLine(it){
+    let line = '<div class="ys-item">- '+it.name+' ('+yaSummaryNum(it.d,3)+' Bdt/Adt, '+yaSummaryNum(it.p,2)+'%)</div>';
+    if(it.extra){
+      const bd = yawwWoodSpeciesBreakdown();
+      if(bd.worse.length) line += '<div class="ys-sub">แย่ลงจาก Wood species '+bd.worse.join(', ')+'</div>';
+      if(bd.better.length) line += '<div class="ys-sub">ดีขึ้นจาก Wood species '+bd.better.join(', ')+'</div>';
+    }
+    return line;
+  }
+  function groupHtml(heading, list){
+    if(!list.length) return '';
+    const sumD = list.reduce(function(a,it){ return a+it.d; }, 0);
+    const sumP = list.reduce(function(a,it){ return a+it.p; }, 0);
+    return '<div class="ys-group">'+heading+' ('+yaSummaryNum(sumD,3)+' Bdt/Adt, '+yaSummaryNum(sumP,2)+'%)</div>'+list.map(itemLine).join('');
+  }
+  const worseGroup = groupHtml('Yield แย่ลง', worseItems);
+  const betterGroup = groupHtml('Yield ดีขึ้น', betterItems);
+  html += yieldDiff < 0 ? (betterGroup + worseGroup) : (worseGroup + betterGroup);
+  const unknownEl = document.getElementById('yaWWCell_effUnknown_diffbdt');
+  if(unknownEl){
+    const unknownDiff = yaReadDiffNum('yaWWCell_effUnknown_diffbdt');
+    const unknownPct = yaReadDiffNum('yaWWCell_effUnknown_diffpct');
+    html += '<div class="ys-group">Unknow (อื่นๆ) ('+yaSummaryNum(unknownDiff,3)+' Bdt/Adt, '+yaSummaryNum(unknownPct,2)+'%)</div>';
+  }
+  body.innerHTML = html;
+}
+function renderYawwYieldActualRemark(){
+  const remarkEl = document.getElementById('yaWWCell_yieldBdt_remark');
+  if(!remarkEl) return;
+  const diffEl = document.getElementById('yaWWCell_yieldBdt_diffbdt');
+  if(!diffEl || diffEl.textContent === '—'){ remarkEl.textContent = ''; return; }
+  const diff = yaReadDiffNum('yaWWCell_yieldBdt_diffbdt');
+  const pct = yaReadDiffNum('yaWWCell_yieldBdt_diffpct');
+  const word = diff > 0 ? 'แย่ลง ' : diff < 0 ? 'ดีขึ้น ' : '';
+  remarkEl.textContent = '- Yield '+word+chipMonFmt(diff,3)+' Bdt/Adt, '+chipMonFmt(pct,2)+'%';
+}
+function renderYieldAnalysisTableWW(){
+  if(!document.getElementById('yaWWModePrev')) return;
+  renderYieldAnalysisColumnWW('prev');
+  renderYieldAnalysisColumnWW('cur');
+  renderYawwDiffChipWeight();
+  renderYawwEffectChipWeight();
+  renderYawwEffectMoisture();
+  renderYawwEffectWoodSpecies();
+  renderYawwEffectBark();
+  renderYawwEffectKappaDiff();
+  renderYawwEffectChipSizeDiff();
+  renderYawwEffectSulphidityDiff();
+  yawwRenderSimpleDiff(yawwEffectDiffBalanceValue, 'yaWWCell_effDiffBalance_diffbdt', 'yaWWCell_effDiffBalance_diffpct', 'Diff. prod. balance', 'yaWWCell_effDiffBalance_remark');
+  yawwRenderSimpleDiff(yawwEffectTankBuildupValue, 'yaWWCell_effTankBuildup_diffbdt', 'yaWWCell_effTankBuildup_diffpct', 'Pulp accumulate in tank', 'yaWWCell_effTankBuildup_remark');
+  yawwRenderSimpleDiff(function(w){ return yawwEffectWasteChain(w).effWaste; }, 'yaWWCell_effWaste_diffbdt', 'yaWWCell_effWaste_diffpct', 'Waste', 'yaWWCell_effWaste_remark');
+  yawwRenderSimpleDiff(function(w){ return yaPickValue('yieldBdt', YAWW_STATE[w].mode, YAWW_STATE[w].value); }, 'yaWWCell_yieldBdt_diffbdt', 'yaWWCell_yieldBdt_diffpct');
+  renderYawwYieldActualRemark();
+  renderYawwEffectUnknown();
+  renderYawwSummary();
+}
+function yaApplyModeWW(which){
+  const Suffix = which==='prev' ? 'Prev' : 'Cur';
+  const modeSel = document.getElementById('yaWWMode'+Suffix);
+  const dateInp = document.getElementById('yaWWDate'+Suffix);
+  const weekInp = document.getElementById('yaWWWeek'+Suffix);
+  const monthInp = document.getElementById('yaWWMonth'+Suffix);
+  const yearSel = document.getElementById('yaWWYear'+Suffix);
+  if(!modeSel) return;
+  const mode = modeSel.value;
+  dateInp.hidden = mode!=='date';
+  weekInp.hidden = mode!=='week';
+  monthInp.hidden = mode!=='month';
+  yearSel.hidden = mode!=='year';
+  const value = mode==='date' ? dateInp.value : mode==='week' ? weekInp.value : mode==='month' ? monthInp.value : yearSel.value;
+  YAWW_STATE[which] = { mode:mode, value:value || null };
+  renderYieldAnalysisTableWW();
+}
+/* ISO week string "YYYY-Www" for a given Date — inverse of yaWeekRange(), needed to default
+   ช่วงที่ 1/2's week inputs to the previous ISO week / the ISO week containing today. */
+function yawwDateToWeekValue(date){
+  const d = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  const dayNum = (d.getDay() + 6) % 7; // Mon=0..Sun=6
+  d.setDate(d.getDate() - dayNum + 3); // nearest Thursday
+  const firstThursday = new Date(d.getFullYear(), 0, 4);
+  const fdDayNum = (firstThursday.getDay() + 6) % 7;
+  firstThursday.setDate(firstThursday.getDate() - fdDayNum + 3);
+  const week = 1 + Math.round((d - firstThursday) / (7*86400000));
+  return d.getFullYear()+'-W'+String(week).padStart(2,'0');
+}
+function initYieldAnalysisControlsWW(){
+  const modePrev = document.getElementById('yaWWModePrev');
+  if(!modePrev) return;
+  const years = Array.from(new Set((CHIP_MON_SERIES.yieldBdt||[]).map(function(x){ return x.y; }))).sort();
+  ['Prev','Cur'].forEach(function(Suffix){
+    const yearSel = document.getElementById('yaWWYear'+Suffix);
+    if(yearSel) yearSel.innerHTML = years.map(function(y){ return '<option value="'+y+'">'+y+'</option>'; }).join('');
+    ['yaWWMode'+Suffix, 'yaWWDate'+Suffix, 'yaWWWeek'+Suffix, 'yaWWMonth'+Suffix, 'yaWWYear'+Suffix].forEach(function(id){
+      const el = document.getElementById(id);
+      if(!el) return;
+      el.addEventListener('change', function(){ yaApplyModeWW(Suffix.toLowerCase()); });
+      el.addEventListener('input', function(){ yaApplyModeWW(Suffix.toLowerCase()); });
+    });
+  });
+  // default: ช่วงที่ 1 = สัปดาห์ก่อนหน้า (previous ISO week), ช่วงที่ 2 = สัปดาห์ปัจจุบัน (the ISO
+  // week containing today) — both mode "week"
+  const now = new Date();
+  const weekBeforeThisOne = new Date(now.getFullYear(), now.getMonth(), now.getDate()-7);
+  document.getElementById('yaWWWeekPrev').value = yawwDateToWeekValue(weekBeforeThisOne);
+  document.getElementById('yaWWWeekCur').value = yawwDateToWeekValue(now);
+  yaApplyModeWW('prev');
+  yaApplyModeWW('cur');
+  initYaKappaRefModal('yaWWKappaRefRemark');
+}
 /* Clicking the "- Kappa no." row's "Ref. R&D Kappa ..." remark opens a modal with the underlying
    R&D wood-consumption-vs-cooking-kappa curve (y = 0.0016x² − 0.0648x + 2.5801, R²=1, Kappa 10–20)
    plus the full step-by-step Effect Yield reference table — this is a REDRAWN chart from the mill's
@@ -7924,6 +8505,7 @@ function initChipMon(){
   initYieldAnalysisControls();
   initYieldAnalysisControlsDaily();
   initYieldAnalysisControlsWeekly();
+  initYieldAnalysisControlsWW();
   initYaCardCollapse();
   CHIP_MON_GROUPS.forEach(grp=> {
     chipMonRenderTiles(grp);
@@ -7955,6 +8537,7 @@ function initChipMon(){
     renderYieldAnalysisTable();
     renderYieldAnalysisTableDaily();
     renderYieldAnalysisTableWeekly();
+    renderYieldAnalysisTableWW();
     CHIP_MON_GROUPS.forEach(grp=> { chipMonRenderTiles(grp); chipMonRenderDetail(grp.id); });
     if(typeof renderNotifCentre === 'function') renderNotifCentre();
   });
