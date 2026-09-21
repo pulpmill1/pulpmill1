@@ -5475,35 +5475,28 @@ function resolveChipCol(label, fallback){
   const idx = headerRow.findIndex(function(h){ return String(h||'').trim() === label; });
   return idx >= 0 ? idx : fallback;
 }
-const COL_END_PROD = resolveChipCol('End Prod.', 76);
-const COL_END_PROD_BAL = resolveChipCol('End Prod. Balance', 77);
-const COL_YIELD = resolveChipCol('Yield', 79);           // sheet header has a trailing space, trimmed above
-const COL_YIELD_BALTANK = resolveChipCol('Yield Balane Tank', 80); // sheet's own spelling ("Balane")
-const COL_MOIST_ONLINE = resolveChipCol('Chip Moisture (Online)', 82);
-const COL_SULPHIDITY = resolveChipCol('Sulphidity', 83);
-const COL_TANK_BUILDUP = resolveChipCol('End Prod. Balance - End Prod.', 78);
-const COL_CHIP_WEIGHT_SCALE = resolveChipCol('Chip weight', 75);
-const COL_CHIP_WEIGHT_SCALE_NET = resolveChipCol('Chip (Weight scale หักลบเฉ่งกอง)', 76);
-const COL_CHIP_PER_BATCH = resolveChipCol('Chip/batch', 77);
-const COL_CHIP_SIZE_8_10 = resolveChipCol('Chip size 8-10 mm.', 86);
+/* The mill has renamed nearly every "Actual" column in this tab with a "Pulp 1 "/"Pulp 2 " prefix
+   (confirmed directly against header-row screenshots) to keep every metric name unique across the
+   sheet's several similarly-structured blocks (Budget, Production, Pulp 1, Pulp 2) — every label
+   below reflects that confirmed real text, not a guess. Fallback stays a bogus out-of-range number
+   (9999) so any label that stops matching exactly (a future rename) shows "—" instead of quietly
+   reading whatever unrelated column now sits at that position. */
+const COL_END_PROD = resolveChipCol('Pulp 1 End Prod.', 9999);
+const COL_END_PROD_BAL = resolveChipCol('Pulp 1 End Prod. Balance', 9999);
+const COL_YIELD = resolveChipCol('Pulp 1 Yield', 9999);
+const COL_YIELD_BALTANK = resolveChipCol('Pulp 1 Yield Balane Tank', 9999); // sheet's own spelling ("Balane")
+const COL_MOIST_ONLINE = resolveChipCol('Pulp 1 Chip Moisture (Online)', 9999);
+const COL_SULPHIDITY = resolveChipCol('Pulp 1 Sulphidity', 9999);
+const COL_TANK_BUILDUP = resolveChipCol('Pulp 1 End Prod. Balance - End Prod.', 9999);
+const COL_CHIP_WEIGHT_SCALE = resolveChipCol('Pulp 1 Chip weight', 9999); // BDT/day (lowercase "weight")
+const COL_CHIP_WEIGHT_GT = resolveChipCol('Pulp 1 Chip Weight', 9999); // GT/day (capital "Weight") — a DIFFERENT column from the one above, same sheet convention as the Knot+White/Volume-to-ETP kg-vs-per-ADT pairs: distinguished only by capitalization, not previously resolvable by name until this rename made the two texts distinct
+const COL_CHIP_WEIGHT_SCALE_NET = resolveChipCol('Pulp 1 Chip (Weight scale หักลบเฉ่งกอง)', 9999);
+const COL_CHIP_PER_BATCH = resolveChipCol('Pulp 1 Chip/batch', 9999);
+const COL_CHIP_SIZE_8_10 = resolveChipCol('Pulp 1 Chip size 8-10 mm.', 9999);
 /* "No of cooks" lives on a SEPARATE sheet tab ("Cooking Condition", gid 1561629878), not in the
    chip-wood tab at all, so there's no header to resolve here — its daily values are merged into
    each CHIP_MON_ROWS record below at this virtual (never-real) column index. */
 const COL_NO_OF_COOKS = 900;
-/* These used to be plain hardcoded column numbers (26-37, 54-58, 64-67, 71, 73) instead of
-   resolveChipCol() lookups — safe only as long as nothing was ever inserted before them. The mill
-   later inserted the entire "Budget" block (see below) earlier in the same sheet, shifting every
-   one of these by the same offset and silently pulling wrong-column numbers (e.g. Bark showing 56.7
-   instead of ~1.2%, "Chip Moisture (Lab)" showing 6.5% instead of ~50%) — converted to name-based
-   resolution here for the same reason as the columns above, with the same bogus out-of-range
-   fallback (9999) so a label that doesn't match exactly shows "—" instead of a wrong number again.
-   Several labels are BEST-GUESS reconstructions of the real header text (not directly confirmed) —
-   built from the one confirmed real example ("Over size >45.0 mm" / "Acc1+2+Pin 28.6-4.8", no
-   trailing "mm."/period, hyphens not en-dashes) applied to the sibling columns nearby; if any of
-   these still read "—", the fix is only ever this one string, not more of this comment's reasoning. */
-/* Confirmed by the mill directly (screenshots of the header row): a "Pulp 1 " prefix disambiguates
-   this block from an unrelated "Production 1 " block that shares the exact same metric names
-   further along the same sheet — "Pulp 1 ..." is the one this dashboard has always shown for these. */
 const COL_MOIST_LAB = resolveChipCol('Pulp 1 Chip Moisture (Lab)', 9999);
 const COL_BULK_DENSITY = resolveChipCol('Pulp 1 Bulk density', 9999);
 const COL_BULK_DENSITY_DRY = resolveChipCol('Pulp 1 Bulk density *Dryness', 9999);
@@ -5511,22 +5504,27 @@ const COL_DRYNESS = resolveChipCol('Pulp 1 Chip Dryness', 9999);
 const COL_FINE = resolveChipCol('Pulp 1 Fine <4.8', 9999);
 const COL_PIN = resolveChipCol('Pulp 1 Pin 9.5-4.8', 9999);
 const COL_ACCEPT2 = resolveChipCol('Pulp 1 Accept 2 22.2-9.5', 9999);
-const COL_ACCEPT1 = resolveChipCol('Pulp 1 Accept 2 28.6-22.2', 9999);
+const COL_ACCEPT1 = resolveChipCol('Pulp 1 Accept 2 28.6-22.2', 9999); // sheet literally repeats "Accept 2" for this one too (confirmed on both Pulp 1 and Pulp 2), not a typo in this code
 const COL_OVER_THICK = resolveChipCol('Pulp 1 Over Thick 45.0-28.6', 9999);
 const COL_OVER_SIZE = resolveChipCol('Pulp 1 Over size >45.0 mm', 9999);
-const COL_ACC_PIN = resolveChipCol('Pulp 1 Acc2+2+Pin 28.6-4.8', 9999);
+const COL_ACC_PIN = resolveChipCol('Pulp 1 Acc2+2+Pin 28.6-4.8', 9999); // sheet literally spells it "Acc2+2+Pin", confirmed on both Pulp 1 and Pulp 2
 const COL_BARK = resolveChipCol('Pulp 1 Bark', 9999);
-const COL_WOOD_K58 = resolveChipCol('K58', 9999);
-const COL_WOOD_K7 = resolveChipCol('K7', 9999);
-const COL_WOOD_SEED = resolveChipCol('Seed', 9999);
-const COL_WOOD_OTHER = resolveChipCol('Other', 9999);
-const COL_WOOD_ST1M_ACT = resolveChipCol('St>1 m', 9999);
-const COL_KAPPA_COOK = resolveChipCol('Kappa cooking', 9999);
-const COL_SD_KAPPA = resolveChipCol('SD Kappa cooking', 9999);
-const COL_KW_REJECT = resolveChipCol('Knot + White reject', 9999);
-const COL_DIFF_BALANCE = resolveChipCol('%Diff. production', 9999);
-const COL_VOL_ETP = resolveChipCol('Volume to ETP', 9999);
-const COL_TSS_ETP = resolveChipCol('TSS to ETP', 9999);
+const COL_WOOD_K58 = resolveChipCol('Pulp 1 K58', 9999);
+const COL_WOOD_K7 = resolveChipCol('Pulp 1 K7', 9999);
+const COL_WOOD_SEED = resolveChipCol('Pulp 1 Seed', 9999);
+const COL_WOOD_OTHER = resolveChipCol('Pulp 1 Other', 9999);
+const COL_WOOD_ST1M_ACT = resolveChipCol('Pulp 1 St>1 m', 9999);
+const COL_WOOD2_K58 = resolveChipCol('Pulp 2 K58', 9999);
+const COL_WOOD2_K7 = resolveChipCol('Pulp 2 K7', 9999);
+const COL_WOOD2_SEED = resolveChipCol('Pulp 2 Seed', 9999);
+const COL_WOOD2_OTHER = resolveChipCol('Pulp 2 Other', 9999);
+const COL_WOOD2_ST1M = resolveChipCol('Pulp 2 St>1 m', 9999);
+const COL_KAPPA_COOK = resolveChipCol('Pulp 1 Kappa cooking', 9999);
+const COL_SD_KAPPA = resolveChipCol('Pulp 1 SD Kappa cooking', 9999);
+const COL_KW_REJECT = resolveChipCol('Pulp 1 Knot+White reject', 9999);
+const COL_DIFF_BALANCE = resolveChipCol('Pulp 1 Diff. prod. balance wetlap', 9999);
+const COL_VOL_ETP = resolveChipCol('Pulp 1 Volume to ETP', 9999);
+const COL_TSS_ETP = resolveChipCol('Pulp 1 TSS to ETP', 9999);
 /* Budget block — added later in the same "RM Wood-Yield" tab, mirroring the Actual metrics above
    with a "Budget " prefix on each header (to keep header text unique so resolveChipCol() finds the
    right one), resolved the same by-name way so a future column move/insert on either block keeps
@@ -5576,14 +5574,14 @@ const CHIP_MON_META = [
   {key:'chipPerBatch',       col:COL_CHIP_PER_BATCH, th:'Chip/batch', unit:'BDt/batch', dec:2, grp:'yield', scored:false, hideTile:true},
   {key:'noOfCooks',          col:COL_NO_OF_COOKS, th:'No of cooks', unit:'Cooks', dec:0, grp:'yield', scored:false, hideTile:true},
   {key:'chipSize810',        col:COL_CHIP_SIZE_8_10, th:'Chip size 8-10 mm.', unit:'%', dec:2, grp:'yield', scored:false, hideTile:true, zeroIsMissing:true},
-  {key:'chipWeightGT', col:74, th:'Chip weight',          unit:'GT/day',  dec:0, grp:'yield', scored:false, zeroIsMissing:true, hideTile:true},
+  {key:'chipWeightGT', col:COL_CHIP_WEIGHT_GT, th:'Chip weight',          unit:'GT/day',  dec:0, grp:'yield', scored:false, zeroIsMissing:true, hideTile:true},
   /* "Overview" group (added on request, placed before Wood-chip basics): 4 dedicated keys that
      duplicate the SAME source columns as chipWeightGT / moistureLab / endProd / yieldBdt above,
      rather than reusing those keys directly — those originals are hideTile (feeding the Yield
      Analysis table / Executive KPI panel / the always-open Yield chart) or already have their own
      tile in a different group ("endprod"), so giving them a second, independent tile here avoids
      any risk of disturbing that existing wiring. */
-  {key:'ovwChipWeight',  col:74, th:'Chip weight (GT/day)', unit:'GT/day', dec:0, grp:'overview', scored:false, zeroIsMissing:true},
+  {key:'ovwChipWeight',  col:COL_CHIP_WEIGHT_GT, th:'Chip weight (GT/day)', unit:'GT/day', dec:0, grp:'overview', scored:false, zeroIsMissing:true},
   {key:'ovwMoistureLab', col:COL_MOIST_LAB, th:'Chip Moisture (Lab)', unit:'%', dec:2, grp:'overview', scored:false},
   {key:'ovwChipWeightBdt', col:COL_CHIP_WEIGHT_SCALE, th:'Chip weight', unit:'BDt/day', dec:2, grp:'overview', scored:false},
   {key:'ovwEndProd',     col:COL_END_PROD, th:'End Prod.', unit:'Adt/day', dec:0, grp:'overview', scored:false, zeroIsMissing:true},
@@ -5600,27 +5598,24 @@ const CHIP_MON_META = [
   {key:'overSize',       col:COL_OVER_SIZE, th:'Over size > 45.0 mm.',      unit:'%',     dec:2, pct01:true, grp:'screen', scored:true,  dir:'lower',  specHi:1.5},
   {key:'accPin',         col:COL_ACC_PIN, th:'Acc 1+2+Pin  28.6–4.8 mm.', unit:'%',     dec:2, pct01:true, grp:'screen', scored:true,  dir:'higher', specLo:90},
   {key:'bark',           col:COL_BARK, th:'Bark',                      unit:'%',     dec:2, pct01:true, grp:'screen', scored:true,  dir:'lower',  specHi:1},
-  /* Wood species — sheet columns 54-58 (สายพันธุ์ไม้โรงเยื่อ 1 Actual) = Pulp mill 1's own mix, the
+  /* Wood species — "Pulp 1 ..." columns (สายพันธุ์ไม้โรงเยื่อ 1 Actual) = Pulp mill 1's own mix, the
      same keys the Yield Analysis table's "3. Effect Wood species" formula already reads by name
      (YA_ROW_KEYS, yaWoodSpeciesBreakdown) — reordered here to K58,K7,Seed,Other,St>1m per the
-     monitor-tile display order requested, but the keys/columns themselves are unchanged so nothing
-     downstream in the Yield Analysis table needed touching. Columns 59-63 (สายพันธุ์ไม้โรงเยื่อ 2
-     Actual) are Pulp mill 2's own mix — new keys, only used by the monitor-tile system below. */
+     monitor-tile display order requested, but the keys themselves are unchanged so nothing
+     downstream in the Yield Analysis table needed touching. "Pulp 2 ..." columns (สายพันธุ์ไม้
+     โรงเยื่อ 2 Actual) are Pulp mill 2's own mix — new keys, only used by the monitor-tile system below. */
   {key:'woodK58',   col:COL_WOOD_K58, th:'K58',      unit:'%', dec:1, pct01:true, grp:'woodPm1', scored:false},
   {key:'woodK7',    col:COL_WOOD_K7, th:'K7',       unit:'%', dec:1, pct01:true, grp:'woodPm1', scored:false},
   {key:'woodSeed',  col:COL_WOOD_SEED, th:'Seed',     unit:'%', dec:1, pct01:true, grp:'woodPm1', scored:false},
   {key:'woodOther', col:COL_WOOD_OTHER, th:'Other',    unit:'%', dec:1, pct01:true, grp:'woodPm1', scored:false},
   {key:'woodSt1m',  col:COL_WOOD_ST1M_ACT, th:'St > 1 m', unit:'%', dec:1, pct01:true, grp:'woodPm1', scored:false},
-  /* Pulp mill 2's own wood species (cols 59-63) still use the OLD pre-shift hardcoded indices —
-     NOT converted here since a plain resolveChipCol('K7', ...) etc. would just re-find Pulp mill
-     1's own (now correctly resolved) column again, silently mixing the two mills' data instead of
-     showing "—". Needs the mill's actual header text for these 5 (or confirmation they're
-     distinguishable from Pulp mill 1's by name at all) before they can be fixed the same way. */
-  {key:'wood2K58',   col:60, th:'K58',      unit:'%', dec:1, pct01:true, grp:'woodPm2', scored:false},
-  {key:'wood2K7',    col:59, th:'K7',       unit:'%', dec:1, pct01:true, grp:'woodPm2', scored:false},
-  {key:'wood2Seed',  col:61, th:'Seed',     unit:'%', dec:1, pct01:true, grp:'woodPm2', scored:false},
-  {key:'wood2Other', col:62, th:'Other',    unit:'%', dec:1, pct01:true, grp:'woodPm2', scored:false},
-  {key:'wood2St1m',  col:63, th:'St > 1 m', unit:'%', dec:1, pct01:true, grp:'woodPm2', scored:false},
+  /* Pulp mill 2's own wood species — confirmed distinguishable from Pulp mill 1's by a "Pulp 2 "
+     header prefix (COL_WOOD2_*), so these are now name-resolved the same way as Pulp mill 1's. */
+  {key:'wood2K58',   col:COL_WOOD2_K58, th:'K58',      unit:'%', dec:1, pct01:true, grp:'woodPm2', scored:false},
+  {key:'wood2K7',    col:COL_WOOD2_K7, th:'K7',       unit:'%', dec:1, pct01:true, grp:'woodPm2', scored:false},
+  {key:'wood2Seed',  col:COL_WOOD2_SEED, th:'Seed',     unit:'%', dec:1, pct01:true, grp:'woodPm2', scored:false},
+  {key:'wood2Other', col:COL_WOOD2_OTHER, th:'Other',    unit:'%', dec:1, pct01:true, grp:'woodPm2', scored:false},
+  {key:'wood2St1m',  col:COL_WOOD2_ST1M, th:'St > 1 m', unit:'%', dec:1, pct01:true, grp:'woodPm2', scored:false},
   /* Combined view — same Pulp mill 1 columns as the primary bar (duplicate keys, not reused, same
      pattern as the "Overview" group's ovw* keys) with a "pairKey" pointing at the matching Pulp
      mill 2 metric: chipMonRenderTiles shows both numbers on the tile, chipMonDrawDetailChart
