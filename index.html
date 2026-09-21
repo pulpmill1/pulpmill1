@@ -1468,6 +1468,18 @@
                     <div class="ya-overview-title">สรุปข้อมูลวิเคราะห์ Yield โรงเยื่อ 1 (This Month vs. Last Month)</div>
                     <div class="ys-body" id="yaOverviewBody_monthly"></div>
                   </div>
+                  <div class="ya-overview-col">
+                    <div class="ya-overview-title">สรุปข้อมูลวิเคราะห์ Yield โรงเยื่อ 1 (This Week vs. Last Week)</div>
+                    <div class="ys-body" id="yaOverviewBody_weekly-weekly"></div>
+                  </div>
+                  <div class="ya-overview-col">
+                    <div class="ya-overview-title">สรุปข้อมูลวิเคราะห์ Yield โรงเยื่อ 1 (Yesterday vs. Budget)</div>
+                    <div class="ys-body" id="yaOverviewBody_yesterday-budget"></div>
+                  </div>
+                  <div class="ya-overview-col">
+                    <div class="ya-overview-title">สรุปข้อมูลวิเคราะห์ Yield โรงเยื่อ 1 (This Month vs. Budget)</div>
+                    <div class="ys-body" id="yaOverviewBody_month-budget"></div>
+                  </div>
                 </div>
               </div>
               <div class="ya-head ya-card-collapsed" data-ya-card="daily"><span class="yhc">▾</span><span class="yt">สรุปข้อมูลวิเคราะห์ Yield โรงเยื่อ 1 (Yesterday vs. the Previous Day)</span><span class="ys">แตกผลต่าง Yield ระหว่างสองช่วงตามปัจจัย — ช่อง Effect รอสูตรคำนวณเฉพาะโรงงาน ค่าที่ดึงได้จาก Google Sheet แล้วจะแสดงในคอลัมน์ช่วงที่ 1/2</span></div>
@@ -8240,10 +8252,10 @@ function renderYawwSummary(){
   const body = document.getElementById('yaWWSummaryBody');
   if(!box || !body) return;
   const yieldPrevEl = document.getElementById('yaWWCell_yieldBdt_prev');
-  if(!yieldPrevEl){ box.hidden = true; return; }
+  if(!yieldPrevEl){ box.hidden = true; yaSetOverview('weekly-weekly', ''); return; }
   const yieldDiff = yaReadDiffNum('yaWWCell_yieldBdt_diffbdt');
   const yieldPct = yaReadDiffNum('yaWWCell_yieldBdt_diffpct');
-  if(document.getElementById('yaWWCell_yieldBdt_diffbdt').textContent === '—'){ box.hidden = true; return; }
+  if(document.getElementById('yaWWCell_yieldBdt_diffbdt').textContent === '—'){ box.hidden = true; yaSetOverview('weekly-weekly', ''); return; }
   box.hidden = false;
   const curLabel = yaHeaderLabel(YAWW_STATE.cur);
   const prevLabel = yaHeaderLabel(YAWW_STATE.prev);
@@ -8287,6 +8299,7 @@ function renderYawwSummary(){
     html += '<div class="ys-group">Unknow (อื่นๆ) ('+yaSummaryNum(unknownDiff,3)+' Bdt/Adt, '+yaSummaryNum(unknownPct,2)+'%)</div>';
   }
   body.innerHTML = html;
+  yaSetOverview('weekly-weekly', html);
 }
 function renderYawwYieldActualRemark(){
   const remarkEl = document.getElementById('yaWWCell_yieldBdt_remark');
@@ -8732,10 +8745,10 @@ function renderYaybSummary(){
   const body = document.getElementById('yaYBSummaryBody');
   if(!box || !body) return;
   const yieldPrevEl = document.getElementById('yaYBCell_yieldBdt_prev');
-  if(!yieldPrevEl){ box.hidden = true; return; }
+  if(!yieldPrevEl){ box.hidden = true; yaSetOverview('yesterday-budget', ''); return; }
   const yieldDiff = yaReadDiffNum('yaYBCell_yieldBdt_diffbdt');
   const yieldPct = yaReadDiffNum('yaYBCell_yieldBdt_diffpct');
-  if(document.getElementById('yaYBCell_yieldBdt_diffbdt').textContent === '—'){ box.hidden = true; return; }
+  if(document.getElementById('yaYBCell_yieldBdt_diffbdt').textContent === '—'){ box.hidden = true; yaSetOverview('yesterday-budget', ''); return; }
   box.hidden = false;
   const curLabel = yaHeaderLabel(YAYB_STATE.cur);
   const prevLabel = yaHeaderLabel(YAYB_STATE.prev);
@@ -8779,6 +8792,7 @@ function renderYaybSummary(){
     html += '<div class="ys-group">Unknow (อื่นๆ) ('+yaSummaryNum(unknownDiff,3)+' Bdt/Adt, '+yaSummaryNum(unknownPct,2)+'%)</div>';
   }
   body.innerHTML = html;
+  yaSetOverview('yesterday-budget', html);
 }
 function renderYaybYieldActualRemark(){
   const remarkEl = document.getElementById('yaYBCell_yieldBdt_remark');
@@ -9224,10 +9238,10 @@ function renderYambSummary(){
   const body = document.getElementById('yaMBSummaryBody');
   if(!box || !body) return;
   const yieldPrevEl = document.getElementById('yaMBCell_yieldBdt_prev');
-  if(!yieldPrevEl){ box.hidden = true; return; }
+  if(!yieldPrevEl){ box.hidden = true; yaSetOverview('month-budget', ''); return; }
   const yieldDiff = yaReadDiffNum('yaMBCell_yieldBdt_diffbdt');
   const yieldPct = yaReadDiffNum('yaMBCell_yieldBdt_diffpct');
-  if(document.getElementById('yaMBCell_yieldBdt_diffbdt').textContent === '—'){ box.hidden = true; return; }
+  if(document.getElementById('yaMBCell_yieldBdt_diffbdt').textContent === '—'){ box.hidden = true; yaSetOverview('month-budget', ''); return; }
   box.hidden = false;
   const curLabel = yaHeaderLabel(YAMB_STATE.cur);
   const prevLabel = yaHeaderLabel(YAMB_STATE.prev);
@@ -9271,6 +9285,7 @@ function renderYambSummary(){
     html += '<div class="ys-group">Unknow (อื่นๆ) ('+yaSummaryNum(unknownDiff,3)+' Bdt/Adt, '+yaSummaryNum(unknownPct,2)+'%)</div>';
   }
   body.innerHTML = html;
+  yaSetOverview('month-budget', html);
 }
 function renderYambYieldActualRemark(){
   const remarkEl = document.getElementById('yaMBCell_yieldBdt_remark');
