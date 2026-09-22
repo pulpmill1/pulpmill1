@@ -9760,31 +9760,55 @@ function woodCmpFilterRows(mode, value){
   const p = value.split('-').map(Number);
   return base.filter(x=> x.y===p[0] && x.mi===p[1]-1);
 }
+function woodCmpAvg(series, y, mi){
+  const vals = series.filter(x=> x.y===y && x.mi===mi).map(x=> x.v);
+  return vals.length ? vals.reduce((a,b)=> a+b, 0)/vals.length : null;
+}
+/* "ปี" mode shows one row per month (average of that month's daily %) rather than every single
+   day of the year — a whole year of raw daily rows would be unreadable in a 10-column table. */
+function woodCmpYearlyRows(year, cols){
+  const months = [];
+  for(let mi=0; mi<12; mi++){
+    const own = cols.map(c=> woodCmpAvg(CHIP_MON_SERIES[c.key]||[], year, mi));
+    const pair = cols.map(c=> woodCmpAvg(CHIP_MON_SERIES[c.pairKey]||[], year, mi));
+    if(own.some(v=> v!=null) || pair.some(v=> v!=null)) months.push({y:year, mi, own, pair});
+  }
+  return months;
+}
 function woodCmpRenderBody(){
   const body = document.getElementById('woodCmpBody');
   if(!body) return;
-  const rows = woodCmpFilterRows(WOOD_CMP_RANGE.mode, WOOD_CMP_RANGE.value);
-  const rangeNote = '<div class="md-rangenote">'+chipMonRangeLabel(rows)+'</div>';
   const cols = WOOD_CMP_COLS.map(c=> {
     const meta = CHIP_MON_META.find(x=> x.key===c.key);
-    return {
-      label:c.label, dec: meta ? meta.dec : 1,
+    return { label:c.label, key:c.key, pairKey:c.pairKey, dec: meta ? meta.dec : 1 };
+  });
+  const EN = currentLang==='en';
+  const f = (v, dec) => v==null ? '—' : v.toLocaleString('en-US', {minimumFractionDigits:dec, maximumFractionDigits:dec});
+  const theadHtml = '<th>'+(EN?'Date':'วันที่')+'</th>'
+    + cols.map(c=> '<th>Pulp 1 '+c.label+' (%)</th>').join('')
+    + cols.map(c=> '<th>Pulp 2 '+c.label+' (%)</th>').join('');
+  let tbodyHtml, rangeNote;
+  if(WOOD_CMP_RANGE.mode === 'year' && WOOD_CMP_RANGE.value){
+    const monthRows = woodCmpYearlyRows(Number(WOOD_CMP_RANGE.value), cols);
+    const monLbl = mi => EN ? MONTH_ABBR_EN[mi] : MONTH_ABBR_TH[mi];
+    tbodyHtml = monthRows.map(r=> '<tr><td>'+monLbl(r.mi)+' '+r.y+'</td>'
+        + cols.map((c,i)=> '<td class="num">'+f(r.own[i], c.dec)+'</td>').join('')
+        + cols.map((c,i)=> '<td class="num">'+f(r.pair[i], c.dec)+'</td>').join('')
+        + '</tr>').join('');
+    rangeNote = '<div class="md-rangenote">'+(EN ? 'Showing: monthly average, '+WOOD_CMP_RANGE.value : 'ช่วงข้อมูลที่แสดง: ค่าเฉลี่ยรายเดือน ปี '+WOOD_CMP_RANGE.value)+'</div>';
+  } else {
+    const rows = woodCmpFilterRows(WOOD_CMP_RANGE.mode, WOOD_CMP_RANGE.value);
+    const colMaps = cols.map(c=> ({
       own:new Map((CHIP_MON_SERIES[c.key]||[]).map(x=> [x.ts, x.v])),
       pair:new Map((CHIP_MON_SERIES[c.pairKey]||[]).map(x=> [x.ts, x.v]))
-    };
-  });
-  const dcol = currentLang==='en' ? 'Date' : 'วันที่';
-  const f = (v, dec) => v==null ? '—' : v.toLocaleString('en-US', {minimumFractionDigits:dec, maximumFractionDigits:dec});
-  body.innerHTML = '<div class="md-tablewrap"><table class="md-table wide"><thead><tr>'
-    + '<th>'+dcol+'</th>'
-    + cols.map(c=> '<th>Pulp 1 '+c.label+' (%)</th>').join('')
-    + cols.map(c=> '<th>Pulp 2 '+c.label+' (%)</th>').join('')
-    + '</tr></thead><tbody>'
-    + rows.map(x=> '<tr><td>'+x.d+'/'+(x.mi+1)+'/'+x.y+'</td>'
-        + cols.map(c=> '<td class="num">'+f(c.own.get(x.ts), c.dec)+'</td>').join('')
-        + cols.map(c=> '<td class="num">'+f(c.pair.get(x.ts), c.dec)+'</td>').join('')
-        + '</tr>').join('')
-    + '</tbody></table></div>' + rangeNote;
+    }));
+    tbodyHtml = rows.map(x=> '<tr><td>'+x.d+'/'+(x.mi+1)+'/'+x.y+'</td>'
+        + colMaps.map((c,i)=> '<td class="num">'+f(c.own.get(x.ts), cols[i].dec)+'</td>').join('')
+        + colMaps.map((c,i)=> '<td class="num">'+f(c.pair.get(x.ts), cols[i].dec)+'</td>').join('')
+        + '</tr>').join('');
+    rangeNote = '<div class="md-rangenote">'+chipMonRangeLabel(rows)+'</div>';
+  }
+  body.innerHTML = '<div class="md-tablewrap"><table class="md-table wide"><thead><tr>'+theadHtml+'</tr></thead><tbody>'+tbodyHtml+'</tbody></table></div>' + rangeNote;
 }
 function initWoodCmp(){
   const modeEl = document.getElementById('woodCmpMode');
