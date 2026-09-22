@@ -2056,6 +2056,19 @@
               <div class="mon-detail" id="chipDetail_woodTotal" hidden></div>
             </div>
             <div class="mon-group">
+              <div class="mon-group-head"><span class="gi">🌲</span><span class="gt">Wood species Pulp mill 1 + Pulp mill 2 (ตารางเปรียบเทียบ)</span><span class="gs">10 คอลัมภ์ · เลือกช่วงข้อมูลรายวันหรือรายเดือน</span></div>
+              <div class="ya-controls">
+                <div class="ya-picker">
+                  <span class="yp-lbl">ช่วงข้อมูล</span>
+                  <select id="woodCmpMode"><option value="date">วัน</option><option value="month" selected>เดือน</option><option value="year">ปี</option></select>
+                  <input type="date" id="woodCmpDate" hidden>
+                  <input type="month" id="woodCmpMonth">
+                  <select id="woodCmpYear" hidden></select>
+                </div>
+              </div>
+              <div class="md-body" id="woodCmpBody"></div>
+            </div>
+            <div class="mon-group">
               <div class="mon-group-head"><span class="gi">🍲</span><span class="gt">Cooking Kappa</span><span class="gs">2 ค่า · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
               <div class="mon-tiles" id="chipTiles_cook"></div>
               <div class="mon-detail" id="chipDetail_cook" hidden></div>
@@ -5540,6 +5553,7 @@ function applyLang(lang){
     if(typeof renderYieldAnalysisTableWW === 'function') renderYieldAnalysisTableWW();
     if(typeof renderYieldAnalysisTableYB === 'function') renderYieldAnalysisTableYB();
     if(typeof renderYieldAnalysisTableMB === 'function') renderYieldAnalysisTableMB();
+    if(typeof woodCmpRenderBody === 'function' && document.getElementById('woodCmpBody')) woodCmpRenderBody();
   }
   if(typeof wsdRenderTiles === 'function' && typeof WSD_METRICS !== 'undefined'){ WSD_METRICS.forEach(function(m){ if(document.getElementById('wsdHost_'+m.id)){ wsdRenderTiles(m); wsdRenderDetail(m); } }); }
   if(typeof rmwRenderTiles === 'function' && document.getElementById('rmwHost')){ rmwRenderTiles(); rmwRenderDetail(); }
@@ -9724,6 +9738,71 @@ function chipMonRangeLabel(rows){
   const dayWord = EN ? (rows.length===1?'day':'days') : 'วัน';
   return first.ts===last.ts ? (lbl+': '+f(first)) : (lbl+': '+f(first)+' – '+f(last)+' ('+rows.length+' '+dayWord+')');
 }
+/* ---- Wood species Pulp mill 1 + Pulp mill 2 — combined comparison table ----
+   A dedicated section right after the "Wood species Pulp mill 1 + Pulp mill 2" tile group: always
+   shows all 5 species x 2 mills (10 columns) side by side, matching the sheet's own wide layout,
+   with its own วัน/เดือน/ปี range picker (independent of that group's tile-click state). */
+const WOOD_CMP_COLS = [
+  {label:'K7',     key:'woodTotalK7',    pairKey:'wood2K7'},
+  {label:'K58',    key:'woodTotalK58',   pairKey:'wood2K58'},
+  {label:'Seed',   key:'woodTotalSeed',  pairKey:'wood2Seed'},
+  {label:'Other',  key:'woodTotalOther', pairKey:'wood2Other'},
+  {label:'St>1 m', key:'woodTotalSt1m',  pairKey:'wood2St1m'},
+];
+const woodCmpToday = new Date();
+const WOOD_CMP_DEFAULT_MONTH = woodCmpToday.getFullYear()+'-'+String(woodCmpToday.getMonth()+1).padStart(2,'0');
+const WOOD_CMP_RANGE = { mode:'month', value:WOOD_CMP_DEFAULT_MONTH };
+function woodCmpFilterRows(mode, value){
+  const base = CHIP_MON_SERIES.woodTotalK7 || [];
+  if(!value) return base.slice(-30);
+  if(mode==='date'){ const p = value.split('-').map(Number); return base.filter(x=> x.y===p[0] && x.mi===p[1]-1 && x.d===p[2]); }
+  if(mode==='year') return base.filter(x=> x.y===Number(value));
+  const p = value.split('-').map(Number);
+  return base.filter(x=> x.y===p[0] && x.mi===p[1]-1);
+}
+function woodCmpRenderBody(){
+  const body = document.getElementById('woodCmpBody');
+  if(!body) return;
+  const rows = woodCmpFilterRows(WOOD_CMP_RANGE.mode, WOOD_CMP_RANGE.value);
+  const rangeNote = '<div class="md-rangenote">'+chipMonRangeLabel(rows)+'</div>';
+  const cols = WOOD_CMP_COLS.map(c=> {
+    const meta = CHIP_MON_META.find(x=> x.key===c.key);
+    return {
+      label:c.label, dec: meta ? meta.dec : 1,
+      own:new Map((CHIP_MON_SERIES[c.key]||[]).map(x=> [x.ts, x.v])),
+      pair:new Map((CHIP_MON_SERIES[c.pairKey]||[]).map(x=> [x.ts, x.v]))
+    };
+  });
+  const dcol = currentLang==='en' ? 'Date' : 'วันที่';
+  const f = (v, dec) => v==null ? '—' : v.toLocaleString('en-US', {minimumFractionDigits:dec, maximumFractionDigits:dec});
+  body.innerHTML = '<div class="md-tablewrap"><table class="md-table wide"><thead><tr>'
+    + '<th>'+dcol+'</th>'
+    + cols.map(c=> '<th>Pulp 1 '+c.label+' (%)</th>').join('')
+    + cols.map(c=> '<th>Pulp 2 '+c.label+' (%)</th>').join('')
+    + '</tr></thead><tbody>'
+    + rows.map(x=> '<tr><td>'+x.d+'/'+(x.mi+1)+'/'+x.y+'</td>'
+        + cols.map(c=> '<td class="num">'+f(c.own.get(x.ts), c.dec)+'</td>').join('')
+        + cols.map(c=> '<td class="num">'+f(c.pair.get(x.ts), c.dec)+'</td>').join('')
+        + '</tr>').join('')
+    + '</tbody></table></div>' + rangeNote;
+}
+function initWoodCmp(){
+  const modeEl = document.getElementById('woodCmpMode');
+  if(!modeEl) return;
+  const dateEl = document.getElementById('woodCmpDate'), monthEl = document.getElementById('woodCmpMonth'), yearEl = document.getElementById('woodCmpYear');
+  const years = Array.from(new Set((CHIP_MON_SERIES.woodTotalK7||[]).map(x=> x.y))).sort();
+  yearEl.innerHTML = years.map(y=> '<option value="'+y+'">'+y+'</option>').join('');
+  monthEl.value = WOOD_CMP_DEFAULT_MONTH;
+  const applyRange = ()=> {
+    const mode = modeEl.value;
+    dateEl.hidden = mode!=='date'; monthEl.hidden = mode!=='month'; yearEl.hidden = mode!=='year';
+    WOOD_CMP_RANGE.mode = mode;
+    WOOD_CMP_RANGE.value = mode==='date' ? dateEl.value : mode==='month' ? monthEl.value : yearEl.value;
+    woodCmpRenderBody();
+  };
+  [modeEl, dateEl, monthEl, yearEl].forEach(el=> { el.addEventListener('change', applyRange); el.addEventListener('input', applyRange); });
+  woodCmpRenderBody();
+}
 function chipMonRenderDetailBody(grpId, m, a, tgt){
   const body = document.getElementById('chipDetailBody_'+grpId);
   if(!body) return;
@@ -9732,30 +9811,7 @@ function chipMonRenderDetailBody(grpId, m, a, tgt){
   if(chipMonCharts[grpId]){ chipMonCharts[grpId].destroy(); chipMonCharts[grpId] = null; }
   const rows = chipMonDetailRows(grpId, m, a);
   const rangeNote = '<div class="md-rangenote">'+chipMonRangeLabel(rows)+'</div>';
-  if(view === 'table' && grpId === 'woodTotal'){
-    // Combined Wood species table: regardless of which single species tile is selected, the table
-    // always shows all 5 species × both mills side by side (10 columns) — same "table view always
-    // shows the full comparison, chart view singles one out" split the RMW digester table uses.
-    const dcol = currentLang==='en' ? 'Date' : 'วันที่';
-    const pairKeys = ['woodTotalK7','woodTotalK58','woodTotalSeed','woodTotalOther','woodTotalSt1m'];
-    const pairMetrics = pairKeys.map(k=> CHIP_MON_META.find(x=> x.key===k)).filter(Boolean);
-    const cols = pairMetrics.map(pm=> ({
-      th:pm.th, dec:pm.dec,
-      own:new Map((CHIP_MON_SERIES[pm.key]||[]).map(x=> [x.ts, x.v])),
-      pair:new Map((CHIP_MON_SERIES[pm.pairKey]||[]).map(x=> [x.ts, x.v]))
-    }));
-    const f = (v, dec) => v==null ? '—' : v.toLocaleString('en-US', {minimumFractionDigits:dec, maximumFractionDigits:dec});
-    body.innerHTML = '<div class="md-tablewrap"><table class="md-table wide"><thead><tr>'
-      + '<th>'+dcol+'</th>'
-      + cols.map(c=> '<th>Pulp 1 '+c.th+' (%)</th>').join('')
-      + cols.map(c=> '<th>Pulp 2 '+c.th+' (%)</th>').join('')
-      + '</tr></thead><tbody>'
-      + rows.map(x=> '<tr><td>'+x.d+'/'+(x.mi+1)+'/'+x.y+'</td>'
-          + cols.map(c=> '<td class="num">'+f(c.own.get(x.ts), c.dec)+'</td>').join('')
-          + cols.map(c=> '<td class="num">'+f(c.pair.get(x.ts), c.dec)+'</td>').join('')
-          + '</tr>').join('')
-      + '</tbody></table></div>' + rangeNote;
-  } else if(view === 'table'){
+  if(view === 'table'){
     const f = v => v==null ? '—' : v.toLocaleString('en-US', {minimumFractionDigits:m.dec, maximumFractionDigits:m.dec});
     const dcol = currentLang==='en' ? 'Date' : 'วันที่';
     body.innerHTML = '<div class="md-tablewrap"><table class="md-table"><thead><tr><th>'+dcol+'</th><th>'+m.th+' ('+(m.unit||'—')+')</th></tr></thead><tbody>'
@@ -9904,6 +9960,7 @@ function initChipMon(){
   initYieldAnalysisControlsYB();
   initYieldAnalysisControlsMB();
   initYaCardCollapse();
+  initWoodCmp();
   CHIP_MON_GROUPS.forEach(grp=> {
     chipMonRenderTiles(grp);
     // every group starts collapsed (tiles only) — except 'yield', which has no tile of its
@@ -9937,6 +9994,7 @@ function initChipMon(){
     renderYieldAnalysisTableWW();
     renderYieldAnalysisTableYB();
     renderYieldAnalysisTableMB();
+    woodCmpRenderBody();
     CHIP_MON_GROUPS.forEach(grp=> { chipMonRenderTiles(grp); chipMonRenderDetail(grp.id); });
     if(typeof renderNotifCentre === 'function') renderNotifCentre();
   });
