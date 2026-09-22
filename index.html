@@ -2066,6 +2066,7 @@
                   <select id="woodCmpYear" hidden></select>
                 </div>
               </div>
+              <div class="md-chart-wrap"><canvas id="woodCmpChart"></canvas></div><div class="legend-row" id="woodCmpLegend"></div>
               <div class="md-body" id="woodCmpBody"></div>
             </div>
             <div class="mon-group">
@@ -9785,9 +9786,59 @@ function woodCmpYearlyRows(year, cols){
   }
   return months;
 }
+function woodCmpCurrentYear(){
+  const v = WOOD_CMP_RANGE.value;
+  return v ? Number(v.split('-')[0]) : woodCmpToday.getFullYear();
+}
+let woodCmpChart = null;
+/* Chart always plots Jan–Dec of whichever year the current Data range selection falls in (date
+   and month modes just pick out their own year; year mode uses the selected year directly) —
+   monthly Yield Pulp 1/2 averages, same formula and same source data as the table's own year view. */
+function woodCmpDrawChart(){
+  const cv = document.getElementById('woodCmpChart');
+  if(!cv) return;
+  const year = woodCmpCurrentYear();
+  const monthRows = woodCmpYearlyRows(year, WOOD_CMP_COLS);
+  const byMi = new Map(monthRows.map(r=> [r.mi, r]));
+  const EN = currentLang==='en';
+  const labels = Array.from({length:12}, (_,mi)=> EN ? MONTH_ABBR_EN[mi] : MONTH_ABBR_TH[mi]);
+  const pulp1Vals = Array.from({length:12}, (_,mi)=> { const r = byMi.get(mi); return r ? woodCmpYieldValue(r.own) : null; });
+  const pulp2Vals = Array.from({length:12}, (_,mi)=> { const r = byMi.get(mi); return r ? woodCmpYieldValue(r.pair) : null; });
+  const c = { ink2:cssVar('--ink-2'), grid:cssVar('--grid'), surface:cssVar('--surface'), border:cssVar('--border'), ink:cssVar('--ink') };
+  const col1 = '#5B8C2A', col2 = '#2A8C6E';
+  const allVals = pulp1Vals.concat(pulp2Vals).filter(v=> v!=null);
+  let lo = allVals.length ? Math.min(...allVals) : 0, hi = allVals.length ? Math.max(...allVals) : 1;
+  const pad = (hi-lo)*0.16 || 0.1;
+  lo -= pad; hi += pad;
+  const cfg = {
+    data:{ labels, datasets:[
+      { type:'line', label:'Pulp mill 1', data:pulp1Vals, borderColor:col1, backgroundColor:col1,
+        borderWidth:1.8, pointRadius:2.6, pointBackgroundColor:col1, tension:.25, spanGaps:true, order:1, datalabels:{display:false} },
+      { type:'line', label:'Pulp mill 2', data:pulp2Vals, borderColor:col2, backgroundColor:col2,
+        borderWidth:1.8, pointRadius:2.6, pointBackgroundColor:col2, tension:.25, spanGaps:true, order:2, datalabels:{display:false} }
+    ]},
+    options:{ responsive:true, maintainAspectRatio:false, interaction:{mode:'index', intersect:false},
+      scales:{
+        x:{ grid:{display:false}, ticks:{color:c.ink2, font:{family:'IBM Plex Mono', size:10}} },
+        y:{ min:lo, max:hi, grid:{color:c.grid}, ticks:{color:c.ink2, font:{family:'IBM Plex Mono', size:10.5}} }
+      },
+      plugins:{ legend:{display:false},
+        tooltip:{ position:'cursorOffset', backgroundColor:c.surface, titleColor:c.ink, bodyColor:c.ink2, borderColor:c.border, borderWidth:1, padding:9,
+          callbacks:{ label:(x)=> x.dataset.label+': '+(x.parsed.y==null?'—':x.parsed.y.toFixed(3))+' Bdt/Adt' } } }
+    }
+  };
+  if(woodCmpChart){ try{ woodCmpChart.destroy(); }catch(e){} }
+  woodCmpChart = new Chart(cv.getContext('2d'), cfg);
+  const leg = document.getElementById('woodCmpLegend');
+  if(leg){
+    leg.innerHTML = '<span class="item"><span class="box" style="background:'+col1+'"></span>Pulp mill 1</span>'
+      + '<span class="item"><span class="box" style="background:'+col2+'"></span>Pulp mill 2</span>';
+  }
+}
 function woodCmpRenderBody(){
   const body = document.getElementById('woodCmpBody');
   if(!body) return;
+  woodCmpDrawChart();
   const cols = WOOD_CMP_COLS.map(c=> {
     const meta = CHIP_MON_META.find(x=> x.key===c.key);
     return { label:c.label, key:c.key, pairKey:c.pairKey, dec: meta ? meta.dec : 1 };
