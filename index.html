@@ -612,6 +612,7 @@
   table.md-table td.num{font-family:"IBM Plex Mono",monospace;text-align:center;}
   table.md-table tbody tr:nth-child(2n){background:var(--surface-2);}
   table.md-table.wide th,table.md-table.wide td{width:auto;}
+  table.md-table th.wcmp-key{background:var(--accent);color:var(--surface);}
   table.md-table tr.wsd-alert-row td{color:#d4342c;font-weight:700;background-color:rgba(212,52,44,.12);}
   table.md-table td.wsd-alert-cell{color:#d4342c;font-weight:700;background-color:rgba(212,52,44,.12);}
   .wsd-alert-dot{position:absolute;width:9px;height:9px;border-radius:50%;background:#d4342c;box-shadow:0 0 5px #d4342c;transform:translate(-50%,-50%);pointer-events:none;z-index:3;}
@@ -9845,10 +9846,10 @@ function woodCmpRenderBody(){
   });
   const EN = currentLang==='en';
   const f = (v, dec) => v==null ? '—' : v.toLocaleString('en-US', {minimumFractionDigits:dec, maximumFractionDigits:dec});
-  const theadHtml = '<th>'+(EN?'Date':'วันที่')+'</th>'
-    + '<th>Yield Pulp 1 (Bdt/Adt)</th>'
+  const theadHtml = '<th class="wcmp-key">'+(EN?'Date':'วันที่')+'</th>'
+    + '<th class="wcmp-key">Yield Pulp 1 (Bdt/Adt)</th>'
     + cols.map(c=> '<th>Pulp 1 '+c.label+' (%)</th>').join('')
-    + '<th>Yield Pulp 2 (Bdt/Adt)</th>'
+    + '<th class="wcmp-key">Yield Pulp 2 (Bdt/Adt)</th>'
     + cols.map(c=> '<th>Pulp 2 '+c.label+' (%)</th>').join('');
   let tbodyHtml, rangeNote;
   if(WOOD_CMP_RANGE.mode === 'year' && WOOD_CMP_RANGE.value){
