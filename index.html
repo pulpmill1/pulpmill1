@@ -9732,7 +9732,30 @@ function chipMonRenderDetailBody(grpId, m, a, tgt){
   if(chipMonCharts[grpId]){ chipMonCharts[grpId].destroy(); chipMonCharts[grpId] = null; }
   const rows = chipMonDetailRows(grpId, m, a);
   const rangeNote = '<div class="md-rangenote">'+chipMonRangeLabel(rows)+'</div>';
-  if(view === 'table'){
+  if(view === 'table' && grpId === 'woodTotal'){
+    // Combined Wood species table: regardless of which single species tile is selected, the table
+    // always shows all 5 species × both mills side by side (10 columns) — same "table view always
+    // shows the full comparison, chart view singles one out" split the RMW digester table uses.
+    const dcol = currentLang==='en' ? 'Date' : 'วันที่';
+    const pairKeys = ['woodTotalK7','woodTotalK58','woodTotalSeed','woodTotalOther','woodTotalSt1m'];
+    const pairMetrics = pairKeys.map(k=> CHIP_MON_META.find(x=> x.key===k)).filter(Boolean);
+    const cols = pairMetrics.map(pm=> ({
+      th:pm.th, dec:pm.dec,
+      own:new Map((CHIP_MON_SERIES[pm.key]||[]).map(x=> [x.ts, x.v])),
+      pair:new Map((CHIP_MON_SERIES[pm.pairKey]||[]).map(x=> [x.ts, x.v]))
+    }));
+    const f = (v, dec) => v==null ? '—' : v.toLocaleString('en-US', {minimumFractionDigits:dec, maximumFractionDigits:dec});
+    body.innerHTML = '<div class="md-tablewrap"><table class="md-table wide"><thead><tr>'
+      + '<th>'+dcol+'</th>'
+      + cols.map(c=> '<th>Pulp 1 '+c.th+' (%)</th>').join('')
+      + cols.map(c=> '<th>Pulp 2 '+c.th+' (%)</th>').join('')
+      + '</tr></thead><tbody>'
+      + rows.map(x=> '<tr><td>'+x.d+'/'+(x.mi+1)+'/'+x.y+'</td>'
+          + cols.map(c=> '<td class="num">'+f(c.own.get(x.ts), c.dec)+'</td>').join('')
+          + cols.map(c=> '<td class="num">'+f(c.pair.get(x.ts), c.dec)+'</td>').join('')
+          + '</tr>').join('')
+      + '</tbody></table></div>' + rangeNote;
+  } else if(view === 'table'){
     const f = v => v==null ? '—' : v.toLocaleString('en-US', {minimumFractionDigits:m.dec, maximumFractionDigits:m.dec});
     const dcol = currentLang==='en' ? 'Date' : 'วันที่';
     body.innerHTML = '<div class="md-tablewrap"><table class="md-table"><thead><tr><th>'+dcol+'</th><th>'+m.th+' ('+(m.unit||'—')+')</th></tr></thead><tbody>'
