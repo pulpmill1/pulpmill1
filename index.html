@@ -2056,7 +2056,7 @@
               <div class="mon-detail" id="chipDetail_woodTotal" hidden></div>
             </div>
             <div class="mon-group">
-              <div class="mon-group-head"><span class="gi">🌲</span><span class="gt">Wood species Pulp mill 1 + Pulp mill 2 (ตารางเปรียบเทียบ)</span><span class="gs">10 คอลัมภ์ · เลือกช่วงข้อมูลรายวันหรือรายเดือน</span></div>
+              <div class="mon-group-head"><span class="gi">🌲</span><span class="gt">Wood species Pulp mill 1 + Pulp mill 2 (ตารางเปรียบเทียบ)</span><span class="gs">12 คอลัมภ์ · เลือกช่วงข้อมูลรายวันหรือรายเดือน</span></div>
               <div class="ya-controls">
                 <div class="ya-picker">
                   <span class="yp-lbl">ช่วงข้อมูล</span>
@@ -9742,13 +9742,23 @@ function chipMonRangeLabel(rows){
    A dedicated section right after the "Wood species Pulp mill 1 + Pulp mill 2" tile group: always
    shows all 5 species x 2 mills (10 columns) side by side, matching the sheet's own wide layout,
    with its own วัน/เดือน/ปี range picker (independent of that group's tile-click state). */
+/* factor per species = the same R&D yield factor Effect Wood species already uses (YA_WOOD_SPECIES) —
+   St>1 m's own factor (2.127), not Seed's, closes out the "Yield Pulp N" formula (user's spec
+   repeated "Seed" for the 5th term, which duplicates Seed's own factor twice and leaves St>1 m
+   uncounted; corrected here to match the existing Effect Wood species formula elsewhere). */
 const WOOD_CMP_COLS = [
-  {label:'K7',     key:'woodTotalK7',    pairKey:'wood2K7'},
-  {label:'K58',    key:'woodTotalK58',   pairKey:'wood2K58'},
-  {label:'Seed',   key:'woodTotalSeed',  pairKey:'wood2Seed'},
-  {label:'Other',  key:'woodTotalOther', pairKey:'wood2Other'},
-  {label:'St>1 m', key:'woodTotalSt1m',  pairKey:'wood2St1m'},
+  {label:'K7',     key:'woodTotalK7',    pairKey:'wood2K7',    factor:2.033},
+  {label:'K58',    key:'woodTotalK58',   pairKey:'wood2K58',   factor:1.883},
+  {label:'Seed',   key:'woodTotalSeed',  pairKey:'wood2Seed',  factor:2.090},
+  {label:'Other',  key:'woodTotalOther', pairKey:'wood2Other', factor:2.010},
+  {label:'St>1 m', key:'woodTotalSt1m',  pairKey:'wood2St1m',  factor:2.127},
 ];
+/* Yield Pulp N (Bdt/Adt) = Σ (species % ÷ 100 × its factor) — same weighted-average formula as
+   yaEffectWoodValue, just computed per row of this table instead of for the Yield Analysis card. */
+function woodCmpYieldValue(vals){
+  if(vals.some(v=> v==null)) return null;
+  return vals.reduce((sum, v, i)=> sum + (v/100)*WOOD_CMP_COLS[i].factor, 0);
+}
 const woodCmpToday = new Date();
 const WOOD_CMP_DEFAULT_MONTH = woodCmpToday.getFullYear()+'-'+String(woodCmpToday.getMonth()+1).padStart(2,'0');
 const WOOD_CMP_RANGE = { mode:'month', value:WOOD_CMP_DEFAULT_MONTH };
@@ -9785,14 +9795,18 @@ function woodCmpRenderBody(){
   const EN = currentLang==='en';
   const f = (v, dec) => v==null ? '—' : v.toLocaleString('en-US', {minimumFractionDigits:dec, maximumFractionDigits:dec});
   const theadHtml = '<th>'+(EN?'Date':'วันที่')+'</th>'
+    + '<th>Yield Pulp 1 (Bdt/Adt)</th>'
     + cols.map(c=> '<th>Pulp 1 '+c.label+' (%)</th>').join('')
+    + '<th>Yield Pulp 2 (Bdt/Adt)</th>'
     + cols.map(c=> '<th>Pulp 2 '+c.label+' (%)</th>').join('');
   let tbodyHtml, rangeNote;
   if(WOOD_CMP_RANGE.mode === 'year' && WOOD_CMP_RANGE.value){
     const monthRows = woodCmpYearlyRows(Number(WOOD_CMP_RANGE.value), cols);
     const monLbl = mi => EN ? MONTH_ABBR_EN[mi] : MONTH_ABBR_TH[mi];
     tbodyHtml = monthRows.map(r=> '<tr><td>'+monLbl(r.mi)+' '+r.y+'</td>'
+        + '<td class="num">'+f(woodCmpYieldValue(r.own), 3)+'</td>'
         + cols.map((c,i)=> '<td class="num">'+f(r.own[i], c.dec)+'</td>').join('')
+        + '<td class="num">'+f(woodCmpYieldValue(r.pair), 3)+'</td>'
         + cols.map((c,i)=> '<td class="num">'+f(r.pair[i], c.dec)+'</td>').join('')
         + '</tr>').join('');
     rangeNote = '<div class="md-rangenote">'+(EN ? 'Showing: monthly average, '+WOOD_CMP_RANGE.value : 'ช่วงข้อมูลที่แสดง: ค่าเฉลี่ยรายเดือน ปี '+WOOD_CMP_RANGE.value)+'</div>';
@@ -9802,10 +9816,16 @@ function woodCmpRenderBody(){
       own:new Map((CHIP_MON_SERIES[c.key]||[]).map(x=> [x.ts, x.v])),
       pair:new Map((CHIP_MON_SERIES[c.pairKey]||[]).map(x=> [x.ts, x.v]))
     }));
-    tbodyHtml = rows.map(x=> '<tr><td>'+x.d+'/'+(x.mi+1)+'/'+x.y+'</td>'
-        + colMaps.map((c,i)=> '<td class="num">'+f(c.own.get(x.ts), cols[i].dec)+'</td>').join('')
-        + colMaps.map((c,i)=> '<td class="num">'+f(c.pair.get(x.ts), cols[i].dec)+'</td>').join('')
-        + '</tr>').join('');
+    tbodyHtml = rows.map(x=> {
+      const ownVals = colMaps.map(c=> c.own.get(x.ts) ?? null);
+      const pairVals = colMaps.map(c=> c.pair.get(x.ts) ?? null);
+      return '<tr><td>'+x.d+'/'+(x.mi+1)+'/'+x.y+'</td>'
+        + '<td class="num">'+f(woodCmpYieldValue(ownVals), 3)+'</td>'
+        + ownVals.map((v,i)=> '<td class="num">'+f(v, cols[i].dec)+'</td>').join('')
+        + '<td class="num">'+f(woodCmpYieldValue(pairVals), 3)+'</td>'
+        + pairVals.map((v,i)=> '<td class="num">'+f(v, cols[i].dec)+'</td>').join('')
+        + '</tr>';
+    }).join('');
     rangeNote = '<div class="md-rangenote">'+chipMonRangeLabel(rows)+'</div>';
   }
   body.innerHTML = '<div class="md-tablewrap"><table class="md-table wide"><thead><tr>'+theadHtml+'</tr></thead><tbody>'+tbodyHtml+'</tbody></table></div>' + rangeNote;
