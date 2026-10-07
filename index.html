@@ -1960,7 +1960,7 @@
             <div class="lp-head">
               <div>
                 <div class="chart-title">Loss 80:20 Dashboard</div>
-                <div class="hint">Pareto analysis ของ Loss Production (ADT) — ดึงข้อมูลสดจาก Google Sheet "Loss 80:20 dashboard sorce" (แท็บ 2021–2026) · หน่วย: <b>ADT</b></div>
+                <div class="hint">Pareto analysis ของ Loss Production (ADT) — ดึงข้อมูลสดจาก Google Sheet "Loss 80:20 dashboard sorce" (แท็บ 2022–2026) · หน่วย: <b>ADT</b></div>
               </div>
               <div class="lp-updated" id="lpUpdated">กำลังโหลดข้อมูล…</div>
             </div>
@@ -1971,7 +1971,7 @@
               <div class="field">
                 <label for="lpPeriodPreset">ช่วงเวลา</label>
                 <select id="lpPeriodPreset">
-                  <option value="all">All Data 2021-2026</option>
+                  <option value="all">All Data 2022-2026</option>
                   <option value="fullYear" selected>Full Year</option>
                   <option value="singleMonth">เดือนเดียว</option>
                   <option value="monthRange">Start Month ถึง End Month</option>
@@ -1988,9 +1988,8 @@
               <div class="field"><label for="lpMonthB">To Month</label><select id="lpMonthB"></select></div>
               <div class="field"><label for="lpMultiYears">เลือกหลายปี (Ctrl/Cmd+คลิก)</label><select id="lpMultiYears" multiple></select></div>
               <div class="field"><label for="lpFilterEqNum">EQ num</label><select id="lpFilterEqNum"></select></div>
-              <div class="field"><label for="lpFilterEqName">EQ name</label><select id="lpFilterEqName"></select></div>
+              <div class="field"><label for="lpFilterEqName">EQ Type</label><select id="lpFilterEqName"></select></div>
               <div class="field"><label for="lpFilterType">Type</label><select id="lpFilterType"></select></div>
-              <div class="field"><label for="lpFilterSubtype">Sub Type</label><select id="lpFilterSubtype"></select></div>
               <div class="field">
                 <label for="lpFilterClsSource">Classification Source</label>
                 <select id="lpFilterClsSource">
@@ -2018,9 +2017,8 @@
                 <select id="lpParetoBy">
                   <option value="eqNumType" selected>EQ num : Type</option>
                   <option value="type">Type</option>
-                  <option value="subtype">Sub Type</option>
                   <option value="eqNum">Equipment Tag</option>
-                  <option value="eqName">Equipment Name</option>
+                  <option value="eqName">Equipment Type</option>
                 </select>
               </div>
               <div class="hint" id="lpParetoHint"></div>
@@ -9151,12 +9149,13 @@ const moreNotifBtnEl2 = document.getElementById('moreNotifBtn');
 if(moreNotifBtnEl2) moreNotifBtnEl2.addEventListener('click', ()=>{ const mm = document.getElementById('tbMoreMenu'); if(mm) mm.hidden = true; if(notifBtnEl2) notifBtnEl2.click(); });
 
 /* ===================== Loss 80:20 Dashboard ("loss-production" page) =====================
-   Live-fetches the "Loss 80:20 dashboard sorce" Google Sheet (tabs 2021..2026), client-side,
-   on every page load — never hardcoded, never written back to the source sheet.
+   Live-fetches the "Loss 80:20 dashboard sorce" Google Sheet (tabs 2022..2026 — 2021 used an
+   older sheet layout, no Sub Type column, and is excluded from this dashboard per request),
+   client-side, on every page load — never hardcoded, never written back to the source sheet.
    Wrapped in its own try/catch (see initLoss8020Dashboard) so a failure here can never break
    the rest of the dashboard (production/yield/cost/process pages stay unaffected). */
 const LP_SHEET_ID = '1bY5nzXap71jk9_yqnKy9lQtnwZuU7-wuy3oGiYrKTUA';
-const LP_YEARS = ['2021','2022','2023','2024','2025','2026'];
+const LP_YEARS = ['2022','2023','2024','2025','2026'];
 const LP_MONTH_ORDER = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 const LP_MONTH_MARKERS = new Set(['Total Loss','Recovery','Total Loss - Recovery pulp']);
 const LP_FOOTER_MARKERS = new Set(['Production Budget','Production Actual']);
@@ -9197,7 +9196,7 @@ function lpParseYearSheet(year, csvRows){
     const hn = lpNorm(h); if(!hn) return;
     const hl = hn.toLowerCase();
     if(hl==='month') col.month=i;
-    else if(hl==='date start') col.dateStart=i;
+    else if(hl==='date start' || hl==='date') col.dateStart=i;
     else if(hl==='date end') col.dateEnd=i;
     else if(hl==='time start') col.timeStart=i;
     else if(hl==='time end') col.timeEnd=i;
@@ -9249,9 +9248,10 @@ function lpParseYearSheet(year, csvRows){
   }
   return { rows, monthTotals, annualFooter };
 }
-/* ---- Classification engine: built live from the sheet's own already-labeled rows (2021 is
-   the main reference, per spec, but any other year's rows that already carry Type + Sub Type
-   are equally "Original" source data and reinforce the very same vocabulary) ---- */
+/* ---- Classification engine: built live from the sheet's own already-labeled rows. 2022-2026
+   use a schema with no Sub Type column at all (dropdown-driven EQ Type + Type instead), so a
+   row only needs a non-blank Type to count as "Original" — Sub Type is carried along when
+   present but is never required. ---- */
 const LP_STOPWORDS = new Set(("a an the of to in on for with from at by is are was were be been being " +
   "and or but if then case due change new plan repair start after before during " +
   "loss slow production prod pro bd break down damage fix fixed high low drop trip " +
@@ -9267,7 +9267,7 @@ function lpTokenize(s){
 }
 function lpNormEq(s){ return String(s||'').replace(/[\s.\-]/g,'').toUpperCase(); }
 function lpBuildClassifier(allRows){
-  const refRows = allRows.filter(r=>r.originalType && r.originalSubType);
+  const refRows = allRows.filter(r=>r.originalType);
   const eqIndex = new Map(), tokIndex = new Map(), pairCount = new Map(), pairLabel = new Map();
   const pairKey = (t,s)=> t+''+s;
   const bump = (map,key,sub,n)=>{ let m=map.get(key); if(!m){ m=new Map(); map.set(key,m); } m.set(sub,(m.get(sub)||0)+n); };
@@ -9308,7 +9308,7 @@ function lpBuildClassifier(allRows){
         matchedToks.get(pk).add(t);
       });
     });
-    if(scores.size===0) return { type:'Unclassified', subtype:'Needs Review', source:'Needs Review', confidence:'Low', reason:'ไม่พบคำสำคัญที่ตรงกับข้อมูลอ้างอิง (2021 และรายการที่จำแนกไว้แล้ว)' };
+    if(scores.size===0) return { type:'Unclassified', subtype:'Needs Review', source:'Needs Review', confidence:'Low', reason:'ไม่พบคำสำคัญที่ตรงกับข้อมูลอ้างอิง (รายการที่มี Type ระบุไว้แล้วในปี 2022-2026)' };
     const ranked = [...scores.entries()].sort((a,b)=>b[1]-a[1]);
     const [bestPk,bestScore] = ranked[0];
     const secondScore = ranked.length>1 ? ranked[1][1] : 0;
@@ -9326,10 +9326,10 @@ function lpBuildClassifier(allRows){
 function lpClassifyAll(allRows){
   const engine = lpBuildClassifier(allRows);
   allRows.forEach(r=>{
-    if(r.originalType && r.originalSubType){
+    if(r.originalType){
       r.classifiedType = r.originalType; r.classifiedSubType = r.originalSubType;
       r.classificationSource = 'Original'; r.classificationConfidence = 'High';
-      r.classificationReason = 'มี Type/Sub Type ระบุไว้ในชีทต้นทางโดยตรง';
+      r.classificationReason = r.originalSubType ? 'มี Type/Sub Type ระบุไว้ในชีทต้นทางโดยตรง' : 'มี Type ระบุไว้ในชีทต้นทางโดยตรง (ชีทปีนี้ไม่มีคอลัมน์ Sub Type)';
     } else {
       const res = engine.classify(r.desc, r.eqName, r.eqNum);
       r.classifiedType = res.type; r.classifiedSubType = res.subtype;
@@ -9343,7 +9343,7 @@ function lpClassifyAll(allRows){
 /* ---- state ---- */
 const LP_STATE = {
   period: { mode:'absoluteRange', fromYear:'2026', fromMonth:0, toYear:'2026', toMonth:11 },
-  eqNum:'all', eqName:'all', type:'all', subtype:'all', clsSource:'all', clsConf:'all',
+  eqNum:'all', eqName:'all', type:'all', clsSource:'all', clsConf:'all',
   paretoBy:'eqNumType',
 };
 let LP_DATA = null; // { rows, monthTotals, footer, dq, engine, fetchedAt }
@@ -9384,7 +9384,7 @@ function lpInPeriod(r, period){
 }
 function lpPeriodLabel(period){
   const EN = currentLang==='en';
-  if(!period || period.mode==='all') return EN? 'All data 2021–2026' : 'ข้อมูลทั้งหมด 2021–2026';
+  if(!period || period.mode==='all') return EN? 'All data 2022–2026' : 'ข้อมูลทั้งหมด 2022–2026';
   if(period.mode==='sameMonthsAcrossYears'){
     const mFrom = LP_MONTH_ORDER[period.fromMonth], mTo = LP_MONTH_ORDER[period.toMonth];
     return `${mFrom}${period.fromMonth!==period.toMonth?'-'+mTo:''} · ${period.years.join(', ')}`;
@@ -9409,7 +9409,6 @@ function lpApplyFilters(rows, state, opts){
     if(state.eqNum!=='all' && (r.eqNum||'N/A')!==state.eqNum) return false;
     if(state.eqName!=='all' && (r.eqName||'N/A')!==state.eqName) return false;
     if(state.type!=='all' && r.classifiedType!==state.type) return false;
-    if(state.subtype!=='all' && r.classifiedSubType!==state.subtype) return false;
     if(state.clsSource!=='all' && r.classificationSource!==state.clsSource) return false;
     if(state.clsConf!=='all' && r.classificationConfidence!==state.clsConf) return false;
     return true;
@@ -9435,7 +9434,7 @@ function lpBuildPareto(rows, by){
   let keyFn, labelFn;
   if(by==='eqNumType') { keyFn=r=>(r.eqNum||'__NA__')+'␟'+(r.classifiedType||'Unclassified'); labelFn=r=> (r.eqNum||'N/A')+' : '+(r.classifiedType||'Unclassified'); }
   else if(by==='eqNum') { keyFn=r=>r.eqNum||'__NA__'; labelFn=r=> r.eqNum ? lpEqLabel(r) : 'N/A (ไม่มี EQ num)'; }
-  else if(by==='eqName') { keyFn=r=>r.eqName||'__NA__'; labelFn=r=>r.eqName||'N/A (ไม่มี EQ name)'; }
+  else if(by==='eqName') { keyFn=r=>r.eqName||'__NA__'; labelFn=r=>r.eqName||'N/A (ไม่มี EQ Type)'; }
   else if(by==='type') { keyFn=r=>r.classifiedType||'Unclassified'; labelFn=r=>r.classifiedType||'Unclassified'; }
   else { keyFn=r=>r.classifiedSubType||'Needs Review'; labelFn=r=>r.classifiedSubType||'Needs Review'; }
   const groups = lpGroupSum(rows, keyFn, labelFn).sort((a,b)=>b.loss-a.loss);
@@ -9499,7 +9498,7 @@ function lpBuildDataQuality(allRows, monthTotalsByYear){
     if(!r.month || r.monthIndex<0) dq.missingMonth.push(r);
     if(!r.eqNum) dq.missingEqNum.push(r);
     if(r.lossAdt==null) dq.nonNumericLoss.push(r);
-    if(!r.originalType || !r.originalSubType) dq.blankTypeSubtype.push(r);
+    if(!r.originalType) dq.blankTypeSubtype.push(r);
     if(r.classifiedType==='Unclassified') dq.unclassified.push(r);
     if(r.classificationConfidence==='Low') dq.lowConfidence.push(r);
   });
@@ -9588,15 +9587,13 @@ function lpPopulateFilterOptions(){
   const eqNums = lpDistinctSorted(rows, r=>r.eqNum);
   const eqNames = lpDistinctSorted(rows, r=>r.eqName);
   const types = lpDistinctSorted(rows, r=>r.classifiedType);
-  const subtypes = lpDistinctSorted(rows, r=>r.classifiedSubType);
   const setSel = (id, values, allLabel)=>{
     const el = document.getElementById(id); if(!el) return;
     el.innerHTML = lpOpt('all', allLabel) + values.map(v=>lpOpt(v,v)).join('');
   };
   setSel('lpFilterEqNum', eqNums, 'EQ num — ทั้งหมด');
-  setSel('lpFilterEqName', eqNames, 'EQ name — ทั้งหมด');
+  setSel('lpFilterEqName', eqNames, 'EQ Type — ทั้งหมด');
   setSel('lpFilterType', types, 'Type — ทั้งหมด');
-  setSel('lpFilterSubtype', subtypes, 'Sub Type — ทั้งหมด');
 }
 function lpComputePeriodFromUI(){
   const preset = document.getElementById('lpPeriodPreset').value;
@@ -9633,7 +9630,7 @@ function lpUpdatePeriodControlsVisibility(){
 }
 function lpWireFilterEvents(){
   const ids = ['lpPeriodPreset','lpYearA','lpMonthA','lpYearB','lpMonthB','lpMultiYears',
-    'lpFilterEqNum','lpFilterEqName','lpFilterType','lpFilterSubtype','lpFilterClsSource','lpFilterClsConf','lpParetoBy'];
+    'lpFilterEqNum','lpFilterEqName','lpFilterType','lpFilterClsSource','lpFilterClsConf','lpParetoBy'];
   ids.forEach(id=>{
     const el = document.getElementById(id); if(!el) return;
     el.addEventListener('change', ()=>{
@@ -9645,7 +9642,7 @@ function lpWireFilterEvents(){
   const resetBtn = document.getElementById('lpResetFilters');
   if(resetBtn) resetBtn.addEventListener('click', ()=>{
     document.getElementById('lpPeriodPreset').value = 'all';
-    ['lpFilterEqNum','lpFilterEqName','lpFilterType','lpFilterSubtype','lpFilterClsSource','lpFilterClsConf'].forEach(id=>{
+    ['lpFilterEqNum','lpFilterEqName','lpFilterType','lpFilterClsSource','lpFilterClsConf'].forEach(id=>{
       const el = document.getElementById(id); if(el) el.value = 'all';
     });
     lpUpdatePeriodControlsVisibility();
@@ -9673,7 +9670,6 @@ function lpSyncStateFromUI(){
   LP_STATE.eqNum = document.getElementById('lpFilterEqNum').value;
   LP_STATE.eqName = document.getElementById('lpFilterEqName').value;
   LP_STATE.type = document.getElementById('lpFilterType').value;
-  LP_STATE.subtype = document.getElementById('lpFilterSubtype').value;
   LP_STATE.clsSource = document.getElementById('lpFilterClsSource').value;
   LP_STATE.clsConf = document.getElementById('lpFilterClsConf').value;
   LP_STATE.paretoBy = document.getElementById('lpParetoBy').value;
@@ -9718,15 +9714,13 @@ function lpRenderKpis(filtered){
   const recordCount = filtered.length;
   const byEq = lpGroupSum(filtered, r=>r.eqNum||'__NA__', r=> r.eqNum ? lpEqLabel(r) : 'N/A (ไม่มี EQ num)').sort((a,b)=>b.loss-a.loss)[0];
   const byType = lpGroupSum(filtered, r=>r.classifiedType||'Unclassified', r=>r.classifiedType||'Unclassified').sort((a,b)=>b.loss-a.loss)[0];
-  const bySub = lpGroupSum(filtered, r=>r.classifiedSubType||'Needs Review', r=>r.classifiedSubType||'Needs Review').sort((a,b)=>b.loss-a.loss)[0];
   const unclassifiedCount = filtered.filter(r=>r.classifiedType==='Unclassified').length;
   const tiles = [
     { label:'Total Loss (ADT) — ช่วงที่เลือก', value: lpFmtNum(totalLoss)+' ADT' },
-    { label:'Cumulative Loss 2021–2026 (ADT)', value: lpFmtNum(cumulativeAll)+' ADT' },
+    { label:'Cumulative Loss 2022–2026 (ADT)', value: lpFmtNum(cumulativeAll)+' ADT' },
     { label:'จำนวน Loss Records', value: lpFmtNum(recordCount) },
     { label:'Equipment ที่มี Loss สูงสุด', value: byEq ? byEq.label+' ('+lpFmtNum(byEq.loss)+' ADT)' : 'N/A' },
     { label:'Type ที่มี Loss สูงสุด', value: byType ? byType.label+' ('+lpFmtNum(byType.loss)+' ADT)' : 'N/A' },
-    { label:'Sub Type ที่มี Loss สูงสุด', value: bySub ? bySub.label+' ('+lpFmtNum(bySub.loss)+' ADT)' : 'N/A' },
     { label:'จำนวนรายการ Unclassified', value: lpFmtNum(unclassifiedCount) },
     { label:'ช่วงเวลาที่เลือก', value: lpPeriodLabel(LP_STATE.period) },
   ];
@@ -9786,7 +9780,7 @@ function lpRenderPareto(filtered){
 }
 
 function lpParetoByLabel(by){
-  return by==='eqNumType' ? 'EQ num : Type' : by==='eqNum' ? 'Equipment Tag' : by==='eqName' ? 'Equipment Name' : by==='type' ? 'Type' : 'Sub Type';
+  return by==='eqNumType' ? 'EQ num : Type' : by==='eqNum' ? 'Equipment Tag' : by==='eqName' ? 'Equipment Type' : 'Type';
 }
 function lpVfActionCell(textSet){
   if(textSet && textSet.size){
@@ -9874,7 +9868,6 @@ function lpEntityFilteredRows(){
   return LP_DATA.rows.filter(r=>{
     if(LP_STATE.eqName!=='all' && (r.eqName||'N/A')!==LP_STATE.eqName) return false;
     if(LP_STATE.type!=='all' && r.classifiedType!==LP_STATE.type) return false;
-    if(LP_STATE.subtype!=='all' && r.classifiedSubType!==LP_STATE.subtype) return false;
     if(LP_STATE.clsSource!=='all' && r.classificationSource!==LP_STATE.clsSource) return false;
     if(LP_STATE.clsConf!=='all' && r.classificationConfidence!==LP_STATE.clsConf) return false;
     return true;
@@ -9886,7 +9879,7 @@ function lpRenderMatrix(){
   const rows = lpEntityFilteredRows();
   const matrix = lpBuildEquipmentMatrix(rows);
   const maxCum = matrix.length ? matrix[0].cumulative : 0;
-  const head = `<thead><tr><th>Rank</th><th>EQ Tag</th><th>EQ Name</th>${LP_YEARS.map(y=>`<th>${y==='2026'?'2026 YTD':y}</th>`).join('')}<th>Cumulative Loss</th><th>Loss Records</th></tr></thead>`;
+  const head = `<thead><tr><th>Rank</th><th>EQ Tag</th><th>EQ Type</th>${LP_YEARS.map(y=>`<th>${y==='2026'?'2026 YTD':y}</th>`).join('')}<th>Cumulative Loss</th><th>Loss Records</th></tr></thead>`;
   const body = matrix.map(g=>{
     const isTop = g.cumulative===maxCum && maxCum>0;
     return `<tr class="lp-eq-row${isTop?' lp-eq-top':''}" data-eqnum="${(g.eqNum||'').replace(/"/g,'&quot;')}">`
@@ -9894,7 +9887,7 @@ function lpRenderMatrix(){
       + LP_YEARS.map(y=> `<td>${g.byYear[y]!=null ? lpFmtNum(g.byYear[y]) : '–'}</td>`).join('')
       + `<td><b>${lpFmtNum(g.cumulative)}</b></td><td>${g.records}</td></tr>`;
   }).join('');
-  wrap.innerHTML = head + `<tbody>${body || '<tr><td colspan="11" class="loss-empty">No loss data for selected period</td></tr>'}</tbody>`;
+  wrap.innerHTML = head + `<tbody>${body || `<tr><td colspan="${5+LP_YEARS.length}" class="loss-empty">No loss data for selected period</td></tr>`}</tbody>`;
   wrap.querySelectorAll('tr.lp-eq-row').forEach(tr=>{
     tr.addEventListener('click', ()=>{
       const eq = tr.dataset.eqnum;
@@ -9910,11 +9903,11 @@ function lpRenderDetail(filtered){
   const wrap = document.getElementById('lpDetailTable');
   if(!wrap) return;
   const sorted = filtered.slice().sort((a,b)=> (+b.year*12+b.monthIndex) - (+a.year*12+a.monthIndex) || (b.lossAdt||0)-(a.lossAdt||0));
-  const head = `<thead><tr><th>Year</th><th>Month</th><th>Date</th><th>EQ num</th><th>EQ name</th><th>Type</th><th>Sub Type</th><th class="c-loss">Loss Description</th><th>Loss ADT</th><th class="c-loss">CM</th><th class="c-loss">PM</th><th>Source</th><th>Confidence</th><th class="c-loss">Reason</th></tr></thead>`;
+  const head = `<thead><tr><th>Year</th><th>Month</th><th>Date</th><th>EQ num</th><th>EQ Type</th><th>Type</th><th class="c-loss">Loss Description</th><th>Loss ADT</th><th class="c-loss">CM</th><th class="c-loss">PM</th><th>Source</th><th>Confidence</th><th class="c-loss">Reason</th></tr></thead>`;
   const body = sorted.map(r=>{
     const dateStr = r.dateStart ? `${r.dateStart.getDate()}/${r.dateStart.getMonth()+1}/${r.dateStart.getFullYear()}` : (r.dateAccuracy==='Month Only' ? 'Month only' : '–');
     return `<tr><td>${r.year}</td><td>${r.month||'N/A'}</td><td>${dateStr}</td><td>${r.eqNum||'N/A'}</td><td>${r.eqName||'–'}</td>`
-      + `<td>${r.classifiedType||'Unclassified'}</td><td>${r.classifiedSubType||'Needs Review'}</td>`
+      + `<td>${r.classifiedType||'Unclassified'}</td>`
       + `<td class="c-loss"><div class="loss-text">${lpEsc(r.desc)}</div></td>`
       + `<td>${r.lossAdt!=null ? lpFmtNum(r.lossAdt) : 'N/A'}</td>`
       + `<td class="c-loss"><div class="loss-text">${r.cm ? lpEsc(r.cm) : '<span class="loss-empty">–</span>'}</div></td>`
@@ -9923,7 +9916,7 @@ function lpRenderDetail(filtered){
       + `<td><span class="lp-badge lp-conf-${lpSlug(r.classificationConfidence)}">${r.classificationConfidence}</span></td>`
       + `<td class="c-loss"><div class="loss-text">${lpEsc(r.classificationReason)}</div></td></tr>`;
   }).join('');
-  wrap.innerHTML = head + `<tbody>${body || '<tr><td colspan="14" class="loss-empty">No loss data for selected period</td></tr>'}</tbody>`;
+  wrap.innerHTML = head + `<tbody>${body || '<tr><td colspan="13" class="loss-empty">No loss data for selected period</td></tr>'}</tbody>`;
 }
 
 function lpRenderReviewTable(){
@@ -9934,14 +9927,14 @@ function lpRenderReviewTable(){
   let rows = LP_DATA.rows.filter(r=> r.classificationSource!=='Original');
   if(onlyLowChecked) rows = rows.filter(r=> r.classificationConfidence==='Low' || r.classificationSource==='Needs Review');
   rows = rows.sort((a,b)=> (+b.year*12+b.monthIndex) - (+a.year*12+a.monthIndex));
-  const head = `<thead><tr><th>Year</th><th>Month</th><th>EQ num</th><th class="c-loss">Loss Description</th><th>Original Type</th><th>Suggested Type</th><th>Suggested Sub Type</th><th>Confidence</th><th class="c-loss">Reason</th></tr></thead>`;
+  const head = `<thead><tr><th>Year</th><th>Month</th><th>EQ num</th><th class="c-loss">Loss Description</th><th>Original Type</th><th>Suggested Type</th><th>Confidence</th><th class="c-loss">Reason</th></tr></thead>`;
   const body = rows.map(r=> `<tr><td>${r.year}</td><td>${r.month||'N/A'}</td><td>${r.eqNum||'N/A'}</td>`
       + `<td class="c-loss"><div class="loss-text">${lpEsc(r.desc)}</div></td>`
       + `<td>${r.originalType||'<span class="loss-empty">(ว่าง)</span>'}</td>`
-      + `<td>${r.classifiedType}</td><td>${r.classifiedSubType}</td>`
+      + `<td>${r.classifiedType}</td>`
       + `<td><span class="lp-badge lp-conf-${lpSlug(r.classificationConfidence)}">${r.classificationConfidence}</span></td>`
       + `<td class="c-loss"><div class="loss-text">${lpEsc(r.classificationReason)}</div></td></tr>`).join('');
-  wrap.innerHTML = head + `<tbody>${body || '<tr><td colspan="9" class="loss-empty">ไม่มีรายการที่ต้องตรวจสอบ</td></tr>'}</tbody>`;
+  wrap.innerHTML = head + `<tbody>${body || '<tr><td colspan="8" class="loss-empty">ไม่มีรายการที่ต้องตรวจสอบ</td></tr>'}</tbody>`;
   const countEl = document.getElementById('lpReviewCount');
   if(countEl) countEl.textContent = rows.length + ' รายการ';
 }
@@ -9967,7 +9960,7 @@ function lpRenderDataQuality(){
   html += section('แถวที่ไม่มี Month', dq.missingMonth, r=>`<div>${r.year} row ${r.row}: ${lpEsc(r.desc.slice(0,60))}</div>`);
   html += section('แถวที่ไม่มี EQ num', dq.missingEqNum, r=>`<div>${r.year} ${r.month||''} row ${r.row}: ${lpEsc(r.desc.slice(0,60))}</div>`);
   html += section('Loss ที่ไม่ใช่ตัวเลข', dq.nonNumericLoss, r=>`<div>${r.year} row ${r.row}: ${lpEsc(r.desc.slice(0,60))}</div>`);
-  html += section('Type/Sub Type ว่างในต้นฉบับ', dq.blankTypeSubtype, r=>`<div>${r.year} ${r.month||''} row ${r.row} → จำแนกเป็น ${r.classifiedType}/${r.classifiedSubType} (${r.classificationConfidence})</div>`);
+  html += section('Type ว่างในต้นฉบับ', dq.blankTypeSubtype, r=>`<div>${r.year} ${r.month||''} row ${r.row} → จำแนกเป็น ${r.classifiedType} (${r.classificationConfidence})</div>`);
   html += section('รายการ Unclassified', dq.unclassified, r=>`<div>${r.year} ${r.month||''} row ${r.row}: ${lpEsc(r.desc.slice(0,60))}</div>`);
   html += section('รายการ Low Confidence', dq.lowConfidence, r=>`<div>${r.year} ${r.month||''} row ${r.row}: ${lpEsc(r.desc.slice(0,60))}</div>`);
   html += section('Equipment Tag ที่เขียนหลายรูปแบบ', dq.eqTagVariants, v=>`<div>${v.variants.join(' / ')}</div>`);
@@ -9979,8 +9972,8 @@ function lpRenderDataQuality(){
 function lpRenderFoot(filtered){
   const el = document.getElementById('lpFoot');
   if(!el) return;
-  el.innerHTML = `ดึงข้อมูลสดจาก Google Sheet "Loss 80:20 dashboard sorce" (แท็บ 2021–2026) — เฉพาะ Loss Production (ADT) เท่านั้น ไม่รวม Compensate loss/Recovery/Net Loss ·
-    Type/Sub Type ที่ไม่มีในต้นฉบับจะถูกจำแนกด้วยกฎคำสำคัญที่สร้างจากข้อมูลปี 2021 และรายการที่จำแนกไว้แล้วในปีอื่น (ดูตาราง Classification Review) ·
+  el.innerHTML = `ดึงข้อมูลสดจาก Google Sheet "Loss 80:20 dashboard sorce" (แท็บ 2022–2026) — เฉพาะ Loss Production (ADT) เท่านั้น ไม่รวม Compensate loss/Recovery/Net Loss ·
+    Type ที่ไม่มีในต้นฉบับจะถูกจำแนกด้วยกฎคำสำคัญที่สร้างจากรายการที่มี Type ระบุไว้แล้ว (ดูตาราง Classification Review) ·
     ไม่มีการแก้ไขข้อมูล สูตร หรือรูปแบบใดๆ ในชีทต้นทาง.`;
 }
 function lpEsc(s){ const d=document.createElement('div'); d.textContent = s==null?'':String(s); return d.innerHTML; }
