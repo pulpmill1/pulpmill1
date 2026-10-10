@@ -112,7 +112,19 @@ fetching it live, and needs to be explicitly refreshed and republished. Recipe, 
    markup wrapped in `<section class="page" data-page="loss-production">...</section>` (don't
    drop that wrapper — `initLoss8020Dashboard()`'s very first line is
    `document.querySelector('.page[data-page="loss-production"]')` and silently returns if it's
-   missing, so the page just stays empty with zero errors), the snapshot JSON in a
+   missing, so the page just stays empty with zero errors). **Also stub three globals that the
+   `lp*` block reads but which are defined elsewhere in `index.html`'s one big shared `<script>`,
+   outside the `const LP_SHEET_ID` ... `initLoss8020Dashboard();` slice this recipe extracts** —
+   paste these three lines right before `const LP_SHEET_ID` in the patched logic:
+   `let currentLang = 'th';`, `const PAGE_META = { 'loss-production': { th:'Loss 80:20',
+   en:'Loss 80:20', hasData:false } };`, and
+   `function cssVar(name){ return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }`.
+   Missing any one of them doesn't throw at extraction or `node --check` time — the dashboard's
+   own top-level try/catch in `initLoss8020Dashboard()` swallows the `ReferenceError` into a
+   console.error and the page just stays silently hidden/empty (0 Playwright `pageerror`s, but
+   the KPI grid never populates) — so a clean `node --check` is not enough to trust the rebuild;
+   the Playwright smoke test's `#lpKpiGrid` wait is what actually catches this. The snapshot JSON
+   goes in a
    `<script id="lp-snapshot-data" type="application/json">` tag (escape `</script` inside it),
    Chart.js + chartjs-plugin-datalabels from cdnjs (pinned versions, matching `index.html`'s own
    `<script>` tags) plus `Chart.register(ChartDataLabels)`, then a small patched copy of the
