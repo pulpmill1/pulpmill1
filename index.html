@@ -4925,13 +4925,26 @@ function buildMonthlyLeSummaryLines(mi, monthlyActFullArr, budgetMonthlyArr, mon
   }
   return html;
 }
+/* Pulp mill 1 / Pulp mill 2's own monthly cards rank against the same DAY_GROUPS/DAY_GROUPS_2 pool
+   the "เดือนที่มี 31/30/29/28 วัน" ranking cards already use — e.g. Oct ranks against every 31-day
+   month (Jan, Mar, May, Jul, Aug, Oct, Dec) across all years, not just other Octobers — instead of
+   monthHistory()/monthHistory2()'s "same calendar month only" comparison. Pulp mill 1+2 keeps the
+   same-calendar-month comparison (monthHistoryTot) since there's no combined day-group pool. */
+function dayGroupKeyForMonth(mi, year){
+  if(mi === 1) return isLeapYear(year) ? 'Feb29' : 'Feb28';
+  return DAY_GROUPS['31'].monthIdx.includes(mi) ? '31' : '30';
+}
 function renderMonthlySummaryOverview(){
   const mi = MONTHLY_FORECAST_FROM_MI;
+  const dgKey = dayGroupKeyForMonth(mi, YEAR);
+  const dgGroup1 = DAY_GROUPS[dgKey];
+  const dgGroup2 = DAY_GROUPS_2[dgKey];
+
   const body1 = document.getElementById('monthlySummaryBody1');
-  if(body1) body1.innerHTML = buildMonthlyLeSummaryLines(mi, MONTHLY_ACTUAL_BY_YEAR_FULL[YEAR], BUDGET_MONTHLY, monthHistory);
+  if(body1) body1.innerHTML = buildMonthlyLeSummaryLines(mi, MONTHLY_ACTUAL_BY_YEAR_FULL[YEAR], BUDGET_MONTHLY, ()=> dgGroup1 ? dayGroupPool(dgGroup1) : []);
 
   const body2 = document.getElementById('monthlySummaryBody2');
-  if(body2) body2.innerHTML = buildMonthlyLeSummaryLines(mi, MONTHLY_ACTUAL_BY_YEAR_FULL_2[YEAR], BUDGET_MONTHLY_2, monthHistory2);
+  if(body2) body2.innerHTML = buildMonthlyLeSummaryLines(mi, MONTHLY_ACTUAL_BY_YEAR_FULL_2[YEAR], BUDGET_MONTHLY_2, ()=> dgGroup2 ? dayGroupPool2(dgGroup2) : []);
 
   const bodyTot = document.getElementById('monthlySummaryBodyTot');
   if(bodyTot) bodyTot.innerHTML = buildMonthlyLeSummaryLines(mi, MONTHLY_ACTUAL_BY_YEAR_FULL_TOT[YEAR], BUDGET_MONTHLY_TOT, monthHistoryTot);
