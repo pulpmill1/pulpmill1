@@ -890,6 +890,21 @@
             </div>
           </div>
 
+          <div class="card">
+            <div class="summary-block">
+              <div class="summary-title">สรุปภาพรวมผลผลิตรายเดือน Pulp mill 1</div>
+              <div class="summary-body" id="monthlySummaryBody1"></div>
+            </div>
+            <div class="summary-block">
+              <div class="summary-title">สรุปภาพรวมผลผลิตรายเดือน Pulp mill 2</div>
+              <div class="summary-body" id="monthlySummaryBody2"></div>
+            </div>
+            <div class="summary-block">
+              <div class="summary-title">สรุปภาพรวมผลผลิตรายเดือน Pulp mill 1+2</div>
+              <div class="summary-body" id="monthlySummaryBodyTot"></div>
+            </div>
+          </div>
+
           <details class="dtable" id="dtable">
             <summary>
               <span class="dtable-label">ตารางข้อมูลรายวัน — เดือนที่เลือก</span>
@@ -4882,6 +4897,31 @@ function renderSummaryOverview(){
   if(bodyTot) bodyTot.innerHTML = buildSummaryLines(annualActualTotalTot(YEAR), BUDGET_ANNUAL_TOT, annualRankingPoolTot(), YEAR);
 }
 
+/* Monthly companion to buildSummaryLines/renderSummaryOverview above: same "- LE <Mon> <Year>
+   <Est.> Adt (Update Act. ...)" + colored diff-vs-BG shape, one month instead of the full year,
+   for whichever month is the latest real one (MONTHLY_FORECAST_FROM_MI, the same cutoff already
+   shared by isRealActualMonth/isRealActualMonthTot). */
+function buildMonthlyLeSummaryLines(mi, monthlyActFullArr, budgetMonthlyArr){
+  const EN = currentLang==='en';
+  const mEst = monthlyActFullArr ? monthlyActFullArr[mi] : null;
+  if(mEst==null) return `<div>${EN?'no data':'ไม่มีข้อมูล'}</div>`;
+  const bm = budgetMonthlyArr ? budgetMonthlyArr[mi] : null;
+  const mDiffEst = bm==null ? null : mEst - bm;
+  return `<div>- LE ${MONTH_ABBR_EN[mi]} ${YEAR} ${fmt0(mEst)} Adt (Update Act. ${lastDataStr(EN?'en':'th')})</div>`
+    + `<div>${mDiffEst==null?'—':summaryDiffSpan(mDiffEst)} ${EN?'vs BG':'เทียบ BG'} ${bm==null?'—':fmt0(bm)} Adt</div>`;
+}
+function renderMonthlySummaryOverview(){
+  const mi = MONTHLY_FORECAST_FROM_MI;
+  const body1 = document.getElementById('monthlySummaryBody1');
+  if(body1) body1.innerHTML = buildMonthlyLeSummaryLines(mi, MONTHLY_ACTUAL_BY_YEAR_FULL[YEAR], BUDGET_MONTHLY);
+
+  const body2 = document.getElementById('monthlySummaryBody2');
+  if(body2) body2.innerHTML = buildMonthlyLeSummaryLines(mi, MONTHLY_ACTUAL_BY_YEAR_FULL_2[YEAR], BUDGET_MONTHLY_2);
+
+  const bodyTot = document.getElementById('monthlySummaryBodyTot');
+  if(bodyTot) bodyTot.innerHTML = buildMonthlyLeSummaryLines(mi, MONTHLY_ACTUAL_BY_YEAR_FULL_TOT[YEAR], BUDGET_MONTHLY_TOT);
+}
+
 function fmtFullDate(mi, dayIdx){
   const dd = String(dayIdx+1).padStart(2,'0');
   const mm = String(mi+1).padStart(2,'0');
@@ -5027,6 +5067,10 @@ const TX_EN = {
   'สรุปภาพรวมผลผลิตรายปี Pulp mill 1':'Pulp mill 1 annual production summary',
   'สรุปภาพรวมผลผลิตรายปี Pulp mill 2':'Pulp mill 2 annual production summary',
   'สรุปภาพรวมผลผลิตรายปี Pulp mill 1+2':'Pulp mill 1+2 annual production summary',
+  'สรุปภาพรวมผลผลิตรายเดือนและรายปี Pulp mill 1':'Pulp mill 1 monthly and annual production summary',
+  'สรุปภาพรวมผลผลิตรายเดือน Pulp mill 1':'Pulp mill 1 monthly production summary',
+  'สรุปภาพรวมผลผลิตรายเดือน Pulp mill 2':'Pulp mill 2 monthly production summary',
+  'สรุปภาพรวมผลผลิตรายเดือน Pulp mill 1+2':'Pulp mill 1+2 monthly production summary',
   // toolbar / selectors
   'เลือกปี':'Select year','เลือกเดือน':'Select month','ปีเริ่มต้น':'From year','ปีสิ้นสุด':'To year','ค่าที่แสดง':'Metric shown',
   'เลือกช่วงปีที่ต้องการแสดงในกราฟแท่งด้านล่าง':'Choose the year range for the bar chart below',
@@ -5576,6 +5620,7 @@ function applyLang(lang){
   renderAvg7();
   if(typeof renderSummaryOverview === 'function' && document.getElementById('summaryBody1')) renderSummaryOverview();
   if(typeof renderDailyPm1Summary === 'function' && document.getElementById('dailyPm1SummaryBody')) renderDailyPm1Summary();
+  if(typeof renderMonthlySummaryOverview === 'function' && document.getElementById('monthlySummaryBody1')) renderMonthlySummaryOverview();
   if(typeof chipMonRenderTiles === 'function' && document.getElementById('chipMonHost')){
     if(typeof renderExecKpiPanel === 'function') renderExecKpiPanel();
     CHIP_MON_GROUPS.forEach(g=>{ chipMonRenderTiles(g); chipMonRenderDetail(g.id); });
@@ -5699,6 +5744,9 @@ if(document.getElementById('summaryBody1')){
 }
 if(document.getElementById('dailyPm1SummaryBody')){
   renderDailyPm1Summary();
+}
+if(document.getElementById('monthlySummaryBody1')){
+  renderMonthlySummaryOverview();
 }
 
 /* initial language + page render, now that every toolbar function above exists */
