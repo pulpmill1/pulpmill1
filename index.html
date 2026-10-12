@@ -890,28 +890,6 @@
             </div>
           </div>
 
-          <div class="card">
-            <div class="summary-block">
-              <div class="summary-title">สรุปภาพรวมผลผลิตรายเดือน Pulp mill 1</div>
-              <div class="summary-body" id="monthlySummaryBody1"></div>
-            </div>
-            <div class="summary-block">
-              <div class="summary-title">สรุปภาพรวมผลผลิตรายเดือน Pulp mill 2</div>
-              <div class="summary-body" id="monthlySummaryBody2"></div>
-            </div>
-            <div class="summary-block">
-              <div class="summary-title">สรุปภาพรวมผลผลิตรายเดือน Pulp mill 1+2</div>
-              <div class="summary-body" id="monthlySummaryBodyTot"></div>
-            </div>
-          </div>
-
-          <button type="button" class="foot-toggle" data-target="monthlySummaryFoot" aria-expanded="false" aria-controls="monthlySummaryFoot">ดูรายละเอียด</button>
-          <div class="foot" id="monthlySummaryFoot" hidden>
-            <b>วิธีจัดอันดับ Pulp mill 1 / Pulp mill 2:</b> เทียบผลผลิตประมาณการจบเดือนกับ<b>กลุ่มเดือนที่มีจำนวนวันเท่ากัน</b> (31 วัน / 30 วัน / ก.พ. 29 วัน (ปีอธิกสุรทิน) / ก.พ. 28 วัน) ข้ามปีทั้งหมดที่มีข้อมูล — เช่น เดือนตุลาคม (31 วัน) จะเทียบกับ ม.ค., มี.ค., พ.ค., ก.ค., ส.ค., ต.ค. และ ธ.ค. ของทุกปี ไม่ใช่เทียบเฉพาะเดือนตุลาคมด้วยกันเองเท่านั้น เพราะเดือนที่มีจำนวนวันเท่ากันมีโอกาสทำผลผลิตได้ใกล้เคียงกันมากกว่าเทียบกับเดือนที่มีจำนวนวันต่างกัน (ใช้ข้อมูลและวิธีจัดอันดับชุดเดียวกับตาราง "เดือนที่มี 31/30/29/28 วัน" ของแต่ละโรงงานด้านล่างของหน้านี้)<br>
-            <b>วิธีจัดอันดับ Pulp mill 1+2:</b> ยังคงเทียบแบบเดิม คือเทียบเฉพาะ <b>"เดือนเดียวกันข้ามปี"</b> เท่านั้น (เช่น ต.ค. เทียบกับ ต.ค. ของปีอื่นๆ ทั้งหมด ไม่นำเดือนอื่นมารวมในการจัดอันดับ) เนื่องจากยังไม่มีตารางกลุ่มเดือนตามจำนวนวันสำหรับข้อมูลผลผลิตรวมทั้งสองโรงงาน<br>
-            ทั้งสองวิธีนับเฉพาะเดือนที่ปิดข้อมูลจริงครบเดือนแล้วเป็นข้อมูลเปรียบเทียบ (ไม่รวมเดือนปัจจุบัน/อนาคตของปีนี้ที่ยังเป็นค่าประมาณการ) และจะแสดงบรรทัดอันดับเฉพาะเมื่อติด Top 3 เท่านั้น
-          </div>
-
           <details class="dtable" id="dtable">
             <summary>
               <span class="dtable-label">ตารางข้อมูลรายวัน — เดือนที่เลือก</span>
@@ -1318,6 +1296,28 @@
 
           <button type="button" class="foot-toggle" data-target="monthlyFootTot" aria-expanded="false" aria-controls="monthlyFootTot">ดูรายละเอียด</button>
           <div class="foot" id="monthlyFootTot" hidden></div>
+
+          <div class="card">
+            <div class="summary-block">
+              <div class="summary-title">สรุปภาพรวมผลผลิตรายเดือน Pulp mill 1</div>
+              <div class="summary-body" id="monthlySummaryBody1"></div>
+            </div>
+            <div class="summary-block">
+              <div class="summary-title">สรุปภาพรวมผลผลิตรายเดือน Pulp mill 2</div>
+              <div class="summary-body" id="monthlySummaryBody2"></div>
+            </div>
+            <div class="summary-block">
+              <div class="summary-title">สรุปภาพรวมผลผลิตรายเดือน Pulp mill 1+2</div>
+              <div class="summary-body" id="monthlySummaryBodyTot"></div>
+            </div>
+          </div>
+
+          <button type="button" class="foot-toggle" data-target="monthlySummaryFoot" aria-expanded="false" aria-controls="monthlySummaryFoot">ดูรายละเอียด</button>
+          <div class="foot" id="monthlySummaryFoot" hidden>
+            <b>วิธีจัดอันดับ Pulp mill 1 / Pulp mill 2:</b> เทียบผลผลิตประมาณการจบเดือนกับ<b>กลุ่มเดือนที่มีจำนวนวันเท่ากัน</b> (31 วัน / 30 วัน / ก.พ. 29 วัน (ปีอธิกสุรทิน) / ก.พ. 28 วัน) ข้ามปีทั้งหมดที่มีข้อมูล — เช่น เดือนตุลาคม (31 วัน) จะเทียบกับ ม.ค., มี.ค., พ.ค., ก.ค., ส.ค., ต.ค. และ ธ.ค. ของทุกปี ไม่ใช่เทียบเฉพาะเดือนตุลาคมด้วยกันเองเท่านั้น เพราะเดือนที่มีจำนวนวันเท่ากันมีโอกาสทำผลผลิตได้ใกล้เคียงกันมากกว่าเทียบกับเดือนที่มีจำนวนวันต่างกัน (ใช้ข้อมูลและวิธีจัดอันดับชุดเดียวกับตาราง "เดือนที่มี 31/30/29/28 วัน" ในหน้า Pulp mill 1 และ Pulp mill 2 แต่ละหน้า)<br>
+            <b>วิธีจัดอันดับ Pulp mill 1+2:</b> ยังคงเทียบแบบเดิม คือเทียบเฉพาะ <b>"เดือนเดียวกันข้ามปี"</b> เท่านั้น (เช่น ต.ค. เทียบกับ ต.ค. ของปีอื่นๆ ทั้งหมด ไม่นำเดือนอื่นมารวมในการจัดอันดับ) เนื่องจากยังไม่มีตารางกลุ่มเดือนตามจำนวนวันสำหรับข้อมูลผลผลิตรวมทั้งสองโรงงาน<br>
+            ทั้งสองวิธีนับเฉพาะเดือนที่ปิดข้อมูลจริงครบเดือนแล้วเป็นข้อมูลเปรียบเทียบ (ไม่รวมเดือนปัจจุบัน/อนาคตของปีนี้ที่ยังเป็นค่าประมาณการ) และจะแสดงบรรทัดอันดับเฉพาะเมื่อติด Top 3 เท่านั้น
+          </div>
 
           <details class="dtable" id="rankTableDetailsTot">
             <summary>
