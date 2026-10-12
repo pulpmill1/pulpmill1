@@ -883,6 +883,13 @@
             </div>
           </div>
 
+          <div class="card">
+            <div class="summary-block">
+              <div class="summary-title">สรุปภาพรวมผลผลิต LE รายเดือนและ LE รายปี Pulp mill 1</div>
+              <div class="summary-body" id="dailyPm1SummaryBody"></div>
+            </div>
+          </div>
+
           <details class="dtable" id="dtable">
             <summary>
               <span class="dtable-label">ตารางข้อมูลรายวัน — เดือนที่เลือก</span>
@@ -2517,7 +2524,8 @@ MONTH_NAMES.forEach((name,i)=>{
   sel.appendChild(opt);
 });
 sel.value = defaultMonth;
-sel.addEventListener('change', ()=> render(+sel.value));
+sel.addEventListener('change', ()=> { render(+sel.value); renderDailyPm1Summary(); });
+let LAST_PM1_DAILY_RENDER = null;
 
 /* ===================== chart ===================== */
 if(window.ChartDataLabels) Chart.register(ChartDataLabels);
@@ -2562,6 +2570,13 @@ function render(mi){
     <div class="stat"><div class="k">Est. monthly</div><div class="v">${mEst==null?'—':fmt0(mEst)}</div></div>
     <div class="stat"><div class="k">Diff Est monthly</div><div class="v ${mDiffEst!=null && mDiffEst<0?'neg':''}" style="${mDiffEst!=null && mDiffEst>=0?'color:#00a927;':''}">${mDiffEst==null?'—':fmtDiff(mDiffEst)}</div></div>
   `;
+
+  // Stash this render's month/est/diff for renderDailyPm1Summary() (defined further down, after
+  // MONTH_ABBR_EN/annualRankingPool/buildSummaryLines/lastDataStr all exist) — that function is
+  // NOT called from here, only from the month-select/dark-mode listeners and the one safe deferred
+  // call near the bottom of the script, since those consts are still in their temporal dead zone
+  // the first time render() itself runs (render(defaultMonth) fires before they're declared).
+  LAST_PM1_DAILY_RENDER = { mi, mEst, mDiffEst };
 
   // data table
   const targetDaily = TARGET_DAILY[mi];
@@ -2674,11 +2689,26 @@ function render(mi){
   if(chart){ chart.data = cfg.data; chart.options = cfg.options; chart.update(); }
   else { chart = new Chart(document.getElementById('prodChart').getContext('2d'), cfg); }
 }
+/* Monthly LE line reuses the same "LE ... (Update Act. ...)" / colored-diff-vs-BG shape as the
+   existing annual summary (buildSummaryLines) below it, just one level down (month instead of
+   year). Reads render()'s last stashed mi/mEst/mDiffEst rather than taking them as arguments, so
+   the month-select/dark-mode listeners can call it right after render() with no extra plumbing. */
+function renderDailyPm1Summary(){
+  const summaryBody = document.getElementById('dailyPm1SummaryBody');
+  if(!summaryBody || !LAST_PM1_DAILY_RENDER) return;
+  const { mi, mEst, mDiffEst } = LAST_PM1_DAILY_RENDER;
+  const EN = currentLang==='en';
+  let html = mEst==null ? `<div>${EN?'no data':'ไม่มีข้อมูล'}</div>` :
+    `<div>- LE ${MONTH_ABBR_EN[mi]} ${YEAR} ${fmt0(mEst)} Adt (Update Act. ${lastDataStr(EN?'en':'th')})</div>`
+    + `<div>${mDiffEst==null?'—':summaryDiffSpan(mDiffEst)} ${EN?'vs BG':'เทียบ BG'} ${BUDGET_MONTHLY[mi]==null?'—':fmt0(BUDGET_MONTHLY[mi])} Adt</div>`;
+  html += buildSummaryLines(annualActualTotal(YEAR), BUDGET_ANNUAL, annualRankingPool(), YEAR);
+  summaryBody.innerHTML = html;
+}
 
 render(defaultMonth);
 
 // redraw with fresh theme colors if the OS theme changes
-window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', ()=> render(+sel.value));
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', ()=> { render(+sel.value); renderDailyPm1Summary(); });
 
 /* ===================== header toolbar ===================== */
 const MONTH_ABBR_TH = ["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."];
@@ -5545,6 +5575,7 @@ function applyLang(lang){
   updateToolbarForPage(currentPageId);
   renderAvg7();
   if(typeof renderSummaryOverview === 'function' && document.getElementById('summaryBody1')) renderSummaryOverview();
+  if(typeof renderDailyPm1Summary === 'function' && document.getElementById('dailyPm1SummaryBody')) renderDailyPm1Summary();
   if(typeof chipMonRenderTiles === 'function' && document.getElementById('chipMonHost')){
     if(typeof renderExecKpiPanel === 'function') renderExecKpiPanel();
     CHIP_MON_GROUPS.forEach(g=>{ chipMonRenderTiles(g); chipMonRenderDetail(g.id); });
@@ -5665,6 +5696,9 @@ document.addEventListener('click', (e)=>{
 
 if(document.getElementById('summaryBody1')){
   renderSummaryOverview();
+}
+if(document.getElementById('dailyPm1SummaryBody')){
+  renderDailyPm1Summary();
 }
 
 /* initial language + page render, now that every toolbar function above exists */
