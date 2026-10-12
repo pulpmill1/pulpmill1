@@ -4900,26 +4900,41 @@ function renderSummaryOverview(){
 /* Monthly companion to buildSummaryLines/renderSummaryOverview above: same "- LE <Mon> <Year>
    <Est.> Adt (Update Act. ...)" + colored diff-vs-BG shape, one month instead of the full year,
    for whichever month is the latest real one (MONTHLY_FORECAST_FROM_MI, the same cutoff already
-   shared by isRealActualMonth/isRealActualMonthTot). */
-function buildMonthlyLeSummaryLines(mi, monthlyActFullArr, budgetMonthlyArr){
+   shared by isRealActualMonth/isRealActualMonthTot).
+   Ranking note (3rd line) mirrors buildSummaryLines' own: monthHistoryFn(mi) already excludes the
+   current (forecast) year's own entry for this month, same as annualRankingPool excludes the
+   forecast year — so rank is by VALUE comparison against that historical pool, not a year lookup,
+   exactly like buildSummaryLines' `1 + pool.filter(p=> p.value > curTotal).length`. Only shown
+   when the estimate lands in the top 3, same "notable records only" convention as the annual line. */
+function buildMonthlyLeSummaryLines(mi, monthlyActFullArr, budgetMonthlyArr, monthHistoryFn){
   const EN = currentLang==='en';
   const mEst = monthlyActFullArr ? monthlyActFullArr[mi] : null;
   if(mEst==null) return `<div>${EN?'no data':'ไม่มีข้อมูล'}</div>`;
   const bm = budgetMonthlyArr ? budgetMonthlyArr[mi] : null;
   const mDiffEst = bm==null ? null : mEst - bm;
-  return `<div>- LE ${MONTH_ABBR_EN[mi]} ${YEAR} ${fmt0(mEst)} Adt (Update Act. ${lastDataStr(EN?'en':'th')})</div>`
+  let html = `<div>- LE ${MONTH_ABBR_EN[mi]} ${YEAR} ${fmt0(mEst)} Adt (Update Act. ${lastDataStr(EN?'en':'th')})</div>`
     + `<div>${mDiffEst==null?'—':summaryDiffSpan(mDiffEst)} ${EN?'vs BG':'เทียบ BG'} ${bm==null?'—':fmt0(bm)} Adt</div>`;
+  const hist = monthHistoryFn ? monthHistoryFn(mi) : [];
+  if(hist.length){
+    const rank = 1 + hist.filter(h=> h.value > mEst).length;
+    if(rank <= 3){
+      const rankLabelMap = {1:'1st Best Record', 2:'2nd Best Record', 3:'3rd Best Record'};
+      const newRecordNote = rank===1 ? ' <span class="new-record-badge">NEW RECORD</span>' : '';
+      html += `<div>- ${EN?`month-end estimate for ${MONTH_ABBR_EN[mi]} ${YEAR} ranks`:`ผลผลิตประมาณการจบเดือน ${MONTH_ABBR_EN[mi]} ${YEAR} จัดอยู่ใน`} ${rankLabelMap[rank]}${newRecordNote}</div>`;
+    }
+  }
+  return html;
 }
 function renderMonthlySummaryOverview(){
   const mi = MONTHLY_FORECAST_FROM_MI;
   const body1 = document.getElementById('monthlySummaryBody1');
-  if(body1) body1.innerHTML = buildMonthlyLeSummaryLines(mi, MONTHLY_ACTUAL_BY_YEAR_FULL[YEAR], BUDGET_MONTHLY);
+  if(body1) body1.innerHTML = buildMonthlyLeSummaryLines(mi, MONTHLY_ACTUAL_BY_YEAR_FULL[YEAR], BUDGET_MONTHLY, monthHistory);
 
   const body2 = document.getElementById('monthlySummaryBody2');
-  if(body2) body2.innerHTML = buildMonthlyLeSummaryLines(mi, MONTHLY_ACTUAL_BY_YEAR_FULL_2[YEAR], BUDGET_MONTHLY_2);
+  if(body2) body2.innerHTML = buildMonthlyLeSummaryLines(mi, MONTHLY_ACTUAL_BY_YEAR_FULL_2[YEAR], BUDGET_MONTHLY_2, monthHistory2);
 
   const bodyTot = document.getElementById('monthlySummaryBodyTot');
-  if(bodyTot) bodyTot.innerHTML = buildMonthlyLeSummaryLines(mi, MONTHLY_ACTUAL_BY_YEAR_FULL_TOT[YEAR], BUDGET_MONTHLY_TOT);
+  if(bodyTot) bodyTot.innerHTML = buildMonthlyLeSummaryLines(mi, MONTHLY_ACTUAL_BY_YEAR_FULL_TOT[YEAR], BUDGET_MONTHLY_TOT, monthHistoryTot);
 }
 
 function fmtFullDate(mi, dayIdx){
