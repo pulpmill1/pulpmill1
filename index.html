@@ -877,9 +877,9 @@
             <div class="legend-row">
               <span class="item"><span class="sw dashed" style="border-color:#0000ff;"></span>Target (Adt/d)</span>
               <span class="item"><span class="sw" style="border-color:#999999;"></span>Budget (Adt/d)</span>
-              <span class="item"><span class="box" style="background:#ff9900;"></span>Actual : 588–839 Adt/d</span>
-              <span class="item"><span class="box" style="background:#00a927;"></span>Actual ≥ Budget 840 Adt/d</span>
-              <span class="item"><span class="box" style="background:#ff0000;"></span>Actual &lt; Budget 588 Adt/d (Loss &gt;30%)</span>
+              <span class="item"><span class="box" style="background:#00a927;"></span>Actual ≥ Budget</span>
+              <span class="item"><span class="box" style="background:#ff9900;"></span>Actual 70–99.9% ของ Budget</span>
+              <span class="item"><span class="box" style="background:#ff0000;"></span>Actual &lt; 70% ของ Budget (Loss &gt;30%)</span>
             </div>
           </div>
 
@@ -913,7 +913,7 @@
           <button type="button" class="foot-toggle" data-target="dailyGeneralFoot" aria-expanded="false" aria-controls="dailyGeneralFoot">ดูรายละเอียด</button>
           <div class="foot" id="dailyGeneralFoot" hidden>
             ข้อมูลผลผลิตรายวันดึงจาก Google Sheets "Data Base Fiberline 1" (Pulp Mill 1) ณ วันที่ 7 กันยายน 2026 — เป็นข้อมูล snapshot ที่ดึงมา ณ เวลาจัดทำหน้านี้ ไม่ได้เชื่อมต่อสด (live) กับชีตต้นทาง หากต้องการข้อมูลล่าสุด โปรดแจ้งให้ดึงข้อมูลใหม่<br>
-            Actual รายวัน: ชีต Daily (Act) (gid=0) · Budget รายวัน (เส้นทึบสีเทา): ชีต Daily (BG) (gid=1682718600) คอลัมน์ B · Target รายวัน (เส้นประสีน้ำเงิน): ชีต Daily (Plan) (gid=3664159) คอลัมน์ B — เป็นข้อมูลรายวันคนละชุดกับ Budget โดยตรง จึงมีค่าต่างกันในแต่ละวัน · รายละเอียด Loss รายวัน: ชีต Daily (Loss) (gid=786133815) คอลัมน์ B · Budget รายเดือน/รายปีในกรอบสถิติ อ้างอิงจากแถว "Budget 2026" คอลัมน์ Pulp 1 ในชีตเดียวกัน · เกณฑ์สีแท่งกราฟใช้ค่าคงที่ 840 / 588 Adt/d ตามที่กำหนด
+            Actual รายวัน: ชีต Daily (Act) (gid=0) · Budget รายวัน (เส้นทึบสีเทา): ชีต Daily (BG) (gid=1682718600) คอลัมน์ B · Target รายวัน (เส้นประสีน้ำเงิน): ชีต Daily (Plan) (gid=3664159) คอลัมน์ B — เป็นข้อมูลรายวันคนละชุดกับ Budget โดยตรง จึงมีค่าต่างกันในแต่ละวัน · รายละเอียด Loss รายวัน: ชีต Daily (Loss) (gid=786133815) คอลัมน์ B · Budget รายเดือน/รายปีในกรอบสถิติ อ้างอิงจากแถว "Budget 2026" คอลัมน์ Pulp 1 ในชีตเดียวกัน · เกณฑ์สีแท่งกราฟใช้ % ของ Budget รายวันของวันนั้นๆ เทียบกับ Actual (≥100% เขียว, 70–99.9% ส้ม, &lt;70% แดง)
           </div>
 
           <div class="card" id="monthlyCard">
@@ -2487,11 +2487,18 @@ function wrapText(str, width){
   while(out.length && out[out.length-1]==='') out.pop();
   return out;
 }
-function barColor(v){ if(v==null) return 'rgba(0,0,0,0)'; if(v>=840) return '#00a927'; if(v>=588) return '#ff9900'; return '#ff0000'; }
-function statusChip(v){
-  if(v==null) return '<span class="chip na">ไม่มีข้อมูล</span>';
-  if(v>=840) return '<span class="chip good">≥ Target</span>';
-  if(v>=588) return '<span class="chip mid">588–839</span>';
+/* Thresholds are % of that day's OWN Budget (not a fixed Adt/d number) — same rule
+   monthlyBaseColor() already uses for the monthly charts: >=100% green, >=70% orange, else red. */
+function barColor(v, budget){
+  if(v==null || budget==null) return 'rgba(0,0,0,0)';
+  if(v>=budget) return '#00a927';
+  if(v>=budget*0.7) return '#ff9900';
+  return '#ff0000';
+}
+function statusChip(v, budget){
+  if(v==null || budget==null) return '<span class="chip na">ไม่มีข้อมูล</span>';
+  if(v>=budget) return '<span class="chip good">≥ Budget</span>';
+  if(v>=budget*0.7) return '<span class="chip mid">70–99.9%</span>';
   return '<span class="chip bad">Loss &gt;30%</span>';
 }
 function monthActualSum(mi){ return ACTUAL[mi].reduce((s,v)=> s + (v==null?0:v), 0); }
@@ -2616,7 +2623,7 @@ function render(mi){
       <td class="num">${fmt2(targetDaily[i])}</td>
       <td class="num">${fmt2(budgetDaily[i])}</td>
       <td class="num">${diff==null?'—':fmtDiff2(diff)}</td>
-      <td class="status">${statusChip(v)}</td>
+      <td class="status">${statusChip(v, budgetDaily[i])}</td>
       ${lossCell}
     </tr>`;
   }).join('');
@@ -2629,7 +2636,7 @@ function render(mi){
   const surfaceColor = cssVar('--surface');
   const borderColor = cssVar('--border');
 
-  const barColors = actual.map(barColor);
+  const barColors = actual.map((v,i)=> barColor(v, budgetDaily[i]));
   const targetLine = targetDaily;
   const budgetLine = budgetDaily;
 
@@ -2682,8 +2689,9 @@ function render(mi){
               if(item.dataset.label==='Actual'){
                 const v = item.raw;
                 if(v==null) return 'Actual: ไม่มีข้อมูล';
-                let status = v>=840?'≥ Target (เขียว)': v>=588?'588–839 (ส้ม)':'< 588, Loss >30% (แดง)';
-                return `Actual: ${v.toLocaleString('en-US',{minimumFractionDigits:v%1?1:0})} Adt/d — ${status}`;
+                const b = budgetDaily[item.dataIndex];
+                const status = b==null ? '' : (v>=b ? '≥ Budget (เขียว)' : v>=b*0.7 ? '70–99.9% ของ Budget (ส้ม)' : '< 70% ของ Budget, Loss >30% (แดง)');
+                return `Actual: ${v.toLocaleString('en-US',{minimumFractionDigits:v%1?1:0})} Adt/d${status ? ' — '+status : ''}`;
               }
               if(item.dataset.label==='Target') return `Target: ${fmt0(item.raw)} Adt/d`;
               if(item.dataset.label==='Budget') return `Budget: ${fmt0(item.raw)} Adt/d`;
@@ -5122,6 +5130,7 @@ const TX_EN = {
   'Actual 70–99.9% ของ Budget':'Actual 70–99.9% of budget',
   'Actual < 70% ของ Budget, Loss >30%':'Actual < 70% of budget, loss >30%',
   'Actual < 70% ของ Budget (Loss >30%)':'Actual < 70% of budget (loss >30%)',
+  'Actual ≥ Budget':'Actual ≥ Budget',
   'Pulp mill 1':'Pulp mill 1','Pulp mill 2':'Pulp mill 2','Pulp mill 1+2 (รวม)':'Pulp mill 1+2 (total)',
   'ผลผลิตรายเดือน 10 อันดับสูงสุดนับตั้งแต่เริ่มเดินเครื่องผลิต เรียงจากมากไปน้อย':'Top 10 highest monthly production since start-up, largest first',
   'ผลผลิตรายเดือน 10 อันดับสูงสุดนับตั้งแต่เริ่มเดินเครื่องผลิต เรียงจากมากไปน้อย (รวม Pulp mill 1+2)':'Top 10 highest monthly production since start-up, largest first (Pulp mill 1+2 combined)',
@@ -5160,7 +5169,6 @@ const TX_EN = {
   'Role View เปลี่ยนเฉพาะมุมมองการแสดงผล ไม่เปลี่ยนสิทธิ์การเข้าถึงข้อมูล':'Role View changes only what is shown, not data-access permissions',
   // legend / colour-rule labels
   '≥ Target (เขียว)':'≥ Target (green)','≥ Budget (เขียว)':'≥ Budget (green)',
-  '588–839 (ส้ม)':'588–839 (orange)','< 588, Loss >30% (แดง)':'< 588, loss >30% (red)',
   '70–99.9% ของ Budget':'70–99.9% of budget','70–99.9% ของ Budget (ส้ม)':'70–99.9% of budget (orange)',
   '< 70% ของ Budget, Loss >30%':'< 70% of budget, loss >30%','< 70% ของ Budget, Loss >30% (แดง)':'< 70% of budget, loss >30% (red)',
   'Actual 70–99.9% ของ Budget':'Actual 70–99.9% of budget','Actual < 70% ของ Budget, Loss >30%':'Actual < 70% of budget, loss >30%',
@@ -5193,7 +5201,7 @@ const TX_EN = {
   'จัดอันดับผลผลิตจริงรายเดือนรวม Pulp mill 1+2 เทียบเฉพาะ "เดือนเดียวกันข้ามปี" เท่านั้น (ไม่นำเดือนอื่นมารวม) จากข้อมูล Actual ทั้งหมดที่มี':'Ranks actual combined Pulp mill 1+2 monthly production comparing the same calendar month across years only (no other months mixed in), from all available Actual data',
   // static foot notes (behind "Show details")
   'ข้อมูลผลผลิตรายวันดึงจาก Google Sheets "Data Base Fiberline 1" (Pulp Mill 1) ณ วันที่ 7 กันยายน 2026 — เป็นข้อมูล snapshot ที่ดึงมา ณ เวลาจัดทำหน้านี้ ไม่ได้เชื่อมต่อสด (live) กับชีตต้นทาง หากต้องการข้อมูลล่าสุด โปรดแจ้งให้ดึงข้อมูลใหม่':'Daily production data is read from the Google Sheet "Data Base Fiberline 1" (Pulp Mill 1). Reload the page to pull the latest.',
-  'Actual รายวัน: ชีต Daily (Act) (gid=0) · Budget รายวัน (เส้นทึบสีเทา): ชีต Daily (BG) (gid=1682718600) คอลัมน์ B · Target รายวัน (เส้นประสีน้ำเงิน): ชีต Daily (Plan) (gid=3664159) คอลัมน์ B — เป็นข้อมูลรายวันคนละชุดกับ Budget โดยตรง จึงมีค่าต่างกันในแต่ละวัน · รายละเอียด Loss รายวัน: ชีต Daily (Loss) (gid=786133815) คอลัมน์ B · Budget รายเดือน/รายปีในกรอบสถิติ อ้างอิงจากแถว "Budget 2026" คอลัมน์ Pulp 1 ในชีตเดียวกัน · เกณฑ์สีแท่งกราฟใช้ค่าคงที่ 840 / 588 Adt/d ตามที่กำหนด':'Daily Actual: Daily (Act) tab (gid=0) · Daily Budget (solid grey line): Daily (BG) tab (gid=1682718600) column B · Daily Target (blue dashed line): Daily (Plan) tab (gid=3664159) column B — a separate daily series from Budget, so the two differ day to day · Daily loss detail: Daily (Loss) tab (gid=786133815) column B · Monthly/annual budget in the stat boxes comes from the "Budget 2026" row, Pulp 1 column, of the same sheet · Bar colour thresholds use the fixed 840 / 588 Adt/d values.',
+  'Actual รายวัน: ชีต Daily (Act) (gid=0) · Budget รายวัน (เส้นทึบสีเทา): ชีต Daily (BG) (gid=1682718600) คอลัมน์ B · Target รายวัน (เส้นประสีน้ำเงิน): ชีต Daily (Plan) (gid=3664159) คอลัมน์ B — เป็นข้อมูลรายวันคนละชุดกับ Budget โดยตรง จึงมีค่าต่างกันในแต่ละวัน · รายละเอียด Loss รายวัน: ชีต Daily (Loss) (gid=786133815) คอลัมน์ B · Budget รายเดือน/รายปีในกรอบสถิติ อ้างอิงจากแถว "Budget 2026" คอลัมน์ Pulp 1 ในชีตเดียวกัน · เกณฑ์สีแท่งกราฟใช้ % ของ Budget รายวันของวันนั้นๆ เทียบกับ Actual (≥100% เขียว, 70–99.9% ส้ม, &lt;70% แดง)':'Daily Actual: Daily (Act) tab (gid=0) · Daily Budget (solid grey line): Daily (BG) tab (gid=1682718600) column B · Daily Target (blue dashed line): Daily (Plan) tab (gid=3664159) column B — a separate daily series from Budget, so the two differ day to day · Daily loss detail: Daily (Loss) tab (gid=786133815) column B · Monthly/annual budget in the stat boxes comes from the "Budget 2026" row, Pulp 1 column, of the same sheet · Bar colour thresholds use % of that day\'s own Budget vs Actual (≥100% green, 70–99.9% orange, &lt;70% red).',
 };
 
 // interpolated / pattern strings
@@ -5428,7 +5436,8 @@ function buildProductionCsv(){
   for(let i=0;i<days;i++){
     const v = actual[i];
     const diff = v==null ? '' : (v - budgetDaily[i]).toFixed(2);
-    const status = v==null ? 'No data' : v>=840 ? '>= Target' : v>=588 ? '588-839' : 'Loss >30%';
+    const b = budgetDaily[i];
+    const status = (v==null || b==null) ? 'No data' : v>=b ? '>= Budget' : v>=b*0.7 ? '70-99.9% of Budget' : 'Loss >30%';
     rows.push([
       `${i+1}/${mi+1}/${YEAR}`,
       v==null ? '' : Number(v).toFixed(2),
