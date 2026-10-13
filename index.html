@@ -707,21 +707,25 @@
   .md-stripstack{margin-bottom:0;}
   .md-strip-transposed .md-cell{padding:9px;}
   .md-strip-dot{width:8px;height:8px;border-radius:50%;flex:0 0 auto;}
-  .md-sp-list{margin-top:4px;display:flex;flex-direction:column;gap:3px;}
-  .md-sp-line{display:flex;align-items:center;gap:5px;font-family:"IBM Plex Mono",monospace;font-size:11px;}
-  .md-sp-name{color:var(--ink-2);flex:1 1 auto;min-width:0;}
+  .md-sp-wrap{position:relative;margin-top:4px;}
+  .md-sp-list{display:flex;flex-direction:column;gap:5px;}
+  .md-sp-line{display:flex;align-items:center;gap:6px;font-family:"IBM Plex Mono",monospace;font-size:11px;}
+  .md-sp-name{color:var(--ink-2);flex:1 1 auto;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .md-sp-val{font-weight:700;color:var(--ink);white-space:nowrap;}
-  .md-sp-val.p1,.md-sp-val.p2{width:38px;text-align:right;}
-  .md-sp-val.p1{border-right:1px solid var(--ink-3);padding-right:10px;}
-  .md-sp-subhead{display:flex;align-items:center;gap:6px;font-size:7.5px;font-weight:700;letter-spacing:.02em;color:var(--ink-3);text-transform:uppercase;margin-top:7px;padding-bottom:3px;border-bottom:1px solid var(--box-border);}
+  .md-sp-val.p1,.md-sp-val.p2{width:46px;flex:0 0 46px;text-align:right;}
+  .md-sp-val.p1{padding-right:10px;}
+  .md-sp-subhead{display:flex;align-items:center;gap:6px;font-size:7.5px;font-weight:700;letter-spacing:.02em;color:var(--ink-3);text-transform:uppercase;margin-bottom:5px;padding-bottom:3px;border-bottom:1px solid var(--box-border);}
   .md-sp-spacer{flex:1 1 auto;min-width:0;}
-  .md-sp-colhead{width:38px;text-align:right;white-space:nowrap;}
-  .md-strip-transposed .md-sp-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .md-strip-transposed .md-sp-line{gap:6px;}
-  .md-sp-trend{border-left:1px solid var(--ink-3);padding-left:10px;white-space:nowrap;flex:0 0 auto;}
+  .md-sp-colhead{width:46px;text-align:right;white-space:nowrap;}
+  .md-sp-trend{padding-left:10px;white-space:nowrap;flex:0 0 58px;width:58px;overflow:hidden;}
   .md-sp-trend .tr-good{color:#12a150;font-weight:700;}
   .md-sp-trend .tr-bad{color:#d4342c;font-weight:700;}
   .md-sp-trend .tr-flat{color:var(--ink-3);font-weight:700;}
+  /* one continuous rule spanning the whole column (header + all 5 species rows) instead of a
+     border per species line, which reads as broken dashes with gaps between them */
+  .md-sp-divider{position:absolute;top:0;bottom:0;width:1px;background:var(--ink-3);}
+  .md-sp-divider.pair{right:46px;}
+  .md-sp-divider.trend{right:58px;}
   @media (max-width:860px){ .md-strip-transposed{grid-template-columns:repeat(3,1fr);} .md-strip-transposed .md-cell{border-bottom:1px solid var(--box-border);} }
   .md-chart-wrap{position:relative;height:250px;margin-top:4px;}
   .md-assess{font-size:11.5px;line-height:1.7;color:var(--ink-2);background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:11px 13px;margin-top:12px;}
@@ -9997,10 +10001,12 @@ function woodStackBuildStripTransposed(prefix){
   const prevLbl = chipMonMonthLabel(a0.pmi, a0.py);
   const anchorDate = `${a0.anchor.d} ${MONTH_ABBR_TH[a0.anchor.mi]} ${a0.anchor.y}`;
   const estLbl = (EN?'Est. ':'Est. ')+(EN?MONTH_ABBR_EN[a0.anchor.mi]:MONTH_ABBR_TH[a0.anchor.mi])+(EN?' month-end':' สิ้นเดือน');
-  // Single-mill sections (not the Pulp 1+2 combined one) get a trailing arrow+value segment on 3
-  // columns — Latest vs 7-day(latest), 7-day(latest) vs 7-day(prior), Est. vs last month — both the
-  // arrow AND the number colored by direction (house convention: ↓ green, ↑ red, matching
-  // chipMonTrendArrow elsewhere), separated from the primary value by its own thin divider.
+  // Single-mill sections (not the Pulp 1+2 combined one) get a trailing arrow+diff segment on 3
+  // columns — Latest vs 7-day(latest), 7-day(latest) vs 7-day(prior), Est. vs last month — showing
+  // the DIFFERENCE between the two (not the compared period's own value), arrow and number sharing
+  // the house green/red convention (↓ green, ↑ red). Both this and the Pulp 1/Pulp 2 split use one
+  // absolutely-positioned divider line spanning the whole column (.md-sp-wrap) instead of a
+  // per-row border, so it reads as a single straight rule instead of 5 short, gapped segments.
   const showTrend = !pairKeyMap;
   const trendSegment = (v1, v2, dec) => {
     if(v1==null || v2==null || !isFinite(v1) || !isFinite(v2)) return '<span class="md-sp-trend"><span class="tr-flat">–</span></span>';
@@ -10008,7 +10014,7 @@ function woodStackBuildStripTransposed(prefix){
     const flat = Math.abs(diff) < 1e-9;
     const cls = flat ? 'tr-flat' : (diff>0 ? 'tr-bad' : 'tr-good');
     const arrow = flat ? '–' : (diff>0 ? '↑' : '↓');
-    return '<span class="md-sp-trend"><span class="'+cls+'">'+arrow+' '+chipMonFmt(v2, dec)+'%</span></span>';
+    return '<span class="md-sp-trend"><span class="'+cls+'">'+arrow+' '+chipMonFmt(Math.abs(diff), dec)+'%</span></span>';
   };
   const speciesLines = (valueFn, compareFn) => perSpecies.map(x=> {
     const dec = (x.m||x.pairM) ? (x.m||x.pairM).dec : 1;
@@ -10019,22 +10025,25 @@ function woodStackBuildStripTransposed(prefix){
       return '<div class="md-sp-line">'+dotHtml+'<span class="md-sp-name">'+x.sp.label+'</span>'
         + '<span class="md-sp-val p1">'+chipMonFmt(v1, dec)+'%</span><span class="md-sp-val p2">'+chipMonFmt(v2, dec)+'%</span></div>';
     }
-    const trendHtml = (showTrend && compareFn) ? trendSegment(v1, x.a ? compareFn(x.a) : null, dec) : '';
+    const trendHtml = (showTrend && compareFn) ? trendSegment(v1, x.a ? compareFn(x.a) : null, dec) : '<span class="md-sp-trend"></span>';
     return '<div class="md-sp-line">'+dotHtml+'<span class="md-sp-name">'+x.sp.label+'</span><span class="md-sp-val">'+chipMonFmt(v1, dec)+'%</span>'+trendHtml+'</div>';
   }).join('');
   const subhead = pairKeyMap ? '<div class="md-sp-subhead"><span class="md-sp-spacer"></span><span class="md-sp-colhead">Pulp 1</span><span class="md-sp-colhead">Pulp 2</span></div>' : '';
   const cols = [
-    { ck:'Latest', cs:anchorDate, lines:speciesLines(a=> a.anchor.v, a=> chipMonMean(a.last7)), hero:true },
-    { ck:'7 วัน (ล่าสุด)', cs:(EN?'mean of the last 7 days':'ค่าเฉลี่ย 7 วันล่าสุด'), lines:speciesLines(a=> chipMonMean(a.last7), a=> chipMonMean(a.last7Prev)) },
+    { ck:'Latest', cs:anchorDate, lines:speciesLines(a=> a.anchor.v, a=> chipMonMean(a.last7)), hero:true, hasTrend:true },
+    { ck:'7 วัน (ล่าสุด)', cs:(EN?'mean of the last 7 days':'ค่าเฉลี่ย 7 วันล่าสุด'), lines:speciesLines(a=> chipMonMean(a.last7), a=> chipMonMean(a.last7Prev)), hasTrend:true },
     { ck:'7 วัน (ที่ผ่านมา)', cs:(EN?'mean of the 7 days before the latest 7':'ค่าเฉลี่ย 7 วันก่อนหน้า 7 วันล่าสุด'), lines:speciesLines(a=> chipMonMean(a.last7Prev)) },
     { ck:curLbl, cs:(EN?'this month so far':'เฉลี่ยเดือนนี้'), lines:speciesLines(a=> chipMonMean(a.curMon)) },
     { ck:prevLbl, cs:(EN?'last month':'เฉลี่ยเดือนก่อน'), lines:speciesLines(a=> chipMonMean(a.prevMon)) },
     { ck:String(a0.anchor.y), cs:(EN?'year to date':'เฉลี่ยทั้งปี'), lines:speciesLines(a=> chipMonMean(a.yrVals)) },
-    { ck:estLbl, cs:(EN?'month-end estimate':'ประมาณการสิ้นเดือน'), lines:speciesLines(a=> a.est, a=> chipMonMean(a.prevMon)) }
+    { ck:estLbl, cs:(EN?'month-end estimate':'ประมาณการสิ้นเดือน'), lines:speciesLines(a=> a.est, a=> chipMonMean(a.prevMon)), hasTrend:true }
   ];
-  return '<div class="md-strip md-strip-transposed">' + cols.map(c=>
-    '<div class="md-cell'+(c.hero?' hero':'')+'"><div class="ck">'+c.ck+'</div><div class="cs">'+c.cs+'</div>'+subhead+'<div class="md-sp-list">'+c.lines+'</div></div>'
-  ).join('') + '</div>';
+  return '<div class="md-strip md-strip-transposed">' + cols.map(c=> {
+    const dividerCls = pairKeyMap ? 'pair' : (c.hasTrend ? 'trend' : null);
+    const divider = dividerCls ? '<div class="md-sp-divider '+dividerCls+'"></div>' : '';
+    return '<div class="md-cell'+(c.hero?' hero':'')+'"><div class="ck">'+c.ck+'</div><div class="cs">'+c.cs+'</div>'
+      + '<div class="md-sp-wrap">'+subhead+'<div class="md-sp-list">'+c.lines+'</div>'+divider+'</div></div>';
+  }).join('') + '</div>';
 }
 function woodStackRenderStrips(prefix){
   const host = document.getElementById(prefix+'Strips');
