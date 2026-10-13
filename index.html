@@ -10193,7 +10193,10 @@ function initWoodCmp(){
    woodResolveRangeGeneric above) and its own chart/table toggle, defaulting to chart. Species
    colours are a fixed map shared by all three so the same species reads as the same colour
    everywhere (Pulp mill 1, Pulp mill 2, and the combined Pulp mill 1+2 view). */
-const WOOD_SPECIES_COLORS = { K7:'#2a78d6', K58:'#eb6834', Seed:'#1baf7a', Other:'#eda100', 'St>1 m':'#e87ba4' };
+const WOOD_SPECIES_COLORS = { K7:'#E0792A', K58:'#1E8F6D', Seed:'#96623B', Other:'#2E6DA4', 'St>1 m':'#5C3A1F' };
+/* Per-segment label ink chosen for contrast against each fill above (checked by eye against both
+   the light and dark chart surfaces — K7's orange is the one light enough to need dark ink). */
+const WOOD_SPECIES_LABEL_INK = { K7:'#2a1c0d', K58:'#ffffff', Seed:'#ffffff', Other:'#ffffff', 'St>1 m':'#ffffff' };
 const WOOD_STACK_RANGE = {};  // prefix -> {r1,r2}
 const WOOD_STACK_VIEW = {};   // prefix -> 'chart' | 'table'
 const WOOD_STACK_CHARTS = {}; // prefix -> Chart.js instance
@@ -10243,13 +10246,21 @@ function woodStackDrawChart(prefix, rowsOwn, rowsPair){
   if(!cv) return;
   const EN = currentLang==='en';
   const c = { ink2:cssVar('--ink-2'), grid:cssVar('--grid'), surface:cssVar('--surface'), border:cssVar('--border'), ink:cssVar('--ink') };
+  // value label on every segment (the direct-label mitigation the earthy brown/green/orange
+  // palette needs for its CVD-borderline adjacent pairs) — suppressed only below 5% where the
+  // segment is too thin for the text to fit without overlapping its neighbours.
+  const segDatalabels = col => ({
+    display: ctx => { const v = ctx.dataset.data[ctx.dataIndex]; return v!=null && v>=5; },
+    color: WOOD_SPECIES_LABEL_INK[col.label], font:{ size:9.5, weight:'600', family:'IBM Plex Mono' },
+    formatter: v => v==null ? '' : v.toFixed(1)+'%'
+  });
   let labels, datasets;
   if(!rowsPair){
     labels = rowsOwn.map(r=> woodStackLabel(r, EN));
     datasets = WOOD_CMP_COLS.map((col,i)=> ({
       label: col.label, stack:'a', data: rowsOwn.map(r=> woodStackNormalize(r.vals)[i]),
       backgroundColor: WOOD_SPECIES_COLORS[col.label], borderColor:c.surface, borderWidth:1.5, borderSkipped:false,
-      datalabels:{display:false}
+      datalabels: segDatalabels(col)
     }));
   } else {
     const keyMap = new Map();
@@ -10264,13 +10275,13 @@ function woodStackDrawChart(prefix, rowsOwn, rowsPair){
       label: 'Pulp 1 '+col.label, stack:'p1',
       data: allRows.map(r=> { const rr = ownByKey.get(woodStackPeriodKey(r)); return rr ? woodStackNormalize(rr.vals)[i] : null; }),
       backgroundColor: WOOD_SPECIES_COLORS[col.label], borderColor:c.surface, borderWidth:1.5, borderSkipped:false,
-      datalabels:{display:false}
+      datalabels: segDatalabels(col)
     }));
     WOOD_CMP_COLS.forEach((col,i)=> datasets.push({
       label: 'Pulp 2 '+col.label, stack:'p2',
       data: allRows.map(r=> { const rr = pairByKey.get(woodStackPeriodKey(r)); return rr ? woodStackNormalize(rr.vals)[i] : null; }),
       backgroundColor: WOOD_SPECIES_COLORS[col.label], borderColor:c.surface, borderWidth:1.5, borderSkipped:false,
-      datalabels:{display:false}
+      datalabels: segDatalabels(col)
     }));
   }
   const cfg = {
