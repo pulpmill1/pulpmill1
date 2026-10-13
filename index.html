@@ -10329,13 +10329,7 @@ function woodStackRows(range, seriesKeys){
     let y = range.start.y, mi = range.start.mi;
     while(y < range.end.y || (y===range.end.y && mi<=range.end.mi)){
       const vals = seriesKeys.map(k=> woodCmpAvg(CHIP_MON_SERIES[k]||[], y, mi));
-      if(vals.every(v=> v!=null)){
-        // how many of this month's days actually went into the average — a trailing/partial month
-        // (e.g. 12 of 31 days logged so far) still shows up under its month label, so the label
-        // itself needs to say "12/31 days" or it reads as if the whole month were real data.
-        const dayCount = (CHIP_MON_SERIES[seriesKeys[0]]||[]).filter(x=> x.y===y && x.mi===mi).length;
-        rows.push({ y, mi, d:null, vals, dayCount });
-      }
+      if(vals.every(v=> v!=null)) rows.push({ y, mi, d:null, vals });
       mi++; if(mi>11){ mi=0; y++; }
     }
     return rows;
@@ -10349,10 +10343,7 @@ function woodStackRows(range, seriesKeys){
 function woodStackPeriodKey(r){ return r.d==null ? (r.y+'-'+r.mi) : (r.y+'-'+r.mi+'-'+r.d); }
 function woodStackLabel(r, EN){
   if(r.d!=null) return r.d+'/'+(r.mi+1);
-  const base = (EN?MONTH_ABBR_EN[r.mi]:MONTH_ABBR_TH[r.mi])+' '+r.y;
-  const dim = new Date(r.y, r.mi+1, 0).getDate();
-  if(r.dayCount!=null && r.dayCount < dim) return base+' ('+r.dayCount+'/'+dim+' '+(EN?'days':'วัน')+')';
-  return base;
+  return (EN?MONTH_ABBR_EN[r.mi]:MONTH_ABBR_TH[r.mi])+' '+r.y;
 }
 /* True 100% stack: scale each period's 5 values so they sum to exactly 100 — protects against
    rounding drift in the source sheet instead of assuming the raw % already sum to 100 exactly. */
