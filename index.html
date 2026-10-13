@@ -10042,7 +10042,7 @@ function woodStackBuildStripTransposed(prefix){
   const cols = [
     { ck:'Latest', cs:anchorDate, lines:speciesLines(a=> a.anchor.v, a=> chipMonMean(a.last7)), hero:true, hasTrend:true },
     { ck:'7 วัน (ล่าสุด)', cs:(EN?'mean of the last 7 days':'ค่าเฉลี่ย 7 วันล่าสุด'), lines:speciesLines(a=> chipMonMean(a.last7), a=> chipMonMean(a.last7Prev)), hasTrend:true },
-    { ck:'7 วัน (ที่ผ่านมา)', cs:(EN?'mean of the 7 days before the latest 7':'ค่าเฉลี่ย 7 วันก่อนหน้า 7 วันล่าสุด'), lines:speciesLines(a=> chipMonMean(a.last7Prev)) },
+    { ck:'7 วัน (ที่ผ่านมา)', cs:(EN?'mean of the 7 days before latest':'ค่าเฉลี่ย 7 วันก่อนหน้า 7 วันล่าสุด'), lines:speciesLines(a=> chipMonMean(a.last7Prev)) },
     { ck:curLbl, cs:(EN?'this month so far':'เฉลี่ยเดือนนี้'), lines:speciesLines(a=> chipMonMean(a.curMon)) },
     { ck:prevLbl, cs:(EN?'last month':'เฉลี่ยเดือนก่อน'), lines:speciesLines(a=> chipMonMean(a.prevMon)) },
     { ck:String(a0.anchor.y), cs:(EN?'year to date':'เฉลี่ยทั้งปี'), lines:speciesLines(a=> chipMonMean(a.yrVals)) },
