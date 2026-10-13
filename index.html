@@ -2270,7 +2270,7 @@
             ที่มา: Google Sheets tab "Weight Scale Dig." (<code>gid=1177773637</code>) · คอลัมน์วันที่รูปแบบ D/M/YYYY (วันก่อนเดือน) · Cooking Batch ACC., Digester no., ปริมาณไม้สับตาม Weight scale (GT), Weight after discharge (ton) และ Weight after DPL 5 m3 (ton) resolve จากชื่อหัวตารางในชีตเดียวกัน<br>
             น้ำหนักคงเหลือหลัง Discharge: จุดที่ ≥ Target High หรือ ≤ Target Low ต่อเนื่องกันตั้งแต่ 3 batch ขึ้นไป (ในช่วงที่กำลังดูอยู่) จะกระพริบสีแดงบนกราฟ ค่าเริ่มต้น Target −6 / 6 ตัน<br>
             น้ำหนักหลัง Displacement 5 m3: จุดที่ &lt; Target Low หรือ &gt; Target High ต่อเนื่องกันตั้งแต่ 3 batch ขึ้นไป (ในช่วงที่กำลังดูอยู่) จะกระพริบสีแดงบนกราฟ ค่าเริ่มต้น Target 305 / 335 ตัน<br>
-            น้ำหนักไม้สับในหน่วย GT เปรียบเทียบค่าเฉลี่ย 5 Digester: ที่มา Google Sheets tab "RM Wood-Yield" (<code>gid=632351488</code>) คอลัมน์ Digester1-5 (GT/batch) — % ของแต่ละ Digester คำนวณเอง = (GT/batch ของ Digester นั้นวันนั้น − ค่าเฉลี่ย GT/batch ของอีก 4 Digester ที่เหลือวันนั้น) ÷ ค่าเฉลี่ยของอีก 4 Digester × 100 จุดที่ &gt;5% หรือ &lt;-5% ต่อเนื่องกันตั้งแต่ 3 วันขึ้นไป (ในช่วงที่กำลังดูอยู่) จะกระพริบสีแดงบนกราฟ<br>
+            น้ำหนักไม้สับในหน่วย GT เปรียบเทียบค่าเฉลี่ย 5 Digester: ที่มา Google Sheets tab "Weight Scale Dig." (<code>gid=1177773637</code>) คอลัมน์ Digester no. และ ปริมาณไม้สับตาม Weight scale (GT) ของแต่ละ cook รวมเป็นค่าเฉลี่ยรายวันต่อ Digester ก่อนเทียบ — % ของแต่ละ Digester คำนวณเอง = (GT เฉลี่ยของ Digester นั้นวันนั้น − ค่าเฉลี่ย GT เฉลี่ยของอีก 4 Digester ที่เหลือวันนั้น) ÷ ค่าเฉลี่ยของอีก 4 Digester × 100 จุดที่ &gt;5% หรือ &lt;-5% ต่อเนื่องกันตั้งแต่ 3 วันขึ้นไป (ในช่วงที่กำลังดูอยู่) จะกระพริบสีแดงบนกราฟ · สถานะ Normal/Warning ในกรอบสรุปแต่ละ Digester ใช้เกณฑ์เดียวกันนี้<br>
             สรุปข้อมูล Diff น้ำหนักไม้สับใน Digester: รายวัน แยกตาม Digester จากผลรวม Revise weight และ ปริมาณไม้สับตาม Weight scale ของแต่ละวันในชีตเดียวกัน "Weight Scale Dig." · หน่วย GT แสดงค่าดิบ · หน่วย BDT คูณด้วย (100% − Chip moisture (Lab)% ของวันนั้น) ทีละวันก่อนรวม<br>
             ตั้งค่า Target Low/High ได้เองต่อ Digester ต่อกราฟ (เฉพาะสองกราฟแรก) เก็บไว้ในเบราว์เซอร์นี้ · เมื่อเปิดหน้านี้ค่าเริ่มต้นจะแสดงข้อมูลของเดือนปัจจุบัน · เปลี่ยนช่วงเป็นรายวัน/รายเดือน/รายปีได้จากตัวเลือกด้านบนกราฟ · กดปุ่ม "ตาราง" เพื่อดูข้อมูลดิบแทนกราฟ
           </div>
@@ -10898,7 +10898,7 @@ function wsdRenderTiles(metric){
       const alert = wsdComputeAlertSet(metric, rows, tgt).has(last);
       dot = alert ? 'bad' : 'ok';
       const dateStr = last.d+'/'+(last.mi+1)+'/'+last.y;
-      sub = '<span class="'+(alert?'up':'flat')+'">'+(alert?'⚠ นอกเป้า':'– ปกติ')+'</span> #'+(last.batchAcc??'—')+' · '+dateStr;
+      sub = '<span class="'+(alert?'up':'flat')+'">'+(alert?'⚠ Warning':'– Normal')+'</span> #'+(last.batchAcc??'—')+' · '+dateStr;
     }
     return '<div class="mon-tile" role="button" tabindex="0" data-dig="'+dig+'" style="--mon-rail:#0A2E55">'
       + '<div class="mt-top"><span class="mt-ico">⚖️</span><span class="mt-name">Digester '+dig+'</span><span class="mt-dot '+dot+'"></span></div>'
@@ -11110,38 +11110,25 @@ function initWsdMetric(metric){
 WSD_METRICS.forEach(m=> { if(document.getElementById('wsdHost_'+m.id)) initWsdMetric(m); });
 
 /* ==================================================================================
-   RM Wood-Yield — น้ำหนักไม้สับ (GT/batch) รายวันของแต่ละ Digester เทียบกับค่าเฉลี่ยทั้ง 5 Digester
-   แหล่งข้อมูล: Google Sheets tab "RM Wood-Yield" (gid=632351488 — ตัวแปร chipWoodRows/CHIP_MON_ROWS
-   ที่ระบบดึงไว้อยู่แล้วสำหรับหน้า Yield) คอลัมน์ Digester1-5 (กลุ่ม "GT/batch") และ Digester1-5
-   (กลุ่ม "%" — ชีตคำนวณเทียบกับค่าเฉลี่ยของวันนั้นให้แล้ว) หาตำแหน่งคอลัมน์จากการเจอข้อความ
-   "Digester1" ซ้ำ 2 ครั้งในแถวเดียวกัน (ครั้งแรก = กลุ่ม GT, ครั้งสอง = กลุ่ม %) แทนตำแหน่งตายตัว
-   ข้อมูลเป็นรายวัน (หนึ่งแถว = หนึ่งวัน ไม่ใช่หนึ่ง cook แบบ Weight Scale Dig.) จึง reuse
-   CHIP_MON_ROWS ที่ parse วันที่ไว้แล้วแทนการ parse วันที่ซ้ำเอง ================== */
-function rmwFindHeaderRow(){
-  for(let hi=0; hi<chipWoodRows.length; hi++){
-    const hr = chipWoodRows[hi];
-    if(hr && hr.filter(function(c){ return String(c||'').trim()==='Digester1'; }).length >= 2) return hr;
-  }
-  return null;
-}
-const RMW_HEADER_ROW = rmwFindHeaderRow();
-function rmwFindDigCols(headerRow, occurrence, fallback){
-  if(!headerRow) return fallback;
-  let seen = 0;
-  for(let i=0; i<headerRow.length; i++){
-    if(String(headerRow[i]||'').trim()==='Digester1'){
-      if(seen===occurrence) return [i,i+1,i+2,i+3,i+4];
-      seen++;
-    }
-  }
-  return fallback;
-}
-const RMW_GT_COLS  = rmwFindDigCols(RMW_HEADER_ROW, 0, [87,88,89,90,91]);
+   RM Wood-Yield — น้ำหนักไม้สับ (GT) รายวันของแต่ละ Digester เทียบกับค่าเฉลี่ยทั้ง 5 Digester
+   แหล่งข้อมูล: WSD_ROWS (ชีตเดียวกับ "Weight Scale Dig." gid=1177773637 ที่ parse ไว้แล้วด้านบน)
+   หนึ่งแถวของ WSD_ROWS = หนึ่ง cook จึงต้องรวมเป็นรายวันต่อ Digester ก่อน (ค่าของวันนั้นๆ ของแต่ละ
+   Digester = ค่าเฉลี่ยคอลัมน์ "ปริมาณไม้สับตาม Weight scale (GT)" ของทุก cook ของ Digester นั้นใน
+   วันนั้น ตามคอลัมน์ Digester no. ที่ระบุ) ================== */
 const RMW_DIGESTERS = [1,2,3,4,5];
+const RMW_DAY_MAP = new Map();
+WSD_ROWS.forEach(function(r){
+  if(r.chipGT==null || r.dig<1 || r.dig>5) return;
+  const key = r.y+'-'+r.mi+'-'+r.d;
+  let day = RMW_DAY_MAP.get(key);
+  if(!day){ day = { y:r.y, mi:r.mi, d:r.d, ts:r.ts, sums:[0,0,0,0,0], counts:[0,0,0,0,0] }; RMW_DAY_MAP.set(key, day); }
+  const idx = r.dig-1;
+  day.sums[idx] += r.chipGT; day.counts[idx]++;
+});
 
-/* % ของ Digester N ในแต่ละวัน = (GT ของ Digester N วันนั้น − ค่าเฉลี่ย GT ของอีก 4 Digester ที่เหลือ
-   วันนั้น) ÷ ค่าเฉลี่ย GT ของอีก 4 Digester ที่เหลือ × 100 — คำนวณเองจาก GT/batch ดิบ ไม่ใช้คอลัมน์ %
-   ที่มีอยู่แล้วในชีต (ตามสูตรที่ผู้ใช้ระบุ: เทียบกับค่าเฉลี่ยของ "อีก 4 ตัว" ไม่รวมตัวเอง) */
+/* % ของ Digester N ในแต่ละวัน = (GT เฉลี่ยของ Digester N วันนั้น − ค่าเฉลี่ย GT เฉลี่ยของอีก 4
+   Digester ที่เหลือวันนั้น) ÷ ค่าเฉลี่ยของอีก 4 Digester ที่เหลือ × 100 (เทียบกับค่าเฉลี่ยของ
+   "อีก 4 ตัว" ไม่รวมตัวเอง ตามสูตรที่ผู้ใช้ระบุ) */
 function rmwPctFor(gtArr, idx){
   if(gtArr[idx]==null) return null;
   const others = gtArr.filter(function(v,i){ return i!==idx && v!=null; });
@@ -11151,10 +11138,10 @@ function rmwPctFor(gtArr, idx){
   return (gtArr[idx]-avgOthers)/avgOthers*100;
 }
 
-const RMW_ROWS = CHIP_MON_ROWS.map(function(rc){
-  const gt = RMW_GT_COLS.map(function(c){ return parseSheetNum(rc.r[c]); });
+const RMW_ROWS = Array.from(RMW_DAY_MAP.values()).map(function(day){
+  const gt = day.sums.map(function(s,i){ return day.counts[i] ? s/day.counts[i] : null; });
   return {
-    y:rc.y, mi:rc.mi, d:rc.d, ts:rc.ts, gt:gt,
+    y:day.y, mi:day.mi, d:day.d, ts:day.ts, gt:gt,
     pct: gt.map(function(_,idx){ return rmwPctFor(gt, idx); })
   };
 }).filter(function(r){ return r.gt.some(function(v){ return v!=null; }); });
@@ -11207,7 +11194,7 @@ function rmwRenderTiles(){
       dot = alert ? 'bad' : 'ok';
       const dateStr = last.d+'/'+(last.mi+1)+'/'+last.y;
       const pctStr = last.pct[digIdx]==null ? '' : ' ('+(last.pct[digIdx]>=0?'+':'')+chipMonFmt(last.pct[digIdx],1)+'%)';
-      sub = '<span class="'+(alert?'up':'flat')+'">'+(alert?'⚠ นอกเป้า':'– ปกติ')+'</span>'+pctStr+' · '+dateStr;
+      sub = '<span class="'+(alert?'up':'flat')+'">'+(alert?'⚠ Warning':'– Normal')+'</span>'+pctStr+' · '+dateStr;
     }
     return '<div class="mon-tile" role="button" tabindex="0" data-dig="'+dig+'" style="--mon-rail:#0A2E55">'
       + '<div class="mt-top"><span class="mt-ico">🪵</span><span class="mt-name">Digester '+dig+'</span><span class="mt-dot '+dot+'"></span></div>'
@@ -11319,7 +11306,7 @@ function rmwRenderBody(dig){
     const digAlertSets = RMW_DIGESTERS.map(function(n){ return rmwComputeAlertSet(allRows, n-1); });
     body.innerHTML = '<div class="md-tablewrap"><table class="md-table wide"><thead><tr>'
       + '<th>วันที่</th>'
-      + RMW_DIGESTERS.map(function(n){ return '<th>Digester '+n+' (GT/batch)</th>'; }).join('')
+      + RMW_DIGESTERS.map(function(n){ return '<th>Digester '+n+' (GT)</th>'; }).join('')
       + RMW_DIGESTERS.map(function(n){ return '<th>Digester '+n+' (%)</th>'; }).join('')
       + '</tr></thead><tbody>'
       + allRows.map(function(r){
@@ -11392,7 +11379,7 @@ function rmwRenderDetail(){
 function initRmw(){
   if(!RMW_ROWS.length){
     const wrap = document.getElementById('rmwTiles');
-    if(wrap) wrap.innerHTML = '<div class="empty-state"><div class="icon">🪵</div><h2>ยังไม่มีข้อมูล</h2><p>ไม่พบข้อมูลน้ำหนักไม้สับเทียบค่าเฉลี่ย 5 Digester ในชีต "RM Wood-Yield" (gid=632351488)</p></div>';
+    if(wrap) wrap.innerHTML = '<div class="empty-state"><div class="icon">🪵</div><h2>ยังไม่มีข้อมูล</h2><p>ไม่พบข้อมูลน้ำหนักไม้สับเทียบค่าเฉลี่ย 5 Digester ในชีต "Weight Scale Dig." (gid=1177773637)</p></div>';
     return;
   }
   rmwRenderTiles();
