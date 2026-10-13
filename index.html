@@ -2086,14 +2086,23 @@
               <div class="mon-detail" id="chipDetail_woodTotal" hidden></div>
             </div>
             <div class="mon-group">
-              <div class="mon-group-head"><span class="gi">🌲</span><span class="gt">Wood species Pulp mill 1 + Pulp mill 2 (ตารางเปรียบเทียบ)</span><span class="gs">12 คอลัมภ์ · เลือกช่วงข้อมูลรายวันหรือรายเดือน</span></div>
+              <div class="mon-group-head"><span class="gi">🌲</span><span class="gt">Wood species Pulp mill 1 + Pulp mill 2 (ตารางเปรียบเทียบ)</span><span class="gs">12 คอลัมภ์ · เลือกช่วงข้อมูลที่ 1 ถึงช่วงข้อมูลที่ 2</span></div>
               <div class="ya-controls">
                 <div class="ya-picker">
-                  <span class="yp-lbl">ช่วงข้อมูล</span>
-                  <select id="woodCmpMode"><option value="date">วัน</option><option value="month" selected>เดือน</option><option value="year">ปี</option></select>
-                  <input type="date" id="woodCmpDate" hidden>
-                  <input type="month" id="woodCmpMonth">
-                  <select id="woodCmpYear" hidden></select>
+                  <span class="yp-lbl">ช่วงที่ 1</span>
+                  <select id="woodCmpMode1"><option value="date" selected>วัน</option><option value="week">สัปดาห์</option><option value="month">เดือน</option><option value="year">ปี</option></select>
+                  <input type="date" id="woodCmpDate1">
+                  <input type="week" id="woodCmpWeek1" hidden>
+                  <input type="month" id="woodCmpMonth1" hidden>
+                  <select id="woodCmpYear1" hidden></select>
+                </div>
+                <div class="ya-picker">
+                  <span class="yp-lbl">ช่วงที่ 2</span>
+                  <select id="woodCmpMode2"><option value="date" selected>วัน</option><option value="week">สัปดาห์</option><option value="month">เดือน</option><option value="year">ปี</option></select>
+                  <input type="date" id="woodCmpDate2">
+                  <input type="week" id="woodCmpWeek2" hidden>
+                  <input type="month" id="woodCmpMonth2" hidden>
+                  <select id="woodCmpYear2" hidden></select>
                 </div>
               </div>
               <div class="md-chart-wrap"><canvas id="woodCmpChart"></canvas></div><div class="legend-row" id="woodCmpLegend"></div>
@@ -5148,6 +5157,7 @@ const TX_EN = {
   'ค่าเฉลี่ย 7 วันย้อนหลัง (Adt/day)':'Trailing 7-day mean (Adt/day)',
   // chip monitor — group + tile + strip labels
   'Latest':'Latest','Deviation':'Deviation','7 วัน':'7 days',
+  '7 วัน (ล่าสุด)':'7 days (latest)','7 วัน (ที่ผ่านมา)':'7 days (prior)',
   'ค่าเฉลี่ย 7 วันล่าสุด':'mean of the last 7 days',
   'ต้องมี ≥ 3 วัน':'needs ≥ 3 days',
   'ไม่มีข้อมูล':'no data','— ไม่มีข้อมูล':'— no data',
@@ -5212,6 +5222,8 @@ const TX_PAT = [
   [/^(\d{1,2}) (ม\.ค\.|ก\.พ\.|มี\.ค\.|เม\.ย\.|พ\.ค\.|มิ\.ย\.|ก\.ค\.|ส\.ค\.|ก\.ย\.|ต\.ค\.|พ\.ย\.|ธ\.ค\.) (\d{4})$/, m => `${m[1]} ${TX_MONTH_MAP[m[2]]} ${m[3]}`],
   [/^เฉลี่ย (\d+) วันที่บันทึก$/, m => `mean of ${m[1]} logged days`],
   [/^ค่าเฉลี่ย (\d+) วันล่าสุด$/, m => `mean of the last ${m[1]} days`],
+  [/^ค่าเฉลี่ย (\d+) วันก่อนหน้า 7 วันล่าสุด$/, m => `mean of the ${m[1]} days before the latest 7`],
+  [/^(\d+) วันก่อนหน้า 7 วันล่าสุด$/, m => `${m[1]} days before the latest 7`],
   [/^(\d+) วันจริง \+ (\d+) วันที่อัตรา 7 วัน$/, m => `${m[1]} actual days + ${m[2]} at the 7-day rate`],
   [/^ข้อมูลล่าสุด (.+)$/, m => `latest ${TX_MONTH(m[1])}`],
   [/^Est\. (.+?) สิ้นเดือน$/, m => `Est. ${TX_MONTH(m[1])} month-end`],
@@ -6148,9 +6160,11 @@ function chipMonAnalyse(key, meta){
   const curMonRows = monRows(anchor.y, anchor.mi);
   const prevMonRows = monRows(py, pmi);
   const last7Rows = s.slice(-7);
+  const last7PrevRows = s.slice(-14,-7);
   const yrValsRows = s.filter(x=> x.y===anchor.y);
   const curMon = curMonRows.map(x=> x.v);
   const last7 = last7Rows.map(x=> x.v);
+  const last7Prev = last7PrevRows.map(x=> x.v);
   const yrVals = yrValsRows.map(x=> x.v);
   // month-end estimate: (Σ this month + remaining calendar days × 7-day mean) ÷ (logged days + remaining)
   const dim = new Date(anchor.y, anchor.mi+1, 0).getDate();
@@ -6168,8 +6182,8 @@ function chipMonAnalyse(key, meta){
     health = Math.max(0, Math.min(100, Math.round(100 - Math.max(0, blended-1)*28)));
   }
   return { anchor, prev, median, mad, sigma, bandLo, bandHi, dev, r2, slope, baseN:base.length,
-    curMon, prevMon:prevMonRows.map(x=> x.v), last7, yrVals, est, remaining, dim, pmi, py, health,
-    curMonRows, prevMonRows, last7Rows, yrValsRows };
+    curMon, prevMon:prevMonRows.map(x=> x.v), last7, last7Prev, yrVals, est, remaining, dim, pmi, py, health,
+    curMonRows, prevMonRows, last7Rows, last7PrevRows, yrValsRows };
 }
 /* Yield · BDt/ADt only: the summary strip's 7-day/month/year cells sum Chip (Weight scale หักลบ
    เฉ่งกอง) and End Prod. across the same dates independently, THEN divide — a period ratio-of-
@@ -9776,6 +9790,7 @@ function chipMonRenderDetail(grpId){
   const isYieldStrip = key==='yieldBdt';
   const stripLatest = isYieldStrip ? chipMonYieldRatioSum([a.anchor], 'endProdBal') : a.anchor.v;
   const strip7d = isYieldStrip ? chipMonYieldRatioSum(a.last7Rows, 'endProd') : chipMonMean(a.last7);
+  const strip7dPrev = isYieldStrip ? chipMonYieldRatioSum(a.last7PrevRows, 'endProd') : chipMonMean(a.last7Prev);
   const stripCurMon = isYieldStrip ? chipMonYieldRatioSum(a.curMonRows, 'endProd') : chipMonMean(a.curMon);
   const stripPrevMon = isYieldStrip ? chipMonYieldRatioSum(a.prevMonRows, 'endProd') : chipMonMean(a.prevMon);
   const stripYr = isYieldStrip ? chipMonYieldRatioSum(a.yrValsRows, 'endProd') : chipMonMean(a.yrVals);
@@ -9812,7 +9827,8 @@ function chipMonRenderDetail(grpId){
 
     <div class="md-strip">
       <div class="md-cell hero"><div class="ck">Latest</div><div class="cv">${chipMonFmt(stripLatest, m.dec)}<small> ${m.unit}</small></div><div class="cs">${anchorDate}</div></div>
-      <div class="md-cell"><div class="ck">7 วัน</div><div class="cv">${chipMonTrendArrow(stripLatest, strip7d)} ${chipMonFmt(strip7d, m.dec)}</div><div class="cs">${isYieldStrip?'':'ค่าเฉลี่ย '}${a.last7.length} วันล่าสุด</div></div>
+      <div class="md-cell"><div class="ck">7 วัน (ล่าสุด)</div><div class="cv">${chipMonTrendArrow(stripLatest, strip7d)} ${chipMonFmt(strip7d, m.dec)}</div><div class="cs">${isYieldStrip?'':'ค่าเฉลี่ย '}${a.last7.length} วันล่าสุด</div></div>
+      <div class="md-cell"><div class="ck">7 วัน (ที่ผ่านมา)</div><div class="cv">${chipMonTrendArrow(stripLatest, strip7dPrev)} ${chipMonFmt(strip7dPrev, m.dec)}</div><div class="cs">${isYieldStrip?'':'ค่าเฉลี่ย '}${a.last7Prev.length} วันก่อนหน้า 7 วันล่าสุด</div></div>
       <div class="md-cell"><div class="ck">${curLbl}</div><div class="cv">${chipMonTrendArrow(stripLatest, stripCurMon)} ${chipMonFmt(stripCurMon, m.dec)}</div><div class="cs">${isYieldStrip?'':'เฉลี่ย '}${a.curMon.length} วันที่บันทึก</div></div>
       <div class="md-cell"><div class="ck">${prevLbl}</div><div class="cv">${chipMonTrendArrow(stripLatest, stripPrevMon)} ${chipMonFmt(stripPrevMon, m.dec)}</div><div class="cs">${isYieldStrip?'':'เฉลี่ย '}${a.prevMon.length} วันที่บันทึก</div></div>
       <div class="md-cell"><div class="ck">${a.anchor.y}</div><div class="cv">${chipMonTrendArrow(stripLatest, stripYr)} ${chipMonFmt(stripYr, m.dec)}</div><div class="cs">${isYieldStrip?'':'เฉลี่ย '}${a.yrVals.length} วันที่บันทึก</div></div>
@@ -9888,49 +9904,99 @@ function woodCmpYieldValue(vals){
   return vals.reduce((sum, v, i)=> sum + (v/100)*WOOD_CMP_COLS[i].factor, 0);
 }
 const woodCmpToday = new Date();
-const WOOD_CMP_DEFAULT_MONTH = woodCmpToday.getFullYear()+'-'+String(woodCmpToday.getMonth()+1).padStart(2,'0');
-const WOOD_CMP_RANGE = { mode:'month', value:WOOD_CMP_DEFAULT_MONTH };
-function woodCmpFilterRows(mode, value){
-  const base = CHIP_MON_SERIES.woodTotalK7 || [];
-  if(!value) return base.slice(-30);
-  if(mode==='date'){ const p = value.split('-').map(Number); return base.filter(x=> x.y===p[0] && x.mi===p[1]-1 && x.d===p[2]); }
-  if(mode==='year') return base.filter(x=> x.y===Number(value));
-  const p = value.split('-').map(Number);
-  return base.filter(x=> x.y===p[0] && x.mi===p[1]-1);
-}
+/* ช่วงที่ 1 / ช่วงที่ 2 — each independently selectable as วัน/สัปดาห์/เดือน/ปี (date/week/month/year),
+   same ya-picker convention as the Yield Analysis cards. ช่วงที่ 1 resolves to the range's START
+   boundary, ช่วงที่ 2 to its END boundary (whichever is earlier/later is sorted automatically), and
+   the chart + table both read from that single resolved [start,end] window. Default: day 1 to the
+   last day of the current month (both mode "date"). */
+const WOOD_CMP_RANGE = { r1:{mode:'date', value:null}, r2:{mode:'date', value:null} };
+const WOOD_CMP_MONTHLY_THRESHOLD_DAYS = 31;
 function woodCmpAvg(series, y, mi){
   const vals = series.filter(x=> x.y===y && x.mi===mi).map(x=> x.v);
   return vals.length ? vals.reduce((a,b)=> a+b, 0)/vals.length : null;
 }
-/* "ปี" mode shows one row per month (average of that month's daily %) rather than every single
-   day of the year — a whole year of raw daily rows would be unreadable in a 10-column table. */
-function woodCmpYearlyRows(year, cols){
+/* Resolves one picker's {mode,value} to a concrete {y,mi,d} calendar date — "start" takes the
+   first day of that mode's unit (e.g. month mode → the 1st), "end" takes its last day. Week mode
+   reuses yaWeekRange(), the same ISO-week → Mon..Sun resolver the Yield Analysis pickers use. */
+function woodCmpResolveBoundary(mode, value, which){
+  if(!value) return null;
+  if(mode==='date'){ const p = value.split('-').map(Number); return {y:p[0], mi:p[1]-1, d:p[2]}; }
+  if(mode==='week'){
+    const range = yaWeekRange(value);
+    if(!range) return null;
+    const d = which==='start' ? range.start : range.end;
+    return {y:d.getFullYear(), mi:d.getMonth(), d:d.getDate()};
+  }
+  if(mode==='month'){
+    const p = value.split('-').map(Number);
+    if(which==='start') return {y:p[0], mi:p[1]-1, d:1};
+    return {y:p[0], mi:p[1]-1, d:new Date(p[0], p[1], 0).getDate()};
+  }
+  if(mode==='year'){
+    const y = Number(value);
+    return which==='start' ? {y, mi:0, d:1} : {y, mi:11, d:31};
+  }
+  return null;
+}
+const woodCmpBoundaryTs = b => b ? new Date(b.y, b.mi, b.d).getTime() : null;
+/* Combines both pickers into one resolved window. Spans of ≤31 days list every day (like the old
+   วัน/เดือน modes); longer spans switch to one row/point per month (like the old ปี mode) so a
+   multi-month or multi-year pick stays readable instead of dumping hundreds of daily rows. */
+function woodCmpResolveRange(){
+  let b1 = woodCmpResolveBoundary(WOOD_CMP_RANGE.r1.mode, WOOD_CMP_RANGE.r1.value, 'start');
+  let b2 = woodCmpResolveBoundary(WOOD_CMP_RANGE.r2.mode, WOOD_CMP_RANGE.r2.value, 'end');
+  if(!b1 || !b2) return null;
+  let ts1 = woodCmpBoundaryTs(b1), ts2 = woodCmpBoundaryTs(b2);
+  if(ts1 > ts2){ [b1,b2] = [b2,b1]; [ts1,ts2] = [ts2,ts1]; }
+  const base = CHIP_MON_SERIES.woodTotalK7 || [];
+  const dayRows = base.filter(x=> x.ts>=ts1 && x.ts<=ts2);
+  const spanDays = Math.round((ts2-ts1)/DAY_MS) + 1;
+  return { start:b1, end:b2, lo:ts1, hi:ts2, dayRows, spanDays, isMonthly: spanDays > WOOD_CMP_MONTHLY_THRESHOLD_DAYS };
+}
+/* One row per calendar month from range.start's month through range.end's month inclusive —
+   average of that month's daily % per species, same as the old "ปี" mode's single-year version
+   but generalised to any start/end month pair. */
+function woodCmpMonthsInRange(start, end, cols){
   const months = [];
-  for(let mi=0; mi<12; mi++){
-    const own = cols.map(c=> woodCmpAvg(CHIP_MON_SERIES[c.key]||[], year, mi));
-    const pair = cols.map(c=> woodCmpAvg(CHIP_MON_SERIES[c.pairKey]||[], year, mi));
-    if(own.some(v=> v!=null) || pair.some(v=> v!=null)) months.push({y:year, mi, own, pair});
+  let y = start.y, mi = start.mi;
+  while(y < end.y || (y===end.y && mi<=end.mi)){
+    const own = cols.map(c=> woodCmpAvg(CHIP_MON_SERIES[c.key]||[], y, mi));
+    const pair = cols.map(c=> woodCmpAvg(CHIP_MON_SERIES[c.pairKey]||[], y, mi));
+    if(own.some(v=> v!=null) || pair.some(v=> v!=null)) months.push({y, mi, own, pair});
+    mi++; if(mi>11){ mi=0; y++; }
   }
   return months;
 }
-function woodCmpCurrentYear(){
-  const v = WOOD_CMP_RANGE.value;
-  return v ? Number(v.split('-')[0]) : woodCmpToday.getFullYear();
+function woodCmpRangeLabel(range){
+  const EN = currentLang==='en';
+  const f = b => EN ? (MONTH_ABBR_EN[b.mi]+' '+b.d+', '+b.y) : (b.d+' '+MONTH_ABBR_TH[b.mi]+' '+b.y);
+  const lbl = EN ? 'Showing' : 'ช่วงข้อมูลที่แสดง';
+  if(range.start.y===range.end.y && range.start.mi===range.end.mi && range.start.d===range.end.d) return lbl+': '+f(range.start);
+  const dayWord = EN ? 'days' : 'วัน';
+  return lbl+': '+f(range.start)+' – '+f(range.end)+' ('+range.spanDays+' '+dayWord+')';
 }
 let woodCmpChart = null;
-/* Chart always plots Jan–Dec of whichever year the current Data range selection falls in (date
-   and month modes just pick out their own year; year mode uses the selected year directly) —
-   monthly Yield Pulp 1/2 averages, same formula and same source data as the table's own year view. */
-function woodCmpDrawChart(){
+/* Chart plots exactly what the table shows for the resolved range: one point per day when the
+   range is ≤31 days, one point per month otherwise — never a fixed Jan–Dec calendar year. */
+function woodCmpDrawChart(range){
   const cv = document.getElementById('woodCmpChart');
   if(!cv) return;
-  const year = woodCmpCurrentYear();
-  const monthRows = woodCmpYearlyRows(year, WOOD_CMP_COLS);
-  const byMi = new Map(monthRows.map(r=> [r.mi, r]));
   const EN = currentLang==='en';
-  const labels = Array.from({length:12}, (_,mi)=> EN ? MONTH_ABBR_EN[mi] : MONTH_ABBR_TH[mi]);
-  const pulp1Vals = Array.from({length:12}, (_,mi)=> { const r = byMi.get(mi); return r ? woodCmpYieldValue(r.own) : null; });
-  const pulp2Vals = Array.from({length:12}, (_,mi)=> { const r = byMi.get(mi); return r ? woodCmpYieldValue(r.pair) : null; });
+  let labels = [], pulp1Vals = [], pulp2Vals = [];
+  if(range && range.isMonthly){
+    const monthRows = woodCmpMonthsInRange(range.start, range.end, WOOD_CMP_COLS);
+    labels = monthRows.map(r=> (EN?MONTH_ABBR_EN[r.mi]:MONTH_ABBR_TH[r.mi])+' '+r.y);
+    pulp1Vals = monthRows.map(r=> woodCmpYieldValue(r.own));
+    pulp2Vals = monthRows.map(r=> woodCmpYieldValue(r.pair));
+  } else if(range){
+    const colMaps = WOOD_CMP_COLS.map(c=> ({
+      own:new Map((CHIP_MON_SERIES[c.key]||[]).map(x=> [x.ts, x.v])),
+      pair:new Map((CHIP_MON_SERIES[c.pairKey]||[]).map(x=> [x.ts, x.v]))
+    }));
+    labels = range.dayRows.map(x=> x.d+'/'+(x.mi+1));
+    pulp1Vals = range.dayRows.map(x=> woodCmpYieldValue(colMaps.map(c=> c.own.get(x.ts) ?? null)));
+    pulp2Vals = range.dayRows.map(x=> woodCmpYieldValue(colMaps.map(c=> c.pair.get(x.ts) ?? null)));
+  }
   const c = { ink2:cssVar('--ink-2'), grid:cssVar('--grid'), surface:cssVar('--surface'), border:cssVar('--border'), ink:cssVar('--ink') };
   const col1 = '#5B8C2A', col2 = '#2A8C6E';
   const allVals = pulp1Vals.concat(pulp2Vals).filter(v=> v!=null);
@@ -9965,7 +10031,8 @@ function woodCmpDrawChart(){
 function woodCmpRenderBody(){
   const body = document.getElementById('woodCmpBody');
   if(!body) return;
-  woodCmpDrawChart();
+  const range = woodCmpResolveRange();
+  woodCmpDrawChart(range);
   const cols = WOOD_CMP_COLS.map(c=> {
     const meta = CHIP_MON_META.find(x=> x.key===c.key);
     return { label:c.label, key:c.key, pairKey:c.pairKey, dec: meta ? meta.dec : 1 };
@@ -9978,8 +10045,11 @@ function woodCmpRenderBody(){
     + '<th class="wcmp-key">Yield Pulp 2 (Bdt/Adt)</th>'
     + cols.map(c=> '<th>Pulp 2 '+c.label+' (%)</th>').join('');
   let tbodyHtml, rangeNote;
-  if(WOOD_CMP_RANGE.mode === 'year' && WOOD_CMP_RANGE.value){
-    const monthRows = woodCmpYearlyRows(Number(WOOD_CMP_RANGE.value), cols);
+  if(!range){
+    tbodyHtml = '';
+    rangeNote = '<div class="md-rangenote">'+(EN?'Select both range 1 and range 2':'เลือกช่วงที่ 1 และช่วงที่ 2')+'</div>';
+  } else if(range.isMonthly){
+    const monthRows = woodCmpMonthsInRange(range.start, range.end, cols);
     const monLbl = mi => EN ? MONTH_ABBR_EN[mi] : MONTH_ABBR_TH[mi];
     tbodyHtml = monthRows.map(r=> '<tr><td>'+monLbl(r.mi)+' '+r.y+'</td>'
         + '<td class="num">'+f(woodCmpYieldValue(r.own), 3)+'</td>'
@@ -9987,14 +10057,14 @@ function woodCmpRenderBody(){
         + '<td class="num">'+f(woodCmpYieldValue(r.pair), 3)+'</td>'
         + cols.map((c,i)=> '<td class="num">'+f(r.pair[i], c.dec)+'</td>').join('')
         + '</tr>').join('');
-    rangeNote = '<div class="md-rangenote">'+(EN ? 'Showing: monthly average, '+WOOD_CMP_RANGE.value : 'ช่วงข้อมูลที่แสดง: ค่าเฉลี่ยรายเดือน ปี '+WOOD_CMP_RANGE.value)+'</div>';
+    const monYr = b => (EN?MONTH_ABBR_EN[b.mi]:MONTH_ABBR_TH[b.mi])+' '+b.y;
+    rangeNote = '<div class="md-rangenote">'+(EN ? 'Showing: monthly average, '+monYr(range.start)+' – '+monYr(range.end) : 'ช่วงข้อมูลที่แสดง: ค่าเฉลี่ยรายเดือน '+monYr(range.start)+' – '+monYr(range.end))+'</div>';
   } else {
-    const rows = woodCmpFilterRows(WOOD_CMP_RANGE.mode, WOOD_CMP_RANGE.value);
     const colMaps = cols.map(c=> ({
       own:new Map((CHIP_MON_SERIES[c.key]||[]).map(x=> [x.ts, x.v])),
       pair:new Map((CHIP_MON_SERIES[c.pairKey]||[]).map(x=> [x.ts, x.v]))
     }));
-    tbodyHtml = rows.map(x=> {
+    tbodyHtml = range.dayRows.map(x=> {
       const ownVals = colMaps.map(c=> c.own.get(x.ts) ?? null);
       const pairVals = colMaps.map(c=> c.pair.get(x.ts) ?? null);
       return '<tr><td>'+x.d+'/'+(x.mi+1)+'/'+x.y+'</td>'
@@ -10004,25 +10074,45 @@ function woodCmpRenderBody(){
         + pairVals.map((v,i)=> '<td class="num">'+f(v, cols[i].dec)+'</td>').join('')
         + '</tr>';
     }).join('');
-    rangeNote = '<div class="md-rangenote">'+chipMonRangeLabel(rows)+'</div>';
+    rangeNote = '<div class="md-rangenote">'+woodCmpRangeLabel(range)+'</div>';
   }
   body.innerHTML = '<div class="md-tablewrap"><table class="md-table wide"><thead><tr>'+theadHtml+'</tr></thead><tbody>'+tbodyHtml+'</tbody></table></div>' + rangeNote;
 }
+function woodCmpApplyMode(which){
+  const suf = which==='r1' ? '1' : '2';
+  const modeEl = document.getElementById('woodCmpMode'+suf);
+  const dateEl = document.getElementById('woodCmpDate'+suf), weekEl = document.getElementById('woodCmpWeek'+suf),
+    monthEl = document.getElementById('woodCmpMonth'+suf), yearEl = document.getElementById('woodCmpYear'+suf);
+  const mode = modeEl.value;
+  dateEl.hidden = mode!=='date'; weekEl.hidden = mode!=='week'; monthEl.hidden = mode!=='month'; yearEl.hidden = mode!=='year';
+  const value = mode==='date' ? dateEl.value : mode==='week' ? weekEl.value : mode==='month' ? monthEl.value : yearEl.value;
+  WOOD_CMP_RANGE[which] = { mode, value };
+  woodCmpRenderBody();
+}
 function initWoodCmp(){
-  const modeEl = document.getElementById('woodCmpMode');
-  if(!modeEl) return;
-  const dateEl = document.getElementById('woodCmpDate'), monthEl = document.getElementById('woodCmpMonth'), yearEl = document.getElementById('woodCmpYear');
+  const modeEl1 = document.getElementById('woodCmpMode1');
+  if(!modeEl1) return;
   const years = Array.from(new Set((CHIP_MON_SERIES.woodTotalK7||[]).map(x=> x.y))).sort();
-  yearEl.innerHTML = years.map(y=> '<option value="'+y+'">'+y+'</option>').join('');
-  monthEl.value = WOOD_CMP_DEFAULT_MONTH;
-  const applyRange = ()=> {
-    const mode = modeEl.value;
-    dateEl.hidden = mode!=='date'; monthEl.hidden = mode!=='month'; yearEl.hidden = mode!=='year';
-    WOOD_CMP_RANGE.mode = mode;
-    WOOD_CMP_RANGE.value = mode==='date' ? dateEl.value : mode==='month' ? monthEl.value : yearEl.value;
-    woodCmpRenderBody();
-  };
-  [modeEl, dateEl, monthEl, yearEl].forEach(el=> { el.addEventListener('change', applyRange); el.addEventListener('input', applyRange); });
+  ['1','2'].forEach(suf=> {
+    const yearEl = document.getElementById('woodCmpYear'+suf);
+    if(yearEl) yearEl.innerHTML = years.map(y=> '<option value="'+y+'">'+y+'</option>').join('');
+  });
+  // default: ช่วงที่ 1 = วันที่ 1 ของเดือนปัจจุบัน, ช่วงที่ 2 = วันสุดท้ายของเดือนปัจจุบัน (ทั้งสองโหมด "วัน")
+  const y = woodCmpToday.getFullYear(), mi = woodCmpToday.getMonth();
+  const dim = new Date(y, mi+1, 0).getDate();
+  const ym = y+'-'+String(mi+1).padStart(2,'0');
+  const firstStr = ym+'-01', lastStr = ym+'-'+String(dim).padStart(2,'0');
+  document.getElementById('woodCmpDate1').value = firstStr;
+  document.getElementById('woodCmpDate2').value = lastStr;
+  WOOD_CMP_RANGE.r1 = { mode:'date', value:firstStr };
+  WOOD_CMP_RANGE.r2 = { mode:'date', value:lastStr };
+  ['1','2'].forEach(suf=> {
+    const which = suf==='1' ? 'r1' : 'r2';
+    ['Mode','Date','Week','Month','Year'].forEach(part=> {
+      const el = document.getElementById('woodCmp'+part+suf);
+      if(el){ el.addEventListener('change', ()=> woodCmpApplyMode(which)); el.addEventListener('input', ()=> woodCmpApplyMode(which)); }
+    });
+  });
   woodCmpRenderBody();
 }
 function chipMonRenderDetailBody(grpId, m, a, tgt){
