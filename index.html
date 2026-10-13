@@ -9921,12 +9921,12 @@ function chipMonRenderDetail(grpId){
 
     <div class="md-strip">
       <div class="md-cell hero"><div class="ck">Latest</div><div class="cv">${chipMonFmt(stripLatest, m.dec)}<small> ${m.unit}</small></div><div class="cs">${anchorDate}</div></div>
-      <div class="md-cell"><div class="ck">7 วัน (ล่าสุด)</div><div class="cv">${chipMonTrendArrow(stripLatest, strip7d)} ${chipMonFmt(strip7d, m.dec)}</div><div class="cs">${isYieldStrip?'':'ค่าเฉลี่ย '}${a.last7.length} วันล่าสุด</div></div>
-      <div class="md-cell"><div class="ck">7 วัน (ที่ผ่านมา)</div><div class="cv">${chipMonTrendArrow(stripLatest, strip7dPrev)} ${chipMonFmt(strip7dPrev, m.dec)}</div><div class="cs">${isYieldStrip?'':'ค่าเฉลี่ย '}${a.last7Prev.length} วันก่อนหน้า 7 วันล่าสุด</div></div>
-      <div class="md-cell"><div class="ck">${curLbl}</div><div class="cv">${chipMonTrendArrow(stripLatest, stripCurMon)} ${chipMonFmt(stripCurMon, m.dec)}</div><div class="cs">${isYieldStrip?'':'เฉลี่ย '}${a.curMon.length} วันที่บันทึก</div></div>
-      <div class="md-cell"><div class="ck">${prevLbl}</div><div class="cv">${chipMonTrendArrow(stripLatest, stripPrevMon)} ${chipMonFmt(stripPrevMon, m.dec)}</div><div class="cs">${isYieldStrip?'':'เฉลี่ย '}${a.prevMon.length} วันที่บันทึก</div></div>
-      <div class="md-cell"><div class="ck">${a.anchor.y}</div><div class="cv">${chipMonTrendArrow(stripLatest, stripYr)} ${chipMonFmt(stripYr, m.dec)}</div><div class="cs">${isYieldStrip?'':'เฉลี่ย '}${a.yrVals.length} วันที่บันทึก</div></div>
-      <div class="md-cell"><div class="ck">Est. ${MONTH_ABBR_TH[a.anchor.mi]} สิ้นเดือน</div><div class="cv">${chipMonTrendArrow(a.anchor.v, a.est)} ${a.est==null ? '—' : chipMonFmt(a.est, m.dec)}</div><div class="cs">${a.est==null ? 'ต้องมี ≥ 3 วัน' : `${a.curMon.length} วันจริง + ${a.remaining} วันที่อัตรา 7 วัน`}</div></div>
+      <div class="md-cell"><div class="ck">7 วัน (ล่าสุด)</div><div class="cv">${chipMonFmt(strip7d, m.dec)}</div><div class="cs">${isYieldStrip?'':'ค่าเฉลี่ย '}${a.last7.length} วันล่าสุด</div></div>
+      <div class="md-cell"><div class="ck">7 วัน (ที่ผ่านมา)</div><div class="cv">${chipMonFmt(strip7dPrev, m.dec)}</div><div class="cs">${isYieldStrip?'':'ค่าเฉลี่ย '}${a.last7Prev.length} วันก่อนหน้า 7 วันล่าสุด</div></div>
+      <div class="md-cell"><div class="ck">${curLbl}</div><div class="cv">${chipMonFmt(stripCurMon, m.dec)}</div><div class="cs">${isYieldStrip?'':'เฉลี่ย '}${a.curMon.length} วันที่บันทึก</div></div>
+      <div class="md-cell"><div class="ck">${prevLbl}</div><div class="cv">${chipMonFmt(stripPrevMon, m.dec)}</div><div class="cs">${isYieldStrip?'':'เฉลี่ย '}${a.prevMon.length} วันที่บันทึก</div></div>
+      <div class="md-cell"><div class="ck">${a.anchor.y}</div><div class="cv">${chipMonFmt(stripYr, m.dec)}</div><div class="cs">${isYieldStrip?'':'เฉลี่ย '}${a.yrVals.length} วันที่บันทึก</div></div>
+      <div class="md-cell"><div class="ck">Est. ${MONTH_ABBR_TH[a.anchor.mi]} สิ้นเดือน</div><div class="cv">${a.est==null ? '—' : chipMonFmt(a.est, m.dec)}</div><div class="cs">${a.est==null ? 'ต้องมี ≥ 3 วัน' : `${a.curMon.length} วันจริง + ${a.remaining} วันที่อัตรา 7 วัน`}</div></div>
       <div class="md-cell"><div class="ck">Deviation</div><div class="cv ${a.dev==null?'':a.dev<0?'neg':'pos'}">${a.dev==null?'—':(a.dev>=0?'+':'')+a.dev.toFixed(1)+'σ'}</div>
         <div class="md-track"><span class="z"></span><span class="m ${devOut?'out':''}" style="left:${devTrackPct}%"></span></div></div>
     </div>
