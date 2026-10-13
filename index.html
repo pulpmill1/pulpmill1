@@ -580,11 +580,6 @@
   .mt-row3{display:flex;align-items:flex-end;justify-content:space-between;gap:8px;margin-top:9px;}
   .mt-sub{font-size:11.55px;color:var(--ink-2);font-family:"IBM Plex Mono",monospace;white-space:nowrap;}
   .mt-sub .up{color:#d4342c;}.mt-sub .down{color:#12a150;}.mt-sub .flat{color:var(--ink-3);}
-  .mt-trend{font-family:"IBM Plex Mono",monospace;font-size:12.5px;font-weight:700;margin-left:6px;vertical-align:middle;}
-  .mt-trend.up{color:#d4342c;}.mt-trend.down{color:#12a150;}.mt-trend.flat{color:var(--ink-3);}
-  .mon-tile.sel .mt-trend.up{color:#f87171;}
-  .mon-tile.sel .mt-trend.down{color:#4ade80;}
-  .mon-tile.sel .mt-trend.flat{color:#8098B7;}
   .mt-spark-wrap{position:relative;width:88px;height:30px;flex-shrink:0;}
   .mt-spark{width:88px;height:30px;display:block;}
   .spark-live{position:absolute;width:5px;height:5px;border-radius:50%;background:var(--mon-rail,#7C4DFF);box-shadow:0 0 3px var(--mon-rail,#7C4DFF);transform:translate(-50%,-50%);pointer-events:none;z-index:2;}
@@ -9747,21 +9742,22 @@ function chipMonRenderTiles(grp){
   wrap.innerHTML = metas.map(m=> {
     const a = chipMonAnalyse(m.key, m);
     const val = a ? chipMonFmt(a.anchor.v, m.dec) : '—';
-    let sub = '<span class="flat">— ไม่มีข้อมูล</span>', dot = '', trendHtml = '';
+    let sub = '<span class="flat">— ไม่มีข้อมูล</span>', dot = '';
     if(a){
-      // 7-day latest average shown on its own line; the arrow+diff attaches right after the
-      // LATEST value itself (mt-val/mt-pair) comparing that latest reading against this same
-      // 7-day average — not comparing two 7-day windows against each other (same up=red/
-      // down=green convention used elsewhere) — shown before clicking in for the full detail chart.
+      // 7-day latest average, with an arrow+diff on the SAME line comparing the latest reading
+      // against this 7-day average (not two 7-day windows against each other) — skipped for
+      // "combined" tiles (m.pairKey, e.g. Wood species Pulp mill 1 + Pulp mill 2) since those
+      // already show two values side by side and don't get a trend indicator.
       const strip7d = chipMonMean(a.last7);
-      if(a.anchor.v!=null && strip7d!=null){
+      let trendHtml = '';
+      if(!m.pairKey && a.anchor.v!=null && strip7d!=null){
         const diff = a.anchor.v - strip7d;
         const flat = Math.abs(diff) < 0.005;
         const cls = flat ? 'flat' : (diff>0 ? 'up' : 'down');
         const arrow = flat ? '–' : (diff>0 ? '↑' : '↓');
-        trendHtml = `<span class="mt-trend ${cls}">${arrow} ${chipMonFmt(Math.abs(diff), m.dec)}</span>`;
+        trendHtml = ` <span class="${cls}">${arrow} ${chipMonFmt(Math.abs(diff), m.dec)}</span>`;
       }
-      sub = strip7d==null ? '<span class="flat">— ไม่มีข้อมูล 7 วัน</span>' : `7 วันเฉลี่ย ${chipMonFmt(strip7d, m.dec)}`;
+      sub = strip7d==null ? '<span class="flat">— ไม่มีข้อมูล 7 วัน</span>' : `7 วันเฉลี่ย ${chipMonFmt(strip7d, m.dec)}${trendHtml}`;
       if(m.scored && a.dev!=null){
         const ad = Math.abs(a.dev);
         dot = ad <= 2 ? 'ok' : ad <= 3 ? 'warn' : 'bad';
@@ -9774,11 +9770,11 @@ function chipMonRenderTiles(grp){
       const pm = CHIP_MON_META.find(x=> x.key===m.pairKey);
       const pa = pm ? chipMonAnalyse(m.pairKey, pm) : null;
       const pval = pa ? chipMonFmt(pa.anchor.v, pm.dec) : '—';
-      pairHtml = `<div class="mt-pair"><span class="mt-tag">Pulp1</span>${val}${m.unit}${trendHtml} <span class="mt-tag">Pulp2</span>${pval}${pm ? pm.unit : m.unit}</div>`;
+      pairHtml = `<div class="mt-pair"><span class="mt-tag">Pulp1</span>${val}${m.unit} <span class="mt-tag">Pulp2</span>${pval}${pm ? pm.unit : m.unit}</div>`;
     }
     return `<div class="mon-tile" role="button" tabindex="0" data-grp="${grp.id}" data-key="${m.key}" style="--mon-rail:${grp.rail}">
       <div class="mt-top"><span class="mt-ico">${grp.ico}</span><span class="mt-name">${m.th}</span><span class="mt-dot ${dot}"></span></div>
-      ${pairHtml || `<div class="mt-val">${val}<span class="mt-unit">${m.unit}</span>${trendHtml}</div>`}
+      ${pairHtml || `<div class="mt-val">${val}<span class="mt-unit">${m.unit}</span></div>`}
       <div class="mt-row3"><span class="mt-sub">${sub}</span><span class="mt-spark-wrap"><canvas class="mt-spark" id="chipSpark_${m.key}"></canvas><i class="spark-live" id="chipLive_${m.key}" hidden></i></span></div>
     </div>`;
   }).join('');
