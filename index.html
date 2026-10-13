@@ -9971,6 +9971,29 @@ function woodCmpYieldValue(vals){
   return vals.reduce((sum, v, i)=> sum + (v/100)*WOOD_CMP_COLS[i].factor, 0);
 }
 const woodCmpToday = new Date();
+/* Bounds for every date/week/month picker across the wood species sections (comparison table +
+   the three 100%-stacked charts below) — without these, the native <input type="date/week/month">
+   widgets have no min/max, so a stray scroll/arrow-key on the native year spinner can land on a
+   nonsensical value like "week 37, 2030" with nothing to stop it. Max = the current month (same
+   upper edge the default range already uses); min = the earliest year actually present in any
+   wood species series, so the picker can't wander into years the sheet has no data for either. */
+const WOOD_PICKER_MAX_DATE = (()=> { const y=woodCmpToday.getFullYear(), mi=woodCmpToday.getMonth(); const dim=new Date(y,mi+1,0).getDate(); return y+'-'+String(mi+1).padStart(2,'0')+'-'+String(dim).padStart(2,'0'); })();
+const WOOD_PICKER_MAX_MONTH = woodCmpToday.getFullYear()+'-'+String(woodCmpToday.getMonth()+1).padStart(2,'0');
+const WOOD_PICKER_MAX_WEEK = yawDateToWeekValue(new Date(woodCmpToday.getFullYear(), woodCmpToday.getMonth()+1, 0));
+const WOOD_PICKER_MIN_YEAR = (()=> {
+  const keys = ['woodTotalK7','woodTotalK58','woodTotalSeed','woodTotalOther','woodTotalSt1m','wood2K7','wood2K58','wood2Seed','wood2Other','wood2St1m'];
+  let minY = null;
+  keys.forEach(k=> (CHIP_MON_SERIES[k]||[]).forEach(x=> { if(minY==null || x.y<minY) minY = x.y; }));
+  return minY || woodCmpToday.getFullYear();
+})();
+const WOOD_PICKER_MIN_DATE = WOOD_PICKER_MIN_YEAR+'-01-01';
+const WOOD_PICKER_MIN_MONTH = WOOD_PICKER_MIN_YEAR+'-01';
+const WOOD_PICKER_MIN_WEEK = yawDateToWeekValue(new Date(WOOD_PICKER_MIN_YEAR, 0, 1));
+function woodApplyPickerBounds(dateEl, weekEl, monthEl){
+  if(dateEl){ dateEl.min = WOOD_PICKER_MIN_DATE; dateEl.max = WOOD_PICKER_MAX_DATE; }
+  if(weekEl){ weekEl.min = WOOD_PICKER_MIN_WEEK; weekEl.max = WOOD_PICKER_MAX_WEEK; }
+  if(monthEl){ monthEl.min = WOOD_PICKER_MIN_MONTH; monthEl.max = WOOD_PICKER_MAX_MONTH; }
+}
 /* ช่วงที่ 1 / ช่วงที่ 2 — each independently selectable as วัน/สัปดาห์/เดือน/ปี (date/week/month/year),
    same ya-picker convention as the Yield Analysis cards. ช่วงที่ 1 resolves to the range's START
    boundary, ช่วงที่ 2 to its END boundary (whichever is earlier/later is sorted automatically), and
@@ -10181,6 +10204,7 @@ function initWoodCmp(){
   WOOD_CMP_RANGE.r2 = { mode:'date', value:lastStr };
   ['1','2'].forEach(suf=> {
     const which = suf==='1' ? 'r1' : 'r2';
+    woodApplyPickerBounds(document.getElementById('woodCmpDate'+suf), document.getElementById('woodCmpWeek'+suf), document.getElementById('woodCmpMonth'+suf));
     ['Mode','Date','Week','Month','Year'].forEach(part=> {
       const el = document.getElementById('woodCmp'+part+suf);
       if(el){ el.addEventListener('change', ()=> woodCmpApplyMode(which)); el.addEventListener('input', ()=> woodCmpApplyMode(which)); }
@@ -10211,7 +10235,13 @@ function woodStackRows(range, seriesKeys){
     let y = range.start.y, mi = range.start.mi;
     while(y < range.end.y || (y===range.end.y && mi<=range.end.mi)){
       const vals = seriesKeys.map(k=> woodCmpAvg(CHIP_MON_SERIES[k]||[], y, mi));
-      if(vals.every(v=> v!=null)) rows.push({ y, mi, d:null, vals });
+      if(vals.every(v=> v!=null)){
+        // how many of this month's days actually went into the average — a trailing/partial month
+        // (e.g. 12 of 31 days logged so far) still shows up under its month label, so the label
+        // itself needs to say "12/31 days" or it reads as if the whole month were real data.
+        const dayCount = (CHIP_MON_SERIES[seriesKeys[0]]||[]).filter(x=> x.y===y && x.mi===mi).length;
+        rows.push({ y, mi, d:null, vals, dayCount });
+      }
       mi++; if(mi>11){ mi=0; y++; }
     }
     return rows;
@@ -10223,7 +10253,13 @@ function woodStackRows(range, seriesKeys){
     .filter(r=> r.vals.every(v=> v!=null));
 }
 function woodStackPeriodKey(r){ return r.d==null ? (r.y+'-'+r.mi) : (r.y+'-'+r.mi+'-'+r.d); }
-function woodStackLabel(r, EN){ return r.d==null ? ((EN?MONTH_ABBR_EN[r.mi]:MONTH_ABBR_TH[r.mi])+' '+r.y) : (r.d+'/'+(r.mi+1)); }
+function woodStackLabel(r, EN){
+  if(r.d!=null) return r.d+'/'+(r.mi+1);
+  const base = (EN?MONTH_ABBR_EN[r.mi]:MONTH_ABBR_TH[r.mi])+' '+r.y;
+  const dim = new Date(r.y, r.mi+1, 0).getDate();
+  if(r.dayCount!=null && r.dayCount < dim) return base+' ('+r.dayCount+'/'+dim+' '+(EN?'days':'วัน')+')';
+  return base;
+}
 /* True 100% stack: scale each period's 5 values so they sum to exactly 100 — protects against
    rounding drift in the source sheet instead of assuming the raw % already sum to 100 exactly. */
 function woodStackNormalize(vals){
@@ -10385,6 +10421,7 @@ function initWoodStack(prefix, seriesKeysOwn, seriesKeysPair){
   WOOD_STACK_RANGE[prefix] = { r1:{mode:'date', value:firstStr}, r2:{mode:'date', value:lastStr} };
   ['1','2'].forEach(suf=> {
     const which = suf==='1' ? 'r1' : 'r2';
+    woodApplyPickerBounds(document.getElementById(prefix+'Date'+suf), document.getElementById(prefix+'Week'+suf), document.getElementById(prefix+'Month'+suf));
     ['Mode','Date','Week','Month','Year'].forEach(part=> {
       const el = document.getElementById(prefix+part+suf);
       if(el){ el.addEventListener('change', ()=> woodStackApplyMode(prefix, which)); el.addEventListener('input', ()=> woodStackApplyMode(prefix, which)); }
