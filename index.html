@@ -2103,6 +2103,7 @@
               <div class="mon-tiles" id="chipTiles_overview"></div>
               <div class="mon-detail" id="chipDetail_overview" hidden></div>
             </div>
+            <div id="rmMirrorBlock">
             <div class="mon-group">
               <div class="mon-group-head"><span class="gi">⚙</span><span class="gt">ค่าพื้นฐานของชิ้นไม้สับ</span><span class="gs">4 ค่า · คลิกที่บล็อกเพื่อดูประวัติและ control band</span></div>
               <div class="mon-tiles" id="chipTiles_bulk"></div>
@@ -2160,6 +2161,8 @@
               <div class="md-chart-wrap"><canvas id="woodCmpChart"></canvas></div><div class="legend-row" id="woodCmpLegend"></div>
               <div class="md-body" id="woodCmpBody"></div>
             </div>
+            </div>
+            <div id="rmMirrorAnchor" hidden></div>
             <div class="mon-group">
               <div class="mon-group-head"><span class="gi">🍲</span><span class="gt">Cooking Kappa</span><span class="gs">2 ค่า · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
               <div class="mon-tiles" id="chipTiles_cook"></div>
@@ -2256,11 +2259,7 @@
         </section>
 
         <section class="page" data-page="process-rawmaterial" hidden>
-          <div class="empty-state">
-            <div class="icon">🪵</div>
-            <h2>Raw Material Dashboard</h2>
-            <p>หน้านี้ยังไม่มีข้อมูล — รอเชื่อมต่อแหล่งข้อมูล Raw Material จาก Google Sheets<br>แจ้งลิงก์ชีทและชื่อแท็บที่ต้องการดึงข้อมูลได้เลยครับ</p>
-          </div>
+          <div id="rmMirrorTarget"></div>
         </section>
 
         <section class="page" data-page="process-cooking" hidden>
@@ -2463,6 +2462,18 @@ let currentPageId = 'production-pm1';
 function showPage(pageId){
   currentPageId = pageId;
   window.scrollTo(0, 0);
+  /* Process area > Raw material mirrors "Wood-chip basics" through "Wood species Pulp mill 1 +
+     Pulp mill 2 (ตารางเปรียบเทียบ)" from the Yield page verbatim — same metrics, same elements,
+     same ids (so every existing render/toggle function keeps working unchanged) — rather than a
+     second copy of the markup, which would collide on every id in that block. Since only one page
+     is ever visible at a time, the block is physically reparented into whichever page is active. */
+  const rmBlock = document.getElementById('rmMirrorBlock');
+  const rmTarget = document.getElementById('rmMirrorTarget');
+  const rmAnchor = document.getElementById('rmMirrorAnchor');
+  if(rmBlock && rmTarget && rmAnchor){
+    if(pageId === 'process-rawmaterial' && rmBlock.parentNode !== rmTarget) rmTarget.appendChild(rmBlock);
+    else if(pageId === 'yield' && rmBlock.parentNode !== rmAnchor.parentNode) rmAnchor.parentNode.insertBefore(rmBlock, rmAnchor);
+  }
   document.querySelectorAll('.page').forEach(sec=>{ sec.hidden = sec.dataset.page !== pageId; });
   document.querySelectorAll('.nav-item[data-page]').forEach(btn=>{
     btn.classList.toggle('active', btn.dataset.page === pageId);
@@ -11253,7 +11264,7 @@ function initChipMon(){
   // ทุกกลุ่มบน Yield page เดิมอยู่ใต้ chipMonHost เดียว — กลุ่มใหม่ของ Process area (Cooking/Brown
   // stock/Bleaching) อยู่คนละหน้า จึงต้อง delegate click/keydown ซ้ำที่ host ของแต่ละหน้าด้วย
   // handler ชุดเดียวกันนี้ แทนที่จะผูกกับ chipMonHost อย่างเดียว
-  ['chipMonHost','chipCookingHost','chipBrownStockHost','chipBleachHost'].forEach(hostId=> {
+  ['chipMonHost','chipCookingHost','chipBrownStockHost','chipBleachHost','rmMirrorTarget'].forEach(hostId=> {
     const host = document.getElementById(hostId);
     if(!host) return;
     host.addEventListener('click', (e)=> {
