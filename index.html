@@ -2263,10 +2263,52 @@
         </section>
 
         <section class="page" data-page="process-cooking" hidden>
-          <div class="empty-state">
-            <div class="icon">🍲</div>
-            <h2>Cooking Dashboard</h2>
-            <p>หน้านี้ยังไม่มีข้อมูล — รอเชื่อมต่อแหล่งข้อมูล Cooking จาก Google Sheets<br>แจ้งลิงก์ชีทและชื่อแท็บที่ต้องการดึงข้อมูลได้เลยครับ</p>
+          <div id="chipCookingHost">
+            <div class="mon-group">
+              <div class="mon-group-head"><span class="gi">🪵</span><span class="gt">Chip filling</span><span class="gs">14 ค่า · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
+              <div class="mon-tiles" id="chipTiles_cookChipFill"></div>
+              <div class="mon-detail" id="chipDetail_cookChipFill" hidden></div>
+            </div>
+            <div class="mon-group">
+              <div class="mon-group-head"><span class="gi">♨️</span><span class="gt">Pre Steaming & Pre Heating</span><span class="gs">3 ค่า · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
+              <div class="mon-tiles" id="chipTiles_cookPresteam"></div>
+              <div class="mon-detail" id="chipDetail_cookPresteam" hidden></div>
+            </div>
+            <div class="mon-group">
+              <div class="mon-group-head"><span class="gi">💧</span><span class="gt">Hot Liquor Filling</span><span class="gs">15 ค่า · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
+              <div class="mon-tiles" id="chipTiles_cookHlf"></div>
+              <div class="mon-detail" id="chipDetail_cookHlf" hidden></div>
+            </div>
+            <div class="mon-group">
+              <div class="mon-group-head"><span class="gi">🔥</span><span class="gt">Heat&amp;Cook</span><span class="gs">4 ค่า · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
+              <div class="mon-tiles" id="chipTiles_cookHeatCook"></div>
+              <div class="mon-detail" id="chipDetail_cookHeatCook" hidden></div>
+            </div>
+            <div class="mon-group">
+              <div class="mon-group-head"><span class="gi">🔄</span><span class="gt">Displacement</span><span class="gs">1 ค่า · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
+              <div class="mon-tiles" id="chipTiles_cookDisplace"></div>
+              <div class="mon-detail" id="chipDetail_cookDisplace" hidden></div>
+            </div>
+            <div class="mon-group">
+              <div class="mon-group-head"><span class="gi">📤</span><span class="gt">Discharge</span><span class="gs">7 ค่า · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
+              <div class="mon-tiles" id="chipTiles_cookDischarge"></div>
+              <div class="mon-detail" id="chipDetail_cookDischarge" hidden></div>
+            </div>
+            <div class="mon-group">
+              <div class="mon-group-head"><span class="gi">🧪</span><span class="gt">Liquor</span><span class="gs">9 ค่า · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
+              <div class="mon-tiles" id="chipTiles_cookLiquor"></div>
+              <div class="mon-detail" id="chipDetail_cookLiquor" hidden></div>
+            </div>
+            <div class="mon-group">
+              <div class="mon-group-head"><span class="gi">⏱️</span><span class="gt">Batch timing</span><span class="gs">3 ค่า · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
+              <div class="mon-tiles" id="chipTiles_cookTiming"></div>
+              <div class="mon-detail" id="chipDetail_cookTiming" hidden></div>
+            </div>
+          </div>
+          <button type="button" class="foot-toggle" data-target="cookFoot" aria-expanded="false" aria-controls="cookFoot">ดูรายละเอียด</button>
+          <div class="foot" id="cookFoot" hidden>
+            ที่มา: Google Sheets tab "Cooking Logsheet" (<code>gid=937055806</code>) · หนึ่งแถวในชีต = หนึ่ง cook รวมเป็นค่าเฉลี่ยรายวัน (วันที่คอลัมน์ B รูปแบบ D/M/YYYY) · กลุ่มตามหมวดหมู่ที่มีอยู่แล้วในหัวตารางของชีต (Chip filling / Pre Steaming &amp; Pre Heating / Hot Liquor Filling / Heat&amp;Cook / Displacement / Discharge / Liquor / Batch timing) · คอลัมน์ที่มีรูปแบบ "ชม:นาที" แปลงเป็นทศนิยมชั่วโมงก่อนแสดงผล<br>
+            เลือกเฉพาะคอลัมน์ที่ชีตมีข้อมูลจริงอยู่แล้ว (ไม่รวมเวลานาฬิกาเริ่ม/จบ, คอลัมน์หมวดหมู่/ข้อความ, และคอลัมน์ที่ยังไม่มีการบันทึกข้อมูลจริง เช่น H-factor, Target cook temp.) — แจ้งเพิ่มคอลัมน์ที่ต้องการติดตามเพิ่มได้เมื่อชีตเริ่มมีข้อมูลแล้ว
           </div>
         </section>
 
@@ -2383,7 +2425,7 @@ const DAYS_IN_MONTH = [31,28,31,30,31,30,31,31,30,31,30,31];
    Daily (Act) gid=0, Daily (BG) gid=1682718600, Daily (Plan) gid=3664159, Daily (Loss) gid=786133815
    Monthly (Act) gid=1448795576, Monthly (Budget) gid=1872828527 */
 const SHEET_ID = '1dStWwliEd6YhSOL3oT8JNyWHZOuII5F-QVeubIrBS50';
-const SHEET_GIDS = { dailyAct:0, dailyBg:1682718600, dailyPlan:3664159, dailyLoss:786133815, monthlyAct:1448795576, monthlyBudget:1872828527, chipWood:632351488, cookingCond:1561629878, weightScaleDig:1177773637 };
+const SHEET_GIDS = { dailyAct:0, dailyBg:1682718600, dailyPlan:3664159, dailyLoss:786133815, monthlyAct:1448795576, monthlyBudget:1872828527, chipWood:632351488, cookingCond:1561629878, weightScaleDig:1177773637, cookingLog:937055806 };
 function sheetCsvUrl(gid){ return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${gid}`; }
 
 // robust CSV parser: handles quoted fields, embedded commas, embedded newlines, doubled-quote escaping
@@ -2477,10 +2519,10 @@ function parseMonthlySheet(rows, labelWord){
   return byYear;
 }
 
-const [dailyActRows, dailyBgRows, dailyPlanRows, dailyLossRows, monthlyActRows, monthlyBudgetRows, chipWoodRows, cookingCondRows, weightScaleDigRows] = await Promise.all([
+const [dailyActRows, dailyBgRows, dailyPlanRows, dailyLossRows, monthlyActRows, monthlyBudgetRows, chipWoodRows, cookingCondRows, weightScaleDigRows, cookingLogRows] = await Promise.all([
   fetchSheetCsv(SHEET_GIDS.dailyAct), fetchSheetCsv(SHEET_GIDS.dailyBg), fetchSheetCsv(SHEET_GIDS.dailyPlan), fetchSheetCsv(SHEET_GIDS.dailyLoss),
   fetchSheetCsv(SHEET_GIDS.monthlyAct), fetchSheetCsv(SHEET_GIDS.monthlyBudget), fetchSheetCsv(SHEET_GIDS.chipWood), fetchSheetCsv(SHEET_GIDS.cookingCond),
-  fetchSheetCsv(SHEET_GIDS.weightScaleDig),
+  fetchSheetCsv(SHEET_GIDS.weightScaleDig), fetchSheetCsv(SHEET_GIDS.cookingLog),
 ]);
 
 const dailyActParsed = parseDailySheet(dailyActRows, {numeric:true});
@@ -6047,6 +6089,18 @@ const CHIP_MON_GROUPS = [
   {id:'reject',  ico:'🧹', th:'Knot / White reject', rail:'#C9A227'},
   {id:'endprod', ico:'📊', th:'End Production / Diff. prod. balance wetlap', rail:'#B25C00'},
   {id:'etp',     ico:'💧', th:'น้ำเสียเข้าระบบบำบัด (ETP)', rail:'#0B7A28'},
+  /* Process area > Cooking — จากชีต "Cooking Logsheet" (gid=937055806) คนละชีตกับ "RM Wood-Yield"
+     ที่ใช้ข้างบน (grp 'cook') จึงไม่ปนกัน กลุ่มต่อไปนี้ใช้หมวดหมู่ที่มีอยู่แล้วในหัวตารางของชีตเอง
+     (Chip filling / Pre Steaming & Pre Heating / Hot Liquor Filling / Heat&Cook / Displacement /
+     Discharge / Liquor / Batch timing) เป็น benchmark grouping ตามที่ขอ แสดงกราฟเส้น (ไม่ใช่แท่ง) */
+  {id:'cookChipFill',  ico:'🪵', th:'Chip filling', rail:'#8C5B2A', chartType:'line', page:'process-cooking'},
+  {id:'cookPresteam',  ico:'♨️', th:'Pre Steaming & Pre Heating', rail:'#B2702E', chartType:'line', page:'process-cooking'},
+  {id:'cookHlf',       ico:'💧', th:'Hot Liquor Filling', rail:'#0E7C86', chartType:'line', page:'process-cooking'},
+  {id:'cookHeatCook',  ico:'🔥', th:'Heat&Cook', rail:'#C9342C', chartType:'line', page:'process-cooking'},
+  {id:'cookDisplace',  ico:'🔄', th:'Displacement', rail:'#5B6B8C', chartType:'line', page:'process-cooking'},
+  {id:'cookDischarge', ico:'📤', th:'Discharge', rail:'#7C4DFF', chartType:'line', page:'process-cooking'},
+  {id:'cookLiquor',    ico:'🧪', th:'Liquor', rail:'#2A8C6E', chartType:'line', page:'process-cooking'},
+  {id:'cookTiming',    ico:'⏱️', th:'Batch timing', rail:'#455A64', chartType:'line', page:'process-cooking'},
 ];
 
 const chipMonDre = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/;
@@ -6075,6 +6129,133 @@ CHIP_MON_ROWS.forEach(function(rec){
 });
 const chipMonPct = v => { const n = parseSheetNum(v); return (n==null || n<0 || n>100) ? null : n; };
 const chipMonRaw = v => parseSheetNum(String(v==null?'':v).replace(/%/g,''));
+
+/* ==================================================================================
+   Cooking Logsheet (gid=937055806) — คนละชีตกับ RM Wood-Yield ข้างบน หนึ่งแถว = หนึ่ง cook (ไม่ใช่
+   หนึ่งวัน เหมือน Weight Scale Dig.) วันที่อยู่คอลัมน์ B (index 1, รูปแบบ D/M/YYYY) หาแถวหัวตารางจาก
+   คำว่า "Cooking No." เป๊ะๆ — คอลัมน์อื่นๆ ในชีตนี้ resolve จาก "ตำแหน่ง" ไม่ใช่ชื่อหัวตาราง เพราะชื่อ
+   หัวตารางหลายคอลัมน์ซ้ำกัน (เช่น "Chip weight. (Weight Scale)" ปรากฏ 2 ที่คนละหน่วย, "Screen
+   pressure Diff." ปรากฏซ้ำหลายจุด) หรือว่างเปล่า (คอลัมน์ "Digester no." ไม่มีชื่อหัวตารางเลย อยู่ถัดจาก
+   Shift) ยืนยันตำแหน่งจากข้อมูลจริงที่ผู้ใช้ส่งมาโดยตรง ค่าที่เป็นรูปแบบเวลา "ชม:นาที" (เช่น "0:32")
+   แปลงเป็นทศนิยมชั่วโมงตอน parse ("-" และช่องว่างถือเป็นไม่มีข้อมูล) แล้วเฉลี่ยรวมทุก cook ของวันนั้น
+   เป็นหนึ่งแถวต่อวัน (ชื่อ field "r" เป็น array ตามตำแหน่งคอลัมน์เดิม) ให้ใช้กับ chipMonVal/
+   chipMonAnalyse ชุดเดิมที่มีอยู่แล้วได้ทันทีโดยไม่ต้องแก้ฟังก์ชันเหล่านั้นเลย — มีคอลัมน์จำนวนมากที่
+   ชีตยังไม่มีข้อมูลจริง (เช่น H-factor, Target cook temp., Bulk density — ทุกแถวเป็น "0:00" เหมือนช่อง
+   ว่างที่ถูก format เป็นเวลา) จึงยังไม่เพิ่มเป็น metric ในรอบนี้ เพิ่มได้ภายหลังเมื่อเริ่มมีข้อมูลจริง */
+function plsParseNum(raw){
+  if(raw==null) return null;
+  const s = String(raw).trim();
+  if(s==='' || s==='-') return null;
+  const tm = /^(\d{1,3}):(\d{2})$/.exec(s);
+  if(tm) return (+tm[1]) + (+tm[2])/60;
+  return parseSheetNum(s);
+}
+const PLS_COOKING_ROWS = (function(){
+  let headerRow = null;
+  for(let i=0; i<cookingLogRows.length; i++){
+    const r = cookingLogRows[i];
+    if(r && r.some(function(c){ return String(c||'').trim()==='Cooking No.'; })){ headerRow = r; break; }
+  }
+  if(!headerRow) return [];
+  const byDay = new Map();
+  for(let i=0; i<cookingLogRows.length; i++){
+    const r = cookingLogRows[i];
+    if(!r || r===headerRow) continue;
+    const dm = chipMonDre.exec(String(r[1]||'').trim());
+    if(!dm) continue;
+    const y=+dm[3], mi=(+dm[2])-1, d=+dm[1];
+    const key = y+'-'+mi+'-'+d;
+    let day = byDay.get(key);
+    if(!day){ day = { y:y, mi:mi, d:d, ts:new Date(y,mi,d).getTime(), sums:[], counts:[] }; byDay.set(key, day); }
+    for(let c=0; c<r.length; c++){
+      const v = plsParseNum(r[c]);
+      if(v==null) continue;
+      day.sums[c] = (day.sums[c]||0) + v;
+      day.counts[c] = (day.counts[c]||0) + 1;
+    }
+  }
+  return Array.from(byDay.values()).map(function(day){
+    const r = [];
+    for(let c=0; c<day.sums.length; c++){ r[c] = day.counts[c] ? day.sums[c]/day.counts[c] : null; }
+    return { y:day.y, mi:day.mi, d:day.d, ts:day.ts, r:r };
+  }).sort(function(a,b){ return a.ts-b.ts; });
+})();
+/* คอลัมน์ (ตำแหน่ง, 0-indexed) ที่เลือกมาเป็น metric ของแต่ละกลุ่ม — เลือกเฉพาะคอลัมน์ที่มีข้อมูลจริง
+   (ไม่ใช่ "0:00"/ว่างเปล่าทุกแถว) และเป็นตัวเลข/ระยะเวลาที่มีความหมายติดตามได้ ไม่ใช่เวลานาฬิกา
+   (start./stop.), ไม่ใช่ข้อความ/หมวดหมู่, ไม่ใช่คอลัมน์ซ้ำหน่วยเดียวกัน */
+CHIP_MON_META.push(
+  {key:'ckPulpYield',    col:6,   th:'Pulp yield CK',                       unit:'Adt',   dec:1, grp:'cookChipFill', scored:false},
+  {key:'ckFillTime',     col:10,  th:'Chip filling time',                   unit:'hr',    dec:2, grp:'cookChipFill', scored:false},
+  {key:'ckSteamRatio',   col:14,  th:'Packing Steam ratio',                 unit:'',      dec:2, grp:'cookChipFill', scored:false},
+  {key:'ckPackSteamP',   col:15,  th:'Pressure packing steam (Cal.)',       unit:'bar',   dec:2, grp:'cookChipFill', scored:false},
+  {key:'ckLpSteam',      col:16,  th:'LP Steam Pre steaming',               unit:'ton',   dec:2, grp:'cookChipFill', scored:false},
+  {key:'ckPackDegree',   col:17,  th:'Packing degree',                      unit:'',      dec:2, grp:'cookChipFill', scored:false},
+  {key:'ckDrynessOnline',col:18,  th:'Dryness (online)',                    unit:'%',     dec:1, grp:'cookChipFill', scored:false, pct01:true},
+  {key:'ckDrynessOpe',   col:20,  th:'Dryness (OPE)',                       unit:'%',     dec:1, grp:'cookChipFill', scored:false, pct01:true},
+  {key:'ckSurgeBin',     col:21,  th:'Surge bin level before Chip filling', unit:'%',     dec:0, grp:'cookChipFill', scored:false, pct01:true},
+  {key:'ckLoadBelt',     col:22,  th:'Load Belt 321C021',                   unit:'%',     dec:0, grp:'cookChipFill', scored:false, pct01:true},
+  {key:'ckChipFlow',     col:23,  th:'Chip flow',                           unit:'GT/min',dec:2, grp:'cookChipFill', scored:false},
+  {key:'ckChipWtScale',  col:24,  th:'Chip weight (Weight Scale)',          unit:'GT',    dec:1, grp:'cookChipFill', scored:false},
+  {key:'ckChipWtCal',    col:25,  th:'Chip weight (Cal.)',                  unit:'GT',    dec:1, grp:'cookChipFill', scored:false},
+  {key:'ckDiffWtCal',    col:26,  th:'Diff. Weight Scale-Cal',              unit:'%',     dec:1, grp:'cookChipFill', scored:false},
+
+  {key:'ckPstTime',      col:31,  th:'PST time',                            unit:'hr',    dec:2, grp:'cookPresteam', scored:false},
+  {key:'ckPhtTime',      col:32,  th:'PHT time',                            unit:'hr',    dec:2, grp:'cookPresteam', scored:false},
+  {key:'ckPstPhtTime',   col:33,  th:'PST&PHT time',                        unit:'hr',    dec:2, grp:'cookPresteam', scored:false},
+
+  {key:'ckHlfTime',      col:39,  th:'HL filling time',                     unit:'hr',    dec:2, grp:'cookHlf', scored:false},
+  {key:'ckEaSetPoint',   col:41,  th:'EA charge Set point',                 unit:'ton EA',dec:2, grp:'cookHlf', scored:false},
+  {key:'ckEaLab',        col:44,  th:'EA (lab)',                            unit:'g/l',   dec:1, grp:'cookHlf', scored:false},
+  {key:'ckEaOpe',        col:46,  th:'EA (OPE)',                            unit:'g/l',   dec:1, grp:'cookHlf', scored:false},
+  {key:'ckWlTemp',       col:47,  th:'WL Temp.',                            unit:'C',     dec:0, grp:'cookHlf', scored:false},
+  {key:'ckSteamValve',   col:48,  th:'Steam Valve Heat X 411E024',          unit:'%',     dec:0, grp:'cookHlf', scored:false, pct01:true},
+  {key:'ckHwlAccTarget', col:49,  th:'HWL. Acc. Target Temp',               unit:'C',     dec:0, grp:'cookHlf', scored:false},
+  {key:'ckHwlAccTemp',   col:50,  th:'HWL. Acc. Temp',                      unit:'C',     dec:0, grp:'cookHlf', scored:false},
+  {key:'ckHblAcc1Target',col:52,  th:'HBL. Acc. 1 Target Temp',             unit:'C',     dec:0, grp:'cookHlf', scored:false},
+  {key:'ckHblAcc1Temp',  col:53,  th:'HBL. Acc. 1 Temp',                    unit:'C',     dec:0, grp:'cookHlf', scored:false},
+  {key:'ckHblTargetAmt', col:56,  th:'HBL.target amount.',                  unit:'m3',    dec:0, grp:'cookHlf', scored:false},
+  {key:'ckResAlkaline',  col:61,  th:'Res.Alkaline Acc 855',                unit:'g/l',   dec:1, grp:'cookHlf', scored:true, dir:'band'},
+  {key:'ckWlChargeM3',   col:63,  th:'WL Charge to digester (m3)',          unit:'m3',    dec:0, grp:'cookHlf', scored:false},
+  {key:'ckWlChargeTon',  col:64,  th:'WL Charge to digester (Ton EA)',      unit:'Ton EA',dec:1, grp:'cookHlf', scored:false},
+  {key:'ckWtAfterHlf',   col:65,  th:'Weight Scale After HLF',              unit:'ton',   dec:0, grp:'cookHlf', scored:false},
+
+  {key:'ckHeatCookTime', col:68,  th:'Heat&Cook time',                      unit:'hr',    dec:2, grp:'cookHeatCook', scored:false},
+  {key:'ckAlkaliHbl',    col:76,  th:'Alkali HBL ACC1 411QI963 (HBL)',      unit:'',      dec:1, grp:'cookHeatCook', scored:false},
+  {key:'ckAlkaliHblHwl', col:77,  th:'Alkali HBL ACC1 411QI963 (HBL+HWL)',  unit:'',      dec:1, grp:'cookHeatCook', scored:false},
+  {key:'ckScreenPDiff',  col:79,  th:'Screen pressure Diff.',               unit:'bar',   dec:2, grp:'cookHeatCook', scored:false},
+
+  {key:'ckDisplaceTime', col:84,  th:'Displacement time',                   unit:'hr',    dec:2, grp:'cookDisplace', scored:false},
+
+  {key:'ckDischargeTime',col:98,  th:'Discharge time',                      unit:'hr',    dec:2, grp:'cookDischarge', scored:false},
+  {key:'ckDischargeWait',col:99,  th:'Discharge waiting time',              unit:'hr',    dec:2, grp:'cookDischarge', scored:false},
+  {key:'ckDischargeLvl', col:100, th:'Discharge level before discharge',    unit:'%',     dec:0, grp:'cookDischarge', scored:false, pct01:true},
+  {key:'ckAvgConsis',    col:102, th:'Average Consistency',                 unit:'%',     dec:2, grp:'cookDischarge', scored:false, pct01:true},
+  {key:'ckMaxDischTemp', col:103, th:'Maximum discharge temp.',             unit:'C',     dec:0, grp:'cookDischarge', scored:false},
+  {key:'ckWtAfterDisch', col:106, th:'Weight after discharge',              unit:'ton',   dec:1, grp:'cookDischarge', scored:true, dir:'band'},
+  {key:'ckKappaOnline',  col:107, th:'Kappa No. (Online)',                  unit:'',      dec:2, grp:'cookDischarge', scored:true, dir:'band'},
+
+  {key:'ckFlowWblEvap',  col:110, th:'Flow WBL to Evap',                    unit:'l/s',   dec:0, grp:'cookLiquor', scored:false},
+  {key:'ckDisplaceTank', col:111, th:'Displacenent tank',                   unit:'%',     dec:0, grp:'cookLiquor', scored:false, pct01:true},
+  {key:'ckImpregTank',   col:112, th:'Impregnation tank',                   unit:'%',     dec:0, grp:'cookLiquor', scored:false, pct01:true},
+  {key:'ckBlackLiqTank', col:113, th:'Black Liquor tank',                   unit:'%',     dec:0, grp:'cookLiquor', scored:false, pct01:true},
+  {key:'ckWblNpp6T1',    col:114, th:'WBL tank NPP6 No.1 (451T011)',        unit:'%',     dec:0, grp:'cookLiquor', scored:false, pct01:true},
+  {key:'ckWblNpp6T2',    col:115, th:'WBL tank NPP6 No.2 (451T012)',        unit:'%',     dec:0, grp:'cookLiquor', scored:false, pct01:true},
+  {key:'ckWblNpp11T1',   col:116, th:'WBL tank NPP11 No.1 (452T004)',       unit:'%',     dec:0, grp:'cookLiquor', scored:false, pct01:true},
+  {key:'ckWblNpp11T2',   col:117, th:'WBL tank NPP11 No.2 (452T005)',       unit:'%',     dec:0, grp:'cookLiquor', scored:false, pct01:true},
+  {key:'ckWlTank',       col:118, th:'WL tank (471LI190)',                  unit:'%',     dec:0, grp:'cookLiquor', scored:false, pct01:true},
+
+  {key:'ckBatchTiming',  col:119, th:'Batch timing (ไม่รวม Waiting time)',   unit:'hr',    dec:2, grp:'cookTiming', scored:false},
+  {key:'ckWaitingTime',  col:121, th:'Waiting time',                        unit:'hr',    dec:2, grp:'cookTiming', scored:false},
+  {key:'ckTotalCycle',   col:123, th:'Total cycle time',                    unit:'hr',    dec:2, grp:'cookTiming', scored:false}
+);
+/* ทุก metric ที่ push ไว้ข้างบน (กลุ่ม cookChipFill/cookPresteam/cookHlf/cookHeatCook/cookDisplace/
+   cookDischarge/cookLiquor/cookTiming) มี src:'cooking' เพื่อให้ loop สร้าง CHIP_MON_SERIES ข้างล่าง
+   อ่านจาก PLS_COOKING_ROWS แทน CHIP_MON_ROWS (ชีตหลัก) — ตั้งจาก "ชื่อกลุ่ม" ทีเดียวที่นี่ (รายชื่อ
+   กลุ่มตายตัว ไม่เดาจากคำนำหน้า) แทนการพิมพ์ src:'cooking' ซ้ำทุกบรรทัดข้างบน */
+const PLS_COOKING_GROUP_IDS = ['cookChipFill','cookPresteam','cookHlf','cookHeatCook','cookDisplace','cookDischarge','cookLiquor','cookTiming'];
+CHIP_MON_META.forEach(function(m){ if(PLS_COOKING_GROUP_IDS.indexOf(m.grp) >= 0) m.src = 'cooking'; });
+const CHIP_MON_ROWS_BY_SRC = { main: CHIP_MON_ROWS, cooking: PLS_COOKING_ROWS };
+
 /* daily Pulp mill-1 production (ADt/day) by date, from the Daily (Act) sheet — for per-ADt ratios */
 const PROD_BY_DATE = {};
 try{ (dailyActParsed.entries||[]).forEach(e=>{ if(e.val!=null) PROD_BY_DATE[e.y+'-'+e.mi+'-'+e.d] = e.val; }); }catch(e){}
@@ -6112,10 +6293,16 @@ const chipMonCeil = (()=>{
   // never show "today" — the mill's own day isn't closed out yet, so cap at yesterday
   return Math.min(mx, chipMonYesterdayEnd);
 })();
+/* ceiling ต่อแหล่งข้อมูล — ชีตหลัก (main) ใช้ chipMonCeil ที่คำนวณจากคอลัมน์ anchor ข้างบน ส่วนชีตใหม่
+   (เช่น 'cooking') ยังไม่มีคอลัมน์ anchor ที่เชื่อถือได้แบบเดียวกัน จึงครอบแค่ "ไม่เกินเมื่อวาน" เฉยๆ
+   (กัน future placeholder row เหมือนชีตหลัก โดยไม่ต้องมี anchor column) */
+const CHIP_MON_CEIL_BY_SRC = { main: chipMonCeil, cooking: chipMonYesterdayEnd };
 const CHIP_MON_SERIES = {};
 CHIP_MON_META.forEach(m=> {
-  const ser = CHIP_MON_ROWS.map(rc=> ({ ts:rc.ts, y:rc.y, mi:rc.mi, d:rc.d, v:chipMonVal(rc, m) }))
-    .filter(x=> x.v!=null && x.ts <= chipMonCeil).sort((a,b)=> a.ts-b.ts);
+  const srcRows = CHIP_MON_ROWS_BY_SRC[m.src || 'main'];
+  const srcCeil = CHIP_MON_CEIL_BY_SRC[m.src || 'main'];
+  const ser = srcRows.map(rc=> ({ ts:rc.ts, y:rc.y, mi:rc.mi, d:rc.d, v:chipMonVal(rc, m) }))
+    .filter(x=> x.v!=null && x.ts <= srcCeil).sort((a,b)=> a.ts-b.ts);
   if(m.zeroIsMissing){ while(ser.length && ser[ser.length-1].v === 0) ser.pop(); }
   CHIP_MON_SERIES[m.key] = ser;
 });
@@ -10559,14 +10746,21 @@ function chipMonDrawDetailChart(grpId, m, a, tgt){
   hi = Math.ceil((hi+pad)/step)*step;
 
   const nBars = vals.filter(v=> v!=null).length;
-  const cfg = {
-    data:{ labels, datasets:[
-      { type:'bar', label:actualLbl, data:vals, backgroundColor:grp.rail, borderColor:c.surface, borderWidth:0.5,
+  // Process area logsheets (Cooking/Brown stock/Bleaching) show a LINE, not a bar — everything else
+  // (datalabels, target lines, tooltip, axes) stays identical, only this one dataset's shape differs.
+  const primaryDs = grp.chartType==='line'
+    ? { type:'line', label:actualLbl, data:vals, borderColor:grp.rail, backgroundColor:grp.rail,
+        borderWidth:1.8, pointRadius: nBars>60 ? 0 : 2.6, pointBackgroundColor:grp.rail, tension:.2,
+        spanGaps:true, order:2, datalabels:{display:false} }
+    : { type:'bar', label:actualLbl, data:vals, backgroundColor:grp.rail, borderColor:c.surface, borderWidth:0.5,
         borderRadius:2, barPercentage:0.9, categoryPercentage:0.9, order:2,
         datalabels:{ display:(x)=> x.dataset.data[x.dataIndex]!=null, anchor:'end', align:'end', offset:2,
           rotation: nBars > 14 ? -90 : 0, color:c.ink2,
           font:{ family:'IBM Plex Mono', size:10.5, weight:'600' },
-          formatter:(v)=> v==null ? '' : v.toLocaleString('en-US', {minimumFractionDigits:0, maximumFractionDigits:m.dec}) } },
+          formatter:(v)=> v==null ? '' : v.toLocaleString('en-US', {minimumFractionDigits:0, maximumFractionDigits:m.dec}) } };
+  const cfg = {
+    data:{ labels, datasets:[
+      primaryDs,
       ...refs
     ]},
     options:{ responsive:true, maintainAspectRatio:false, layout:{padding:{top: nBars > 14 ? 30 : 16}},
@@ -10665,7 +10859,6 @@ function initChipMon(){
     CHIP_MON_STATE[grp.id] = grp.id === 'yield' ? 'yieldBdt' : null;
     chipMonRenderDetail(grp.id);
   });
-  const host = document.getElementById('chipMonHost');
   const chipMonToggle = (g, k)=> {
     if(CHIP_MON_STATE[g] === k){ CHIP_MON_STATE[g] = null; chipMonRenderDetail(g); return; }
     if(CHIP_MON_STATE[g] !== k) CHIP_MON_RANGE[g] = null;
@@ -10673,15 +10866,22 @@ function initChipMon(){
     chipMonRenderDetail(g);
     document.getElementById('chipDetail_'+g).scrollIntoView({behavior:'smooth', block:'nearest'});
   };
-  host.addEventListener('click', (e)=> {
-    const tile = e.target.closest('.mon-tile'); if(!tile) return;
-    chipMonToggle(tile.dataset.grp, tile.dataset.key);
-  });
-  host.addEventListener('keydown', (e)=> {
-    if(e.key!=='Enter' && e.key!==' ') return;
-    const tile = e.target.closest('.mon-tile'); if(!tile) return;
-    e.preventDefault();
-    chipMonToggle(tile.dataset.grp, tile.dataset.key);
+  // ทุกกลุ่มบน Yield page เดิมอยู่ใต้ chipMonHost เดียว — กลุ่มใหม่ของ Process area (Cooking/Brown
+  // stock/Bleaching ในอนาคต) อยู่คนละหน้า จึงต้อง delegate click/keydown ซ้ำที่ host ของแต่ละหน้าด้วย
+  // handler ชุดเดียวกันนี้ แทนที่จะผูกกับ chipMonHost อย่างเดียว
+  ['chipMonHost','chipCookingHost'].forEach(hostId=> {
+    const host = document.getElementById(hostId);
+    if(!host) return;
+    host.addEventListener('click', (e)=> {
+      const tile = e.target.closest('.mon-tile'); if(!tile) return;
+      chipMonToggle(tile.dataset.grp, tile.dataset.key);
+    });
+    host.addEventListener('keydown', (e)=> {
+      if(e.key!=='Enter' && e.key!==' ') return;
+      const tile = e.target.closest('.mon-tile'); if(!tile) return;
+      e.preventDefault();
+      chipMonToggle(tile.dataset.grp, tile.dataset.key);
+    });
   });
   window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', ()=> {
     renderExecKpiPanel();
