@@ -643,7 +643,8 @@
   /* ---- Overview section: 3 auto-generated analysis paragraphs side by side, always visible
      (the cards themselves — picker/summary/table — collapse below their heading by default) ---- */
   .ya-overview{margin:16px 0 20px;}
-  .ya-overview-head{font-size:14.5px;font-weight:800;color:var(--ink);margin-bottom:10px;}
+  .ya-overview-head{display:flex;align-items:center;gap:8px;font-size:14.5px;font-weight:800;color:var(--ink);margin-bottom:10px;cursor:pointer;user-select:none;}
+  .ya-overview-head.ya-card-collapsed .yhc{transform:rotate(-90deg);}
   .ya-overview-grid{display:grid;grid-template-columns:repeat(3, 1fr);gap:16px;}
   @media (max-width:900px){ .ya-overview-grid{grid-template-columns:1fr;} }
   .ya-overview-col{background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;font-size:12px;color:var(--ink-2);}
@@ -1526,8 +1527,8 @@
               <div class="mon-detail" id="chipDetail_yield" hidden></div>
 
               <div class="ya-overview">
-                <div class="ya-overview-head">ภาพรวมสรุปข้อมูลวิเคราะห์ Yield เปรียบเทียบโรงเยื่อ 1</div>
-                <div class="ya-overview-grid">
+                <div class="ya-overview-head" id="yaOverviewHead"><span class="yhc">▾</span>ภาพรวมสรุปข้อมูลวิเคราะห์ Yield เปรียบเทียบโรงเยื่อ 1</div>
+                <div class="ya-overview-grid" id="yaOverviewGrid">
                   <div class="ya-overview-col">
                     <div class="ya-overview-title">สรุปข้อมูลวิเคราะห์ Yield โรงเยื่อ 1 (Yesterday vs. Previous Day)</div>
                     <div class="ys-body" id="yaOverviewBody_daily"></div>
@@ -11214,6 +11215,14 @@ function initYaCardCollapse(){
       body.hidden = collapsed;
     });
   });
+  const ovHead = document.getElementById('yaOverviewHead');
+  const ovGrid = document.getElementById('yaOverviewGrid');
+  if(ovHead && ovGrid){
+    ovHead.addEventListener('click', function(){
+      const collapsed = ovHead.classList.toggle('ya-card-collapsed');
+      ovGrid.hidden = collapsed;
+    });
+  }
 }
 function initChipMon(){
   if(!CHIP_MON_ROWS.length) return;
