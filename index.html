@@ -704,12 +704,14 @@
   .md-track .m{position:absolute;top:-3px;width:9px;height:9px;border-radius:50%;background:var(--accent);transform:translate(-50%,-1px);}
   .md-track .m.out{background:#d4342c;}
   @media (max-width:860px){ .md-strip{grid-template-columns:repeat(3,1fr);} .md-cell{border-bottom:1px solid var(--box-border);} }
-  .md-stripstack{border:1px solid var(--box-border);border-radius:9px;overflow:hidden;margin-bottom:14px;}
-  .md-strip-row{margin-bottom:0;}
-  .md-strip-row+.md-strip-row{border-top:1px solid var(--box-border);}
-  .md-strip-row .md-strip{margin-bottom:0;border:none;border-radius:0;}
-  .md-strip-label{display:flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;color:var(--ink);background:var(--surface-2);padding:6px 10px;}
-  .md-strip-dot{width:9px;height:9px;border-radius:50%;flex:0 0 auto;}
+  .md-stripstack{margin-bottom:0;}
+  .md-strip-transposed .md-cell{padding:9px;}
+  .md-strip-dot{width:8px;height:8px;border-radius:50%;flex:0 0 auto;}
+  .md-sp-list{margin-top:7px;display:flex;flex-direction:column;gap:3px;}
+  .md-sp-line{display:flex;align-items:center;gap:5px;font-family:"IBM Plex Mono",monospace;font-size:11px;}
+  .md-sp-name{color:var(--ink-2);flex:1 1 auto;min-width:0;}
+  .md-sp-val{font-weight:700;color:var(--ink);white-space:nowrap;}
+  @media (max-width:860px){ .md-strip-transposed{grid-template-columns:repeat(3,1fr);} .md-strip-transposed .md-cell{border-bottom:1px solid var(--box-border);} }
   .md-chart-wrap{position:relative;height:250px;margin-top:4px;}
   .md-assess{font-size:11.5px;line-height:1.7;color:var(--ink-2);background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:11px 13px;margin-top:12px;}
   .md-assess b{color:var(--ink);}
@@ -9937,31 +9939,6 @@ function chipMonRenderDetail(grpId){
 
   chipMonRenderDetailBody(grpId, m, a, tgt);
 }
-/* Standalone Latest/7-day/month/year/Est. strip for a single metric — the same 7 cells
-   chipMonRenderDetail's own .md-strip builds (minus the Deviation cell, which wood species
-   metrics don't score anyway), extracted so it can be repeated once per species underneath the
-   100%-stacked wood charts' ช่วงที่ 1/2 pickers without needing the full tile-click detail panel. */
-function chipMonBuildStripOnly(key, dotColor){
-  const m = CHIP_MON_META.find(x=> x.key===key);
-  const labelHtml = '<div class="md-strip-label">'+(dotColor?'<span class="md-strip-dot" style="background:'+dotColor+'"></span>':'')+(m?m.th:key)+'</div>';
-  const a = m ? chipMonAnalyse(key, m) : null;
-  if(!a) return labelHtml+'<div class="md-sub">'+(currentLang==='en'?'No data for this metric yet':'ยังไม่มีข้อมูลของค่านี้ในชีต')+'</div>';
-  const curLbl = chipMonMonthLabel(a.anchor.mi, a.anchor.y);
-  const prevLbl = chipMonMonthLabel(a.pmi, a.py);
-  const anchorDate = `${a.anchor.d} ${MONTH_ABBR_TH[a.anchor.mi]} ${a.anchor.y}`;
-  const strip7d = chipMonMean(a.last7), strip7dPrev = chipMonMean(a.last7Prev);
-  const stripCurMon = chipMonMean(a.curMon), stripPrevMon = chipMonMean(a.prevMon), stripYr = chipMonMean(a.yrVals);
-  return labelHtml + `
-    <div class="md-strip">
-      <div class="md-cell hero"><div class="ck">Latest</div><div class="cv">${chipMonFmt(a.anchor.v, m.dec)}<small> ${m.unit}</small></div><div class="cs">${anchorDate}</div></div>
-      <div class="md-cell"><div class="ck">7 วัน (ล่าสุด)</div><div class="cv">${chipMonTrendArrow(a.anchor.v, strip7d)} ${chipMonFmt(strip7d, m.dec)}</div><div class="cs">ค่าเฉลี่ย ${a.last7.length} วันล่าสุด</div></div>
-      <div class="md-cell"><div class="ck">7 วัน (ที่ผ่านมา)</div><div class="cv">${chipMonTrendArrow(a.anchor.v, strip7dPrev)} ${chipMonFmt(strip7dPrev, m.dec)}</div><div class="cs">ค่าเฉลี่ย ${a.last7Prev.length} วันก่อนหน้า 7 วันล่าสุด</div></div>
-      <div class="md-cell"><div class="ck">${curLbl}</div><div class="cv">${chipMonTrendArrow(a.anchor.v, stripCurMon)} ${chipMonFmt(stripCurMon, m.dec)}</div><div class="cs">เฉลี่ย ${a.curMon.length} วันที่บันทึก</div></div>
-      <div class="md-cell"><div class="ck">${prevLbl}</div><div class="cv">${chipMonTrendArrow(a.anchor.v, stripPrevMon)} ${chipMonFmt(stripPrevMon, m.dec)}</div><div class="cs">เฉลี่ย ${a.prevMon.length} วันที่บันทึก</div></div>
-      <div class="md-cell"><div class="ck">${a.anchor.y}</div><div class="cv">${chipMonTrendArrow(a.anchor.v, stripYr)} ${chipMonFmt(stripYr, m.dec)}</div><div class="cs">เฉลี่ย ${a.yrVals.length} วันที่บันทึก</div></div>
-      <div class="md-cell"><div class="ck">Est. ${MONTH_ABBR_TH[a.anchor.mi]} สิ้นเดือน</div><div class="cv">${chipMonTrendArrow(a.anchor.v, a.est)} ${a.est==null ? '—' : chipMonFmt(a.est, m.dec)}</div><div class="cs">${a.est==null ? 'ต้องมี ≥ 3 วัน' : `${a.curMon.length} วันจริง + ${a.remaining} วันที่อัตรา 7 วัน`}</div></div>
-    </div>`;
-}
 /* Species → per-mill metric key, in the display order requested (K58, K7, Seed, Other, St>1 m —
    not WOOD_CMP_COLS' own K7-first order, which only governs the stacked bars/table columns).
    "woodStackTot" reads the same woodTotal* keys as "woodStack1" (Pulp mill 1's own columns) —
@@ -9977,11 +9954,52 @@ const WOOD_STRIP_ORDER = [
   { label:'K58', colorKey:'K58' }, { label:'K7', colorKey:'K7' }, { label:'Seed', colorKey:'Seed' },
   { label:'Other', colorKey:'Other' }, { label:'St > 1 m', colorKey:'St>1 m' }
 ];
+/* One shared 7-column .md-strip (Latest/7-day(latest)/7-day(prior)/this-month/last-month/year/
+   Est.-month-end — the same 7 periods chipMonRenderDetail's own strip uses) where each COLUMN
+   lists all 5 species stacked inside it, instead of one strip per species — "คอลัมภ์ที่ 1 ... LATEST
+   / K58 : x% / K7 : x% / ..." per the requested layout. All 5 species share the same calendar
+   anchor/month/year (same sheet rows), so the column headers are read off whichever species has
+   data first. */
+function woodStackBuildStripTransposed(prefix){
+  const keyMap = WOOD_STACK_STRIP_KEYS[prefix];
+  if(!keyMap) return '';
+  const EN = currentLang==='en';
+  const perSpecies = WOOD_STRIP_ORDER.map(sp=> {
+    const key = keyMap[sp.label];
+    const m = CHIP_MON_META.find(x=> x.key===key);
+    const a = m ? chipMonAnalyse(key, m) : null;
+    return { sp, m, a };
+  });
+  const ref = perSpecies.find(x=> x.a);
+  if(!ref) return '<div class="md-sub">'+(EN?'No data for this metric yet':'ยังไม่มีข้อมูลของค่านี้ในชีต')+'</div>';
+  const a0 = ref.a;
+  const curLbl = chipMonMonthLabel(a0.anchor.mi, a0.anchor.y);
+  const prevLbl = chipMonMonthLabel(a0.pmi, a0.py);
+  const anchorDate = `${a0.anchor.d} ${MONTH_ABBR_TH[a0.anchor.mi]} ${a0.anchor.y}`;
+  const estLbl = (EN?'Est. ':'Est. ')+(EN?MONTH_ABBR_EN[a0.anchor.mi]:MONTH_ABBR_TH[a0.anchor.mi])+(EN?' month-end':' สิ้นเดือน');
+  const speciesLines = valueFn => perSpecies.map(x=> {
+    const v = x.a ? valueFn(x.a) : null;
+    const dec = x.m ? x.m.dec : 1;
+    return '<div class="md-sp-line"><span class="md-strip-dot" style="background:'+WOOD_SPECIES_COLORS[x.sp.colorKey]+'"></span>'
+      + '<span class="md-sp-name">'+x.sp.label+'</span><span class="md-sp-val">'+chipMonFmt(v, dec)+'%</span></div>';
+  }).join('');
+  const cols = [
+    { ck:'Latest', cs:anchorDate, lines:speciesLines(a=> a.anchor.v), hero:true },
+    { ck:'7 วัน (ล่าสุด)', cs:(EN?'mean of the last 7 days':'ค่าเฉลี่ย 7 วันล่าสุด'), lines:speciesLines(a=> chipMonMean(a.last7)) },
+    { ck:'7 วัน (ที่ผ่านมา)', cs:(EN?'mean of the 7 days before the latest 7':'ค่าเฉลี่ย 7 วันก่อนหน้า 7 วันล่าสุด'), lines:speciesLines(a=> chipMonMean(a.last7Prev)) },
+    { ck:curLbl, cs:(EN?'this month so far':'เฉลี่ยเดือนนี้'), lines:speciesLines(a=> chipMonMean(a.curMon)) },
+    { ck:prevLbl, cs:(EN?'last month':'เฉลี่ยเดือนก่อน'), lines:speciesLines(a=> chipMonMean(a.prevMon)) },
+    { ck:String(a0.anchor.y), cs:(EN?'year to date':'เฉลี่ยทั้งปี'), lines:speciesLines(a=> chipMonMean(a.yrVals)) },
+    { ck:estLbl, cs:(EN?'month-end estimate':'ประมาณการสิ้นเดือน'), lines:speciesLines(a=> a.est) }
+  ];
+  return '<div class="md-strip md-strip-transposed">' + cols.map(c=>
+    '<div class="md-cell'+(c.hero?' hero':'')+'"><div class="ck">'+c.ck+'</div><div class="cs">'+c.cs+'</div><div class="md-sp-list">'+c.lines+'</div></div>'
+  ).join('') + '</div>';
+}
 function woodStackRenderStrips(prefix){
   const host = document.getElementById(prefix+'Strips');
-  const keyMap = WOOD_STACK_STRIP_KEYS[prefix];
-  if(!host || !keyMap) return;
-  host.innerHTML = WOOD_STRIP_ORDER.map(sp=> '<div class="md-strip-row">'+chipMonBuildStripOnly(keyMap[sp.label], WOOD_SPECIES_COLORS[sp.colorKey])+'</div>').join('');
+  if(!host) return;
+  host.innerHTML = woodStackBuildStripTransposed(prefix);
 }
 
 function chipMonDetailRows(grpId, m, a){
