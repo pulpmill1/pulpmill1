@@ -2074,16 +2074,82 @@
               <div class="mon-group-head"><span class="gi">🌲</span><span class="gt">Wood species Pulp mill 1</span><span class="gs">5 ค่า · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
               <div class="mon-tiles" id="chipTiles_woodPm1"></div>
               <div class="mon-detail" id="chipDetail_woodPm1" hidden></div>
+              <div class="mon-group-head"><span class="gi">🌲</span><span class="gt">Wood species Pulp mill 1 — สัดส่วน 100%</span><span class="gs">K7 / K58 / Seed / Other / St&gt;1 m · เลือกช่วงข้อมูลที่ 1 ถึงช่วงข้อมูลที่ 2</span></div>
+              <div class="ya-controls">
+                <div class="ya-picker">
+                  <span class="yp-lbl">ช่วงที่ 1</span>
+                  <select id="woodStack1Mode1"><option value="date" selected>วัน</option><option value="week">สัปดาห์</option><option value="month">เดือน</option><option value="year">ปี</option></select>
+                  <input type="date" id="woodStack1Date1">
+                  <input type="week" id="woodStack1Week1" hidden>
+                  <input type="month" id="woodStack1Month1" hidden>
+                  <select id="woodStack1Year1" hidden></select>
+                </div>
+                <div class="ya-picker">
+                  <span class="yp-lbl">ช่วงที่ 2</span>
+                  <select id="woodStack1Mode2"><option value="date" selected>วัน</option><option value="week">สัปดาห์</option><option value="month">เดือน</option><option value="year">ปี</option></select>
+                  <input type="date" id="woodStack1Date2">
+                  <input type="week" id="woodStack1Week2" hidden>
+                  <input type="month" id="woodStack1Month2" hidden>
+                  <select id="woodStack1Year2" hidden></select>
+                </div>
+                <button type="button" class="md-viewbtn" data-view="chart" id="woodStack1BtnChart">กราฟ</button>
+                <button type="button" class="md-viewbtn" data-view="table" id="woodStack1BtnTable">ตาราง</button>
+              </div>
+              <div class="md-body" id="woodStack1Body"></div>
             </div>
             <div class="mon-group">
               <div class="mon-group-head"><span class="gi">🌲</span><span class="gt">Wood species Pulp mill 2</span><span class="gs">5 ค่า · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
               <div class="mon-tiles" id="chipTiles_woodPm2"></div>
               <div class="mon-detail" id="chipDetail_woodPm2" hidden></div>
+              <div class="mon-group-head"><span class="gi">🌲</span><span class="gt">Wood species Pulp mill 2 — สัดส่วน 100%</span><span class="gs">K7 / K58 / Seed / Other / St&gt;1 m · เลือกช่วงข้อมูลที่ 1 ถึงช่วงข้อมูลที่ 2</span></div>
+              <div class="ya-controls">
+                <div class="ya-picker">
+                  <span class="yp-lbl">ช่วงที่ 1</span>
+                  <select id="woodStack2Mode1"><option value="date" selected>วัน</option><option value="week">สัปดาห์</option><option value="month">เดือน</option><option value="year">ปี</option></select>
+                  <input type="date" id="woodStack2Date1">
+                  <input type="week" id="woodStack2Week1" hidden>
+                  <input type="month" id="woodStack2Month1" hidden>
+                  <select id="woodStack2Year1" hidden></select>
+                </div>
+                <div class="ya-picker">
+                  <span class="yp-lbl">ช่วงที่ 2</span>
+                  <select id="woodStack2Mode2"><option value="date" selected>วัน</option><option value="week">สัปดาห์</option><option value="month">เดือน</option><option value="year">ปี</option></select>
+                  <input type="date" id="woodStack2Date2">
+                  <input type="week" id="woodStack2Week2" hidden>
+                  <input type="month" id="woodStack2Month2" hidden>
+                  <select id="woodStack2Year2" hidden></select>
+                </div>
+                <button type="button" class="md-viewbtn" data-view="chart" id="woodStack2BtnChart">กราฟ</button>
+                <button type="button" class="md-viewbtn" data-view="table" id="woodStack2BtnTable">ตาราง</button>
+              </div>
+              <div class="md-body" id="woodStack2Body"></div>
             </div>
             <div class="mon-group">
               <div class="mon-group-head"><span class="gi">🌲</span><span class="gt">Wood species Pulp mill 1 + Pulp mill 2</span><span class="gs">5 ค่า · คลิกที่บล็อกเพื่อดูประวัติ (แสดงข้อมูลทั้งสองโรงงานเทียบกัน)</span></div>
               <div class="mon-tiles" id="chipTiles_woodTotal"></div>
               <div class="mon-detail" id="chipDetail_woodTotal" hidden></div>
+              <div class="mon-group-head"><span class="gi">🌲</span><span class="gt">Wood species Pulp mill 1 + Pulp mill 2 — สัดส่วน 100%</span><span class="gs">K7 / K58 / Seed / Other / St&gt;1 m · Pulp 1 และ Pulp 2 แยกแท่งต่อช่วงเวลา · เลือกช่วงข้อมูลที่ 1 ถึงช่วงข้อมูลที่ 2</span></div>
+              <div class="ya-controls">
+                <div class="ya-picker">
+                  <span class="yp-lbl">ช่วงที่ 1</span>
+                  <select id="woodStackTotMode1"><option value="date" selected>วัน</option><option value="week">สัปดาห์</option><option value="month">เดือน</option><option value="year">ปี</option></select>
+                  <input type="date" id="woodStackTotDate1">
+                  <input type="week" id="woodStackTotWeek1" hidden>
+                  <input type="month" id="woodStackTotMonth1" hidden>
+                  <select id="woodStackTotYear1" hidden></select>
+                </div>
+                <div class="ya-picker">
+                  <span class="yp-lbl">ช่วงที่ 2</span>
+                  <select id="woodStackTotMode2"><option value="date" selected>วัน</option><option value="week">สัปดาห์</option><option value="month">เดือน</option><option value="year">ปี</option></select>
+                  <input type="date" id="woodStackTotDate2">
+                  <input type="week" id="woodStackTotWeek2" hidden>
+                  <input type="month" id="woodStackTotMonth2" hidden>
+                  <select id="woodStackTotYear2" hidden></select>
+                </div>
+                <button type="button" class="md-viewbtn" data-view="chart" id="woodStackTotBtnChart">กราฟ</button>
+                <button type="button" class="md-viewbtn" data-view="table" id="woodStackTotBtnTable">ตาราง</button>
+              </div>
+              <div class="md-body" id="woodStackTotBody"></div>
             </div>
             <div class="mon-group">
               <div class="mon-group-head"><span class="gi">🌲</span><span class="gt">Wood species Pulp mill 1 + Pulp mill 2 (ตารางเปรียบเทียบ)</span><span class="gs">12 คอลัมภ์ · เลือกช่วงข้อมูลที่ 1 ถึงช่วงข้อมูลที่ 2</span></div>
@@ -5688,6 +5754,7 @@ function applyLang(lang){
     if(typeof renderYieldAnalysisTableYB === 'function') renderYieldAnalysisTableYB();
     if(typeof renderYieldAnalysisTableMB === 'function') renderYieldAnalysisTableMB();
     if(typeof woodCmpRenderBody === 'function' && document.getElementById('woodCmpBody')) woodCmpRenderBody();
+    if(typeof woodStackRenderBodyFor === 'function') ['woodStack1','woodStack2','woodStackTot'].forEach(p=> { if(document.getElementById(p+'Body')) woodStackRenderBodyFor(p); });
   }
   if(typeof wsdRenderTiles === 'function' && typeof WSD_METRICS !== 'undefined'){ WSD_METRICS.forEach(function(m){ if(document.getElementById('wsdHost_'+m.id)){ wsdRenderTiles(m); wsdRenderDetail(m); } }); }
   if(typeof rmwRenderTiles === 'function' && document.getElementById('rmwHost')){ rmwRenderTiles(); rmwRenderDetail(); }
@@ -9941,17 +10008,23 @@ function woodCmpResolveBoundary(mode, value, which){
 const woodCmpBoundaryTs = b => b ? new Date(b.y, b.mi, b.d).getTime() : null;
 /* Combines both pickers into one resolved window. Spans of ≤31 days list every day (like the old
    วัน/เดือน modes); longer spans switch to one row/point per month (like the old ปี mode) so a
-   multi-month or multi-year pick stays readable instead of dumping hundreds of daily rows. */
-function woodCmpResolveRange(){
-  let b1 = woodCmpResolveBoundary(WOOD_CMP_RANGE.r1.mode, WOOD_CMP_RANGE.r1.value, 'start');
-  let b2 = woodCmpResolveBoundary(WOOD_CMP_RANGE.r2.mode, WOOD_CMP_RANGE.r2.value, 'end');
+   multi-month or multi-year pick stays readable instead of dumping hundreds of daily rows.
+   Generic core (no series baked in) — reused by the 100% stacked-bar sections below, each of
+   which has its own independent ช่วงที่ 1/2 picker state. */
+function woodResolveRangeGeneric(rangeState){
+  let b1 = woodCmpResolveBoundary(rangeState.r1.mode, rangeState.r1.value, 'start');
+  let b2 = woodCmpResolveBoundary(rangeState.r2.mode, rangeState.r2.value, 'end');
   if(!b1 || !b2) return null;
   let ts1 = woodCmpBoundaryTs(b1), ts2 = woodCmpBoundaryTs(b2);
   if(ts1 > ts2){ [b1,b2] = [b2,b1]; [ts1,ts2] = [ts2,ts1]; }
-  const base = CHIP_MON_SERIES.woodTotalK7 || [];
-  const dayRows = base.filter(x=> x.ts>=ts1 && x.ts<=ts2);
   const spanDays = Math.round((ts2-ts1)/DAY_MS) + 1;
-  return { start:b1, end:b2, lo:ts1, hi:ts2, dayRows, spanDays, isMonthly: spanDays > WOOD_CMP_MONTHLY_THRESHOLD_DAYS };
+  return { start:b1, end:b2, lo:ts1, hi:ts2, spanDays, isMonthly: spanDays > WOOD_CMP_MONTHLY_THRESHOLD_DAYS };
+}
+function woodCmpResolveRange(){
+  const range = woodResolveRangeGeneric(WOOD_CMP_RANGE);
+  if(!range) return null;
+  range.dayRows = (CHIP_MON_SERIES.woodTotalK7 || []).filter(x=> x.ts>=range.lo && x.ts<=range.hi);
+  return range;
 }
 /* One row per calendar month from range.start's month through range.end's month inclusive —
    average of that month's daily % per species, same as the old "ปี" mode's single-year version
@@ -10115,6 +10188,209 @@ function initWoodCmp(){
   });
   woodCmpRenderBody();
 }
+/* ---- Wood species 100% stacked-bar sections (Pulp mill 1 / Pulp mill 2 / Pulp mill 1+2) ----
+   Each gets its own independent ช่วงที่ 1/2 picker (reusing woodCmpResolveBoundary/
+   woodResolveRangeGeneric above) and its own chart/table toggle, defaulting to chart. Species
+   colours are a fixed map shared by all three so the same species reads as the same colour
+   everywhere (Pulp mill 1, Pulp mill 2, and the combined Pulp mill 1+2 view). */
+const WOOD_SPECIES_COLORS = { K7:'#2a78d6', K58:'#eb6834', Seed:'#1baf7a', Other:'#eda100', 'St>1 m':'#e87ba4' };
+const WOOD_STACK_RANGE = {};  // prefix -> {r1,r2}
+const WOOD_STACK_VIEW = {};   // prefix -> 'chart' | 'table'
+const WOOD_STACK_CHARTS = {}; // prefix -> Chart.js instance
+const WOOD_STACK_KEYS = {};   // prefix -> {own:[5 series keys], pair:[5 series keys]|null}
+/* One row per period (one calendar day, or one month once the resolved range exceeds 31 days)
+   holding a value per species in seriesKeys order. A period missing ANY of the 5 species is
+   dropped — same completeness rule woodCmpYieldValue already applies elsewhere. */
+function woodStackRows(range, seriesKeys){
+  if(!range) return [];
+  if(range.isMonthly){
+    const rows = [];
+    let y = range.start.y, mi = range.start.mi;
+    while(y < range.end.y || (y===range.end.y && mi<=range.end.mi)){
+      const vals = seriesKeys.map(k=> woodCmpAvg(CHIP_MON_SERIES[k]||[], y, mi));
+      if(vals.every(v=> v!=null)) rows.push({ y, mi, d:null, vals });
+      mi++; if(mi>11){ mi=0; y++; }
+    }
+    return rows;
+  }
+  const base = CHIP_MON_SERIES[seriesKeys[0]] || [];
+  const maps = seriesKeys.map(k=> new Map((CHIP_MON_SERIES[k]||[]).map(x=> [x.ts, x.v])));
+  return base.filter(x=> x.ts>=range.lo && x.ts<=range.hi)
+    .map(x=> ({ y:x.y, mi:x.mi, d:x.d, vals: maps.map(m=> m.get(x.ts) ?? null) }))
+    .filter(r=> r.vals.every(v=> v!=null));
+}
+function woodStackPeriodKey(r){ return r.d==null ? (r.y+'-'+r.mi) : (r.y+'-'+r.mi+'-'+r.d); }
+function woodStackLabel(r, EN){ return r.d==null ? ((EN?MONTH_ABBR_EN[r.mi]:MONTH_ABBR_TH[r.mi])+' '+r.y) : (r.d+'/'+(r.mi+1)); }
+/* True 100% stack: scale each period's 5 values so they sum to exactly 100 — protects against
+   rounding drift in the source sheet instead of assuming the raw % already sum to 100 exactly. */
+function woodStackNormalize(vals){
+  const sum = vals.reduce((a,b)=> a+b, 0);
+  return sum ? vals.map(v=> v/sum*100) : vals.map(()=> 0);
+}
+function woodStackRangeLabel(range){
+  const EN = currentLang==='en';
+  const f = b => EN ? (MONTH_ABBR_EN[b.mi]+' '+b.d+', '+b.y) : (b.d+' '+MONTH_ABBR_TH[b.mi]+' '+b.y);
+  const lbl = EN ? 'Showing' : 'ช่วงข้อมูลที่แสดง';
+  if(range.start.y===range.end.y && range.start.mi===range.end.mi && range.start.d===range.end.d) return lbl+': '+f(range.start);
+  const dayWord = EN ? 'days' : 'วัน';
+  return lbl+': '+f(range.start)+' – '+f(range.end)+' ('+range.spanDays+' '+dayWord+')';
+}
+/* rowsPair present (combined Pulp mill 1+2 view) -> 10 datasets, two "stack" groups ('p1'/'p2')
+   so Chart.js draws two 100%-stacked bars side by side per period; rowsPair null -> 5 datasets,
+   one stack, one bar per period. */
+function woodStackDrawChart(prefix, rowsOwn, rowsPair){
+  const cv = document.getElementById(prefix+'Chart');
+  if(!cv) return;
+  const EN = currentLang==='en';
+  const c = { ink2:cssVar('--ink-2'), grid:cssVar('--grid'), surface:cssVar('--surface'), border:cssVar('--border'), ink:cssVar('--ink') };
+  let labels, datasets;
+  if(!rowsPair){
+    labels = rowsOwn.map(r=> woodStackLabel(r, EN));
+    datasets = WOOD_CMP_COLS.map((col,i)=> ({
+      label: col.label, stack:'a', data: rowsOwn.map(r=> woodStackNormalize(r.vals)[i]),
+      backgroundColor: WOOD_SPECIES_COLORS[col.label], borderColor:c.surface, borderWidth:1.5, borderSkipped:false,
+      datalabels:{display:false}
+    }));
+  } else {
+    const keyMap = new Map();
+    rowsOwn.forEach(r=> keyMap.set(woodStackPeriodKey(r), r));
+    rowsPair.forEach(r=> { if(!keyMap.has(woodStackPeriodKey(r))) keyMap.set(woodStackPeriodKey(r), r); });
+    const allRows = Array.from(keyMap.values()).sort((a,b)=> (a.y-b.y) || (a.mi-b.mi) || ((a.d||0)-(b.d||0)));
+    labels = allRows.map(r=> woodStackLabel(r, EN));
+    const ownByKey = new Map(rowsOwn.map(r=> [woodStackPeriodKey(r), r]));
+    const pairByKey = new Map(rowsPair.map(r=> [woodStackPeriodKey(r), r]));
+    datasets = [];
+    WOOD_CMP_COLS.forEach((col,i)=> datasets.push({
+      label: 'Pulp 1 '+col.label, stack:'p1',
+      data: allRows.map(r=> { const rr = ownByKey.get(woodStackPeriodKey(r)); return rr ? woodStackNormalize(rr.vals)[i] : null; }),
+      backgroundColor: WOOD_SPECIES_COLORS[col.label], borderColor:c.surface, borderWidth:1.5, borderSkipped:false,
+      datalabels:{display:false}
+    }));
+    WOOD_CMP_COLS.forEach((col,i)=> datasets.push({
+      label: 'Pulp 2 '+col.label, stack:'p2',
+      data: allRows.map(r=> { const rr = pairByKey.get(woodStackPeriodKey(r)); return rr ? woodStackNormalize(rr.vals)[i] : null; }),
+      backgroundColor: WOOD_SPECIES_COLORS[col.label], borderColor:c.surface, borderWidth:1.5, borderSkipped:false,
+      datalabels:{display:false}
+    }));
+  }
+  const cfg = {
+    type:'bar',
+    data:{ labels, datasets },
+    options:{ responsive:true, maintainAspectRatio:false, interaction:{mode:'index', intersect:false},
+      scales:{
+        x:{ stacked:true, grid:{display:false}, ticks:{color:c.ink2, font:{family:'IBM Plex Mono', size:10}} },
+        y:{ stacked:true, min:0, max:100, grid:{color:c.grid}, ticks:{color:c.ink2, font:{family:'IBM Plex Mono', size:10.5}, callback:(v)=> v+'%'} }
+      },
+      plugins:{ legend:{display:false},
+        tooltip:{ position:'cursorOffset', backgroundColor:c.surface, titleColor:c.ink, bodyColor:c.ink2, borderColor:c.border, borderWidth:1, padding:9,
+          callbacks:{ label:(x)=> x.dataset.label+': '+(x.parsed.y==null?'—':x.parsed.y.toFixed(1))+'%' } } }
+    }
+  };
+  if(WOOD_STACK_CHARTS[prefix]){ try{ WOOD_STACK_CHARTS[prefix].destroy(); }catch(e){} }
+  WOOD_STACK_CHARTS[prefix] = new Chart(cv.getContext('2d'), cfg);
+  const leg = document.getElementById(prefix+'Legend');
+  if(leg){
+    leg.innerHTML = WOOD_CMP_COLS.map(col=> '<span class="item"><span class="box" style="background:'+WOOD_SPECIES_COLORS[col.label]+'"></span>'+col.label+'</span>').join('')
+      + (rowsPair ? '<span class="item" style="color:var(--ink-2);font-size:10.5px;">'+(EN?'Pulp 1 | Pulp 2 per period':'Pulp 1 | Pulp 2 ต่อช่วงเวลา')+'</span>' : '');
+  }
+}
+function woodStackTableHtml(rowsOwn, rowsPair){
+  const EN = currentLang==='en';
+  const f = v=> v==null ? '—' : v.toFixed(1);
+  if(!rowsPair){
+    const theadHtml = '<th class="wcmp-key">'+(EN?'Date':'วันที่')+'</th>' + WOOD_CMP_COLS.map(c=> '<th>'+c.label+' (%)</th>').join('');
+    const tbodyHtml = rowsOwn.map(r=> '<tr><td>'+woodStackLabel(r, EN)+'</td>'+ woodStackNormalize(r.vals).map(v=> '<td class="num">'+f(v)+'</td>').join('')+'</tr>').join('');
+    return '<div class="md-tablewrap"><table class="md-table"><thead><tr>'+theadHtml+'</tr></thead><tbody>'+tbodyHtml+'</tbody></table></div>';
+  }
+  const keyMap = new Map();
+  rowsOwn.forEach(r=> keyMap.set(woodStackPeriodKey(r), r));
+  rowsPair.forEach(r=> { if(!keyMap.has(woodStackPeriodKey(r))) keyMap.set(woodStackPeriodKey(r), r); });
+  const allRows = Array.from(keyMap.values()).sort((a,b)=> (a.y-b.y) || (a.mi-b.mi) || ((a.d||0)-(b.d||0)));
+  const ownByKey = new Map(rowsOwn.map(r=> [woodStackPeriodKey(r), r]));
+  const pairByKey = new Map(rowsPair.map(r=> [woodStackPeriodKey(r), r]));
+  const theadHtml = '<th class="wcmp-key">'+(EN?'Date':'วันที่')+'</th>'
+    + WOOD_CMP_COLS.map(c=> '<th>Pulp 1 '+c.label+' (%)</th>').join('')
+    + WOOD_CMP_COLS.map(c=> '<th>Pulp 2 '+c.label+' (%)</th>').join('');
+  const tbodyHtml = allRows.map(r=> {
+    const rOwn = ownByKey.get(woodStackPeriodKey(r)), rPair = pairByKey.get(woodStackPeriodKey(r));
+    const ownNorm = rOwn ? woodStackNormalize(rOwn.vals) : WOOD_CMP_COLS.map(()=> null);
+    const pairNorm = rPair ? woodStackNormalize(rPair.vals) : WOOD_CMP_COLS.map(()=> null);
+    return '<tr><td>'+woodStackLabel(r, EN)+'</td>'+ ownNorm.map(v=> '<td class="num">'+f(v)+'</td>').join('') + pairNorm.map(v=> '<td class="num">'+f(v)+'</td>').join('')+'</tr>';
+  }).join('');
+  return '<div class="md-tablewrap"><table class="md-table wide"><thead><tr>'+theadHtml+'</tr></thead><tbody>'+tbodyHtml+'</tbody></table></div>';
+}
+function woodStackRenderBody(prefix, seriesKeysOwn, seriesKeysPair){
+  const body = document.getElementById(prefix+'Body');
+  if(!body) return;
+  const range = woodResolveRangeGeneric(WOOD_STACK_RANGE[prefix]);
+  const EN = currentLang==='en';
+  document.querySelectorAll('#'+prefix+'BtnChart, #'+prefix+'BtnTable').forEach(b=> b.classList.toggle('on', b.dataset.view===(WOOD_STACK_VIEW[prefix]||'chart')));
+  if(!range){
+    body.innerHTML = '<div class="md-rangenote">'+(EN?'Select both range 1 and range 2':'เลือกช่วงที่ 1 และช่วงที่ 2')+'</div>';
+    return;
+  }
+  const rowsOwn = woodStackRows(range, seriesKeysOwn);
+  const rowsPair = seriesKeysPair ? woodStackRows(range, seriesKeysPair) : null;
+  const rangeNote = '<div class="md-rangenote">'+woodStackRangeLabel(range)+(range.isMonthly ? ' · '+(EN?'monthly average':'ค่าเฉลี่ยรายเดือน') : '')+'</div>';
+  if((WOOD_STACK_VIEW[prefix]||'chart') === 'table'){
+    body.innerHTML = woodStackTableHtml(rowsOwn, rowsPair) + rangeNote;
+  } else {
+    body.innerHTML = '<div class="md-chart-wrap"><canvas id="'+prefix+'Chart"></canvas></div><div class="legend-row" id="'+prefix+'Legend"></div>' + rangeNote;
+    woodStackDrawChart(prefix, rowsOwn, rowsPair);
+  }
+}
+function woodStackRenderBodyFor(prefix){
+  const k = WOOD_STACK_KEYS[prefix];
+  if(k) woodStackRenderBody(prefix, k.own, k.pair);
+}
+function woodStackApplyMode(prefix, which){
+  const suf = which==='r1' ? '1' : '2';
+  const modeEl = document.getElementById(prefix+'Mode'+suf);
+  const dateEl = document.getElementById(prefix+'Date'+suf), weekEl = document.getElementById(prefix+'Week'+suf),
+    monthEl = document.getElementById(prefix+'Month'+suf), yearEl = document.getElementById(prefix+'Year'+suf);
+  const mode = modeEl.value;
+  dateEl.hidden = mode!=='date'; weekEl.hidden = mode!=='week'; monthEl.hidden = mode!=='month'; yearEl.hidden = mode!=='year';
+  const value = mode==='date' ? dateEl.value : mode==='week' ? weekEl.value : mode==='month' ? monthEl.value : yearEl.value;
+  WOOD_STACK_RANGE[prefix][which] = { mode, value };
+  woodStackRenderBodyFor(prefix);
+}
+function initWoodStack(prefix, seriesKeysOwn, seriesKeysPair){
+  const mode1El = document.getElementById(prefix+'Mode1');
+  if(!mode1El) return;
+  WOOD_STACK_KEYS[prefix] = { own:seriesKeysOwn, pair:seriesKeysPair||null };
+  const allKeysForYears = seriesKeysOwn.concat(seriesKeysPair||[]);
+  const years = Array.from(new Set(allKeysForYears.flatMap(k=> (CHIP_MON_SERIES[k]||[]).map(x=> x.y)))).sort();
+  ['1','2'].forEach(suf=> {
+    const yearEl = document.getElementById(prefix+'Year'+suf);
+    if(yearEl) yearEl.innerHTML = years.map(y=> '<option value="'+y+'">'+y+'</option>').join('');
+  });
+  // default: ช่วงที่ 1 = วันที่ 1 ของเดือนปัจจุบัน, ช่วงที่ 2 = วันสุดท้ายของเดือนปัจจุบัน (ทั้งสองโหมด "วัน")
+  const y = woodCmpToday.getFullYear(), mi = woodCmpToday.getMonth();
+  const dim = new Date(y, mi+1, 0).getDate();
+  const ym = y+'-'+String(mi+1).padStart(2,'0');
+  const firstStr = ym+'-01', lastStr = ym+'-'+String(dim).padStart(2,'0');
+  document.getElementById(prefix+'Date1').value = firstStr;
+  document.getElementById(prefix+'Date2').value = lastStr;
+  WOOD_STACK_RANGE[prefix] = { r1:{mode:'date', value:firstStr}, r2:{mode:'date', value:lastStr} };
+  ['1','2'].forEach(suf=> {
+    const which = suf==='1' ? 'r1' : 'r2';
+    ['Mode','Date','Week','Month','Year'].forEach(part=> {
+      const el = document.getElementById(prefix+part+suf);
+      if(el){ el.addEventListener('change', ()=> woodStackApplyMode(prefix, which)); el.addEventListener('input', ()=> woodStackApplyMode(prefix, which)); }
+    });
+  });
+  WOOD_STACK_VIEW[prefix] = 'chart';
+  const btnChart = document.getElementById(prefix+'BtnChart'), btnTable = document.getElementById(prefix+'BtnTable');
+  if(btnChart) btnChart.addEventListener('click', ()=> { WOOD_STACK_VIEW[prefix] = 'chart'; woodStackRenderBodyFor(prefix); });
+  if(btnTable) btnTable.addEventListener('click', ()=> { WOOD_STACK_VIEW[prefix] = 'table'; woodStackRenderBodyFor(prefix); });
+  woodStackRenderBodyFor(prefix);
+}
+function initWoodStackAll(){
+  const ownKeys = WOOD_CMP_COLS.map(c=> c.key), pairKeys = WOOD_CMP_COLS.map(c=> c.pairKey);
+  initWoodStack('woodStack1', ownKeys, null);
+  initWoodStack('woodStack2', pairKeys, null);
+  initWoodStack('woodStackTot', ownKeys, pairKeys);
+}
 function chipMonRenderDetailBody(grpId, m, a, tgt){
   const body = document.getElementById('chipDetailBody_'+grpId);
   if(!body) return;
@@ -10273,6 +10549,7 @@ function initChipMon(){
   initYieldAnalysisControlsMB();
   initYaCardCollapse();
   initWoodCmp();
+  initWoodStackAll();
   CHIP_MON_GROUPS.forEach(grp=> {
     chipMonRenderTiles(grp);
     // every group starts collapsed (tiles only) — except 'yield', which has no tile of its
