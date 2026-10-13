@@ -9757,7 +9757,7 @@ function chipMonRenderTiles(grp){
       const pm = CHIP_MON_META.find(x=> x.key===m.pairKey);
       const pa = pm ? chipMonAnalyse(m.pairKey, pm) : null;
       const pval = pa ? chipMonFmt(pa.anchor.v, pm.dec) : '—';
-      pairHtml = `<div class="mt-pair"><span class="mt-tag">PM1</span>${val}${m.unit} <span class="mt-tag">PM2</span>${pval}${pm ? pm.unit : m.unit}</div>`;
+      pairHtml = `<div class="mt-pair"><span class="mt-tag">Pulp1</span>${val}${m.unit} <span class="mt-tag">Pulp2</span>${pval}${pm ? pm.unit : m.unit}</div>`;
     }
     return `<div class="mon-tile" role="button" tabindex="0" data-grp="${grp.id}" data-key="${m.key}" style="--mon-rail:${grp.rail}">
       <div class="mt-top"><span class="mt-ico">${grp.ico}</span><span class="mt-name">${m.th}</span><span class="mt-dot ${dot}"></span></div>
