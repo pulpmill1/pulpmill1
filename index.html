@@ -9744,7 +9744,20 @@ function chipMonRenderTiles(grp){
     const val = a ? chipMonFmt(a.anchor.v, m.dec) : '—';
     let sub = '<span class="flat">— ไม่มีข้อมูล</span>', dot = '';
     if(a){
-      sub = '';
+      // 7-day latest average, with an arrow+diff comparing it to the 7 days before that (same
+      // last7/last7Prev pairing and up=red/down=green convention the wood 100% strips use) — shown
+      // on the tile itself so the trend is visible before clicking in for the full detail chart.
+      const strip7d = chipMonMean(a.last7);
+      const strip7dPrev = chipMonMean(a.last7Prev);
+      let trendHtml = '';
+      if(strip7d!=null && strip7dPrev!=null){
+        const diff = strip7d - strip7dPrev;
+        const flat = Math.abs(diff) < 0.005;
+        const cls = flat ? 'flat' : (diff>0 ? 'up' : 'down');
+        const arrow = flat ? '–' : (diff>0 ? '↑' : '↓');
+        trendHtml = ` <span class="${cls}">${arrow} ${chipMonFmt(Math.abs(diff), m.dec)}</span>`;
+      }
+      sub = strip7d==null ? '<span class="flat">— ไม่มีข้อมูล 7 วัน</span>' : `7 วันเฉลี่ย ${chipMonFmt(strip7d, m.dec)}${trendHtml}`;
       if(m.scored && a.dev!=null){
         const ad = Math.abs(a.dev);
         dot = ad <= 2 ? 'ok' : ad <= 3 ? 'warn' : 'bad';
