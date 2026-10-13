@@ -6771,25 +6771,24 @@ function chipMonAnalyse(key, meta){
     curMonRows, prevMonRows, last7Rows, last7PrevRows, yrValsRows };
 }
 /* Yield · BDt/ADt only: the summary strip's 7-day/month/year cells sum Chip (Weight scale หักลบ
-   เฉ่งกอง) and End Prod. across every day in the period independently, THEN divide — a period
-   ratio-of-sums, not an average of each day's own already-computed Yield value. Critically, the
-   period is a plain calendar range [loTs, hiTs] (inclusive), NOT the set of dates where the Yield
-   column itself happens to be logged: a day with Chip weight + End Prod. logged but a blank Yield
-   cell still counts toward the sum, so the mill's own month/year totals never get silently
-   shrunk by unrelated gaps in the Yield column. The single-day "Latest" cell divides by End Prod.
-   balance tank instead of End Prod. for that same reason: balance-tank production is the
-   day-level figure, while End Prod. itself is more meaningful summed over a longer period. */
+   เฉ่งกอง) and End Prod. across every day in the period INDEPENDENTLY, THEN divide — matching the
+   mill's own sheet, which has a plain SUM() over each column separately and divides the two totals.
+   Critically this means a day does NOT need both columns logged to contribute: a day with Chip
+   weight logged but a blank End Prod. cell (or vice versa) still counts toward ITS OWN column's
+   sum, exactly like the sheet's SUM() would — requiring both to be present on the same day (as an
+   earlier version of this function did) silently dropped that day's Chip weight from the numerator
+   whenever End Prod. alone was missing, undercounting the period total relative to the sheet. The
+   period is a plain calendar range [loTs, hiTs] (inclusive), independent of which dates the Yield
+   column itself happens to be logged on. The single-day "Latest" cell divides by End Prod. balance
+   tank instead of End Prod. for that same reason: balance-tank production is the day-level figure,
+   while End Prod. itself is more meaningful summed over a longer period. */
 function chipMonYieldRatioSum(loTs, hiTs, denomKey){
   const numSeries = CHIP_MON_SERIES.chipWeightScaleNet, denSeries = CHIP_MON_SERIES[denomKey];
-  if(!numSeries || !denSeries) return { v:null, n:0 };
-  const denByTs = new Map(denSeries.map(x=> [x.ts, x.v]));
-  let numSum = 0, denSum = 0, n = 0;
-  numSeries.forEach(function(x){
-    if(x.v==null || x.ts<loTs || x.ts>hiTs) return;
-    const d = denByTs.get(x.ts);
-    if(d!=null){ numSum += x.v; denSum += d; n++; }
-  });
-  return { v: (n && denSum) ? numSum/denSum : null, n: n, numSum: numSum, denSum: denSum };
+  if(!numSeries || !denSeries) return { v:null, numN:0, denN:0, numSum:0, denSum:0 };
+  let numSum = 0, denSum = 0, numN = 0, denN = 0;
+  numSeries.forEach(function(x){ if(x.v!=null && x.ts>=loTs && x.ts<=hiTs){ numSum += x.v; numN++; } });
+  denSeries.forEach(function(x){ if(x.v!=null && x.ts>=loTs && x.ts<=hiTs){ denSum += x.v; denN++; } });
+  return { v: denSum ? numSum/denSum : null, numN: numN, denN: denN, numSum: numSum, denSum: denSum };
 }
 function chipMonMonthTs(y, mi){ return [new Date(y,mi,1).getTime(), new Date(y,mi+1,1).getTime()-1]; }
 function chipMonYearTs(y){ return [new Date(y,0,1).getTime(), new Date(y+1,0,1).getTime()-1]; }
@@ -10470,7 +10469,7 @@ function chipMonRenderDetail(grpId){
   const stripCurMon = isYieldStrip ? rCurMon.v : chipMonMean(a.curMon);
   const stripPrevMon = isYieldStrip ? rPrevMon.v : chipMonMean(a.prevMon);
   const stripYr = isYieldStrip ? rYr.v : chipMonMean(a.yrVals);
-  const yieldSumTxt = r=> `${r.n} วัน · Σchip ${chipMonFmt(r.numSum,0)} ÷ ΣEnd Prod. ${chipMonFmt(r.denSum,0)}`;
+  const yieldSumTxt = r=> `Σchip ${chipMonFmt(r.numSum,0)} (${r.numN} วัน) ÷ ΣEnd Prod. ${chipMonFmt(r.denSum,0)} (${r.denN} วัน)`;
 
   panel.innerHTML = `
     <div class="md-head">
