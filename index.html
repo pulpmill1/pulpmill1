@@ -704,6 +704,11 @@
   .md-track .m{position:absolute;top:-3px;width:9px;height:9px;border-radius:50%;background:var(--accent);transform:translate(-50%,-1px);}
   .md-track .m.out{background:#d4342c;}
   @media (max-width:860px){ .md-strip{grid-template-columns:repeat(3,1fr);} .md-cell{border-bottom:1px solid var(--box-border);} }
+  .md-stripstack{margin-bottom:4px;}
+  .md-strip-row{margin-bottom:10px;}
+  .md-strip-row .md-strip{margin-bottom:4px;}
+  .md-strip-label{display:flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;color:var(--ink);margin-bottom:4px;}
+  .md-strip-dot{width:9px;height:9px;border-radius:50%;flex:0 0 auto;}
   .md-chart-wrap{position:relative;height:250px;margin-top:4px;}
   .md-assess{font-size:11.5px;line-height:1.7;color:var(--ink-2);background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:11px 13px;margin-top:12px;}
   .md-assess b{color:var(--ink);}
@@ -2095,6 +2100,7 @@
                 <button type="button" class="md-viewbtn" data-view="chart" id="woodStack1BtnChart">กราฟ</button>
                 <button type="button" class="md-viewbtn" data-view="table" id="woodStack1BtnTable">ตาราง</button>
               </div>
+              <div class="md-stripstack" id="woodStack1Strips"></div>
               <div class="md-body" id="woodStack1Body"></div>
             </div>
             <div class="mon-group">
@@ -2122,6 +2128,7 @@
                 <button type="button" class="md-viewbtn" data-view="chart" id="woodStack2BtnChart">กราฟ</button>
                 <button type="button" class="md-viewbtn" data-view="table" id="woodStack2BtnTable">ตาราง</button>
               </div>
+              <div class="md-stripstack" id="woodStack2Strips"></div>
               <div class="md-body" id="woodStack2Body"></div>
             </div>
             <div class="mon-group">
@@ -2149,6 +2156,7 @@
                 <button type="button" class="md-viewbtn" data-view="chart" id="woodStackTotBtnChart">กราฟ</button>
                 <button type="button" class="md-viewbtn" data-view="table" id="woodStackTotBtnTable">ตาราง</button>
               </div>
+              <div class="md-stripstack" id="woodStackTotStrips"></div>
               <div class="md-body" id="woodStackTotBody"></div>
             </div>
             <div class="mon-group">
@@ -5755,6 +5763,7 @@ function applyLang(lang){
     if(typeof renderYieldAnalysisTableMB === 'function') renderYieldAnalysisTableMB();
     if(typeof woodCmpRenderBody === 'function' && document.getElementById('woodCmpBody')) woodCmpRenderBody();
     if(typeof woodStackRenderBodyFor === 'function') ['woodStack1','woodStack2','woodStackTot'].forEach(p=> { if(document.getElementById(p+'Body')) woodStackRenderBodyFor(p); });
+    if(typeof woodStackRenderStrips === 'function') ['woodStack1','woodStack2','woodStackTot'].forEach(p=> { if(document.getElementById(p+'Strips')) woodStackRenderStrips(p); });
   }
   if(typeof wsdRenderTiles === 'function' && typeof WSD_METRICS !== 'undefined'){ WSD_METRICS.forEach(function(m){ if(document.getElementById('wsdHost_'+m.id)){ wsdRenderTiles(m); wsdRenderDetail(m); } }); }
   if(typeof rmwRenderTiles === 'function' && document.getElementById('rmwHost')){ rmwRenderTiles(); rmwRenderDetail(); }
@@ -9927,6 +9936,52 @@ function chipMonRenderDetail(grpId){
 
   chipMonRenderDetailBody(grpId, m, a, tgt);
 }
+/* Standalone Latest/7-day/month/year/Est. strip for a single metric — the same 7 cells
+   chipMonRenderDetail's own .md-strip builds (minus the Deviation cell, which wood species
+   metrics don't score anyway), extracted so it can be repeated once per species underneath the
+   100%-stacked wood charts' ช่วงที่ 1/2 pickers without needing the full tile-click detail panel. */
+function chipMonBuildStripOnly(key, dotColor){
+  const m = CHIP_MON_META.find(x=> x.key===key);
+  const labelHtml = '<div class="md-strip-label">'+(dotColor?'<span class="md-strip-dot" style="background:'+dotColor+'"></span>':'')+(m?m.th:key)+'</div>';
+  const a = m ? chipMonAnalyse(key, m) : null;
+  if(!a) return labelHtml+'<div class="md-sub">'+(currentLang==='en'?'No data for this metric yet':'ยังไม่มีข้อมูลของค่านี้ในชีต')+'</div>';
+  const curLbl = chipMonMonthLabel(a.anchor.mi, a.anchor.y);
+  const prevLbl = chipMonMonthLabel(a.pmi, a.py);
+  const anchorDate = `${a.anchor.d} ${MONTH_ABBR_TH[a.anchor.mi]} ${a.anchor.y}`;
+  const strip7d = chipMonMean(a.last7), strip7dPrev = chipMonMean(a.last7Prev);
+  const stripCurMon = chipMonMean(a.curMon), stripPrevMon = chipMonMean(a.prevMon), stripYr = chipMonMean(a.yrVals);
+  return labelHtml + `
+    <div class="md-strip">
+      <div class="md-cell hero"><div class="ck">Latest</div><div class="cv">${chipMonFmt(a.anchor.v, m.dec)}<small> ${m.unit}</small></div><div class="cs">${anchorDate}</div></div>
+      <div class="md-cell"><div class="ck">7 วัน (ล่าสุด)</div><div class="cv">${chipMonTrendArrow(a.anchor.v, strip7d)} ${chipMonFmt(strip7d, m.dec)}</div><div class="cs">ค่าเฉลี่ย ${a.last7.length} วันล่าสุด</div></div>
+      <div class="md-cell"><div class="ck">7 วัน (ที่ผ่านมา)</div><div class="cv">${chipMonTrendArrow(a.anchor.v, strip7dPrev)} ${chipMonFmt(strip7dPrev, m.dec)}</div><div class="cs">ค่าเฉลี่ย ${a.last7Prev.length} วันก่อนหน้า 7 วันล่าสุด</div></div>
+      <div class="md-cell"><div class="ck">${curLbl}</div><div class="cv">${chipMonTrendArrow(a.anchor.v, stripCurMon)} ${chipMonFmt(stripCurMon, m.dec)}</div><div class="cs">เฉลี่ย ${a.curMon.length} วันที่บันทึก</div></div>
+      <div class="md-cell"><div class="ck">${prevLbl}</div><div class="cv">${chipMonTrendArrow(a.anchor.v, stripPrevMon)} ${chipMonFmt(stripPrevMon, m.dec)}</div><div class="cs">เฉลี่ย ${a.prevMon.length} วันที่บันทึก</div></div>
+      <div class="md-cell"><div class="ck">${a.anchor.y}</div><div class="cv">${chipMonTrendArrow(a.anchor.v, stripYr)} ${chipMonFmt(stripYr, m.dec)}</div><div class="cs">เฉลี่ย ${a.yrVals.length} วันที่บันทึก</div></div>
+      <div class="md-cell"><div class="ck">Est. ${MONTH_ABBR_TH[a.anchor.mi]} สิ้นเดือน</div><div class="cv">${chipMonTrendArrow(a.anchor.v, a.est)} ${a.est==null ? '—' : chipMonFmt(a.est, m.dec)}</div><div class="cs">${a.est==null ? 'ต้องมี ≥ 3 วัน' : `${a.curMon.length} วันจริง + ${a.remaining} วันที่อัตรา 7 วัน`}</div></div>
+    </div>`;
+}
+/* Species → per-mill metric key, in the display order requested (K58, K7, Seed, Other, St>1 m —
+   not WOOD_CMP_COLS' own K7-first order, which only governs the stacked bars/table columns).
+   "woodStackTot" reads the same woodTotal* keys as "woodStack1" (Pulp mill 1's own columns) —
+   matching the existing convention: clicking a tile in the "Wood species Pulp mill 1 + Pulp mill
+   2" group already shows Pulp mill 1's own Latest/7-day/etc in its detail strip, the "+ Pulp mill
+   2" part only ever being a second number on the tile itself, never a blended figure here. */
+const WOOD_STACK_STRIP_KEYS = {
+  woodStack1:   { K58:'woodK58',      K7:'woodK7',      Seed:'woodSeed',      Other:'woodOther',      'St > 1 m':'woodSt1m' },
+  woodStack2:   { K58:'wood2K58',     K7:'wood2K7',     Seed:'wood2Seed',     Other:'wood2Other',     'St > 1 m':'wood2St1m' },
+  woodStackTot: { K58:'woodTotalK58', K7:'woodTotalK7', Seed:'woodTotalSeed', Other:'woodTotalOther', 'St > 1 m':'woodTotalSt1m' }
+};
+const WOOD_STRIP_ORDER = [
+  { label:'K58', colorKey:'K58' }, { label:'K7', colorKey:'K7' }, { label:'Seed', colorKey:'Seed' },
+  { label:'Other', colorKey:'Other' }, { label:'St > 1 m', colorKey:'St>1 m' }
+];
+function woodStackRenderStrips(prefix){
+  const host = document.getElementById(prefix+'Strips');
+  const keyMap = WOOD_STACK_STRIP_KEYS[prefix];
+  if(!host || !keyMap) return;
+  host.innerHTML = WOOD_STRIP_ORDER.map(sp=> '<div class="md-strip-row">'+chipMonBuildStripOnly(keyMap[sp.label], WOOD_SPECIES_COLORS[sp.colorKey])+'</div>').join('');
+}
 
 function chipMonDetailRows(grpId, m, a){
   const s = CHIP_MON_SERIES[m.key];
@@ -10432,6 +10487,7 @@ function initWoodStack(prefix, seriesKeysOwn, seriesKeysPair){
   if(btnChart) btnChart.addEventListener('click', ()=> { WOOD_STACK_VIEW[prefix] = 'chart'; woodStackRenderBodyFor(prefix); });
   if(btnTable) btnTable.addEventListener('click', ()=> { WOOD_STACK_VIEW[prefix] = 'table'; woodStackRenderBodyFor(prefix); });
   woodStackRenderBodyFor(prefix);
+  woodStackRenderStrips(prefix);
 }
 function initWoodStackAll(){
   const ownKeys = WOOD_CMP_COLS.map(c=> c.key), pairKeys = WOOD_CMP_COLS.map(c=> c.pairKey);
