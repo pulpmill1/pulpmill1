@@ -9744,14 +9744,7 @@ function chipMonRenderTiles(grp){
     const val = a ? chipMonFmt(a.anchor.v, m.dec) : '—';
     let sub = '<span class="flat">— ไม่มีข้อมูล</span>', dot = '';
     if(a){
-      const d = a.anchor.v - a.prev.v;
-      const dcls = Math.abs(d) < 0.005 ? 'flat' : d > 0 ? 'up' : 'down';
-      const arrow = Math.abs(d) < 0.005 ? '–' : d > 0 ? '↑' : '↓';
-      const sevenD = chipMonMean(a.last7);
-      const d7 = sevenD==null ? null : a.anchor.v - sevenD;
-      const d7cls = d7==null ? 'flat' : Math.abs(d7) < 0.005 ? 'flat' : d7 > 0 ? 'up' : 'down';
-      const d7arrow = d7==null ? '' : Math.abs(d7) < 0.005 ? '–' : d7 > 0 ? '↑' : '↓';
-      sub = `<span class="${dcls}">${arrow} ${chipMonFmt(Math.abs(d), m.dec)}</span>  7d ` + (d7==null ? '' : `<span class="${d7cls}">${d7arrow}</span> `) + `${chipMonFmt(sevenD, m.dec)}`;
+      sub = '';
       if(m.scored && a.dev!=null){
         const ad = Math.abs(a.dev);
         dot = ad <= 2 ? 'ok' : ad <= 3 ? 'warn' : 'bad';
