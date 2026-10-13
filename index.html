@@ -10381,7 +10381,7 @@ function woodStackDrawChart(prefix, rowsOwn, rowsPair){
   // segment is too thin for the larger text to fit without overlapping its neighbours.
   const segDatalabels = col => ({
     display: ctx => { const v = ctx.dataset.data[ctx.dataIndex]; return v!=null && v>=6; },
-    color: WOOD_SPECIES_LABEL_INK[col.label], font:{ size:13, weight:'700', family:'IBM Plex Mono' },
+    color: WOOD_SPECIES_LABEL_INK[col.label], font:{ size:10.5, weight:'700', family:'IBM Plex Mono' },
     formatter: v => v==null ? '' : v.toFixed(1)+'%'
   });
   let labels, datasets;
