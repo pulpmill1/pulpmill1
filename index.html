@@ -688,6 +688,11 @@
   .md-target input:focus-visible{outline:2px solid var(--accent);outline-offset:1px;}
   .md-target .note{font-size:10.5px;color:var(--ink-3);}
   .md-strip{display:grid;grid-template-columns:repeat(7,1fr);border:1px solid var(--box-border);border-radius:9px;overflow:hidden;margin-bottom:14px;}
+  /* chipMonRenderDetail's strip has 8 cells (Latest..Est. + Deviation) in this 7-column grid, so
+     Deviation alone wraps to its own second row — give that one strip 8 columns so Deviation sits
+     as the 8th column on the same row instead. Scoped off .md-strip-transposed (the wood 100%
+     charts' own 7-cell strip, left untouched per instruction). */
+  .md-strip:not(.md-strip-transposed){grid-template-columns:repeat(8,1fr);}
   .md-cell{padding:8px 9px;border-right:1px solid var(--box-border);background:var(--surface);min-width:0;}
   .md-cell:last-child{border-right:none;}
   .md-cell.hero{background:var(--accent-soft);}
@@ -703,7 +708,7 @@
   .md-track .z{position:absolute;top:-2px;bottom:-2px;width:1px;background:var(--ink-3);left:50%;}
   .md-track .m{position:absolute;top:-3px;width:9px;height:9px;border-radius:50%;background:var(--accent);transform:translate(-50%,-1px);}
   .md-track .m.out{background:#d4342c;}
-  @media (max-width:860px){ .md-strip{grid-template-columns:repeat(3,1fr);} .md-cell{border-bottom:1px solid var(--box-border);} }
+  @media (max-width:860px){ .md-strip:not(.md-strip-transposed){grid-template-columns:repeat(3,1fr);} .md-cell{border-bottom:1px solid var(--box-border);} }
   .md-stripstack{margin-bottom:0;}
   .md-strip-transposed .md-cell{padding:9px;}
   .md-strip-dot{width:8px;height:8px;border-radius:50%;flex:0 0 auto;}
