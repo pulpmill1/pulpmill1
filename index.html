@@ -10872,10 +10872,10 @@ function initWoodCmp(){
    and its own chart/table toggle, defaulting to chart. Species
    colours are a fixed map shared by all three so the same species reads as the same colour
    everywhere (Pulp mill 1, Pulp mill 2, and the combined Pulp mill 1+2 view). */
-const WOOD_SPECIES_COLORS = { K7:'#FF8C2E', K58:'#22B573', Seed:'#C07D3E', Other:'#3B82D6', 'St>1 m':'#754A26' };
-/* Per-segment label ink chosen for contrast against each fill above — the three brighter fills
-   (K7, K58, Seed) read best with dark ink, the two deeper ones (Other, St>1 m) with white. */
-const WOOD_SPECIES_LABEL_INK = { K7:'#2a1c0d', K58:'#0d2117', Seed:'#2a1c0d', Other:'#ffffff', 'St>1 m':'#ffffff' };
+const WOOD_SPECIES_COLORS = { K7:'#3F80A6', K58:'#289D80', Seed:'#F4B857', Other:'#EB4045', 'St>1 m':'#6C2E9A' };
+/* Per-segment label ink chosen for contrast against each fill above — Seed (light gold) reads
+   best with dark ink, the other four (saturated blue/teal/red/purple) with white. */
+const WOOD_SPECIES_LABEL_INK = { K7:'#ffffff', K58:'#0d2117', Seed:'#2a1c0d', Other:'#ffffff', 'St>1 m':'#ffffff' };
 const WOOD_STACK_RANGE = {};  // prefix -> {r1,r2}
 const WOOD_STACK_VIEW = {};   // prefix -> 'chart' | 'table'
 const WOOD_STACK_CHARTS = {}; // prefix -> Chart.js instance
