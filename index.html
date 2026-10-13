@@ -6974,9 +6974,8 @@ function renderYaEffectUnknown(){
    the "Diff. Effect" columns. Deliberately re-reads each contributing row's ALREADY-RENDERED col5/6
    text (yaReadDiffNum, same approach as "11. Unknow") rather than recomputing, so it always
    reconciles exactly with what's on screen — must run after every other diff render in the pass.
-   NOTE the color convention here is the OPPOSITE of the table's own arrows (positive Bdt/Adt = a
-   WORSE Yield effect there, shown red/↑) — this box was explicitly specified with positive=green,
-   negative=red, a plain sign-based rule unrelated to "good/bad", so don't "fix" it to match. */
+   Color convention (yaSummaryNum below) matches the rest of the Chip/Yield side and the table's
+   own arrows exactly: positive = red (ys-red), negative = green (ys-green) — no exception here. */
 const YA_SUMMARY_EFFECTS = [
   {name:'Chip Weight', diffId:'yaCell_effChipWeight_diffbdt', pctId:'yaCell_effChipWeight_diffpct', valuePrevId:'yaCell_diffChipWeight_prev', valueCurId:'yaCell_diffChipWeight_cur', unit:' Bdt'},
   {name:'Chip moisture', diffId:'yaCell_effMoisture_diffbdt', pctId:'yaCell_effMoisture_diffpct'},
