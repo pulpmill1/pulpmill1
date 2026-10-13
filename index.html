@@ -2313,18 +2313,95 @@
         </section>
 
         <section class="page" data-page="process-brownstock" hidden>
-          <div class="empty-state">
-            <div class="icon">🟤</div>
-            <h2>Brown Stock Dashboard</h2>
-            <p>หน้านี้ยังไม่มีข้อมูล — รอเชื่อมต่อแหล่งข้อมูล Brown Stock จาก Google Sheets<br>แจ้งลิงก์ชีทและชื่อแท็บที่ต้องการดึงข้อมูลได้เลยครับ</p>
+          <div id="chipBrownStockHost">
+            <div class="mon-group">
+              <div class="mon-group-head"><span class="gi">🟤</span><span class="gt">Brown Stock</span><span class="gs">2 ค่า · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
+              <div class="mon-tiles" id="chipTiles_bsStock"></div>
+              <div class="mon-detail" id="chipDetail_bsStock" hidden></div>
+            </div>
+            <div class="mon-group">
+              <div class="mon-group-head"><span class="gi">🧫</span><span class="gt">Filtrate Tanks</span><span class="gs">3 ค่า · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
+              <div class="mon-tiles" id="chipTiles_bsFiltrate"></div>
+              <div class="mon-detail" id="chipDetail_bsFiltrate" hidden></div>
+            </div>
+            <div class="mon-group">
+              <div class="mon-group-head"><span class="gi">⚙️</span><span class="gt">Brown Stock WP-1</span><span class="gs">4 ค่า · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
+              <div class="mon-tiles" id="chipTiles_bsWp1"></div>
+              <div class="mon-detail" id="chipDetail_bsWp1" hidden></div>
+            </div>
+            <div class="mon-group">
+              <div class="mon-group-head"><span class="gi">🔁</span><span class="gt">Screen Loop</span><span class="gs">4 ค่า · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
+              <div class="mon-tiles" id="chipTiles_bsScreenLoop"></div>
+              <div class="mon-detail" id="chipDetail_bsScreenLoop" hidden></div>
+            </div>
+            <div class="mon-group">
+              <div class="mon-group-head"><span class="gi">🌬️</span><span class="gt">Pre O2 Press</span><span class="gs">11 ค่า · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
+              <div class="mon-tiles" id="chipTiles_bsPreO2"></div>
+              <div class="mon-detail" id="chipDetail_bsPreO2" hidden></div>
+            </div>
+            <div class="mon-group">
+              <div class="mon-group-head"><span class="gi">💨</span><span class="gt">Oxygen Delignification</span><span class="gs">15 ค่า · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
+              <div class="mon-tiles" id="chipTiles_bsOxyDelig"></div>
+              <div class="mon-detail" id="chipDetail_bsOxyDelig" hidden></div>
+            </div>
+            <div class="mon-group">
+              <div class="mon-group-head"><span class="gi">🌫️</span><span class="gt">Post O2 Press</span><span class="gs">7 ค่า · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
+              <div class="mon-tiles" id="chipTiles_bsPostO2"></div>
+              <div class="mon-detail" id="chipDetail_bsPostO2" hidden></div>
+            </div>
+            <div class="mon-group">
+              <div class="mon-group-head"><span class="gi">🧪</span><span class="gt">Chemicals</span><span class="gs">4 ค่า · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
+              <div class="mon-tiles" id="chipTiles_bsChemicals"></div>
+              <div class="mon-detail" id="chipDetail_bsChemicals" hidden></div>
+            </div>
+            <div class="mon-group">
+              <div class="mon-group-head"><span class="gi">🫧</span><span class="gt">O2 Reactors</span><span class="gs">6 ค่า · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
+              <div class="mon-tiles" id="chipTiles_bsO2Reactor"></div>
+              <div class="mon-detail" id="chipDetail_bsO2Reactor" hidden></div>
+            </div>
+          </div>
+          <button type="button" class="foot-toggle" data-target="brownStockFoot" aria-expanded="false" aria-controls="brownStockFoot">ดูรายละเอียด</button>
+          <div class="foot" id="brownStockFoot" hidden>
+            ที่มา: Google Sheets tab "Brown Stock Logsheet" (<code>gid=1668226684</code>) · หนึ่งแถวในชีต = หนึ่งชั่วโมง (คอลัมน์ TIME) · ทุกคอลัมน์ของชีตถูกนำมาแสดง ยกเว้นคอลัมน์ระบุตัวแถว (Month/Date/TIME) และคอลัมน์ข้อความ/หมวดหมู่ (Mode APC/Valmet/OPC, O2 Type) ที่ไม่ใช่ตัวเลข · กลุ่มตามหมวดหมู่ที่มีอยู่แล้วในหัวตารางของชีต (รวมบางหมวดย่อยที่มี 1 คอลัมน์เข้ากับหมวดใกล้เคียงให้เหมาะสม เช่น Unb เข้ากับ Brown Stock, LOOP2 เข้ากับ Screen Loop, NaOH/WLOX/MgSO4 เป็น Chemicals)<br>กราฟแสดงทุกชั่วโมงเป็นจุดข้อมูลของตัวเอง (ไม่เฉลี่ยรวมรายวัน) โดยแกน x ระบุทั้งวันที่และเวลา (ชั่วโมง:นาที) · ตัวเลขสรุปบนกรอบหลัก (ค่าล่าสุด/ค่าเฉลี่ย 7 วัน) คำนวณจากค่าเฉลี่ยรายวันตามปกติ
           </div>
         </section>
 
         <section class="page" data-page="process-bleaching" hidden>
-          <div class="empty-state">
-            <div class="icon">🧴</div>
-            <h2>Bleaching Dashboard</h2>
-            <p>หน้านี้ยังไม่มีข้อมูล — รอเชื่อมต่อแหล่งข้อมูล Bleaching จาก Google Sheets<br>แจ้งลิงก์ชีทและชื่อแท็บที่ต้องการดึงข้อมูลได้เลยครับ</p>
+          <div id="chipBleachHost">
+            <div class="mon-group">
+              <div class="mon-group-head"><span class="gi">⚪</span><span class="gt">Bleach Overview</span><span class="gs">7 ค่า · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
+              <div class="mon-tiles" id="chipTiles_blBleach"></div>
+              <div class="mon-detail" id="chipDetail_blBleach" hidden></div>
+            </div>
+            <div class="mon-group">
+              <div class="mon-group-head"><span class="gi">🌬️</span><span class="gt">Pre Bleach Press</span><span class="gs">11 ค่า · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
+              <div class="mon-tiles" id="chipTiles_blPreBleach"></div>
+              <div class="mon-detail" id="chipDetail_blPreBleach" hidden></div>
+            </div>
+            <div class="mon-group">
+              <div class="mon-group-head"><span class="gi">💛</span><span class="gt">D0 Stage</span><span class="gs">12 ค่า · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
+              <div class="mon-tiles" id="chipTiles_blD0"></div>
+              <div class="mon-detail" id="chipDetail_blD0" hidden></div>
+            </div>
+            <div class="mon-group">
+              <div class="mon-group-head"><span class="gi">🔵</span><span class="gt">EOP Stage</span><span class="gs">15 ค่า · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
+              <div class="mon-tiles" id="chipTiles_blEop"></div>
+              <div class="mon-detail" id="chipDetail_blEop" hidden></div>
+            </div>
+            <div class="mon-group">
+              <div class="mon-group-head"><span class="gi">⚪</span><span class="gt">D1 Stage</span><span class="gs">12 ค่า · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
+              <div class="mon-tiles" id="chipTiles_blD1"></div>
+              <div class="mon-detail" id="chipDetail_blD1" hidden></div>
+            </div>
+            <div class="mon-group">
+              <div class="mon-group-head"><span class="gi">📊</span><span class="gt">Summary / Totals</span><span class="gs">24 ค่า · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
+              <div class="mon-tiles" id="chipTiles_blSummary"></div>
+              <div class="mon-detail" id="chipDetail_blSummary" hidden></div>
+            </div>
+          </div>
+          <button type="button" class="foot-toggle" data-target="bleachFoot" aria-expanded="false" aria-controls="bleachFoot">ดูรายละเอียด</button>
+          <div class="foot" id="bleachFoot" hidden>
+            ที่มา: Google Sheets tab "Bleaching Logsheet" (<code>gid=1596215251</code>) · หนึ่งแถวในชีต = หนึ่งชั่วโมง (คอลัมน์ TIME) · ทุกคอลัมน์ของชีตถูกนำมาแสดง ยกเว้นคอลัมน์ระบุตัวแถว (Month/Date/TIME) และคอลัมน์ข้อความ/หมวดหมู่ (Mode APC/Valmet/OPC, O2 Type, make up, Switch Pulp to HD, pulp grade) ที่ไม่ใช่ตัวเลข · กลุ่มตามหมวดหมู่ที่มีอยู่แล้วในหัวตารางของชีต (รวมกลุ่มย่อยท้ายชีตหลัง "TOTAL" ที่มีคอลัมน์เดียวจำนวนมาก เช่น ClO2/OWL/LC/NaOH/Dirt-Shive/White water/F-factor/จุดวัดอุณหภูมิ เข้าเป็นกลุ่ม Summary / Totals กลุ่มเดียว)<br>กราฟแสดงทุกชั่วโมงเป็นจุดข้อมูลของตัวเอง (ไม่เฉลี่ยรวมรายวัน) โดยแกน x ระบุทั้งวันที่และเวลา (ชั่วโมง:นาที) · ตัวเลขสรุปบนกรอบหลัก (ค่าล่าสุด/ค่าเฉลี่ย 7 วัน) คำนวณจากค่าเฉลี่ยรายวันตามปกติ
           </div>
         </section>
 
@@ -2425,7 +2502,7 @@ const DAYS_IN_MONTH = [31,28,31,30,31,30,31,31,30,31,30,31];
    Daily (Act) gid=0, Daily (BG) gid=1682718600, Daily (Plan) gid=3664159, Daily (Loss) gid=786133815
    Monthly (Act) gid=1448795576, Monthly (Budget) gid=1872828527 */
 const SHEET_ID = '1dStWwliEd6YhSOL3oT8JNyWHZOuII5F-QVeubIrBS50';
-const SHEET_GIDS = { dailyAct:0, dailyBg:1682718600, dailyPlan:3664159, dailyLoss:786133815, monthlyAct:1448795576, monthlyBudget:1872828527, chipWood:632351488, cookingCond:1561629878, weightScaleDig:1177773637, cookingLog:937055806 };
+const SHEET_GIDS = { dailyAct:0, dailyBg:1682718600, dailyPlan:3664159, dailyLoss:786133815, monthlyAct:1448795576, monthlyBudget:1872828527, chipWood:632351488, cookingCond:1561629878, weightScaleDig:1177773637, cookingLog:937055806, brownStock:1668226684, bleaching:1596215251 };
 function sheetCsvUrl(gid){ return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${gid}`; }
 
 // robust CSV parser: handles quoted fields, embedded commas, embedded newlines, doubled-quote escaping
@@ -2519,10 +2596,10 @@ function parseMonthlySheet(rows, labelWord){
   return byYear;
 }
 
-const [dailyActRows, dailyBgRows, dailyPlanRows, dailyLossRows, monthlyActRows, monthlyBudgetRows, chipWoodRows, cookingCondRows, weightScaleDigRows, cookingLogRows] = await Promise.all([
+const [dailyActRows, dailyBgRows, dailyPlanRows, dailyLossRows, monthlyActRows, monthlyBudgetRows, chipWoodRows, cookingCondRows, weightScaleDigRows, cookingLogRows, brownStockRows, bleachingRows] = await Promise.all([
   fetchSheetCsv(SHEET_GIDS.dailyAct), fetchSheetCsv(SHEET_GIDS.dailyBg), fetchSheetCsv(SHEET_GIDS.dailyPlan), fetchSheetCsv(SHEET_GIDS.dailyLoss),
   fetchSheetCsv(SHEET_GIDS.monthlyAct), fetchSheetCsv(SHEET_GIDS.monthlyBudget), fetchSheetCsv(SHEET_GIDS.chipWood), fetchSheetCsv(SHEET_GIDS.cookingCond),
-  fetchSheetCsv(SHEET_GIDS.weightScaleDig), fetchSheetCsv(SHEET_GIDS.cookingLog),
+  fetchSheetCsv(SHEET_GIDS.weightScaleDig), fetchSheetCsv(SHEET_GIDS.cookingLog), fetchSheetCsv(SHEET_GIDS.brownStock), fetchSheetCsv(SHEET_GIDS.bleaching),
 ]);
 
 const dailyActParsed = parseDailySheet(dailyActRows, {numeric:true});
@@ -6101,6 +6178,27 @@ const CHIP_MON_GROUPS = [
   {id:'cookDischarge', ico:'📤', th:'Discharge', rail:'#7C4DFF', chartType:'line', page:'process-cooking'},
   {id:'cookLiquor',    ico:'🧪', th:'Liquor', rail:'#2A8C6E', chartType:'line', page:'process-cooking'},
   {id:'cookTiming',    ico:'⏱️', th:'Batch timing', rail:'#455A64', chartType:'line', page:'process-cooking'},
+  /* Brown Stock Logsheet (gid 1668226684) — grouped by the sheet's own band row, with adjacent
+     1-column bands folded into one sensible group (Unb into Brown Stock, LOOP2 into Screen Loop,
+     NaOH/WLOX/MgSO4 into Chemicals, O2 Reactor 1+2 together) rather than one group per column. */
+  {id:'bsStock',       ico:'🟤', th:'Brown Stock', rail:'#6B4226', chartType:'line', page:'process-brownstock'},
+  {id:'bsFiltrate',    ico:'🧫', th:'Filtrate Tanks', rail:'#2E7D8C', chartType:'line', page:'process-brownstock'},
+  {id:'bsWp1',         ico:'⚙️', th:'Brown Stock WP-1', rail:'#5B6B8C', chartType:'line', page:'process-brownstock'},
+  {id:'bsScreenLoop',  ico:'🔁', th:'Screen Loop', rail:'#7C4DFF', chartType:'line', page:'process-brownstock'},
+  {id:'bsPreO2',       ico:'🌬️', th:'Pre O2 Press', rail:'#0E7C86', chartType:'line', page:'process-brownstock'},
+  {id:'bsOxyDelig',    ico:'💨', th:'Oxygen Delignification', rail:'#C9342C', chartType:'line', page:'process-brownstock'},
+  {id:'bsPostO2',      ico:'🌫️', th:'Post O2 Press', rail:'#455A64', chartType:'line', page:'process-brownstock'},
+  {id:'bsChemicals',   ico:'🧪', th:'Chemicals', rail:'#2A8C6E', chartType:'line', page:'process-brownstock'},
+  {id:'bsO2Reactor',   ico:'🫧', th:'O2 Reactors', rail:'#B2702E', chartType:'line', page:'process-brownstock'},
+  /* Bleaching Logsheet (gid 1596215251) — same spirit, grouped by the sheet's own band row; the
+     wide tail of individually-named 1-column KPIs after "TOTAL" (ClO2/OWL/LC/NaOH/Pulp to/5th/
+     Dirt-Shive/ClO2 เกิน/White water/F-factor/temperature tags) is folded into one Summary group. */
+  {id:'blBleach',      ico:'⚪', th:'Bleach Overview', rail:'#6B4226', chartType:'line', page:'process-bleaching'},
+  {id:'blPreBleach',   ico:'🌬️', th:'Pre Bleach Press', rail:'#0E7C86', chartType:'line', page:'process-bleaching'},
+  {id:'blD0',          ico:'💛', th:'D0 Stage', rail:'#C9342C', chartType:'line', page:'process-bleaching'},
+  {id:'blEop',         ico:'🔵', th:'EOP Stage', rail:'#5B6B8C', chartType:'line', page:'process-bleaching'},
+  {id:'blD1',          ico:'⚪', th:'D1 Stage', rail:'#2A8C6E', chartType:'line', page:'process-bleaching'},
+  {id:'blSummary',     ico:'📊', th:'Summary / Totals', rail:'#455A64', chartType:'line', page:'process-bleaching'},
 ];
 
 const chipMonDre = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/;
@@ -6150,40 +6248,43 @@ function plsParseNum(raw){
   if(tm) return (+tm[1]) + (+tm[2])/60;
   return parseSheetNum(s);
 }
-/* Cooking is logged one row per COOK (several per day), not one per day — the user asked the
-   detail chart to plot every cook individually and label its x-axis with the date AND the sheet's
-   own "Cooking Batch ACC." running batch number (col 3), not a day-averaged point. So this builds
-   TWO layers: PLS_COOKING_ROWS_RAW (one entry per cook, ts carries a small per-row offset so same-
-   day cooks stay distinctly ordered, batchAcc kept for the chart/table label) feeds the detail
-   chart via CHIP_MON_SERIES_RAW below; PLS_COOKING_ROWS (derived from the raw rows by averaging
-   per calendar day) is unchanged in shape from before and still feeds the tile-level trend/band
-   analysis in chipMonAnalyse, which assumes one row = one day. */
-const PLS_COOKING_ROWS_RAW = (function(){
+/* Shared builder for every Process-area logsheet (Cooking/Brown stock/Bleaching) — each is logged
+   several rows per day (one per cook, or one per hour), not one row per day, and the user asked
+   the detail chart to plot every individual row with the date AND that row's own sub-day identity
+   (Cooking's running "Cooking Batch ACC." number, or Brown stock/Bleaching's hour) rather than a
+   day-averaged point. plsBuildRawRows() returns that full-granularity layer (ts carries a small
+   per-row offset so same-day rows stay distinctly ordered); plsAggregateByDay() derives a one-
+   row-per-day average from it for the tile-level trend/band analysis in chipMonAnalyse, which
+   assumes one row = one day. extraCols maps an extra field name (e.g. 'batchAcc', 'h') to the
+   column index to copy onto each raw record, for the chart/table label (see chipMonRowLabel). */
+function plsBuildRawRows(sheetRows, anchorText, dateCol, extraCols){
   let headerRow = null;
-  for(let i=0; i<cookingLogRows.length; i++){
-    const r = cookingLogRows[i];
-    if(r && r.some(function(c){ return String(c||'').trim()==='Cooking No.'; })){ headerRow = r; break; }
+  for(let i=0; i<sheetRows.length; i++){
+    const r = sheetRows[i];
+    if(r && r.some(function(c){ return String(c||'').trim()===anchorText; })){ headerRow = r; break; }
   }
   if(!headerRow) return [];
   const out = [];
   const seqByDay = new Map();
-  for(let i=0; i<cookingLogRows.length; i++){
-    const r = cookingLogRows[i];
+  for(let i=0; i<sheetRows.length; i++){
+    const r = sheetRows[i];
     if(!r || r===headerRow) continue;
-    const dm = chipMonDre.exec(String(r[1]||'').trim());
+    const dm = chipMonDre.exec(String(r[dateCol]||'').trim());
     if(!dm) continue;
     const y=+dm[3], mi=(+dm[2])-1, d=+dm[1];
     const key = y+'-'+mi+'-'+d;
     const seq = seqByDay.get(key) || 0; seqByDay.set(key, seq+1);
     const rr = [];
     for(let c=0; c<r.length; c++){ rr[c] = plsParseNum(r[c]); }
-    out.push({ y:y, mi:mi, d:d, ts:new Date(y,mi,d).getTime()+seq, batchAcc:rr[3], r:rr });
+    const rec = { y:y, mi:mi, d:d, ts:new Date(y,mi,d).getTime()+seq, r:rr };
+    if(extraCols){ Object.keys(extraCols).forEach(function(k){ rec[k] = rr[extraCols[k]]; }); }
+    out.push(rec);
   }
   return out.sort(function(a,b){ return a.ts-b.ts; });
-})();
-const PLS_COOKING_ROWS = (function(){
+}
+function plsAggregateByDay(rawRows){
   const byDay = new Map();
-  PLS_COOKING_ROWS_RAW.forEach(function(rec){
+  rawRows.forEach(function(rec){
     const key = rec.y+'-'+rec.mi+'-'+rec.d;
     let day = byDay.get(key);
     if(!day){ day = { y:rec.y, mi:rec.mi, d:rec.d, ts:new Date(rec.y,rec.mi,rec.d).getTime(), sums:[], counts:[] }; byDay.set(key, day); }
@@ -6199,7 +6300,13 @@ const PLS_COOKING_ROWS = (function(){
     for(let c=0; c<day.sums.length; c++){ r[c] = day.counts[c] ? day.sums[c]/day.counts[c] : null; }
     return { y:day.y, mi:day.mi, d:day.d, ts:day.ts, r:r };
   }).sort(function(a,b){ return a.ts-b.ts; });
-})();
+}
+const PLS_COOKING_ROWS_RAW = plsBuildRawRows(cookingLogRows, 'Cooking No.', 1, {batchAcc:3});
+const PLS_COOKING_ROWS = plsAggregateByDay(PLS_COOKING_ROWS_RAW);
+const PLS_BROWNSTOCK_ROWS_RAW = plsBuildRawRows(brownStockRows, 'TIME', 1, {h:2});
+const PLS_BROWNSTOCK_ROWS = plsAggregateByDay(PLS_BROWNSTOCK_ROWS_RAW);
+const PLS_BLEACHING_ROWS_RAW = plsBuildRawRows(bleachingRows, 'TIME', 1, {h:2});
+const PLS_BLEACHING_ROWS = plsAggregateByDay(PLS_BLEACHING_ROWS_RAW);
 /* คอลัมน์ (ตำแหน่ง, 0-indexed) ของทุก metric ในชีต Cooking Logsheet — รวมทั้งหมด ยกเว้นคอลัมน์ระบุ
    ตัวแถว (Month/Date/Cooking No./Cooking Batch ACC./Digester no.) คอลัมน์ว่างที่ยังไม่มีการบันทึก
    ข้อมูลจริง (เช่น H-factor, Target cook temp., Bulk density) ก็ยังประกาศไว้เช่นกัน เพียงแต่จะแสดง
@@ -6332,7 +6439,152 @@ CHIP_MON_META.push(
    กลุ่มตายตัว ไม่เดาจากคำนำหน้า) แทนการพิมพ์ src:'cooking' ซ้ำทุกบรรทัดข้างบน */
 const PLS_COOKING_GROUP_IDS = ['cookChipFill','cookPresteam','cookHlf','cookHeatCook','cookDisplace','cookDischarge','cookLiquor','cookTiming'];
 CHIP_MON_META.forEach(function(m){ if(PLS_COOKING_GROUP_IDS.indexOf(m.grp) >= 0) m.src = 'cooking'; });
-const CHIP_MON_ROWS_BY_SRC = { main: CHIP_MON_ROWS, cooking: PLS_COOKING_ROWS };
+CHIP_MON_META.push(
+  {key:'bsbrownStockProd', col:3, th:'Brown Stock Prod.', unit:'T/D', dec:1, grp:'bsStock', scored:false},
+  {key:'bsunbLevel', col:4, th:'Unb Level', unit:'%', dec:1, grp:'bsStock', pct01:true, scored:false},
+  {key:'bsfiltrateTank1Level', col:5, th:'Filtrate Tank #1 Level', unit:'%', dec:1, grp:'bsFiltrate', pct01:true, scored:false},
+  {key:'bsfiltrateTank2Level', col:6, th:'Filtrate Tank #2 Level', unit:'%', dec:1, grp:'bsFiltrate', pct01:true, scored:false},
+  {key:'bsfiltrateTank3Level', col:7, th:'Filtrate Tank #3 Level', unit:'%', dec:1, grp:'bsFiltrate', pct01:true, scored:false},
+  {key:'bsbrownStockWP1Consis', col:8, th:'Brown Stock WP-1 Consis.', unit:'%', dec:1, grp:'bsWp1', pct01:true, scored:false},
+  {key:'bsbrownStockWP1RollTorque', col:9, th:'Brown Stock WP-1 Roll Torque', unit:'', dec:1, grp:'bsWp1', scored:false},
+  {key:'bsbrownStockWP1FixVatPressure421PI146', col:10, th:'Brown Stock WP-1 Fix Vat Pressure (421PI146)', unit:'', dec:2, grp:'bsWp1', scored:false},
+  {key:'bsbrownStockWP1MoveVatPressure421PI147', col:11, th:'Brown Stock WP-1 Move Vat Pressure (421PI147)', unit:'', dec:2, grp:'bsWp1', scored:false},
+  {key:'bsscreenLoopPrimary421PDI210', col:12, th:'Screen Loop Primary (421PDI210)', unit:'', dec:2, grp:'bsScreenLoop', scored:false},
+  {key:'bsscreenLoopSecondary421PDI216', col:13, th:'Screen Loop Secondary (421PDI216)', unit:'', dec:2, grp:'bsScreenLoop', scored:false},
+  {key:'bsscreenLoopTertiary421PDI220', col:14, th:'Screen Loop Tertiary (421PDI220)', unit:'', dec:2, grp:'bsScreenLoop', scored:false},
+  {key:'bsloop2Prod', col:15, th:'LOOP2 Prod.', unit:'', dec:1, grp:'bsScreenLoop', scored:false},
+  {key:'bspreO2PressVisc', col:16, th:'Pre O2 Press Visc.', unit:'', dec:1, grp:'bsPreO2', scored:false},
+  {key:'bspreO2PressINConsis421QC412', col:17, th:'Pre O2 Press IN Consis. (421QC412)', unit:'', dec:1, grp:'bsPreO2', scored:false},
+  {key:'bspreO2PressINCOD', col:18, th:'Pre O2 Press IN COD', unit:'', dec:0, grp:'bsPreO2', scored:false},
+  {key:'bspreO2PressINWash', col:19, th:'Pre O2 Press IN Wash', unit:'', dec:0, grp:'bsPreO2', scored:false},
+  {key:'bspreO2PressOUTDF', col:20, th:'Pre O2 Press OUT DF', unit:'', dec:2, grp:'bsPreO2', scored:false},
+  {key:'bspreO2PressOUTCOD', col:21, th:'Pre O2 Press OUT COD', unit:'', dec:0, grp:'bsPreO2', scored:false},
+  {key:'bspreO2PressOUTBN', col:22, th:'Pre O2 Press OUT BN', unit:'', dec:1, grp:'bsPreO2', scored:false},
+  {key:'bspreO2PressOUTConsis', col:23, th:'Pre O2 Press OUT Consis.', unit:'%', dec:1, grp:'bsPreO2', pct01:true, scored:false},
+  {key:'bspreO2PressOUTHydraulicPressure421PC324', col:24, th:'Pre O2 Press OUT Hydraulic Pressure (421PC324)', unit:'', dec:0, grp:'bsPreO2', scored:false},
+  {key:'bspreO2PressOUTFixVatPressure421PI346', col:25, th:'Pre O2 Press OUT Fix Vat Pressure (421PI346)', unit:'', dec:2, grp:'bsPreO2', scored:false},
+  {key:'bspreO2PressOUTMoveVatPressure421PI347', col:26, th:'Pre O2 Press OUT Move Vat Pressure (421PI347)', unit:'', dec:2, grp:'bsPreO2', scored:false},
+  {key:'bsoxygenDelignINKappaOnline', col:27, th:'Oxygen Delign. IN Kappa (Online)', unit:'', dec:1, grp:'bsOxyDelig', scored:true, dir:'band'},
+  {key:'bsoxygenDelignINKappaLab', col:28, th:'Oxygen Delign. IN Kappa (Lab)', unit:'', dec:1, grp:'bsOxyDelig', scored:false},
+  {key:'bsoxygenDelignINWlox421FI4054', col:29, th:'Oxygen Delign. IN Wlox (421FI 405-4)', unit:'', dec:1, grp:'bsOxyDelig', scored:false},
+  {key:'bsoxygenDelignINO2Purity', col:31, th:'Oxygen Delign. IN O2 Purity', unit:'%', dec:1, grp:'bsOxyDelig', pct01:true, scored:false},
+  {key:'bsoxygenDelignINO2Rxt1', col:32, th:'Oxygen Delign. IN O2 Rxt#1', unit:'Kg/ADT', dec:2, grp:'bsOxyDelig', scored:false},
+  {key:'bsoxygenDelignINO2Rxt2', col:33, th:'Oxygen Delign. IN O2 Rxt#2', unit:'Kg/ADT', dec:2, grp:'bsOxyDelig', scored:false},
+  {key:'bsoxygenDelignOUTPh421QI515Online', col:34, th:'Oxygen Delign. OUT pH (421QI-515, Online)', unit:'pH', dec:2, grp:'bsOxyDelig', scored:false},
+  {key:'bsoxygenDelignOUTPh421QI515Lab', col:35, th:'Oxygen Delign. OUT pH (421QI-515, Lab)', unit:'pH', dec:2, grp:'bsOxyDelig', scored:false},
+  {key:'bsoxygenDelignOUTKappaOnline', col:36, th:'Oxygen Delign. OUT Kappa (Online)', unit:'', dec:1, grp:'bsOxyDelig', scored:true, dir:'band'},
+  {key:'bsoxygenDelignOUTKappaLab', col:37, th:'Oxygen Delign. OUT Kappa (Lab)', unit:'', dec:1, grp:'bsOxyDelig', scored:false},
+  {key:'bsoxygenDelignOUTDelignOnline', col:38, th:'Oxygen Delign. OUT Delign. (Online)', unit:'%', dec:1, grp:'bsOxyDelig', pct01:true, scored:true, dir:'band'},
+  {key:'bsoxygenDelignOUTDelignLab', col:39, th:'Oxygen Delign. OUT Delign. (Lab)', unit:'%', dec:1, grp:'bsOxyDelig', pct01:true, scored:false},
+  {key:'bsoxygenDelignOUTVisc', col:40, th:'Oxygen Delign. OUT Visc.', unit:'ml/g', dec:0, grp:'bsOxyDelig', scored:false},
+  {key:'bsoxygenDelignOUTCOD', col:41, th:'Oxygen Delign. OUT COD', unit:'', dec:0, grp:'bsOxyDelig', scored:false},
+  {key:'bsoxygenDelignOUTBN', col:42, th:'Oxygen Delign. OUT BN', unit:'', dec:1, grp:'bsOxyDelig', scored:false},
+  {key:'bspostO2PressINConsis', col:43, th:'Post O2 Press IN Consis.', unit:'%', dec:1, grp:'bsPostO2', pct01:true, scored:false},
+  {key:'bspostO2PressINWash', col:44, th:'Post O2 Press IN Wash', unit:'l/s', dec:0, grp:'bsPostO2', scored:false},
+  {key:'bspostO2PressOUTDF', col:45, th:'Post O2 Press OUT DF', unit:'m3/t', dec:2, grp:'bsPostO2', scored:false},
+  {key:'bspostO2PressOUTConsis', col:46, th:'Post O2 Press OUT Consis.', unit:'%', dec:1, grp:'bsPostO2', pct01:true, scored:false},
+  {key:'bspostO2PressOUTHydraulicPressure421PC527', col:47, th:'Post O2 Press OUT Hydraulic Pressure (421PC527)', unit:'bar', dec:2, grp:'bsPostO2', scored:false},
+  {key:'bspostO2PressOUTFixVatPressure421PI546', col:48, th:'Post O2 Press OUT Fix Vat Pressure (421PI546)', unit:'bar', dec:2, grp:'bsPostO2', scored:false},
+  {key:'bspostO2PressOUTMoveVatPressure421PI547', col:49, th:'Post O2 Press OUT Move Vat Pressure (421PI547)', unit:'bar', dec:2, grp:'bsPostO2', scored:false},
+  {key:'bsnaohEA', col:50, th:'NaOH EA', unit:'g/l', dec:1, grp:'bsChemicals', scored:false},
+  {key:'bswloxEA', col:51, th:'WLOX EA', unit:'g/l', dec:1, grp:'bsChemicals', scored:false},
+  {key:'bswloxNa2s', col:52, th:'WLOX Na2S', unit:'g/l', dec:1, grp:'bsChemicals', scored:false},
+  {key:'bsmgso4Conc', col:53, th:'MgSO4 Conc.', unit:'g/l', dec:1, grp:'bsChemicals', scored:false},
+  {key:'bso2Reactor1Pressure421PZ426', col:54, th:'O2 Reactor 1 Pressure (421PZ426)', unit:'Bar', dec:2, grp:'bsO2Reactor', scored:false},
+  {key:'bso2Reactor1Temp421TC410', col:55, th:'O2 Reactor 1 Temp. (421TC410)', unit:'C', dec:0, grp:'bsO2Reactor', scored:false},
+  {key:'bso2Reactor1Temp421TI424', col:56, th:'O2 Reactor 1 Temp. (421TI424)', unit:'C', dec:0, grp:'bsO2Reactor', scored:false},
+  {key:'bso2Reactor2Pressure421PC478', col:57, th:'O2 Reactor 2 Pressure (421PC478)', unit:'Bar', dec:2, grp:'bsO2Reactor', scored:false},
+  {key:'bso2Reactor2Temp421TC473', col:58, th:'O2 Reactor 2 Temp. (421TC473)', unit:'C', dec:0, grp:'bsO2Reactor', scored:false},
+  {key:'bso2Reactor2Temp421TI474', col:59, th:'O2 Reactor 2 Temp. (421TI474)', unit:'C', dec:0, grp:'bsO2Reactor', scored:false},
+);
+const PLS_BROWNSTOCK_GROUP_IDS = ['bsStock','bsFiltrate','bsWp1','bsScreenLoop','bsPreO2','bsOxyDelig','bsPostO2','bsChemicals','bsO2Reactor'];
+CHIP_MON_META.forEach(function(m){ if(PLS_BROWNSTOCK_GROUP_IDS.indexOf(m.grp) >= 0) m.src = 'brownStock'; });
+CHIP_MON_META.push(
+  {key:'blBleachProd', col:3, th:'Bleach Prod.', unit:'t/d', dec:0, grp:'blBleach', scored:false},
+  {key:'blBleachFlowPulpToPM431FI647', col:4, th:'Bleach Flow Pulp to PM (431FI647)', unit:'', dec:1, grp:'blBleach', scored:false},
+  {key:'blBleachConsistPulpToPM431QI646', col:5, th:'Bleach Consist. Pulp to PM (431QI646)', unit:'%', dec:1, grp:'blBleach', pct01:true, scored:false},
+  {key:'blBleachEndProd711FQT648AVG', col:6, th:'Bleach End Prod. (711FQT-648-AVG)', unit:'adt', dec:1, grp:'blBleach', scored:false},
+  {key:'blBleachHD1', col:7, th:'Bleach HD1', unit:'%', dec:1, grp:'blBleach', pct01:true, scored:false},
+  {key:'blBleachHD2', col:8, th:'Bleach HD2', unit:'%', dec:1, grp:'blBleach', pct01:true, scored:false},
+  {key:'blBleachPBFiltrate', col:9, th:'Bleach PB Filtrate', unit:'%', dec:1, grp:'blBleach', pct01:true, scored:false},
+  {key:'blPreBleachPressWash', col:11, th:'Pre Bleach Press Wash', unit:'l/s', dec:0, grp:'blPreBleach', scored:false},
+  {key:'blPreBleachPressDF', col:12, th:'Pre Bleach Press DF', unit:'m3/t', dec:2, grp:'blPreBleach', scored:false},
+  {key:'blPreBleachPressConsisInlet', col:13, th:'Pre Bleach Press Consis. (Inlet)', unit:'', dec:1, grp:'blPreBleach', scored:false},
+  {key:'blPreBleachPressConsisOutlet', col:14, th:'Pre Bleach Press Consis. (Outlet)', unit:'', dec:1, grp:'blPreBleach', scored:false},
+  {key:'blPreBleachPressHydraulicPressure431PC016', col:15, th:'Pre Bleach Press Hydraulic Pressure (431PC016)', unit:'bar', dec:2, grp:'blPreBleach', scored:false},
+  {key:'blPreBleachPressFixVatPressure431PI019', col:16, th:'Pre Bleach Press Fix Vat Pressure (431PI019)', unit:'bar', dec:2, grp:'blPreBleach', scored:false},
+  {key:'blPreBleachPressMoveVatPressure431PI025', col:17, th:'Pre Bleach Press Move Vat Pressure (431PI025)', unit:'bar', dec:2, grp:'blPreBleach', scored:false},
+  {key:'blPreBleachPressCOD', col:18, th:'Pre Bleach Press COD', unit:'Kg/t', dec:1, grp:'blPreBleach', scored:false},
+  {key:'blPreBleachPressBrightOnline', col:19, th:'Pre Bleach Press Bright. (Online)', unit:'%', dec:1, grp:'blPreBleach', pct01:true, scored:false},
+  {key:'blPreBleachPressKappaOnline', col:20, th:'Pre Bleach Press Kappa (Online)', unit:'u', dec:1, grp:'blPreBleach', scored:false},
+  {key:'blPreBleachPressKappaLab', col:21, th:'Pre Bleach Press Kappa (Lab)', unit:'u', dec:1, grp:'blPreBleach', scored:false},
+  {key:'blD0StageClO2', col:22, th:'D0 Stage ClO2', unit:'Kg/t', dec:2, grp:'blD0', scored:false},
+  {key:'blD0StageClF', col:23, th:'D0 Stage Cl-f', unit:'Kg/u', dec:2, grp:'blD0', scored:false},
+  {key:'blD0StageKappaD0', col:24, th:'D0 Stage Kappa D0', unit:'', dec:1, grp:'blD0', scored:true, dir:'band'},
+  {key:'blD0StagePH431QC114Online', col:25, th:'D0 Stage pH (431QC-114, Online)', unit:'pH', dec:2, grp:'blD0', scored:false},
+  {key:'blD0StageEndPH', col:26, th:'D0 Stage End pH', unit:'pH', dec:2, grp:'blD0', scored:false},
+  {key:'blD0StageH2SO4', col:27, th:'D0 Stage H2SO4', unit:'l/hr', dec:0, grp:'blD0', scored:false},
+  {key:'blD0StageRes', col:28, th:'D0 Stage Res.', unit:'g/l', dec:2, grp:'blD0', scored:false},
+  {key:'blD0StageCons', col:29, th:'D0 Stage Cons.', unit:'%', dec:1, grp:'blD0', pct01:true, scored:false},
+  {key:'blD0StageHydraulicPressure431PC214', col:30, th:'D0 Stage Hydraulic Pressure (431PC214)', unit:'bar', dec:2, grp:'blD0', scored:false},
+  {key:'blD0StageFixVatPressure431PI216', col:31, th:'D0 Stage Fix Vat Pressure (431PI216)', unit:'bar', dec:2, grp:'blD0', scored:false},
+  {key:'blD0StageMoveVatPressure431PI221', col:32, th:'D0 Stage Move Vat Pressure (431PI221)', unit:'bar', dec:2, grp:'blD0', scored:false},
+  {key:'blD0StageBright', col:33, th:'D0 Stage Bright.', unit:'', dec:1, grp:'blD0', scored:false},
+  {key:'blEopStagePH431QI325', col:34, th:'EOP Stage pH (431QI-325)', unit:'pH', dec:2, grp:'blEop', scored:false},
+  {key:'blEopStageEndPH', col:35, th:'EOP Stage End pH', unit:'pH', dec:2, grp:'blEop', scored:false},
+  {key:'blEopStageNaOH', col:36, th:'EOP Stage NaOH', unit:'l/s', dec:0, grp:'blEop', scored:false},
+  {key:'blEopStageH2O2', col:37, th:'EOP Stage H2O2', unit:'kg/Adt', dec:2, grp:'blEop', scored:false},
+  {key:'blEopStageO2Purity', col:39, th:'EOP Stage O2 Purity', unit:'%', dec:1, grp:'blEop', pct01:true, scored:false},
+  {key:'blEopStageO2', col:40, th:'EOP Stage O2', unit:'kg/adt', dec:2, grp:'blEop', scored:false},
+  {key:'blEopStageNaOHOWL', col:41, th:'EOP Stage NaOH+OWL', unit:'kg/adt', dec:2, grp:'blEop', scored:false},
+  {key:'blEopStageResH2O2', col:42, th:'EOP Stage Res. H2O2', unit:'', dec:2, grp:'blEop', scored:false},
+  {key:'blEopStageKappaOnline', col:44, th:'EOP Stage Kappa (Online)', unit:'u', dec:1, grp:'blEop', scored:false},
+  {key:'blEopStageKappaLab', col:45, th:'EOP Stage Kappa (Lab)', unit:'u', dec:1, grp:'blEop', scored:false},
+  {key:'blEopStageCons', col:46, th:'EOP Stage Cons.', unit:'%', dec:1, grp:'blEop', pct01:true, scored:false},
+  {key:'blEopStageHydraulicPressure431PC333', col:47, th:'EOP Stage Hydraulic Pressure (431PC333)', unit:'bar', dec:2, grp:'blEop', scored:false},
+  {key:'blEopStageVatPressure431PI330', col:48, th:'EOP Stage Vat Pressure (431PI330)', unit:'bar', dec:2, grp:'blEop', scored:false},
+  {key:'blEopStageBrightOnline', col:49, th:'EOP Stage Bright. (Online)', unit:'%', dec:1, grp:'blEop', pct01:true, scored:false},
+  {key:'blEopStageBrightLab', col:50, th:'EOP Stage Bright. (Lab)', unit:'%', dec:1, grp:'blEop', pct01:true, scored:false},
+  {key:'blD1StageClO2', col:51, th:'D1 Stage ClO2', unit:'Kg/t', dec:2, grp:'blD1', scored:false},
+  {key:'blD1StageClF', col:52, th:'D1 Stage Cl-f', unit:'Kg/u', dec:2, grp:'blD1', scored:false},
+  {key:'blD1StagePH431QC410', col:54, th:'D1 Stage pH (431QC-410)', unit:'pH', dec:2, grp:'blD1', scored:false},
+  {key:'blD1StageEndPH', col:55, th:'D1 Stage End pH', unit:'pH', dec:2, grp:'blD1', scored:false},
+  {key:'blD1StageH2SO4Valve', col:56, th:'D1 Stage H2SO4 (valve)', unit:'% valve', dec:1, grp:'blD1', scored:false},
+  {key:'blD1StageRes', col:57, th:'D1 Stage Res.', unit:'g/l', dec:2, grp:'blD1', scored:false},
+  {key:'blD1StageCons', col:58, th:'D1 Stage Cons.', unit:'%', dec:1, grp:'blD1', pct01:true, scored:false},
+  {key:'blD1StageHydraulicPressure431PC429', col:59, th:'D1 Stage Hydraulic Pressure (431PC429)', unit:'bar', dec:2, grp:'blD1', scored:false},
+  {key:'blD1StageVatPressure431PI432', col:60, th:'D1 Stage Vat Pressure (431PI432)', unit:'bar', dec:2, grp:'blD1', scored:false},
+  {key:'blD1StageBright', col:61, th:'D1 Stage Bright.', unit:'%', dec:1, grp:'blD1', pct01:true, scored:true, dir:'band'},
+  {key:'blD1StageWetBrightness', col:63, th:'D1 Stage Wet Brightness', unit:'%', dec:1, grp:'blD1', pct01:true, scored:false},
+  {key:'blD1StageVisc', col:65, th:'D1 Stage Visc.', unit:'ml/g', dec:0, grp:'blD1', scored:true, dir:'band'},
+  {key:'blTotalClO2', col:66, th:'Total ClO2', unit:'Kg/t', dec:2, grp:'blSummary', scored:false},
+  {key:'blTotalClF', col:67, th:'Total Cl-f', unit:'Kg/u', dec:2, grp:'blSummary', scored:false},
+  {key:'blClo2ActCl', col:68, th:'ClO2 Act. Cl', unit:'g/l', dec:2, grp:'blSummary', scored:false},
+  {key:'blOwlEA', col:69, th:'OWL %EA', unit:'g/l', dec:2, grp:'blSummary', scored:false},
+  {key:'blOwlNa2S', col:70, th:'OWL Na2S', unit:'g/l', dec:2, grp:'blSummary', scored:false},
+  {key:'blLcTank', col:71, th:'LC Tank', unit:'pH', dec:2, grp:'blSummary', scored:false},
+  {key:'blNaohTank', col:72, th:'NaOH Tank', unit:'l/s', dec:0, grp:'blSummary', scored:false},
+  {key:'blPulpToWetLapPH', col:73, th:'Pulp to Wet Lap pH', unit:'pH', dec:2, grp:'blSummary', scored:false},
+  {key:'blPulpToWetLapConsis', col:74, th:'Pulp to Wet Lap Consis.', unit:'%', dec:1, grp:'blSummary', pct01:true, scored:false},
+  {key:'blPulpToWetLapFreeness', col:75, th:'Pulp to Wet Lap Freeness', unit:'', dec:0, grp:'blSummary', scored:false},
+  {key:'bl5thStageCons', col:76, th:'5th Stage Cons.', unit:'%', dec:1, grp:'blSummary', pct01:true, scored:false},
+  {key:'blDirtShiveTotal5Mm2Kg', col:77, th:'Dirt/Shive (total, <5 mm2/kg)', unit:'', dec:1, grp:'blSummary', scored:false},
+  {key:'blDirtShive2', col:78, th:'Dirt/Shive (2)', unit:'', dec:1, grp:'blSummary', scored:false},
+  {key:'blClo2Kappa', col:79, th:'ClO2 เกิน Kappa', unit:'kg', dec:1, grp:'blSummary', scored:false},
+  {key:'blClo2Factor', col:80, th:'ClO2 เกิน Factor', unit:'kg', dec:1, grp:'blSummary', scored:false},
+  {key:'blWhiteWaterConductivityOnline', col:81, th:'White Water Conductivity (Online)', unit:'uS/cm', dec:0, grp:'blSummary', scored:false},
+  {key:'blWhiteWaterConductivityBeforeRefiner', col:82, th:'White Water Conductivity (Before Refiner)', unit:'uS/cm', dec:0, grp:'blSummary', scored:false},
+  {key:'blFFactor', col:83, th:'F-factor', unit:'', dec:1, grp:'blSummary', scored:false},
+  {key:'blD0DilutionTemp431TC234', col:84, th:'D0 Dilution Temp. (431TC234)', unit:'C', dec:0, grp:'blSummary', scored:false},
+  {key:'blEopPressure431PC314', col:85, th:'EOP Pressure (431PC314)', unit:'Bar', dec:2, grp:'blSummary', scored:false},
+  {key:'blEopTemp431TC312', col:86, th:'EOP Temp. (431TC312)', unit:'C', dec:0, grp:'blSummary', scored:false},
+  {key:'blD0Temp431TI112', col:87, th:'D0 Temp. (431TI112)', unit:'C', dec:0, grp:'blSummary', scored:false},
+  {key:'blEopDilutionTemp431TC345', col:88, th:'EOP Dilution Temp. (431TC345)', unit:'C', dec:0, grp:'blSummary', scored:false},
+  {key:'blD1Temp431TC409', col:89, th:'D1 Temp. (431TC409)', unit:'C', dec:0, grp:'blSummary', scored:false},
+);
+const PLS_BLEACHING_GROUP_IDS = ['blBleach','blPreBleach','blD0','blEop','blD1','blSummary'];
+CHIP_MON_META.forEach(function(m){ if(PLS_BLEACHING_GROUP_IDS.indexOf(m.grp) >= 0) m.src = 'bleaching'; });
+const CHIP_MON_ROWS_BY_SRC = { main: CHIP_MON_ROWS, cooking: PLS_COOKING_ROWS, brownStock: PLS_BROWNSTOCK_ROWS, bleaching: PLS_BLEACHING_ROWS };
 
 /* daily Pulp mill-1 production (ADt/day) by date, from the Daily (Act) sheet — for per-ADt ratios */
 const PROD_BY_DATE = {};
@@ -6374,7 +6626,7 @@ const chipMonCeil = (()=>{
 /* ceiling ต่อแหล่งข้อมูล — ชีตหลัก (main) ใช้ chipMonCeil ที่คำนวณจากคอลัมน์ anchor ข้างบน ส่วนชีตใหม่
    (เช่น 'cooking') ยังไม่มีคอลัมน์ anchor ที่เชื่อถือได้แบบเดียวกัน จึงครอบแค่ "ไม่เกินเมื่อวาน" เฉยๆ
    (กัน future placeholder row เหมือนชีตหลัก โดยไม่ต้องมี anchor column) */
-const CHIP_MON_CEIL_BY_SRC = { main: chipMonCeil, cooking: chipMonYesterdayEnd };
+const CHIP_MON_CEIL_BY_SRC = { main: chipMonCeil, cooking: chipMonYesterdayEnd, brownStock: chipMonYesterdayEnd, bleaching: chipMonYesterdayEnd };
 const CHIP_MON_SERIES = {};
 CHIP_MON_META.forEach(m=> {
   const srcRows = CHIP_MON_ROWS_BY_SRC[m.src || 'main'];
@@ -6385,11 +6637,11 @@ CHIP_MON_META.forEach(m=> {
   CHIP_MON_SERIES[m.key] = ser;
 });
 /* Raw (un-aggregated) rows per source, for sources whose detail chart must plot every logged row
-   instead of one point per day — Cooking (one row per cook, carries batchAcc) and, once built,
-   Brown Stock/Bleaching (one row per hour, carries h). Sources absent here (main) keep using
-   CHIP_MON_SERIES itself for their detail chart, unchanged. Tile-level trend/band analysis
+   instead of one point per day — Cooking (one row per cook, carries batchAcc), Brown Stock/
+   Bleaching (one row per hour, carries h). The source absent here (main) keeps using
+   CHIP_MON_SERIES itself for its detail chart, unchanged. Tile-level trend/band analysis
    (chipMonAnalyse) always reads CHIP_MON_SERIES (the day-aggregated version), never this. */
-const CHIP_MON_RAW_ROWS_BY_SRC = { cooking: PLS_COOKING_ROWS_RAW };
+const CHIP_MON_RAW_ROWS_BY_SRC = { cooking: PLS_COOKING_ROWS_RAW, brownStock: PLS_BROWNSTOCK_ROWS_RAW, bleaching: PLS_BLEACHING_ROWS_RAW };
 const CHIP_MON_SERIES_RAW = {};
 CHIP_MON_META.forEach(m=> {
   const rawRows = CHIP_MON_RAW_ROWS_BY_SRC[m.src];
@@ -10384,7 +10636,10 @@ function chipMonDetailRows(grpId, m, a){
 // per-cook / per-hour rather than per-day (see chipMonDetailRows above).
 function chipMonRowLabel(x, withYear){
   const base = withYear ? (x.d+'/'+(x.mi+1)+'/'+x.y) : (x.d+'/'+(x.mi+1));
-  if(x.h!=null) return base+' '+String(x.h).padStart(2,'0')+':00';
+  if(x.h!=null){
+    const hh = Math.floor(x.h), mm = Math.round((x.h-hh)*60);
+    return base+' '+String(hh).padStart(2,'0')+':'+String(mm).padStart(2,'0');
+  }
   if(x.batchAcc!=null) return base+' #'+x.batchAcc;
   return base;
 }
@@ -10975,9 +11230,9 @@ function initChipMon(){
     document.getElementById('chipDetail_'+g).scrollIntoView({behavior:'smooth', block:'nearest'});
   };
   // ทุกกลุ่มบน Yield page เดิมอยู่ใต้ chipMonHost เดียว — กลุ่มใหม่ของ Process area (Cooking/Brown
-  // stock/Bleaching ในอนาคต) อยู่คนละหน้า จึงต้อง delegate click/keydown ซ้ำที่ host ของแต่ละหน้าด้วย
+  // stock/Bleaching) อยู่คนละหน้า จึงต้อง delegate click/keydown ซ้ำที่ host ของแต่ละหน้าด้วย
   // handler ชุดเดียวกันนี้ แทนที่จะผูกกับ chipMonHost อย่างเดียว
-  ['chipMonHost','chipCookingHost'].forEach(hostId=> {
+  ['chipMonHost','chipCookingHost','chipBrownStockHost','chipBleachHost'].forEach(hostId=> {
     const host = document.getElementById(hostId);
     if(!host) return;
     host.addEventListener('click', (e)=> {
