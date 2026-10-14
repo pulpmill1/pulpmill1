@@ -11099,8 +11099,8 @@ function chipMonDrawDetailChart(grpId, m, a, tgt){
   const vals = rows.map(x=> x.v);
   const c = { ink2:cssVar('--ink-2'), grid:cssVar('--grid'), surface:cssVar('--surface'), border:cssVar('--border'), ink:cssVar('--ink') };
   const EN = currentLang==='en';
-  const actualLbl = m.pairKey ? 'Pulp mill 1' : (EN ? 'Actual' : 'ข้อมูลเกิดจริง');
-  const balTankLbl = 'Yield Balance Tank', balTankCol = '#F0932B';
+  const actualLbl = m.key==='yieldBdt' ? 'Yield (Bdt/Adt)' : (m.pairKey ? 'Pulp mill 1' : (EN ? 'Actual' : 'ข้อมูลเกิดจริง'));
+  const balTankLbl = 'Yield Balance Tank (Bdt/Adt)', balTankCol = '#078B33';
 
   // Yield (BDt/ADt) tile overlays its companion Yield Balance Tank series; any tile with a
   // "pairKey" (e.g. Wood species Pulp mill 1 + Pulp mill 2) overlays its companion metric the
@@ -11133,9 +11133,11 @@ function chipMonDrawDetailChart(grpId, m, a, tgt){
   hi = Math.ceil((hi+pad)/step)*step;
 
   const nBars = vals.filter(v=> v!=null).length;
-  // Process area logsheets (Cooking/Brown stock/Bleaching) show a LINE, not a bar — everything else
-  // (datalabels, target lines, tooltip, axes) stays identical, only this one dataset's shape differs.
-  const primaryDs = grp.chartType==='line'
+  // Process area logsheets (Cooking/Brown stock/Bleaching) show a LINE, not a bar — same for the
+  // Yield (BDt/ADt) combo chart, which overlays Yield against Yield Balance Tank as two lines —
+  // everything else (datalabels, target lines, tooltip, axes) stays identical, only this one
+  // dataset's shape differs.
+  const primaryDs = (grp.chartType==='line' || m.key==='yieldBdt')
     ? { type:'line', label:actualLbl, data:vals, borderColor:grp.rail, backgroundColor:grp.rail,
         borderWidth:1.8, pointRadius: nBars>60 ? 0 : 2.6, pointBackgroundColor:grp.rail, tension:.2,
         spanGaps:true, order:2, datalabels:{display:false} }
