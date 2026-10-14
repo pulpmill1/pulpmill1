@@ -11144,10 +11144,17 @@ function chipMonDrawDetailChart(grpId, m, a, tgt){
   // Yield (BDt/ADt) combo chart, which overlays Yield against Yield Balance Tank as two lines —
   // everything else (datalabels, target lines, tooltip, axes) stays identical, only this one
   // dataset's shape differs.
+  // Yield (Bdt/Adt) shows its own value labels below each point (Yield Balance Tank's sit above,
+  // via yieldExtraLabels) so the two lines' numbers don't collide when they're close in value.
+  const primaryLineLabels = m.key==='yieldBdt'
+    ? { display:(x)=> x.dataset.data[x.dataIndex]!=null, align:'bottom', anchor:'start', offset:4, color:grp.rail,
+        font:{family:'IBM Plex Mono', size:9.5, weight:'600'},
+        formatter:(v)=> v==null ? '' : v.toLocaleString('en-US', {minimumFractionDigits:m.dec, maximumFractionDigits:m.dec}) }
+    : {display:false};
   const primaryDs = (grp.chartType==='line' || m.key==='yieldBdt')
     ? { type:'line', label:actualLbl, data:vals, borderColor:grp.rail, backgroundColor:grp.rail,
         borderWidth:1.8, pointRadius: nBars>60 ? 0 : 2.6, pointBackgroundColor:grp.rail, tension:.2,
-        spanGaps:true, order:2, datalabels:{display:false} }
+        spanGaps:true, order:2, datalabels:primaryLineLabels }
     : { type:'bar', label:actualLbl, data:vals, backgroundColor:grp.rail, borderColor:c.surface, borderWidth:0.5,
         borderRadius:2, barPercentage:0.9, categoryPercentage:0.9, order:2,
         datalabels:{ display:(x)=> x.dataset.data[x.dataIndex]!=null, anchor:'end', align:'end', offset:2,
