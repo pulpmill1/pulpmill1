@@ -6602,7 +6602,7 @@ const CHIP_MON_ROWS_BY_SRC = { main: CHIP_MON_ROWS, cooking: PLS_COOKING_ROWS, b
 const PROD_BY_DATE = {};
 try{ (dailyActParsed.entries||[]).forEach(e=>{ if(e.val!=null) PROD_BY_DATE[e.y+'-'+e.mi+'-'+e.d] = e.val; }); }catch(e){}
 function chipMonVal(rec, meta){
-  if(meta.derived){ const dry = chipMonPct(rec.r[28]); return dry==null ? null : Math.round((100-dry)*100)/100; }
+  if(meta.derived){ const dry = chipMonPct(rec.r[COL_DRYNESS]); return dry==null ? null : Math.round((100-dry)*100)/100; }
   if(meta.perAdt){
     const src = chipMonRaw(rec.r[meta.col]);
     const p = chipMonRaw(rec.r[COL_END_PROD]);
