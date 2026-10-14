@@ -2187,7 +2187,7 @@
           <button type="button" class="foot-toggle" data-target="chipMonFoot" aria-expanded="false" aria-controls="chipMonFoot">ดูรายละเอียด</button>
           <div class="foot" id="chipMonFoot" hidden>
             ที่มา: Google Sheets tab <code>gid=632351488</code> บล็อก "Pulp 1" (คอลัมน์ AA–AL) · วันที่คอลัมน์ B รูปแบบ D/M/YYYY (วันก่อนเดือน)<br>
-            Moisture คำนวณจาก 100 − Dryness (ชีตต้นทางไม่ได้บันทึกคอลัมน์ Moisture) · ค่าเปอร์เซ็นต์นอกช่วง 0–100 ถือเป็นการบันทึกผิดและไม่นำมาคิด<br>
+            Moisture คำนวณจาก 100 − Chip Dryness (ชีตต้นทางไม่ได้บันทึกคอลัมน์ Moisture) · ค่าเปอร์เซ็นต์นอกช่วง 0–100 ถือเป็นการบันทึกผิดและไม่นำมาคิด<br>
             สถิติใช้วิธี robust: median + MAD × 1.4826 · baseline = 180 วันที่จบก่อนสัปดาห์ล่าสุด · control band = median ± 3σ<br>
             Est. สิ้นเดือน = (ผลรวมค่าที่บันทึกในเดือนนี้ + จำนวนวันที่เหลือ × ค่าเฉลี่ย 7 วันล่าสุด) ÷ (จำนวนวันที่บันทึก + จำนวนวันที่เหลือ) · Bulk density / Bulk density × Dryness แสดงไว้อ้างอิงแต่ไม่ให้คะแนน<br>
             เส้นประเทา = เกณฑ์ Tappi Std. / JPN Rqs. จากชีต · เส้นประม่วง = control band (±3σ, median) · Target Low/High ตั้งเองเก็บในเบราว์เซอร์
@@ -5351,7 +5351,7 @@ const TX_EN = {
   'ต้องมี ≥ 3 วัน':'needs ≥ 3 days',
   // chip monitor — the collapsible footnote
   'บล็อก "Pulp 1" (คอลัมน์ AA–AL) · วันที่คอลัมน์ B รูปแบบ D/M/YYYY (วันก่อนเดือน)':'"Pulp 1" block (columns AA–AL) · date in column B, D/M/YYYY (day before month)',
-  'Moisture คำนวณจาก 100 − Dryness (ชีตต้นทางไม่ได้บันทึกคอลัมน์ Moisture) · ค่าเปอร์เซ็นต์นอกช่วง 0–100 ถือเป็นการบันทึกผิดและไม่นำมาคิด':'Moisture is derived as 100 − Dryness (the source sheet has no Moisture column) · percentage values outside 0–100 are treated as bad entries and ignored',
+  'Moisture คำนวณจาก 100 − Chip Dryness (ชีตต้นทางไม่ได้บันทึกคอลัมน์ Moisture) · ค่าเปอร์เซ็นต์นอกช่วง 0–100 ถือเป็นการบันทึกผิดและไม่นำมาคิด':'Moisture is derived as 100 − Chip Dryness (the source sheet has no Moisture column) · percentage values outside 0–100 are treated as bad entries and ignored',
   'สถิติใช้วิธี robust: median + MAD × 1.4826 · baseline = 180 วันที่จบก่อนสัปดาห์ล่าสุด · control band = median ± 3σ':'Robust statistics: median + MAD × 1.4826 · baseline = the 180 days ending one week before the latest reading · control band = median ± 3σ',
   'Est. สิ้นเดือน = (ผลรวมค่าที่บันทึกในเดือนนี้ + จำนวนวันที่เหลือ × ค่าเฉลี่ย 7 วันล่าสุด) ÷ (จำนวนวันที่บันทึก + จำนวนวันที่เหลือ) · Bulk density / Bulk density × Dryness แสดงไว้อ้างอิงแต่ไม่ให้คะแนน':'Month-end estimate = (sum of this month’s logged values + remaining days × 7-day mean) ÷ (logged days + remaining days) · Bulk density / Bulk density × Dryness are shown for reference but not scored',
   'เส้นประเทา = เกณฑ์ Tappi Std. / JPN Rqs. จากชีต · เส้นประม่วง = control band (±3σ, median) · Target Low/High ตั้งเองเก็บในเบราว์เซอร์':'Grey dashed = Tappi Std. / JPN Rqs. limits from the sheet · purple dashed = control band (±3σ, median) · Target Low/High are set by you and stored in the browser',
@@ -6118,7 +6118,7 @@ const CHIP_MON_META = [
   {key:'ovwYield',       col:COL_YIELD, th:'Yield', unit:'BDt/ADt', dec:3, grp:'overview', scored:false},
   {key:'bulkDensity',    col:COL_BULK_DENSITY, th:'Bulk density',              unit:'kg/m³', dec:1, grp:'bulk',   scored:false, spec:[300,350]},
   {key:'bulkDensityDry', col:COL_BULK_DENSITY_DRY, th:'Bulk density × Dryness',    unit:'kg/m³', dec:1, grp:'bulk',   scored:false},
-  {key:'dryness',        col:COL_DRYNESS, th:'Dryness',                   unit:'%',     dec:2, pct01:true, grp:'bulk',   scored:true,  dir:'lower',  specHi:54},
+  {key:'dryness',        col:COL_DRYNESS, th:'Chip Dryness',              unit:'%',     dec:2, pct01:true, grp:'bulk',   scored:true,  dir:'lower',  specHi:54},
   {key:'moisture',       col:null,th:'Chip Moisture',unit:'%',    dec:2, grp:'bulk',   scored:true,  dir:'neutral', derived:true},
   {key:'fine',           col:COL_FINE, th:'Fine < 4.8 mm.',            unit:'%',     dec:2, pct01:true, grp:'screen', scored:true,  dir:'lower',  specHi:5},
   {key:'pin',            col:COL_PIN, th:'Pin 9.5–4.8 mm.',           unit:'%',     dec:2, pct01:true, grp:'screen', scored:true,  dir:'band',   specLo:17.5, specHi:28.5},
