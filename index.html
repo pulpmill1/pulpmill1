@@ -11116,8 +11116,15 @@ function chipMonDrawDetailChart(grpId, m, a, tgt){
   const flat = (v, col, lab) => ({ type:'line', label:lab, data:labels.map(()=> v), borderColor:col, borderWidth:1.6,
     borderDash:[7,3], pointRadius:0, fill:false, tension:0, order:5, datalabels:{display:false} });
   const refs = [];
+  // Yield Balance Tank's own values show on the chart (unlike other pairKey overlays, e.g. Wood
+  // species' Pulp mill 2 line, which stay label-free to avoid cluttering a 5-series stacked view).
+  const yieldExtraLabels = m.key==='yieldBdt'
+    ? { display:(x)=> x.dataset.data[x.dataIndex]!=null, align:'top', anchor:'end', offset:4, color:pairCol,
+        font:{family:'IBM Plex Mono', size:9.5, weight:'600'},
+        formatter:(v)=> v==null ? '' : v.toLocaleString('en-US', {minimumFractionDigits:m.dec, maximumFractionDigits:m.dec}) }
+    : {display:false};
   if(yieldExtra) refs.push({ type:'line', label:pairLbl, data:yieldExtra, borderColor:pairCol, backgroundColor:pairCol,
-    borderWidth:1.8, pointRadius:2, pointBackgroundColor:pairCol, tension:.25, fill:false, spanGaps:true, order:1, datalabels:{display:false} });
+    borderWidth:1.8, pointRadius:2, pointBackgroundColor:pairCol, tension:.25, fill:false, spanGaps:true, order:1, datalabels:yieldExtraLabels });
   if(tgt.lo!=null) refs.push(flat(tgt.lo, '#12a150', `Target Low ${tgt.lo}`));
   if(tgt.hi!=null) refs.push(flat(tgt.hi, '#d4342c', `Target High ${tgt.hi}`));
 
