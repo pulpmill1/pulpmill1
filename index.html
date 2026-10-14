@@ -6906,6 +6906,66 @@ const CHIP_MON_RANGE = {}; // detail-chart window per group: {preset, custom:{st
 const CHIP_MON_VIEW = {};  // detail body per group: 'chart' or 'table'
 const chipMonCharts = {};                                 // detail chart per group
 const chipMonSparks = {};                                 // sparkline chart per tile key
+const chipMonYearlyCharts = {};                           // year-over-year monthly trend chart per group
+/* Year-over-year, same-month comparison for Chip Moisture / Chip Dryness: one line per calendar
+   year (2024, 2025, 2026, …), x-axis Jan–Dec, each point the average of that metric's own logged
+   days in that (year, month) — reads the FULL history in CHIP_MON_SERIES, independent of whatever
+   date-range preset the main chart above is currently showing. */
+const CHIP_MON_YEARLY_TREND_KEYS = ['moisture', 'dryness'];
+const CHIP_MON_YEARLY_TREND_COLORS = ['#8E8E93', '#3F80A6', '#EB4045', '#289D80', '#6C2E9A', '#F4B857'];
+function chipMonYearlyMonthlyAvg(key){
+  const s = CHIP_MON_SERIES[key] || [];
+  const byYear = {};
+  s.forEach(x=> {
+    if(x.v==null) return;
+    if(!byYear[x.y]) byYear[x.y] = Array.from({length:12}, ()=> ({sum:0, n:0}));
+    byYear[x.y][x.mi].sum += x.v;
+    byYear[x.y][x.mi].n++;
+  });
+  const years = Object.keys(byYear).map(Number).sort((a,b)=> a-b);
+  return years.map(y=> ({ year:y, vals: byYear[y].map(c=> c.n ? c.sum/c.n : null) }));
+}
+function chipMonRenderYearlyTrend(grpId, key, m){
+  const el = document.getElementById('chipYearlyTrend_'+grpId);
+  if(!el) return;
+  const EN = currentLang==='en';
+  const series = chipMonYearlyMonthlyAvg(key);
+  const title = EN ? 'Year-over-year by month' : 'แนวโน้มรายเดือนเทียบปีต่อปี';
+  el.innerHTML = `<div class="md-sub" style="margin-top:18px;margin-bottom:6px;font-weight:700;color:var(--ink);">${title}</div>
+    <div class="md-chart-wrap"><canvas id="chipYearlyChart_${grpId}"></canvas></div>
+    <div class="legend-row" id="chipYearlyLegend_${grpId}"></div>`;
+  const labels = EN ? MONTH_ABBR_EN : MONTH_ABBR_TH;
+  const c = { ink2:cssVar('--ink-2'), grid:cssVar('--grid'), surface:cssVar('--surface'), border:cssVar('--border'), ink:cssVar('--ink') };
+  const datasets = series.map((s, i)=> ({
+    type:'line', label:String(s.year), data:s.vals, borderColor:CHIP_MON_YEARLY_TREND_COLORS[i % CHIP_MON_YEARLY_TREND_COLORS.length],
+    backgroundColor:CHIP_MON_YEARLY_TREND_COLORS[i % CHIP_MON_YEARLY_TREND_COLORS.length], borderWidth:1.8,
+    pointRadius:2.6, pointBackgroundColor:CHIP_MON_YEARLY_TREND_COLORS[i % CHIP_MON_YEARLY_TREND_COLORS.length],
+    tension:.25, spanGaps:true, fill:false, datalabels:{display:false}
+  }));
+  const allVals = datasets.flatMap(d=> d.data).filter(v=> v!=null);
+  let lo = allVals.length ? Math.min(...allVals) : 0;
+  let hi = allVals.length ? Math.max(...allVals) : 1;
+  const pad = (hi-lo)*0.16 || 1;
+  lo = lo - pad; hi = hi + pad;
+  const cv = document.getElementById('chipYearlyChart_'+grpId);
+  if(!cv) return;
+  if(chipMonYearlyCharts[grpId]){ chipMonYearlyCharts[grpId].destroy(); }
+  chipMonYearlyCharts[grpId] = new Chart(cv.getContext('2d'), {
+    data:{ labels, datasets },
+    options:{ responsive:true, maintainAspectRatio:false, layout:{padding:{top:16}},
+      interaction:{mode:'index', intersect:false},
+      scales:{
+        x:{ grid:{display:false}, ticks:{color:c.ink2, font:{family:'IBM Plex Mono', size:10}} },
+        y:{ min:lo, max:hi, grid:{color:c.grid}, ticks:{color:c.ink2, font:{family:'IBM Plex Mono', size:10.5}, callback:(v)=> v.toLocaleString('en-US') } }
+      },
+      plugins:{ legend:{display:false},
+        tooltip:{ position:'cursorOffset', backgroundColor:c.surface, titleColor:c.ink, bodyColor:c.ink2, borderColor:c.border, borderWidth:1, padding:9,
+          callbacks:{ label:(x)=> `${x.dataset.label}: ${x.parsed.y==null?'—':x.parsed.y.toLocaleString('en-US',{minimumFractionDigits:m.dec, maximumFractionDigits:m.dec})} ${m.unit}` } } }
+    }
+  });
+  const leg = document.getElementById('chipYearlyLegend_'+grpId);
+  if(leg) leg.innerHTML = series.map((s, i)=> `<span class="item"><span class="box" style="background:${CHIP_MON_YEARLY_TREND_COLORS[i % CHIP_MON_YEARLY_TREND_COLORS.length]}"></span>${s.year}</span>`).join('');
+}
 
 function chipMonFmt(v, dec){ return v==null ? '—' : v.toLocaleString('en-US', {minimumFractionDigits:dec, maximumFractionDigits:dec}); }
 /* colored up/down arrow for a stat-strip cell: latest reading vs. that cell's own period value.
@@ -10526,6 +10586,7 @@ function chipMonRenderDetail(grpId){
     </div>
 
     <div class="md-body" id="chipDetailBody_${grpId}"></div>
+    ${CHIP_MON_YEARLY_TREND_KEYS.includes(key) ? `<div id="chipYearlyTrend_${grpId}"></div>` : ''}
 
     <div class="md-assess">${chipMonAssess(m, a, tgt)}</div>
   `;
@@ -10546,6 +10607,7 @@ function chipMonRenderDetail(grpId){
   initChipMonAvgPick(grpId, key, m);
 
   chipMonRenderDetailBody(grpId, m, a, tgt);
+  if(CHIP_MON_YEARLY_TREND_KEYS.includes(key)) chipMonRenderYearlyTrend(grpId, key, m);
 }
 /* Species → per-mill metric key, in the display order requested (K58, K7, Seed, Other, St>1 m —
    not WOOD_CMP_COLS' own K7-first order, which only governs the stacked bars/table columns).
