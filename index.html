@@ -6936,12 +6936,18 @@ function chipMonRenderYearlyTrend(grpId, key, m){
     <div class="legend-row" id="chipYearlyLegend_${grpId}"></div>`;
   const labels = EN ? MONTH_ABBR_EN : MONTH_ABBR_TH;
   const c = { ink2:cssVar('--ink-2'), grid:cssVar('--grid'), surface:cssVar('--surface'), border:cssVar('--border'), ink:cssVar('--ink') };
-  const datasets = series.map((s, i)=> ({
-    type:'line', label:String(s.year), data:s.vals, borderColor:CHIP_MON_YEARLY_TREND_COLORS[i % CHIP_MON_YEARLY_TREND_COLORS.length],
-    backgroundColor:CHIP_MON_YEARLY_TREND_COLORS[i % CHIP_MON_YEARLY_TREND_COLORS.length], borderWidth:1.8,
-    pointRadius:2.6, pointBackgroundColor:CHIP_MON_YEARLY_TREND_COLORS[i % CHIP_MON_YEARLY_TREND_COLORS.length],
-    tension:.25, spanGaps:true, fill:false, datalabels:{display:false}
-  }));
+  // each year's own value labels alternate above/below its points (even index = top, odd = bottom)
+  // so adjacent years' numbers don't collide when their values run close together.
+  const datasets = series.map((s, i)=> {
+    const col = CHIP_MON_YEARLY_TREND_COLORS[i % CHIP_MON_YEARLY_TREND_COLORS.length];
+    return { type:'line', label:String(s.year), data:s.vals, borderColor:col,
+      backgroundColor:col, borderWidth:1.8, pointRadius:2.6, pointBackgroundColor:col,
+      tension:.25, spanGaps:true, fill:false,
+      datalabels:{ display:(x)=> x.dataset.data[x.dataIndex]!=null, align: i%2===0 ? 'top' : 'bottom',
+        anchor: i%2===0 ? 'end' : 'start', offset:4, color:col,
+        font:{family:'IBM Plex Mono', size:9.5, weight:'600'},
+        formatter:(v)=> v==null ? '' : v.toLocaleString('en-US', {minimumFractionDigits:m.dec, maximumFractionDigits:m.dec}) } };
+  });
   const allVals = datasets.flatMap(d=> d.data).filter(v=> v!=null);
   let lo = allVals.length ? Math.min(...allVals) : 0;
   let hi = allVals.length ? Math.max(...allVals) : 1;
