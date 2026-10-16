@@ -9457,7 +9457,7 @@ function lpBuildPareto(rows, by){
   else if(by==='eqName') { keyFn=r=>r.eqName||'__NA__'; labelFn=r=>r.eqName||'N/A (ไม่มี EQ Type)'; }
   else if(by==='type') { keyFn=r=>r.classifiedType||'Unclassified'; labelFn=r=>r.classifiedType||'Unclassified'; }
   else if(by==='lossCategory') { keyFn=r=>r.lossCategory||'__NA__'; labelFn=r=>r.lossCategory||'ไม่ระบุหมวด'; }
-  else if(by==='event') { keyFn=r=>r.sourceRowId; labelFn=r=>r.classifiedType||r.eqName||'Event'; }
+  else if(by==='event') { keyFn=r=>r.sourceRowId; labelFn=r=> (r.eqNum||'N/A')+' : '+(r.classifiedType||'Unclassified'); }
   else { keyFn=r=>r.classifiedSubType||'Needs Review'; labelFn=r=>r.classifiedSubType||'Needs Review'; }
   const groups = lpGroupSum(rows, keyFn, labelFn).sort((a,b)=>b.loss-a.loss);
   const total = lpSum(rows);
@@ -9934,7 +9934,7 @@ function lpRenderEventPareto(filtered){
         }}
       },
       scales:{
-        x:{ ticks:{ color: inkColor, autoSkip:false, maxRotation:70, minRotation:40, font:{ size:9 } }, grid:{ color: gridColor } },
+        x:{ ticks:{ color: inkColor, autoSkip:false, maxRotation:60, minRotation:30 }, grid:{ color: gridColor } },
         y:{ position:'left', grace:'12%', title:{ display:true, text:'Loss ADT', color: inkColor }, ticks:{ color: inkColor }, grid:{ color: gridColor } },
         y1:{ position:'right', min:0, max:100, title:{ display:true, text:'Cumulative %', color: inkColor }, ticks:{ color: inkColor }, grid:{ drawOnChartArea:false } },
       }
