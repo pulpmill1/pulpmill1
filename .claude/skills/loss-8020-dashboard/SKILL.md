@@ -10,8 +10,13 @@ description: Use when updating, extending, or refreshing the "Loss 80:20" Pareto
 A Pareto 80:20 page (`data-page="loss-production"`, nav label "Loss 80:20") inside the
 Pulpmill1 dashboard (`index.html` in this repo), driven entirely by `lp*`/`LP_*` functions near
 the end of the big inline `<script>`. It live-fetches the source Google Sheet client-side on
-every page load — never hardcoded, never written back to the sheet. There is also a standalone
-**Claude Artifact preview** of just this page, published at:
+every page load — never hardcoded, never written back to the sheet. Sections, top to bottom:
+filters, KPI tiles, the main Pareto chart (grouped by `Pareto By`: EQ num:Type / Type / Equipment
+Tag / Equipment Type), **Loss Category Breakdown** (bar+cumulative-% chart and table, grouped by
+the `Loss Category` column — see Source of truth below), **Loss Events Pareto** (ungrouped,
+one bar per event, Top-N vs "Others" bucket at ~80% cumulative, excludes the `Uncook` category),
+Vital Few table, Monthly Trend, Equipment Matrix, Loss Detail, Classification Review, Data
+Quality. There is also a standalone **Claude Artifact preview** of just this page, published at:
 
 **https://claude.ai/artifact/2BsP8yfm4gjbNNBwcY9bTr**
 
@@ -34,9 +39,17 @@ one, so the link people already have keeps working.
   they're there if a future row needs backfilling.
 - Row layout per year tab (identical across 2022-2026): row 2 = title, row 4 = header, data from
   row 5. Header (meaning-based matching in the code, not column position — tabs do drift):
-  `Month | Date | EQ num | EQ Type | Type | Loss Production (ADT desc + value, two sub-columns)
-  | CM | PM | Remark`. No Duration/Time Start/Time End/Compensate loss/Sub Type columns anymore
-  (2021 had those; 2022-2026 don't).
+  `Month | Date | EQ num | EQ Type | Loss Category | Type | Loss Production (ADT desc + value,
+  two sub-columns) | CM | PM | Remark`. No Duration/Time Start/Time End/Compensate loss/Sub Type
+  columns anymore (2021 had those; 2022-2026 don't).
+- **`Loss Category`** (added to the `2026` tab on 2026-10-16, not yet backfilled to 2022-2025) is
+  a higher-level grouping than `Type` — observed values so far: `Machine breakdown`, `Force
+  breakdown`, `Slow production`. A 4th category, `Uncook` (process/digester loss, not tied to a
+  specific piece of equipment — every row in this sheet carries an EQ num/EQ Type), has never
+  appeared in the data: this equipment-event sheet may simply never log Uncook losses at all. Rows
+  without this column (all of 2022-2025, and any 2026 row the sheet owner hasn't tagged yet) parse
+  to `lossCategory: ''`, rendered as "ไม่ระบุหมวด" (uncategorized) in the Loss Category Breakdown
+  chart — don't treat a blank category as an error.
 - **Date header is literally `Date` (singular), not `Date start`.** The header-matching code
   treats `hl==='date start' || hl==='date'` as the same field — if a future tab uses yet another
   spelling, add it there rather than assuming. Getting this wrong silently downgrades every row
@@ -112,7 +125,20 @@ fetching it live, and needs to be explicitly refreshed and republished. Recipe, 
    markup wrapped in `<section class="page" data-page="loss-production">...</section>` (don't
    drop that wrapper — `initLoss8020Dashboard()`'s very first line is
    `document.querySelector('.page[data-page="loss-production"]')` and silently returns if it's
-   missing, so the page just stays empty with zero errors). **Also stub three globals that the
+   missing, so the page just stays empty with zero errors). **Strip the `hidden` attribute off
+   that `<section>` tag when you extract it** — in `index.html` the tag is literally
+   `<section class="page" data-page="loss-production" hidden>` (the real dashboard's nav-switch
+   JS removes `hidden` from whichever page is active; the standalone Artifact has no nav, so
+   `hidden` never comes off). Chromium's UA stylesheet renders `[hidden]{display:none}` with no
+   CSS needed to cause it — this makes the *entire page invisible* while every DOM-level check
+   (Playwright `$eval`, `textContent`, `.innerHTML`) still succeeds normally, since those don't
+   care about CSS visibility. **This shipped silently broken for about a week of daily refreshes**
+   (first introduced around 2026-10-09 when the inner-markup extraction switched from a naive
+   regex to balanced `<section>`-tag matching, which — unlike the old regex — faithfully preserved
+   the `hidden` attribute) before being caught on 2026-10-16, because the smoke test's own
+   `#lpKpiGrid` populated-children check never renders the page, only reads its DOM. **Take a real
+   Playwright screenshot after scrolling to a chart, not just a DOM read, whenever the assembly
+   script changes** — that would have caught this immediately. Also stub three globals that the
    `lp*` block reads but which are defined elsewhere in `index.html`'s one big shared `<script>`,
    outside the `const LP_SHEET_ID` ... `initLoss8020Dashboard();` slice this recipe extracts** —
    paste these three lines right before `const LP_SHEET_ID` in the patched logic:
@@ -138,7 +164,12 @@ fetching it live, and needs to be explicitly refreshed and republished. Recipe, 
    `npm install chart.js@4.5.1 chartjs-plugin-datalabels@2.2.0` copy for the CDN scripts, and
    `page.setContent()` (not a raw local HTTP server, which mis-serves the charset and garbles
    Thai text — that's a test-harness artifact, not a real bug, but it wastes time chasing). Check
-   KPI tiles render, a filter change updates them, and `console` is clean.
+   KPI tiles render, a filter change updates them, and `console` is clean. **DOM-level checks
+   (`$eval`, `.textContent`, `.innerHTML`) are not proof the page is visible** — they read the DOM
+   regardless of CSS `display:none`, so they would pass even on the completely blank page the
+   missing-`hidden`-strip bug above produced for about a week undetected. Whenever the assembly
+   script itself changes (not just the data), also take a real `page.screenshot()` after
+   `scrollIntoViewIfNeeded()` on a chart canvas and actually look at it.
 7. **Publish** with the Artifact tool using `file_path` + `url:
    'https://claude.ai/artifact/2BsP8yfm4gjbNNBwcY9bTr'` so it updates in place.
 
@@ -157,6 +188,11 @@ fix in `index.html` first, the way the `EQ Type` rename and the `Date`-vs-`Date 
 
 ## Gotchas learned the hard way
 
+- **Strip `hidden` off the extracted `<section>` tag, every time** — see step 5 above. Shipped a
+  completely blank Artifact silently for about a week (introduced ~2026-10-09, caught 2026-10-16)
+  because every smoke test used DOM reads that don't care about CSS visibility. The fix is one
+  `.replace()` on the extracted `inner.html`; the discipline that actually catches a regression
+  here is a real screenshot, not another DOM assertion.
 - **Don't require Sub Type for "Original"** — see Classification above. This was the single
   highest-impact bug across this dashboard's history: it silently made the AI classifier do all
   the work on a dataset that was already ~100% authoritative.
