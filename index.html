@@ -2040,7 +2040,7 @@
           </div>
 
           <div class="card">
-            <div class="chart-head"><div class="chart-title">Loss Events Pareto (รายเหตุการณ์ · ไม่รวม Uncook)</div></div>
+            <div class="chart-head"><div class="chart-title">Loss Events Pareto (รายเหตุการณ์)</div></div>
             <div class="hint" id="lpEventParetoHint"></div>
             <div class="chart-wrap" style="height:400px;"><canvas id="lpEventParetoChart"></canvas></div>
             <div class="legend-row">
@@ -9890,7 +9890,7 @@ function lpRenderEventPareto(filtered){
   const { top, topN, total, topLoss, topShare, othersCount, othersLoss, othersShare } = lpBuildEventPareto(filtered);
   const hintEl = document.getElementById('lpEventParetoHint');
   if(hintEl){
-    hintEl.textContent = top.length===0 ? 'ไม่มีข้อมูล Loss ในช่วงเวลาที่เลือก (ไม่รวมหมวด Uncook)'
+    hintEl.textContent = top.length===0 ? 'ไม่มีข้อมูล Loss ในช่วงเวลาที่เลือก'
       : `Top ${topN} events = ${lpFmtNum(topLoss)} ADT loss = ${topShare.toFixed(1)}%`
         + (othersCount>0 ? ` · ส่วนที่เหลือ ${othersCount} events = ${lpFmtNum(othersLoss)} ADT (${othersShare.toFixed(1)}%)` : '');
   }
