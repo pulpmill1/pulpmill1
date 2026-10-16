@@ -9458,6 +9458,7 @@ function lpBuildPareto(rows, by){
   else if(by==='type') { keyFn=r=>r.classifiedType||'Unclassified'; labelFn=r=>r.classifiedType||'Unclassified'; }
   else if(by==='lossCategory') { keyFn=r=>r.lossCategory||'__NA__'; labelFn=r=>r.lossCategory||'ไม่ระบุหมวด'; }
   else if(by==='event') { keyFn=r=>r.sourceRowId; labelFn=r=> (r.eqNum||'N/A')+' : '+(r.classifiedType||'Unclassified'); }
+  else if(by==='eqNameType') { keyFn=r=>(r.eqName||'__NA__')+'␟'+(r.classifiedType||'Unclassified'); labelFn=r=> (r.eqName||'N/A')+' : '+(r.classifiedType||'Unclassified'); }
   else { keyFn=r=>r.classifiedSubType||'Needs Review'; labelFn=r=>r.classifiedSubType||'Needs Review'; }
   const groups = lpGroupSum(rows, keyFn, labelFn).sort((a,b)=>b.loss-a.loss);
   const total = lpSum(rows);
@@ -9868,37 +9869,40 @@ function lpRenderLossCategoryChart(filtered){
   }
 }
 
-/* ---- Event-level Pareto: ทุกแถว = 1 แท่ง, ไม่ group — ใช้สำหรับหา Top N events ที่สะสมถึง ~80%
-   ของ Loss (ไม่รวมหมวด Uncook เพราะเป็น process loss ไม่ผูกกับอุปกรณ์ — ดู lpBuildPareto 'event') ---- */
+/* ---- Loss Events Pareto: group ตาม "EQ Type : Type" (เหมือน Pareto By ของกราฟหลักแต่ใช้ EQ Type
+   แทน EQ num) ใช้สำหรับหา Top N กลุ่มที่สะสมถึง ~80% ของ Loss — ไม่รวมหมวด Uncook เพราะเป็น process
+   loss ไม่ผูกกับอุปกรณ์ (ดู lpBuildPareto 'eqNameType') ---- */
 function lpBuildEventPareto(rows){
   const nonUncook = rows.filter(r => !/uncook/i.test(r.lossCategory||''));
-  const { groups, crossIdx, total } = lpBuildPareto(nonUncook, 'event');
+  const { groups, crossIdx, total } = lpBuildPareto(nonUncook, 'eqNameType');
   const topN = groups.length===0 ? 0 : (crossIdx>=0 ? crossIdx+1 : groups.length);
   const top = groups.slice(0, topN);
   const others = groups.slice(topN);
   const othersLoss = others.reduce((a,g)=>a+g.loss,0);
+  const othersRecords = others.reduce((a,g)=>a+g.records,0);
   const topLoss = top.reduce((a,g)=>a+g.loss,0);
+  const topRecords = top.reduce((a,g)=>a+g.records,0);
   return {
-    top, topN, total,
+    top, topN, total, topRecords,
     topLoss, topShare: total ? topLoss/total*100 : 0,
-    othersCount: others.length, othersLoss, othersShare: total ? othersLoss/total*100 : 0,
+    othersCount: others.length, othersRecords, othersLoss, othersShare: total ? othersLoss/total*100 : 0,
   };
 }
 function lpRenderEventPareto(filtered){
   const canvas = document.getElementById('lpEventParetoChart');
   if(!canvas) return;
-  const { top, topN, total, topLoss, topShare, othersCount, othersLoss, othersShare } = lpBuildEventPareto(filtered);
+  const { top, topN, total, topRecords, topLoss, topShare, othersCount, othersRecords, othersLoss, othersShare } = lpBuildEventPareto(filtered);
   const hintEl = document.getElementById('lpEventParetoHint');
   if(hintEl){
     hintEl.textContent = top.length===0 ? 'ไม่มีข้อมูล Loss ในช่วงเวลาที่เลือก'
-      : `Top ${topN} events = ${lpFmtNum(topLoss)} ADT loss = ${topShare.toFixed(1)}%`
-        + (othersCount>0 ? ` · ส่วนที่เหลือ ${othersCount} events = ${lpFmtNum(othersLoss)} ADT (${othersShare.toFixed(1)}%)` : '');
+      : `Top ${topN} EQ Type : Type (${topRecords} events) = ${lpFmtNum(topLoss)} ADT loss = ${topShare.toFixed(1)}%`
+        + (othersCount>0 ? ` · ส่วนที่เหลือ ${othersCount} กลุ่ม (${othersRecords} events) = ${lpFmtNum(othersLoss)} ADT (${othersShare.toFixed(1)}%)` : '');
   }
   const labels = top.map(g=>g.label);
   const data = top.map(g=>g.loss);
   const cum = top.map(g=>g.cumShare);
   if(othersCount>0){
-    labels.push(`Others (${othersCount} events)`);
+    labels.push(`Others (${othersRecords} events)`);
     data.push(othersLoss);
     cum.push(100);
   }
@@ -9927,9 +9931,9 @@ function lpRenderEventPareto(filtered){
         tooltip:{ callbacks:{
           afterBody:(items)=>{
             const i = items[0].dataIndex;
-            if(i>=top.length) return [`จำนวน Events: ${othersCount}`, `Loss ADT รวม: ${lpFmtNum(othersLoss)}`, `% ของทั้งหมด: ${othersShare.toFixed(1)}%`];
+            if(i>=top.length) return [`จำนวนกลุ่ม: ${othersCount}`, `จำนวน Events: ${othersRecords}`, `Loss ADT รวม: ${lpFmtNum(othersLoss)}`, `% ของทั้งหมด: ${othersShare.toFixed(1)}%`];
             const g = top[i];
-            return [`Rank: ${i+1}`, `Loss ADT: ${lpFmtNum(g.loss)}`, `% ของทั้งหมด: ${g.share.toFixed(1)}%`, `Cumulative: ${g.cumShare.toFixed(1)}%`];
+            return [`Rank: ${i+1}`, `Loss ADT: ${lpFmtNum(g.loss)}`, `% ของทั้งหมด: ${g.share.toFixed(1)}%`, `Cumulative: ${g.cumShare.toFixed(1)}%`, `Loss Records: ${g.records}`];
           }
         }}
       },
