@@ -1986,6 +1986,8 @@
               <div class="field"><label for="lpMonthA">เดือน / From Month</label><select id="lpMonthA"></select></div>
               <div class="field"><label for="lpYearB">To Year</label><select id="lpYearB"></select></div>
               <div class="field"><label for="lpMonthB">To Month</label><select id="lpMonthB"></select></div>
+              <div class="field"><label for="lpDateFrom">วันที่เริ่ม / From Date</label><input type="date" id="lpDateFrom"></div>
+              <div class="field"><label for="lpDateTo">วันที่สิ้นสุด / To Date</label><input type="date" id="lpDateTo"></div>
               <div class="field"><label for="lpMultiYears">เลือกหลายปี (Ctrl/Cmd+คลิก)</label><select id="lpMultiYears" multiple></select></div>
               <div class="field"><label for="lpFilterEqNum">EQ num</label><select id="lpFilterEqNum"></select></div>
               <div class="field"><label for="lpFilterEqName">EQ Type</label><select id="lpFilterEqName"></select></div>
@@ -9393,6 +9395,11 @@ function lpLatestMonthKey(){
 }
 function lpInPeriod(r, period){
   if(!period || period.mode==='all') return true;
+  if(period.mode==='dateRange'){
+    if(!r.dateStart) return false;
+    const t = r.dateStart.getTime();
+    return t>=period.fromDate.getTime() && t<=period.toDate.getTime();
+  }
   if(r.monthIndex<0) return false;
   if(period.mode==='sameMonthsAcrossYears'){
     return period.years.includes(r.year) && r.monthIndex>=period.fromMonth && r.monthIndex<=period.toMonth;
@@ -9408,6 +9415,10 @@ function lpPeriodLabel(period){
   if(period.mode==='sameMonthsAcrossYears'){
     const mFrom = LP_MONTH_ORDER[period.fromMonth], mTo = LP_MONTH_ORDER[period.toMonth];
     return `${mFrom}${period.fromMonth!==period.toMonth?'-'+mTo:''} · ${period.years.join(', ')}`;
+  }
+  if(period.mode==='dateRange'){
+    const fmt = d => `${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()}`;
+    return `${fmt(period.fromDate)} – ${fmt(period.toDate)}`;
   }
   if(period.fromYear===period.toYear && period.fromMonth===period.toMonth){
     return `${LP_MONTH_ORDER[period.fromMonth]} ${period.fromYear}`;
@@ -9607,6 +9618,15 @@ function lpPopulateFilterOptions(){
   const multiYears = document.getElementById('lpMultiYears');
   if(multiYears) multiYears.innerHTML = LP_YEARS.map(y=>lpOpt(y,y,true)).join('');
 
+  const dated = rows.filter(r=>r.dateStart);
+  if(dated.length){
+    const toInputVal = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    const minD = dated.reduce((a,r)=>r.dateStart<a?r.dateStart:a, dated[0].dateStart);
+    const maxD = dated.reduce((a,r)=>r.dateStart>a?r.dateStart:a, dated[0].dateStart);
+    const dFrom = document.getElementById('lpDateFrom'); if(dFrom){ dFrom.min = toInputVal(minD); dFrom.max = toInputVal(maxD); dFrom.value = toInputVal(minD); }
+    const dTo = document.getElementById('lpDateTo'); if(dTo){ dTo.min = toInputVal(minD); dTo.max = toInputVal(maxD); dTo.value = toInputVal(maxD); }
+  }
+
   const eqNums = lpDistinctSorted(rows, r=>r.eqNum);
   const eqNames = lpDistinctSorted(rows, r=>r.eqName);
   const types = lpDistinctSorted(rows, r=>r.classifiedType);
@@ -9628,7 +9648,15 @@ function lpComputePeriodFromUI(){
   if(preset==='all') return { mode:'all' };
   if(preset==='fullYear') return { mode:'absoluteRange', fromYear:yA, fromMonth:0, toYear:yA, toMonth:11 };
   if(preset==='singleMonth') return { mode:'absoluteRange', fromYear:yA, fromMonth:mA, toYear:yA, toMonth:mA };
-  if(preset==='monthRange' || preset==='custom') return { mode:'absoluteRange', fromYear:yA, fromMonth:mA, toYear:yB, toMonth:mB };
+  if(preset==='monthRange') return { mode:'absoluteRange', fromYear:yA, fromMonth:mA, toYear:yB, toMonth:mB };
+  if(preset==='custom'){
+    const dFromVal = document.getElementById('lpDateFrom').value;
+    const dToVal = document.getElementById('lpDateTo').value;
+    if(dFromVal && dToVal){
+      return { mode:'dateRange', fromDate: new Date(dFromVal+'T00:00:00'), toDate: new Date(dToVal+'T23:59:59') };
+    }
+    return { mode:'all' };
+  }
   if(preset==='ytd') return { mode:'absoluteRange', fromYear:yA, fromMonth:0, toYear:yA, toMonth: (yA===latest.year? latest.mi : 11) };
   if(preset==='last3' || preset==='last6'){
     const span = preset==='last3' ? 3 : 6;
@@ -9645,14 +9673,16 @@ function lpComputePeriodFromUI(){
 function lpUpdatePeriodControlsVisibility(){
   const preset = document.getElementById('lpPeriodPreset').value;
   const show = (id, on)=>{ const el = document.getElementById(id); if(el) el.closest('.field').hidden = !on; };
-  show('lpYearA', preset!=='all' && preset!=='last3' && preset!=='last6');
-  show('lpMonthA', preset==='singleMonth' || preset==='monthRange' || preset==='custom' || preset==='sameMonthsMultiYear');
-  show('lpYearB', preset==='monthRange' || preset==='custom');
-  show('lpMonthB', preset==='monthRange' || preset==='custom' || preset==='sameMonthsMultiYear');
+  show('lpYearA', preset!=='all' && preset!=='last3' && preset!=='last6' && preset!=='custom');
+  show('lpMonthA', preset==='singleMonth' || preset==='monthRange' || preset==='sameMonthsMultiYear');
+  show('lpYearB', preset==='monthRange');
+  show('lpMonthB', preset==='monthRange' || preset==='sameMonthsMultiYear');
+  show('lpDateFrom', preset==='custom');
+  show('lpDateTo', preset==='custom');
   show('lpMultiYears', preset==='sameMonthsMultiYear');
 }
 function lpWireFilterEvents(){
-  const ids = ['lpPeriodPreset','lpYearA','lpMonthA','lpYearB','lpMonthB','lpMultiYears',
+  const ids = ['lpPeriodPreset','lpYearA','lpMonthA','lpYearB','lpMonthB','lpDateFrom','lpDateTo','lpMultiYears',
     'lpFilterEqNum','lpFilterEqName','lpFilterType','lpFilterClsSource','lpFilterClsConf','lpParetoBy'];
   ids.forEach(id=>{
     const el = document.getElementById(id); if(!el) return;
