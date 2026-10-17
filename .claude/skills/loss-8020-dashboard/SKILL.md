@@ -13,10 +13,13 @@ the end of the big inline `<script>`. It live-fetches the source Google Sheet cl
 every page load — never hardcoded, never written back to the sheet. Sections, top to bottom:
 filters, KPI tiles, the main Pareto chart (grouped by `Pareto By`: EQ num:Type / Type / Equipment
 Tag / Equipment Type), **Loss Category Breakdown** (bar+cumulative-% chart and table, grouped by
-the `Loss Category` column — see Source of truth below), **Loss Events Pareto** (ungrouped,
-one bar per event, Top-N vs "Others" bucket at ~80% cumulative, excludes the `Uncook` category),
-Vital Few table, Monthly Trend, Equipment Matrix, Loss Detail, Classification Review, Data
-Quality. There is also a standalone **Claude Artifact preview** of just this page, published at:
+the `Loss Category` column — see Source of truth below), **Loss Events Pareto** (grouped by
+`EQ Type : Type` — the `eqNameType` key in `lpBuildPareto`, not per-row; an earlier per-event
+version produced 50+ overlapping bars and was replaced on 2026-10-16 — Top-N vs "Others" bucket
+at ~80% cumulative, excludes the `Uncook` category, hint/tooltips report both group count and the
+underlying event count), Vital Few table, Monthly Trend, Equipment Matrix, Loss Detail,
+Classification Review, Data Quality. There is also a standalone **Claude Artifact preview** of
+just this page, published at:
 
 **https://claude.ai/artifact/2BsP8yfm4gjbNNBwcY9bTr**
 
