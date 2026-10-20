@@ -9857,17 +9857,17 @@ function lpRenderLossCategoryChart(filtered){
       labels: groups.map(g=>g.label),
       datasets: [
         { type:'bar', label:'Loss ADT', data: groups.map(g=>g.loss), backgroundColor: accent, order:2, yAxisID:'y',
-          datalabels:{ display:true, anchor:'end', align:'top', offset:2, color: inkColor, font:{ size:11, weight:'600' }, formatter: v => lpFmtNum(v) } },
+          datalabels:{ display:true, anchor:'end', align:'top', offset:2, color: inkColor, font:{ size:16, weight:'700' }, formatter: v => lpFmtNum(v) } },
         { type:'line', label:'Cumulative %', data: groups.map(g=>g.cumShare), borderColor:'#d4342c', backgroundColor:'#d4342c',
           borderWidth:2, pointRadius:3, tension:0.15, order:1, yAxisID:'y1',
-          datalabels:{ display:true, align: ctx => ctx.dataIndex===0 ? 'bottom' : 'top', offset:8, color:'#d4342c', font:{ size:10, weight:'600' }, formatter: v => v.toFixed(1)+'%' } },
+          datalabels:{ display:true, align: ctx => ctx.dataIndex===0 ? 'bottom' : 'top', offset:8, color:'#d4342c', font:{ size:14, weight:'700' }, formatter: v => v.toFixed(1)+'%' } },
       ]
     },
     options: {
       responsive:true, maintainAspectRatio:false,
       interaction:{ mode:'index', intersect:false },
       plugins:{
-        legend:{ labels:{ color: inkColor } },
+        legend:{ labels:{ color: inkColor, font:{ size:14 } } },
         datalabels:{ display:false },
         tooltip:{ callbacks:{
           afterBody:(items)=>{
@@ -9877,9 +9877,9 @@ function lpRenderLossCategoryChart(filtered){
         }}
       },
       scales:{
-        x:{ ticks:{ color: inkColor, autoSkip:false, maxRotation:30, minRotation:0 }, grid:{ color: gridColor } },
-        y:{ position:'left', grace:'15%', title:{ display:true, text:'Loss ADT', color: inkColor }, ticks:{ color: inkColor }, grid:{ color: gridColor } },
-        y1:{ position:'right', min:0, max:100, title:{ display:true, text:'Cumulative %', color: inkColor }, ticks:{ color: inkColor }, grid:{ drawOnChartArea:false } },
+        x:{ ticks:{ color: inkColor, autoSkip:false, maxRotation:30, minRotation:0, font:{ size:14 } }, grid:{ color: gridColor } },
+        y:{ position:'left', grace:'15%', title:{ display:true, text:'Loss ADT', color: inkColor, font:{ size:14, weight:'600' } }, ticks:{ color: inkColor, font:{ size:13 } }, grid:{ color: gridColor } },
+        y1:{ position:'right', min:0, max:100, title:{ display:true, text:'Cumulative %', color: inkColor, font:{ size:14, weight:'600' } }, ticks:{ color: inkColor, font:{ size:13 } }, grid:{ drawOnChartArea:false } },
       }
     }
   };
