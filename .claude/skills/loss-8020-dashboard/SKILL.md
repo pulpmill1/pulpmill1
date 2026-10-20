@@ -40,6 +40,12 @@ one, so the link people already have keeps working.
   own dropdown data-validation source). The dashboard does not currently read these — all rows
   in 2022-2026 already carry EQ Type and Type directly (dropdown-filled, ~100% populated) — but
   they're there if a future row needs backfilling.
+- **A third tab, `Down time`, appeared on 2026-10-20** — wide-format monthly aggregate downtime
+  hours (Plan/Unplan, year × month columns), not individual EQ-tied events, and a completely
+  different schema than the `2022`-`2026` tabs. It made that day's workbook ~60KB/80K-char bigger
+  even though nothing in the dashboard's actual data changed — don't mistake a big byte-size jump
+  for a data change without checking which tab grew. The dashboard does not read this tab; it's
+  out of scope unless the user asks for it.
 - Row layout per year tab (identical across 2022-2026): row 2 = title, row 4 = header, data from
   row 5. Header (meaning-based matching in the code, not column position — tabs do drift):
   `Month | Date | EQ num | EQ Type | Loss Category | Type | Loss Production (ADT desc + value,
