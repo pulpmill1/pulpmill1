@@ -6814,6 +6814,24 @@ function chipMonSetTarget(key, lo, hi){
   try{ localStorage.setItem('fl1_chip_target_'+key, JSON.stringify({lo, hi})); }catch(e){}
 }
 
+/* ---- Y-axis range override (per metric, browser-local) — distinct from the target lines above:
+   this sets the chart's own scales.y.min/max directly, not a reference line drawn on it. Leaving
+   either blank keeps that bound auto-fit to the data. */
+function chipMonYScale(key){
+  try{ const raw = JSON.parse(localStorage.getItem('fl1_chip_yscale_'+key) || '{}'); return {lo:raw.lo??null, hi:raw.hi??null}; }
+  catch(e){ return {lo:null, hi:null}; }
+}
+function chipMonSetYScale(key, lo, hi){
+  try{ localStorage.setItem('fl1_chip_yscale_'+key, JSON.stringify({lo, hi})); }catch(e){}
+}
+/* Groups where the y-axis auto-fits tightly to the data range on first load instead of snapping
+   its low end down to 0 — lets a trend that moves within a narrow band (e.g. 46-49%) actually show
+   its shape, rather than being flattened against a mostly-empty 0-50 axis. Scoped to exactly the
+   groups asked for; every other group (incl. Yield's own combo chart and every Process-area group)
+   keeps the original zero-snapping behavior. A per-metric Y-axis override (chipMonYScale) still
+   wins over either behavior when set. */
+const CHIP_MON_YAXIS_FIT_GROUPS = ['overview','bulk','screen','woodPm1','woodPm2','woodTotal','cook','reject','endprod','etp'];
+
 /* ==================================================================================
    Shared range-preset bar — a single reusable "Today / Yesterday / This month / Last
    month / This year | 3d / 7d / 14d / 30d / All / Custom" pill bar, replacing the old
@@ -10517,6 +10535,8 @@ function chipMonRenderDetail(grpId){
   if(!a){ panel.innerHTML = `<div class="md-sub">ยังไม่มีข้อมูลของค่านี้ในชีต</div>`; return; }
 
   const tgt = chipMonTarget(key);
+  const yScale = chipMonYScale(key);
+  const showYScaleCtl = CHIP_MON_YAXIS_FIT_GROUPS.includes(grpId);
   const anchorDate = `${a.anchor.d} ${MONTH_ABBR_TH[a.anchor.mi]} ${a.anchor.y}`;
   const curLbl = chipMonMonthLabel(a.anchor.mi, a.anchor.y);
   const prevLbl = chipMonMonthLabel(a.pmi, a.py);
@@ -10578,6 +10598,13 @@ function chipMonRenderDetail(grpId){
       <span class="fld">HIGH <input type="number" step="any" id="chipTgtHi_${grpId}" value="${tgt.hi??''}" placeholder="—"> ${m.unit}</span>
       <span class="note">ตั้ง Low / High เพื่อวางเส้นเป้าบนกราฟ${specTxt !== 'ไม่มีเกณฑ์ในชีต' ? ` · เกณฑ์อ้างอิงในชีต: ${specTxt}` : ''}</span>
     </div>
+    ${showYScaleCtl ? `
+    <div class="md-target">
+      <span class="lbl">แกน Y (Y-axis)</span>
+      <span class="fld">MIN <input type="number" step="any" id="chipYLo_${grpId}" value="${yScale.lo??''}" placeholder="auto"> ${m.unit}</span>
+      <span class="fld">MAX <input type="number" step="any" id="chipYHi_${grpId}" value="${yScale.hi??''}" placeholder="auto"> ${m.unit}</span>
+      <span class="note">ค่าเริ่มต้นปรับอัตโนมัติให้พอดีกับข้อมูล (ไม่เริ่มที่ 0) เว้นว่างไว้เพื่อกลับไปใช้ค่าอัตโนมัติ</span>
+    </div>` : ''}
 
     <div class="md-strip">
       <div class="md-cell hero"><div class="ck">Latest</div><div class="cv">${chipMonFmt(stripLatest, m.dec)}<small> ${m.unit}</small></div><div class="cs">${anchorDate}</div></div>
@@ -10608,6 +10635,17 @@ function chipMonRenderDetail(grpId){
   };
   loEl.addEventListener('change', onTgt);
   hiEl.addEventListener('change', onTgt);
+  if(showYScaleCtl){
+    const yLoEl = document.getElementById('chipYLo_'+grpId), yHiEl = document.getElementById('chipYHi_'+grpId);
+    const onYScale = () => {
+      const lo = yLoEl.value.trim()==='' ? null : +yLoEl.value;
+      const hi = yHiEl.value.trim()==='' ? null : +yHiEl.value;
+      chipMonSetYScale(key, lo, hi);
+      chipMonRenderDetailBody(grpId, m, a, chipMonTarget(key));
+    };
+    yLoEl.addEventListener('change', onYScale);
+    yHiEl.addEventListener('change', onYScale);
+  }
   rpkWire('chipRange_'+grpId, CHIP_MON_RANGE[grpId], (next)=>{ CHIP_MON_RANGE[grpId] = next; chipMonRenderDetail(grpId); });
   panel.querySelectorAll('.md-viewbtn').forEach(b=> b.addEventListener('click', ()=>{ CHIP_MON_VIEW[grpId] = b.dataset.view; chipMonRenderDetailBody(grpId, m, a, chipMonTarget(key)); }));
   initChipMonAvgPick(grpId, key, m);
@@ -11204,8 +11242,12 @@ function chipMonDrawDetailChart(grpId, m, a, tgt){
   const rr = (hi+pad) - (lo-pad);
   const step = rr>50000 ? 10000 : rr>5000 ? 1000 : rr>500 ? 100 : rr>100 ? 20 : rr>40 ? 10 : rr>12 ? 5 : rr>4 ? 2 : 0.5;
   lo = Math.floor((lo-pad)/step)*step;
-  if(lo > 0 && !allVals.some(v=> v!=null && v<0)) lo = 0;
+  if(lo > 0 && !allVals.some(v=> v!=null && v<0) && !CHIP_MON_YAXIS_FIT_GROUPS.includes(grpId)) lo = 0;
   hi = Math.ceil((hi+pad)/step)*step;
+  // manual Y-axis override (per metric) always wins over either auto-fit behavior above
+  const yScale = chipMonYScale(m.key);
+  if(yScale.lo!=null) lo = yScale.lo;
+  if(yScale.hi!=null) hi = yScale.hi;
 
   const nBars = vals.filter(v=> v!=null).length;
   // Process area logsheets (Cooking/Brown stock/Bleaching) show a LINE, not a bar — same for the
