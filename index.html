@@ -6168,16 +6168,16 @@ const CHIP_MON_META = [
 ];
 const CHIP_MON_GROUPS = [
   {id:'yield',   ico:'📈', th:'Yield (BDt/ADt)', rail:'#1565C0'},
-  {id:'overview', ico:'📋', th:'ภาพรวม (Overview)', rail:'#455A64'},
-  {id:'bulk',    ico:'⚙', th:'ค่าพื้นฐานของชิ้นไม้สับ', rail:'#7C4DFF'},
-  {id:'screen',  ico:'🔻', th:'การกระจายขนาดชิ้นไม้สับ (Chip Screen)', rail:'#E0417A'},
-  {id:'woodPm1',   ico:'🌲', th:'Wood species Pulp mill 1', rail:'#5B8C2A'},
-  {id:'woodPm2',   ico:'🌲', th:'Wood species Pulp mill 2', rail:'#2A8C6E'},
-  {id:'woodTotal', ico:'🌲', th:'Wood species Pulp mill 1 + Pulp mill 2', rail:'#5B8C2A'},
-  {id:'cook',    ico:'🍲', th:'Cooking Kappa', rail:'#0E7C86'},
-  {id:'reject',  ico:'🧹', th:'Knot / White reject', rail:'#C9A227'},
-  {id:'endprod', ico:'📊', th:'End Production / Diff. prod. balance wetlap', rail:'#B25C00'},
-  {id:'etp',     ico:'💧', th:'น้ำเสียเข้าระบบบำบัด (ETP)', rail:'#0B7A28'},
+  {id:'overview', ico:'📋', th:'ภาพรวม (Overview)', rail:'#455A64', chartType:'line'},
+  {id:'bulk',    ico:'⚙', th:'ค่าพื้นฐานของชิ้นไม้สับ', rail:'#7C4DFF', chartType:'line'},
+  {id:'screen',  ico:'🔻', th:'การกระจายขนาดชิ้นไม้สับ (Chip Screen)', rail:'#E0417A', chartType:'line'},
+  {id:'woodPm1',   ico:'🌲', th:'Wood species Pulp mill 1', rail:'#5B8C2A', chartType:'line'},
+  {id:'woodPm2',   ico:'🌲', th:'Wood species Pulp mill 2', rail:'#2A8C6E', chartType:'line'},
+  {id:'woodTotal', ico:'🌲', th:'Wood species Pulp mill 1 + Pulp mill 2', rail:'#5B8C2A', chartType:'line'},
+  {id:'cook',    ico:'🍲', th:'Cooking Kappa', rail:'#0E7C86', chartType:'line'},
+  {id:'reject',  ico:'🧹', th:'Knot / White reject', rail:'#C9A227', chartType:'line'},
+  {id:'endprod', ico:'📊', th:'End Production / Diff. prod. balance wetlap', rail:'#B25C00', chartType:'line'},
+  {id:'etp',     ico:'💧', th:'น้ำเสียเข้าระบบบำบัด (ETP)', rail:'#0B7A28', chartType:'line'},
   /* Process area > Cooking — จากชีต "Cooking Logsheet" (gid=937055806) คนละชีตกับ "RM Wood-Yield"
      ที่ใช้ข้างบน (grp 'cook') จึงไม่ปนกัน กลุ่มต่อไปนี้ใช้หมวดหมู่ที่มีอยู่แล้วในหัวตารางของชีตเอง
      (Chip filling / Pre Steaming & Pre Heating / Hot Liquor Filling / Heat&Cook / Displacement /
