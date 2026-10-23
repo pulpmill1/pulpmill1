@@ -798,9 +798,9 @@
   .sens-heatmap-settings input{font:inherit;font-size:11.5px;color:var(--ink);background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:5px 7px;width:76px;}
 
   .sens-heatmap-wrap{overflow:auto;max-height:360px;border:1px solid var(--border);border-radius:10px;}
-  table.sens-heatmap{border-collapse:collapse;font-size:9px;font-family:"IBM Plex Mono",monospace;width:100%;table-layout:fixed;}
+  table.sens-heatmap{border-collapse:collapse;font-size:9px;font-family:"IBM Plex Mono",monospace;width:100%;min-width:0;table-layout:fixed;}
   table.sens-heatmap th{position:sticky;top:0;background:var(--accent-soft);color:var(--accent-ink);font-weight:700;padding:4px 3px;border:1px solid var(--border);text-align:center;white-space:nowrap;z-index:2;overflow:hidden;text-overflow:ellipsis;}
-  table.sens-heatmap th.corner,table.sens-heatmap th.rowhead{position:sticky;left:0;width:76px;}
+  table.sens-heatmap th.corner,table.sens-heatmap th.rowhead{position:sticky;left:0;}
   table.sens-heatmap th.corner{top:0;z-index:3;}
   table.sens-heatmap th.rowhead{z-index:1;background:var(--accent-soft);text-align:right;}
   table.sens-heatmap td{padding:3px 4px;text-align:right;white-space:nowrap;cursor:pointer;border:1px solid var(--border);color:var(--ink);overflow:hidden;text-overflow:ellipsis;}
@@ -808,21 +808,23 @@
   table.sens-heatmap td.cur{outline:2px solid var(--ink);outline-offset:-2px;font-weight:800;}
   .sens-heatmap-foot{margin-top:10px;font-size:10.5px;color:var(--ink-3);line-height:1.6;}
 
-  .sens-dash-bottom{display:grid;grid-template-columns:1.9fr 0.85fr;gap:14px;align-items:start;}
+  .sens-dash-bottom{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1.1fr);gap:14px;align-items:start;}
   @media (max-width:900px){ .sens-dash-bottom{grid-template-columns:1fr;} }
   .sens-dash-bottom-left{display:flex;flex-direction:column;gap:16px;}
-  .sens-summary{font-size:11.5px;line-height:1.55;color:var(--ink-2);border:1px solid rgba(16,185,129,.3);background:rgba(16,185,129,.05);border-radius:10px;padding:11px 13px;display:flex;gap:10px;align-items:flex-start;}
+  .sens-summary{font-size:13.5px;line-height:1.7;color:var(--ink-2);border:1px solid rgba(16,185,129,.3);background:rgba(16,185,129,.05);border-radius:12px;padding:16px 20px;display:flex;gap:14px;align-items:flex-start;}
   .sens-summary.unfavor{border-color:rgba(239,68,68,.3);background:rgba(239,68,68,.05);}
-  .sens-summary .ic{flex:0 0 auto;width:22px;height:22px;border-radius:50%;background:rgba(16,185,129,.16);color:#10B981;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;}
+  .sens-summary .ic{flex:0 0 auto;width:34px;height:34px;border-radius:50%;background:rgba(16,185,129,.16);color:#10B981;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;}
   .sens-summary.unfavor .ic{background:rgba(239,68,68,.16);color:#EF4444;}
   .sens-summary b{color:var(--ink);}
   .sens-summary .up{color:#10B981;font-weight:700;}
   .sens-summary .down{color:#EF4444;font-weight:700;}
-  .sens-dash-mini{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+  .sens-summary-text{display:flex;flex-direction:column;gap:3px;}
+  .sens-summary-text .net-line{font-weight:800;font-size:1.12em;color:var(--ink);margin-top:3px;}
+  .sens-dash-mini{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;}
   @media (max-width:620px){ .sens-dash-mini{grid-template-columns:1fr;} }
-  .sens-mini-tile{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:9px 10px;box-shadow:var(--shadow);display:flex;flex-direction:column;justify-content:center;}
-  .sens-mini-tile .m-val{font-size:16px;font-weight:800;color:var(--ink);font-family:"IBM Plex Mono",monospace;margin-bottom:4px;}
-  .sens-mini-tile .m-lbl{font-size:9.5px;color:var(--ink-2);line-height:1.35;}
+  .sens-mini-tile{min-width:0;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 10px;box-shadow:var(--shadow);display:flex;flex-direction:column;justify-content:center;}
+  .sens-mini-tile .m-val{font-size:21px;font-weight:800;color:var(--ink);font-family:"IBM Plex Mono",monospace;margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .sens-mini-tile .m-lbl{font-size:11px;color:var(--ink-2);line-height:1.4;}
 
   .sens-dash-footer{display:flex;justify-content:space-between;align-items:center;gap:12px;font-size:11px;color:var(--ink-3);font-family:"IBM Plex Mono",monospace;flex-wrap:wrap;}
 </style>
@@ -12125,9 +12127,10 @@ function sensRenderSummary(){
     ? `ต้นทุนสุทธิ <b>+${sensFmtMoney(c.netCost)} Baht/Adt</b> (ต้นทุนเพิ่ม): ไม่คุ้ม ควร ${modeTxt}`
     : `ต้นทุนสุทธิ <b>เท่าทุนพอดี</b> ไม่มีฝั่งไหนคุ้มกว่ากัน`;
   const icon = c.mode==='up' ? '✓' : c.mode==='down' ? '!' : '•';
-  el.innerHTML = `<span class="ic">${icon}</span><span>1 Kappa ที่เพิ่มขึ้น ที่ราคาไม้สับ <b>${sensFmtMoney(s.woodPrice)} Baht/Bdt</b> และราคา ClO2 <b>${sensFmtMoney(s.clo2Price)} Baht/kg</b><br>`
-    + `ต้นทุนไม้สับลดลง <b>${sensFmtMoney(Math.abs(c.woodCost))} Baht/Adt</b> และต้นทุน ClO2 เพิ่มขึ้น <b>+${sensFmtMoney(c.clo2Cost)} Baht/Adt</b><br>`
-    + netLine + `</span>`;
+  el.innerHTML = `<span class="ic">${icon}</span><div class="sens-summary-text">`
+    + `<div>1 Kappa ที่เพิ่มขึ้น ที่ราคาไม้สับ <b>${sensFmtMoney(s.woodPrice)} Baht/Bdt</b> และราคา ClO2 <b>${sensFmtMoney(s.clo2Price)} Baht/kg</b></div>`
+    + `<div>ต้นทุนไม้สับลดลง <b>${sensFmtMoney(Math.abs(c.woodCost))} Baht/Adt</b> และต้นทุน ClO2 เพิ่มขึ้น <b>+${sensFmtMoney(c.clo2Cost)} Baht/Adt</b></div>`
+    + `<div class="net-line">${netLine}</div></div>`;
 }
 function sensHeatColor(net, maxAbs){
   if(!(maxAbs>0)) return 'transparent';
@@ -12151,7 +12154,14 @@ function sensRenderHeatmap(){
   /* rows = wood price, columns = ClO2 price */
   const grid = woodVals.map(wp=> clo2Vals.map(cp=> sensCompute(Object.assign({}, s, {woodPrice:wp, clo2Price:cp})).netCost));
   const maxAbs = Math.max(1e-9, ...grid.reduce((a,row)=> a.concat(row), []).map(v=> Math.abs(v)));
-  let html = '<table class="sens-heatmap"><thead><tr><th class="corner">ไม้ \\ ClO2</th>';
+  /* table-layout:fixed is supposed to divide width:100% evenly among columns with no explicit
+     width, but that isn't reliably honored here (likely interacting with position:sticky on the
+     header cells) — set every column's width explicitly via <colgroup> instead, which sidesteps
+     the issue and is what actually keeps the table from ever exceeding its container's width. */
+  const rowheadPct = 14, dataPct = (100 - rowheadPct) / clo2Vals.length;
+  let html = `<table class="sens-heatmap"><colgroup><col style="width:${rowheadPct}%">`;
+  clo2Vals.forEach(()=> { html += `<col style="width:${dataPct}%">`; });
+  html += '</colgroup><thead><tr><th class="corner">ไม้ \\ ClO2</th>';
   clo2Vals.forEach(cp=> { html += `<th>${cp.toFixed(2)}</th>`; });
   html += '</tr></thead><tbody>';
   woodVals.forEach((wp, ri)=> {
