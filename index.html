@@ -815,8 +815,6 @@
   table.sens-heatmap td.cur{outline:2px solid var(--ink);outline-offset:-2px;font-weight:800;}
   .sens-heatmap-foot{margin-top:10px;font-size:10.5px;color:var(--ink-3);line-height:1.6;}
 
-  .sens-dash-bottom{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1.1fr);gap:14px;align-items:start;}
-  @media (max-width:900px){ .sens-dash-bottom{grid-template-columns:1fr;} }
   .sens-summary{font-size:15.5px;line-height:1.7;color:var(--ink-2);border:1px solid rgba(16,185,129,.3);background:rgba(16,185,129,.05);border-radius:12px;padding:16px 20px;display:flex;gap:14px;align-items:flex-start;}
   .sens-summary.unfavor{border-color:rgba(239,68,68,.3);background:rgba(239,68,68,.05);}
   .sens-summary .ic{flex:0 0 auto;width:34px;height:34px;border-radius:50%;background:rgba(16,185,129,.16);color:#10B981;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;}
@@ -826,11 +824,6 @@
   .sens-summary .down{color:#EF4444;font-weight:700;}
   .sens-summary-text{display:flex;flex-direction:column;gap:3px;}
   .sens-summary-text .net-line{font-weight:800;font-size:1.12em;color:var(--ink);margin-top:3px;}
-  .sens-dash-mini{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;}
-  @media (max-width:620px){ .sens-dash-mini{grid-template-columns:1fr;} }
-  .sens-mini-tile{min-width:0;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 10px;box-shadow:var(--shadow);display:flex;flex-direction:column;justify-content:center;}
-  .sens-mini-tile .m-val{font-size:21px;font-weight:800;color:var(--ink);font-family:"IBM Plex Mono",monospace;margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .sens-mini-tile .m-lbl{font-size:11px;color:var(--ink-2);line-height:1.4;}
 
   .sens-dash-footer{display:flex;justify-content:space-between;align-items:center;gap:12px;font-size:11px;color:var(--ink-3);font-family:"IBM Plex Mono",monospace;flex-wrap:wrap;}
 </style>
@@ -2383,6 +2376,11 @@
                     <div class="sens-tile"><div class="t-lbl">ClO2 สูงสุดที่ยังคุ้ม</div><div class="t-val" id="sdClo2Breakeven"></div><div class="t-sub" id="sdClo2Margin"></div></div>
                   </div>
                 </div>
+                <div class="sens-dash-tiles3">
+                  <div class="sens-tile"><div class="t-val" id="sdMiniRatio"></div><div class="t-sub" id="sdMiniRatioLbl"></div></div>
+                  <div class="sens-tile"><div class="t-val" id="sdMiniWoodStep"></div><div class="t-sub" id="sdMiniWoodStepLbl"></div></div>
+                  <div class="sens-tile"><div class="t-val" id="sdMiniClo2Step"></div><div class="t-sub" id="sdMiniClo2StepLbl"></div></div>
+                </div>
               </div>
 
               <div class="sens-dash-col-mid">
@@ -2396,11 +2394,6 @@
 
             <div class="sens-dash-bottom">
               <div class="sens-summary" id="sensSummary"></div>
-              <div class="sens-dash-mini">
-                <div class="sens-mini-tile"><div class="m-val" id="sdMiniRatio"></div><div class="m-lbl" id="sdMiniRatioLbl"></div></div>
-                <div class="sens-mini-tile"><div class="m-val" id="sdMiniWoodStep"></div><div class="m-lbl" id="sdMiniWoodStepLbl"></div></div>
-                <div class="sens-mini-tile"><div class="m-val" id="sdMiniClo2Step"></div><div class="m-lbl" id="sdMiniClo2StepLbl"></div></div>
-              </div>
             </div>
 
             <div class="sens-dash-col-right">
