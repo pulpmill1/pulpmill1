@@ -789,6 +789,13 @@
   .sens-dash-col-mid,.sens-dash-col-right{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px 16px 14px;box-shadow:var(--shadow);}
   .sens-chart-wrap{position:relative;height:420px;margin-top:4px;}
 
+  .sens-dash-h-row{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:10px;}
+  .sens-dash-h-row .sens-dash-h{margin-bottom:0;}
+  .sens-table-price-edit{display:flex;gap:18px;flex-wrap:wrap;}
+  .sens-table-price-edit label{display:flex;align-items:baseline;gap:7px;font-size:11px;font-weight:700;color:var(--ink-3);}
+  .sens-table-price-edit input{width:92px;font:inherit;font-size:15px;font-weight:800;color:var(--ink);background:var(--surface-2);border:1px solid var(--border);border-radius:7px;padding:5px 9px;}
+  .sens-table-price-edit .u{font-size:10px;font-weight:600;color:var(--ink-3);}
+
   .sens-heatmap-settings-toggle{font:inherit;font-size:10.5px;font-weight:700;color:var(--accent-ink);background:var(--accent-soft);border:1px solid var(--border);border-radius:7px;padding:4px 10px;cursor:pointer;margin-bottom:10px;}
   .sens-heatmap-settings{display:none;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;padding:10px;background:var(--surface-2);border:1px solid var(--border);border-radius:9px;}
   .sens-heatmap-settings.open{display:grid;}
@@ -797,20 +804,19 @@
   .sens-heatmap-settings label{display:flex;flex-direction:column;gap:3px;font-size:10px;color:var(--ink-3);font-weight:700;}
   .sens-heatmap-settings input{font:inherit;font-size:11.5px;color:var(--ink);background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:5px 7px;width:76px;}
 
-  .sens-heatmap-wrap{overflow:auto;max-height:360px;border:1px solid var(--border);border-radius:10px;}
-  table.sens-heatmap{border-collapse:collapse;font-size:9px;font-family:"IBM Plex Mono",monospace;width:100%;min-width:0;table-layout:fixed;}
-  table.sens-heatmap th{position:sticky;top:0;background:var(--accent-soft);color:var(--accent-ink);font-weight:700;padding:4px 3px;border:1px solid var(--border);text-align:center;white-space:nowrap;z-index:2;overflow:hidden;text-overflow:ellipsis;}
+  .sens-heatmap-wrap{overflow:auto;max-height:420px;border:1px solid var(--border);border-radius:10px;}
+  table.sens-heatmap{border-collapse:collapse;font-size:11.5px;font-family:"IBM Plex Mono",monospace;width:100%;min-width:0;table-layout:fixed;}
+  table.sens-heatmap th{position:sticky;top:0;background:var(--accent-soft);color:var(--accent-ink);font-weight:700;padding:7px 5px;border:1px solid var(--border);text-align:center;white-space:nowrap;z-index:2;overflow:hidden;text-overflow:ellipsis;}
   table.sens-heatmap th.corner,table.sens-heatmap th.rowhead{position:sticky;left:0;}
   table.sens-heatmap th.corner{top:0;z-index:3;}
   table.sens-heatmap th.rowhead{z-index:1;background:var(--accent-soft);text-align:right;}
-  table.sens-heatmap td{padding:3px 4px;text-align:right;white-space:nowrap;cursor:pointer;border:1px solid var(--border);color:var(--ink);overflow:hidden;text-overflow:ellipsis;}
+  table.sens-heatmap td{padding:6px 8px;text-align:right;white-space:nowrap;cursor:pointer;border:1px solid var(--border);color:var(--ink);overflow:hidden;text-overflow:ellipsis;}
   table.sens-heatmap td:hover{outline:2px solid var(--accent);outline-offset:-2px;}
   table.sens-heatmap td.cur{outline:2px solid var(--ink);outline-offset:-2px;font-weight:800;}
   .sens-heatmap-foot{margin-top:10px;font-size:10.5px;color:var(--ink-3);line-height:1.6;}
 
   .sens-dash-bottom{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1.1fr);gap:14px;align-items:start;}
   @media (max-width:900px){ .sens-dash-bottom{grid-template-columns:1fr;} }
-  .sens-dash-bottom-left{display:flex;flex-direction:column;gap:16px;}
   .sens-summary{font-size:13.5px;line-height:1.7;color:var(--ink-2);border:1px solid rgba(16,185,129,.3);background:rgba(16,185,129,.05);border-radius:12px;padding:16px 20px;display:flex;gap:14px;align-items:flex-start;}
   .sens-summary.unfavor{border-color:rgba(239,68,68,.3);background:rgba(239,68,68,.05);}
   .sens-summary .ic{flex:0 0 auto;width:34px;height:34px;border-radius:50%;background:rgba(16,185,129,.16);color:#10B981;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;}
@@ -2389,32 +2395,37 @@
             </div>
 
             <div class="sens-dash-bottom">
-              <div class="sens-dash-bottom-left">
-                <div class="sens-summary" id="sensSummary"></div>
-                <div class="sens-dash-col-right">
-                  <div class="sens-dash-h"><span class="sq"></span>ตาราง Sensivity ต้นทุนสุทธิ (Baht/Adt)</div>
-                  <button type="button" class="sens-heatmap-settings-toggle" id="sensRangeToggle">⚙ ตั้งค่าช่วงราคาในตาราง</button>
-                  <div class="sens-heatmap-settings" id="sensRangeSettings">
-                    <div class="sens-range-fields">
-                      <label>ไม้สับ เริ่ม<input type="number" step="0.01" id="sensWoodStart"></label>
-                      <label>สิ้นสุด<input type="number" step="0.01" id="sensWoodEnd"></label>
-                      <label>Gap<input type="number" step="0.01" id="sensWoodGap"></label>
-                    </div>
-                    <div class="sens-range-fields">
-                      <label>ClO2 เริ่ม<input type="number" step="0.01" id="sensClo2Start"></label>
-                      <label>สิ้นสุด<input type="number" step="0.01" id="sensClo2End"></label>
-                      <label>Gap<input type="number" step="0.01" id="sensClo2Gap"></label>
-                    </div>
-                  </div>
-                  <div class="sens-heatmap-wrap" id="sensHeatmapWrap"></div>
-                  <div class="sens-heatmap-foot" id="sensHeatmapFoot"></div>
-                </div>
-              </div>
+              <div class="sens-summary" id="sensSummary"></div>
               <div class="sens-dash-mini">
                 <div class="sens-mini-tile"><div class="m-val" id="sdMiniRatio"></div><div class="m-lbl" id="sdMiniRatioLbl"></div></div>
                 <div class="sens-mini-tile"><div class="m-val" id="sdMiniWoodStep"></div><div class="m-lbl" id="sdMiniWoodStepLbl"></div></div>
                 <div class="sens-mini-tile"><div class="m-val" id="sdMiniClo2Step"></div><div class="m-lbl" id="sdMiniClo2StepLbl"></div></div>
               </div>
+            </div>
+
+            <div class="sens-dash-col-right">
+              <div class="sens-dash-h-row">
+                <div class="sens-dash-h"><span class="sq"></span>ตาราง Sensivity ต้นทุนสุทธิ (Baht/Adt)</div>
+                <div class="sens-table-price-edit">
+                  <label>ราคาไม้สับ<input type="text" inputmode="decimal" id="sensWoodPriceNum2"><span class="u">Baht/Bdt</span></label>
+                  <label>ราคา ClO2<input type="text" inputmode="decimal" id="sensClo2PriceNum2"><span class="u">Baht/kg</span></label>
+                </div>
+              </div>
+              <button type="button" class="sens-heatmap-settings-toggle" id="sensRangeToggle">⚙ ตั้งค่าช่วงราคาในตาราง</button>
+              <div class="sens-heatmap-settings" id="sensRangeSettings">
+                <div class="sens-range-fields">
+                  <label>ไม้สับ เริ่ม<input type="number" step="0.01" id="sensWoodStart"></label>
+                  <label>สิ้นสุด<input type="number" step="0.01" id="sensWoodEnd"></label>
+                  <label>Gap<input type="number" step="0.01" id="sensWoodGap"></label>
+                </div>
+                <div class="sens-range-fields">
+                  <label>ClO2 เริ่ม<input type="number" step="0.01" id="sensClo2Start"></label>
+                  <label>สิ้นสุด<input type="number" step="0.01" id="sensClo2End"></label>
+                  <label>Gap<input type="number" step="0.01" id="sensClo2Gap"></label>
+                </div>
+              </div>
+              <div class="sens-heatmap-wrap" id="sensHeatmapWrap"></div>
+              <div class="sens-heatmap-foot" id="sensHeatmapFoot"></div>
             </div>
 
             <div class="sens-dash-footer">
@@ -12085,9 +12096,9 @@ function sensRenderChart(){
         { type:'scatter', label:'ป้ายเส้นคุ้มทุน', data:[lineLblPt], pointRadius:0, order:2,
           datalabels:{ display:true, align:'top', anchor:'center', clamp:true, color:css.ink, font:{size:10.5, family:'IBM Plex Mono', weight:'700'}, formatter:()=> 'เส้นคุ้มทุน' } },
         { type:'scatter', label:'ป้าย Mode ลด Kappa', data:[redLblPt], pointRadius:0, order:2,
-          datalabels:{ display:true, align:'center', anchor:'center', clamp:true, color:'#EF4444', font:{size:12, family:'IBM Plex Mono', weight:'800'}, formatter:()=> 'Mode ลด Kappa' } },
+          datalabels:{ display:true, align:'right', anchor:'center', offset:0, clamp:true, color:'#B91C1C', font:{size:24, weight:'800'}, formatter:()=> 'Mode ลด Kappa' } },
         { type:'scatter', label:'ป้าย Mode เพิ่ม Kappa', data:[greenLblPt], pointRadius:0, order:2,
-          datalabels:{ display:true, align:'center', anchor:'center', clamp:true, color:'#10B981', font:{size:12, family:'IBM Plex Mono', weight:'800'}, formatter:()=> 'Mode เพิ่ม Kappa' } },
+          datalabels:{ display:true, align:'right', anchor:'center', offset:0, clamp:true, color:'#059669', font:{size:24, weight:'800'}, formatter:()=> 'Mode เพิ่ม Kappa' } },
         { type:'line', label:'เส้นนำสายตา', data:[{x:s.woodPrice,y:0},{x:s.woodPrice,y:s.clo2Price}], borderColor:css.ink2, borderWidth:1, borderDash:[3,3], pointRadius:0, fill:false, order:3, datalabels:{display:false} },
         { type:'line', label:'เส้นนำสายตา 2', data:[{x:xMin,y:s.clo2Price},{x:s.woodPrice,y:s.clo2Price}], borderColor:css.ink2, borderWidth:1, borderDash:[3,3], pointRadius:0, fill:false, order:3, datalabels:{display:false} },
         { type:'scatter', label:'จุดเปลี่ยน', data:breakPts, borderColor:css.ink, backgroundColor:css.surface, pointRadius:5, pointHoverRadius:6, pointBorderWidth:2, order:2,
@@ -12195,6 +12206,7 @@ function sensRenderFooter(){
   if(el) el.innerHTML = `สูตร: ต้นทุนสุทธิ = −(ราคาไม้สับ × ${s.woodCoef}) + (ราคา ClO2 × ${s.clo2Coef.toFixed(2)}) · ลบ = Mode เพิ่ม Kappa · บวก = Mode ลด Kappa`;
 }
 function sensRenderAll(){
+  sensSyncInputs();
   sensRenderCards();
   sensRenderChart();
   sensRenderSummary();
@@ -12210,6 +12222,8 @@ function sensSyncInputs(){
   const setFmt = (id, v, dec) => { const el = document.getElementById(id); if(el && document.activeElement!==el) el.value = sensFmtFixed(v, dec); };
   setFmt('sensWoodPriceNum', s.woodPrice, 2);
   setFmt('sensClo2PriceNum', s.clo2Price, 2);
+  setFmt('sensWoodPriceNum2', s.woodPrice, 2);
+  setFmt('sensClo2PriceNum2', s.clo2Price, 2);
   setFmt('sensWoodCoefNum', s.woodCoef, 3);
   setFmt('sensClo2CoefNum', s.clo2Coef, 2);
 }
@@ -12233,6 +12247,8 @@ function initCostSensitivity(){
   };
   bindNum('sensWoodPriceNum', 'woodPrice', 2);
   bindNum('sensClo2PriceNum', 'clo2Price', 2);
+  bindNum('sensWoodPriceNum2', 'woodPrice', 2);
+  bindNum('sensClo2PriceNum2', 'clo2Price', 2);
   bindNum('sensWoodCoefNum', 'woodCoef', 3);
   bindNum('sensClo2CoefNum', 'clo2Coef', 2);
 
