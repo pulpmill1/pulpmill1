@@ -752,64 +752,79 @@
   .md-assess b{color:var(--ink);}
 
   /* ---- Cost > Sensitivity: Kappa vs Wood Chip Prices ---- */
-  .sens-page{display:flex;flex-direction:column;}
-  .sens-head h2{margin:0 0 4px;font-size:20px;font-weight:800;color:var(--ink);}
-  .sens-head .sens-sub{margin:0 0 16px;font-size:12.5px;color:var(--ink-2);}
-  .sens-card-title{font-size:13.5px;font-weight:800;color:var(--ink);margin-bottom:12px;display:flex;align-items:center;gap:7px;}
-  .sens-range-cols{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
-  @media (max-width:760px){ .sens-range-cols{grid-template-columns:1fr;} }
-  .sens-range-fields{display:flex;gap:12px;flex-wrap:wrap;}
-  .sens-range-fields label{display:flex;flex-direction:column;gap:3px;font-size:10.5px;color:var(--ink-3);font-weight:700;}
-  .sens-range-fields input{font:inherit;font-size:12.5px;color:var(--ink);background:var(--surface-2);border:1px solid var(--border);border-radius:7px;padding:6px 8px;width:92px;}
-  .sens-range-note{margin-top:8px;font-size:10.5px;color:var(--ink-3);}
-  .sens-range-note.warn{color:#d4342c;font-weight:700;}
-  .sens-slider-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px 28px;}
-  @media (max-width:760px){ .sens-slider-grid{grid-template-columns:1fr;} }
-  .sens-slider-row{display:flex;align-items:center;gap:10px;}
-  .sens-slider-row--plain .sens-slider-label{flex:1 1 auto;}
-  .sens-slider-label{flex:0 0 160px;font-size:12px;font-weight:700;color:var(--ink);}
-  .sens-slider-label .u{display:block;font-size:10px;font-weight:500;color:var(--ink-3);}
-  .sens-slider-row input[type=range]{flex:1 1 auto;accent-color:var(--accent);}
-  .sens-slider-num{width:84px;flex:0 0 84px;font:inherit;font-size:12.5px;color:var(--ink);background:var(--surface-2);border:1px solid var(--border);border-radius:7px;padding:6px 8px;}
-  .sens-slider-num--wide{width:120px;flex:0 0 120px;font-size:14px;font-weight:800;text-align:right;}
-  .sens-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:14px;}
-  @media (max-width:860px){ .sens-row{grid-template-columns:1fr;} }
-  .sens-stat-lbl{font-size:10.5px;font-weight:700;letter-spacing:.02em;text-transform:uppercase;color:var(--ink-3);margin-bottom:6px;}
-  .sens-stat-val{font-size:20px;font-weight:800;color:var(--ink);font-family:"IBM Plex Mono",monospace;}
-  .sens-stat-sub{margin-top:4px;font-size:11px;color:var(--ink-2);}
-  .sens-stat.neg .sens-stat-val{color:#10B981;}
-  .sens-stat.pos .sens-stat-val{color:#EF4444;}
-  .sens-stat.favor{border:1px solid rgba(16,185,129,.35);background:rgba(16,185,129,.07);}
-  .sens-stat.unfavor{border:1px solid rgba(239,68,68,.35);background:rgba(239,68,68,.07);}
-  .sens-chart-wrap{position:relative;height:360px;margin-top:4px;}
-  .sens-chart-zonelabel{position:absolute;font-size:11px;font-weight:800;padding:3px 10px;border-radius:20px;pointer-events:none;}
-  .sens-chart-zonelabel.red{top:10px;left:50px;background:rgba(239,68,68,.16);color:#EF4444;}
-  .sens-chart-zonelabel.green{bottom:32px;right:12px;background:rgba(16,185,129,.16);color:#10B981;}
-  .sens-summary{font-size:12.5px;line-height:1.9;color:var(--ink-2);border:1px solid rgba(16,185,129,.3);background:rgba(16,185,129,.05);border-radius:10px;padding:12px 14px;}
+  .sens-dash{display:flex;flex-direction:column;gap:16px;}
+  .sens-dash-header{
+    border-radius:14px;padding:20px 24px;color:#fff;
+    background-color:#0d2c4d;background-image:linear-gradient(135deg,#0b1f3b 0%,#123a63 100%);
+    display:flex;align-items:flex-start;justify-content:space-between;gap:20px;flex-wrap:wrap;
+    box-shadow:0 2px 5px rgba(8,20,40,.22),0 12px 26px rgba(8,20,40,.20);
+  }
+  .sens-dash-title h2{margin:0 0 6px;font-size:23px;font-weight:800;color:#fff;}
+  .sens-dash-title p{margin:0;font-size:12.5px;color:#9FB4CE;max-width:560px;}
+  .sens-dash-kpis{display:flex;gap:10px;flex-wrap:wrap;}
+  .sens-kpi{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:10px;padding:9px 14px;min-width:118px;}
+  .sens-kpi .k-lbl{font-size:10px;font-weight:700;color:#9FB4CE;margin-bottom:5px;white-space:nowrap;}
+  .sens-kpi .k-input{width:72px;font:inherit;font-size:16px;font-weight:800;color:#fff;background:transparent;border:none;border-bottom:1px solid transparent;padding:0;}
+  .sens-kpi .k-input:focus{outline:none;border-bottom:1px solid rgba(255,255,255,.5);}
+  .sens-kpi .k-unit{font-size:10px;font-weight:600;color:#9FB4CE;margin-left:4px;}
+
+  .sens-dash-grid{display:grid;grid-template-columns:1fr 1.15fr 1.35fr;gap:16px;align-items:start;}
+  @media (max-width:1180px){ .sens-dash-grid{grid-template-columns:1fr;} }
+
+  .sens-dash-col-left{display:flex;flex-direction:column;gap:16px;}
+  .sens-dash-section .sens-dash-h{display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:800;color:var(--ink);margin-bottom:10px;}
+  .sens-dash-h .sq{width:8px;height:8px;border-radius:2px;background:#10B981;flex:0 0 auto;}
+  .sens-dash-tiles3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+  @media (max-width:620px){ .sens-dash-tiles3{grid-template-columns:1fr;} }
+  .sens-tile{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 11px;box-shadow:var(--shadow);}
+  .sens-tile .t-lbl{font-size:10px;font-weight:700;color:var(--ink-3);margin-bottom:5px;line-height:1.3;}
+  .sens-tile .t-val{font-size:16px;font-weight:800;color:var(--ink);font-family:"IBM Plex Mono",monospace;}
+  .sens-tile .t-unit,.sens-tile .t-sub{margin-top:3px;font-size:10px;color:var(--ink-2);}
+  .sens-tile.neg .t-val{color:#10B981;}
+  .sens-tile.pos .t-val{color:#EF4444;}
+  .sens-tile.favor{border-color:rgba(16,185,129,.4);background:rgba(16,185,129,.07);}
+  .sens-tile.unfavor{border-color:rgba(239,68,68,.4);background:rgba(239,68,68,.07);}
+
+  .sens-dash-col-mid,.sens-dash-col-right{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px 16px 14px;box-shadow:var(--shadow);}
+  .sens-chart-wrap{position:relative;height:420px;margin-top:4px;}
+  .sens-chart-zonelabel{position:absolute;font-size:12px;font-weight:800;pointer-events:none;}
+  .sens-chart-zonelabel.red{top:10px;left:50px;color:#EF4444;}
+  .sens-chart-zonelabel.green{bottom:34px;left:50px;color:#10B981;}
+
+  .sens-heatmap-settings-toggle{font:inherit;font-size:10.5px;font-weight:700;color:var(--accent-ink);background:var(--accent-soft);border:1px solid var(--border);border-radius:7px;padding:4px 10px;cursor:pointer;margin-bottom:10px;}
+  .sens-heatmap-settings{display:none;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;padding:10px;background:var(--surface-2);border:1px solid var(--border);border-radius:9px;}
+  .sens-heatmap-settings.open{display:grid;}
+  @media (max-width:520px){ .sens-heatmap-settings{grid-template-columns:1fr;} }
+  .sens-heatmap-settings .sens-range-fields{display:flex;gap:8px;flex-wrap:wrap;}
+  .sens-heatmap-settings label{display:flex;flex-direction:column;gap:3px;font-size:10px;color:var(--ink-3);font-weight:700;}
+  .sens-heatmap-settings input{font:inherit;font-size:11.5px;color:var(--ink);background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:5px 7px;width:76px;}
+
+  .sens-heatmap-wrap{overflow:auto;max-height:420px;border:1px solid var(--border);border-radius:10px;}
+  table.sens-heatmap{border-collapse:collapse;font-size:10px;font-family:"IBM Plex Mono",monospace;width:100%;}
+  table.sens-heatmap th{position:sticky;top:0;background:var(--accent-soft);color:var(--accent-ink);font-weight:700;padding:5px 5px;border:1px solid var(--border);text-align:center;white-space:nowrap;z-index:2;}
+  table.sens-heatmap th.corner{position:sticky;left:0;top:0;z-index:3;}
+  table.sens-heatmap th.rowhead{position:sticky;left:0;z-index:1;background:var(--accent-soft);}
+  table.sens-heatmap td{padding:4px 5px;text-align:right;white-space:nowrap;cursor:pointer;border:1px solid var(--border);color:var(--ink);}
+  table.sens-heatmap td:hover{outline:2px solid var(--accent);outline-offset:-2px;}
+  table.sens-heatmap td.cur{outline:2px solid var(--ink);outline-offset:-2px;font-weight:800;}
+  .sens-heatmap-foot{margin-top:10px;font-size:10.5px;color:var(--ink-3);line-height:1.6;}
+
+  .sens-dash-bottom{display:grid;grid-template-columns:1.4fr 1fr;gap:16px;align-items:stretch;}
+  @media (max-width:900px){ .sens-dash-bottom{grid-template-columns:1fr;} }
+  .sens-summary{font-size:12.5px;line-height:1.85;color:var(--ink-2);border:1px solid rgba(16,185,129,.3);background:rgba(16,185,129,.05);border-radius:12px;padding:16px 18px;display:flex;gap:12px;align-items:flex-start;}
   .sens-summary.unfavor{border-color:rgba(239,68,68,.3);background:rgba(239,68,68,.05);}
-  .sens-summary .ic{color:#10B981;margin-right:6px;}
-  .sens-summary.unfavor .ic{color:#EF4444;}
+  .sens-summary .ic{flex:0 0 auto;width:28px;height:28px;border-radius:50%;background:rgba(16,185,129,.16);color:#10B981;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;}
+  .sens-summary.unfavor .ic{background:rgba(239,68,68,.16);color:#EF4444;}
   .sens-summary b{color:var(--ink);}
   .sens-summary .up{color:#10B981;font-weight:700;}
   .sens-summary .down{color:#EF4444;font-weight:700;}
-  .sens-heatmap-detail{font-size:11.5px;color:var(--ink-2);margin-bottom:10px;font-family:"IBM Plex Mono",monospace;}
-  .sens-heatmap-wrap{overflow:auto;max-height:480px;border:1px solid var(--border);border-radius:10px;}
-  table.sens-heatmap{border-collapse:collapse;font-size:10.5px;font-family:"IBM Plex Mono",monospace;}
-  table.sens-heatmap th{position:sticky;top:0;background:var(--accent-soft);color:var(--accent-ink);font-weight:700;padding:5px 7px;border:1px solid var(--border);text-align:center;white-space:nowrap;z-index:2;}
-  table.sens-heatmap th.corner{position:sticky;left:0;top:0;z-index:3;}
-  table.sens-heatmap th.rowhead{position:sticky;left:0;z-index:1;}
-  table.sens-heatmap td{padding:4px 7px;text-align:right;white-space:nowrap;cursor:pointer;border:1px solid var(--border);color:var(--ink);}
-  table.sens-heatmap td:hover{outline:2px solid var(--accent);outline-offset:-2px;}
-  table.sens-heatmap td.cur{outline:2px solid var(--ink);outline-offset:-2px;font-weight:800;}
-  .sens-explain{font-size:12px;line-height:1.8;color:var(--ink-2);}
-  .sens-explain b{color:var(--ink);}
-  .sens-explain-sub{margin-bottom:18px;}
-  .sens-explain-sub:last-of-type{margin-bottom:10px;}
-  .sens-explain-sub-title{font-size:13px;font-weight:800;color:var(--ink);margin-bottom:6px;}
-  .sens-explain-list{margin:8px 0;padding-left:0;list-style:none;}
-  .sens-explain-list li{margin-bottom:4px;padding-left:16px;position:relative;}
-  .sens-explain-list li::before{content:'•';position:absolute;left:2px;color:var(--ink-3);}
-  .sens-formula{font-family:"IBM Plex Mono",monospace;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;margin:8px 0;font-size:11.5px;color:var(--ink);}
+  .sens-dash-mini{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+  @media (max-width:620px){ .sens-dash-mini{grid-template-columns:1fr;} }
+  .sens-mini-tile{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px;box-shadow:var(--shadow);display:flex;flex-direction:column;justify-content:center;}
+  .sens-mini-tile .m-val{font-size:19px;font-weight:800;color:var(--ink);font-family:"IBM Plex Mono",monospace;margin-bottom:5px;}
+  .sens-mini-tile .m-lbl{font-size:10.5px;color:var(--ink-2);line-height:1.4;}
+
+  .sens-dash-footer{display:flex;justify-content:space-between;align-items:center;gap:12px;font-size:11px;color:var(--ink-3);font-family:"IBM Plex Mono",monospace;flex-wrap:wrap;}
 </style>
 
 <div class="app">
@@ -2320,97 +2335,90 @@
         </section>
 
         <section class="page" data-page="cost-sensitivity" hidden>
-          <div class="sens-page">
-            <div class="sens-head">
-              <h2>Sensitivity: Kappa vs Wood Chip Prices</h2>
-              <p class="sens-sub">Pulp mill 1 Dashboard · วิเคราะห์ผลกระทบของการปรับ Kappa ±1 หน่วย ต่อต้นทุนไม้สับและ ClO2 — คำนวณสด ไม่ผูกกับชีตข้อมูล</p>
-            </div>
-
-            <div class="sens-range-cols">
-              <div class="card">
-                <div class="sens-card-title">🔲 ช่วงราคาไม้สับในตาราง (Baht/Bdt)</div>
-                <div class="sens-range-fields">
-                  <label>เริ่ม<input type="number" step="0.01" id="sensWoodStart"></label>
-                  <label>สิ้นสุด<input type="number" step="0.01" id="sensWoodEnd"></label>
-                  <label>Gap<input type="number" step="0.01" id="sensWoodGap"></label>
-                </div>
-                <div class="sens-range-note" id="sensWoodRangeNote"></div>
+          <div class="sens-dash">
+            <div class="sens-dash-header">
+              <div class="sens-dash-title">
+                <h2>Sensivity Kappa vs Wood Chip Prices</h2>
+                <p>ผลต่อต้นทุนเมื่อเพิ่ม Kappa 1 หน่วย: ต้นทุนไม้สับที่ลดลง เทียบ ต้นทุน ClO2 ที่เพิ่มขึ้น · Pulp mill 1 Fiberline</p>
               </div>
-              <div class="card">
-                <div class="sens-card-title">📊 ช่วงราคา ClO2 ในตาราง (Baht/kg)</div>
-                <div class="sens-range-fields">
-                  <label>เริ่ม<input type="number" step="0.01" id="sensClo2Start"></label>
-                  <label>สิ้นสุด<input type="number" step="0.01" id="sensClo2End"></label>
-                  <label>Gap<input type="number" step="0.01" id="sensClo2Gap"></label>
-                </div>
-                <div class="sens-range-note" id="sensClo2RangeNote"></div>
+              <div class="sens-dash-kpis">
+                <div class="sens-kpi"><div class="k-lbl">ไม้สับที่ลดได้ / 1 Kappa</div><input type="number" step="0.001" class="k-input" id="sensWoodCoefNum"><span class="k-unit">Bdt/Adt</span></div>
+                <div class="sens-kpi"><div class="k-lbl">ClO2 ที่เพิ่ม / 1 Kappa</div><input type="number" step="0.1" class="k-input" id="sensClo2CoefNum"><span class="k-unit">kg/Adt</span></div>
+                <div class="sens-kpi"><div class="k-lbl">ราคาไม้สับ</div><input type="number" step="0.01" class="k-input" id="sensWoodPriceNum"><span class="k-unit">Baht/Bdt</span></div>
+                <div class="sens-kpi"><div class="k-lbl">ราคา ClO2</div><input type="number" step="0.01" class="k-input" id="sensClo2PriceNum"><span class="k-unit">Baht/kg</span></div>
               </div>
             </div>
 
-            <div class="card">
-              <div class="sens-card-title">⚙️ ราคาปัจจุบันและสัมประสิทธิ์ต่อ Kappa</div>
-              <div class="sens-slider-grid">
-                <div class="sens-slider-row sens-slider-row--plain">
-                  <div class="sens-slider-label">⊚ ราคาไม้สับ<span class="u">Baht/Bdt</span></div>
-                  <input type="number" step="0.01" id="sensWoodPriceNum" class="sens-slider-num sens-slider-num--wide">
+            <div class="sens-dash-grid">
+              <div class="sens-dash-col-left">
+                <div class="sens-dash-section">
+                  <div class="sens-dash-h"><span class="sq"></span>ราคาและอัตราส่วน</div>
+                  <div class="sens-dash-tiles3">
+                    <div class="sens-tile"><div class="t-lbl">ราคาไม้สับ</div><div class="t-val" id="sdWoodPrice"></div><div class="t-unit">Baht/Bdt</div></div>
+                    <div class="sens-tile"><div class="t-lbl">ราคา ClO2</div><div class="t-val" id="sdClo2Price"></div><div class="t-unit">Baht/kg</div></div>
+                    <div class="sens-tile"><div class="t-lbl">อัตราส่วน ไม้ ÷ ClO2</div><div class="t-val" id="sdRatio"></div><div class="t-sub" id="sdRatioNote"></div></div>
+                  </div>
                 </div>
-                <div class="sens-slider-row sens-slider-row--plain">
-                  <div class="sens-slider-label">📶 ราคา ClO2<span class="u">Baht/kg</span></div>
-                  <input type="number" step="0.01" id="sensClo2PriceNum" class="sens-slider-num sens-slider-num--wide">
+                <div class="sens-dash-section">
+                  <div class="sens-dash-h"><span class="sq"></span>ต้นทุนเมื่อ Kappa +1 (Baht/Adt)</div>
+                  <div class="sens-dash-tiles3">
+                    <div class="sens-tile neg"><div class="t-lbl">ต้นทุนไม้สับ (−)</div><div class="t-val" id="sdWoodCost"></div><div class="t-sub" id="sdWoodCostFormula"></div></div>
+                    <div class="sens-tile pos"><div class="t-lbl">ต้นทุน ClO2 (+)</div><div class="t-val" id="sdClo2Cost"></div><div class="t-sub" id="sdClo2CostFormula"></div></div>
+                    <div class="sens-tile" id="sdNetCostTile"><div class="t-lbl">ต้นทุนสุทธิ</div><div class="t-val" id="sdNetCost"></div><div class="t-sub" id="sdNetCostNote"></div></div>
+                  </div>
                 </div>
-                <div class="sens-slider-row">
-                  <div class="sens-slider-label">ไม้สับที่ลดลง / 1 Kappa<span class="u">Bdt/Adt</span></div>
-                  <input type="range" id="sensWoodCoefRange" min="0.001" max="0.100" step="0.001">
-                  <input type="number" step="0.001" id="sensWoodCoefNum" class="sens-slider-num">
+                <div class="sens-dash-section">
+                  <div class="sens-dash-h"><span class="sq"></span>จุดเปลี่ยน (เปลี่ยนเป็น Mode ลด Kappa)</div>
+                  <div class="sens-dash-tiles3">
+                    <div class="sens-tile"><div class="t-lbl">อัตราส่วนตัดสินใจ</div><div class="t-val" id="sdDecisionRatio"></div><div class="t-sub" id="sdDecisionRatioFormula"></div></div>
+                    <div class="sens-tile"><div class="t-lbl">ไม้สับต่ำสุดที่ยังคุ้ม</div><div class="t-val" id="sdWoodBreakeven"></div><div class="t-sub" id="sdWoodMargin"></div></div>
+                    <div class="sens-tile"><div class="t-lbl">ClO2 สูงสุดที่ยังคุ้ม</div><div class="t-val" id="sdClo2Breakeven"></div><div class="t-sub" id="sdClo2Margin"></div></div>
+                  </div>
                 </div>
-                <div class="sens-slider-row">
-                  <div class="sens-slider-label">ClO2 ที่เพิ่ม / 1 Kappa<span class="u">kg/Adt</span></div>
-                  <input type="range" id="sensClo2CoefRange" min="0.1" max="10" step="0.1">
-                  <input type="number" step="0.1" id="sensClo2CoefNum" class="sens-slider-num">
+              </div>
+
+              <div class="sens-dash-col-mid">
+                <div class="sens-dash-h"><span class="sq"></span>กราฟ Sensivity แสดงจุดคุ้มทุน</div>
+                <div class="legend-row" id="sensChartLegend"></div>
+                <div class="sens-chart-wrap">
+                  <canvas id="sensChart"></canvas>
+                  <div class="sens-chart-zonelabel red">Mode ลด Kappa</div>
+                  <div class="sens-chart-zonelabel green">Mode เพิ่ม Kappa</div>
                 </div>
+              </div>
+
+              <div class="sens-dash-col-right">
+                <div class="sens-dash-h"><span class="sq"></span>ตาราง Sensivity ต้นทุนสุทธิ (Baht/Adt)</div>
+                <button type="button" class="sens-heatmap-settings-toggle" id="sensRangeToggle">⚙ ตั้งค่าช่วงราคาในตาราง</button>
+                <div class="sens-heatmap-settings" id="sensRangeSettings">
+                  <div class="sens-range-fields">
+                    <label>ไม้สับ เริ่ม<input type="number" step="0.01" id="sensWoodStart"></label>
+                    <label>สิ้นสุด<input type="number" step="0.01" id="sensWoodEnd"></label>
+                    <label>Gap<input type="number" step="0.01" id="sensWoodGap"></label>
+                  </div>
+                  <div class="sens-range-fields">
+                    <label>ClO2 เริ่ม<input type="number" step="0.01" id="sensClo2Start"></label>
+                    <label>สิ้นสุด<input type="number" step="0.01" id="sensClo2End"></label>
+                    <label>Gap<input type="number" step="0.01" id="sensClo2Gap"></label>
+                  </div>
+                </div>
+                <div class="sens-heatmap-wrap" id="sensHeatmapWrap"></div>
+                <div class="sens-heatmap-foot" id="sensHeatmapFoot"></div>
               </div>
             </div>
 
-            <div class="sens-row">
-              <div class="card sens-stat"><div class="sens-stat-lbl">🪵 ราคาไม้สับ</div><div class="sens-stat-val" id="sensValWoodPrice"></div></div>
-              <div class="card sens-stat"><div class="sens-stat-lbl">🧪 ราคา ClO2</div><div class="sens-stat-val" id="sensValClo2Price"></div></div>
-              <div class="card sens-stat"><div class="sens-stat-lbl">⚖️ อัตราส่วน ไม้ ÷ ClO2</div><div class="sens-stat-val" id="sensValRatio"></div><div class="sens-stat-sub" id="sensValRatioNote"></div></div>
-            </div>
-            <div class="sens-row">
-              <div class="card sens-stat neg"><div class="sens-stat-lbl">↘ ต้นทุนไม้สับ (−)</div><div class="sens-stat-val" id="sensValWoodCost"></div></div>
-              <div class="card sens-stat pos"><div class="sens-stat-lbl">↗ ต้นทุน ClO2 (+)</div><div class="sens-stat-val" id="sensValClo2Cost"></div></div>
-              <div class="card sens-stat" id="sensNetCostCard"><div class="sens-stat-lbl">Σ ต้นทุนสุทธิ Kappa +1</div><div class="sens-stat-val" id="sensValNetCost"></div></div>
-            </div>
-            <div class="sens-row">
-              <div class="card sens-stat"><div class="sens-stat-lbl">@ อัตราส่วนตัดสินใจ</div><div class="sens-stat-val" id="sensValDecisionRatio"></div><div class="sens-stat-sub">ไม้ ÷ ClO2 ต้องมากกว่านี้จึงเพิ่ม Kappa</div></div>
-              <div class="card sens-stat"><div class="sens-stat-lbl">🎯 จุดเปลี่ยน: ไม้สับต่ำสุดที่ยังคุ้ม</div><div class="sens-stat-val" id="sensValWoodBreakeven"></div><div class="sens-stat-sub" id="sensValWoodMargin"></div></div>
-              <div class="card sens-stat"><div class="sens-stat-lbl">📈 จุดเปลี่ยน: ClO2 สูงสุดที่ยังคุ้ม</div><div class="sens-stat-val" id="sensValClo2Breakeven"></div><div class="sens-stat-sub" id="sensValClo2Margin"></div></div>
-            </div>
-
-            <div class="card">
-              <div class="sens-card-title">📉 กราฟเส้นคุ้มทุน (Breakeven)</div>
-              <div class="sens-chart-wrap">
-                <canvas id="sensChart"></canvas>
-                <div class="sens-chart-zonelabel red">Mode ลด Kappa</div>
-                <div class="sens-chart-zonelabel green">Mode เพิ่ม Kappa</div>
-              </div>
-              <div class="legend-row" id="sensChartLegend"></div>
-            </div>
-
-            <div class="card">
-              <div class="sens-card-title">✓ สรุปผล</div>
+            <div class="sens-dash-bottom">
               <div class="sens-summary" id="sensSummary"></div>
+              <div class="sens-dash-mini">
+                <div class="sens-mini-tile"><div class="m-val" id="sdMiniRatio"></div><div class="m-lbl" id="sdMiniRatioLbl"></div></div>
+                <div class="sens-mini-tile"><div class="m-val" id="sdMiniWoodStep"></div><div class="m-lbl" id="sdMiniWoodStepLbl"></div></div>
+                <div class="sens-mini-tile"><div class="m-val" id="sdMiniClo2Step"></div><div class="m-lbl" id="sdMiniClo2StepLbl"></div></div>
+              </div>
             </div>
 
-            <div class="card">
-              <div class="sens-card-title" id="sensHeatmapTitle">📋 ตาราง Heatmap ต้นทุนสุทธิ Kappa +1 (Baht/Adt)</div>
-              <div class="sens-heatmap-detail" id="sensHeatmapDetail"></div>
-              <div class="sens-heatmap-wrap" id="sensHeatmapWrap"></div>
-            </div>
-
-            <div class="card">
-              <div class="sens-card-title">ℹ️ คำอธิบายจุดเปลี่ยน (ไม้สับต่ำสุด / ClO2 สูงสุดที่ยังคุ้ม)</div>
-              <div class="sens-explain" id="sensExplain"></div>
+            <div class="sens-dash-footer">
+              <div id="sensFormulaFoot"></div>
+              <div>Cost · Pulp mill 1</div>
             </div>
           </div>
         </section>
@@ -11950,39 +11958,58 @@ function sensAxisValues(start, end, gap){
   for(let i=0;i<count;i++) vals.push(+(start + i*gap).toFixed(2));
   return vals;
 }
-function sensRenderRangeNotes(){
-  const s = SENS_STATE;
-  const woodVals = sensAxisValues(s.woodStart, s.woodEnd, s.woodGap);
-  const clo2Vals = sensAxisValues(s.clo2Start, s.clo2End, s.clo2Gap);
-  const woodN = s.woodGap>0 ? Math.floor((s.woodEnd-s.woodStart)/s.woodGap + 1e-9)+1 : 0;
-  const clo2N = s.clo2Gap>0 ? Math.floor((s.clo2End-s.clo2Start)/s.clo2Gap + 1e-9)+1 : 0;
-  const woodNote = document.getElementById('sensWoodRangeNote');
-  if(woodNote) woodNote.innerHTML = woodN>SENS_MAX_AXIS_VALUES
-    ? `<span class="warn">เกิน ${SENS_MAX_AXIS_VALUES} ค่า — แสดงเฉพาะ ${SENS_MAX_AXIS_VALUES} ค่าแรก</span>` : `${woodVals.length} ค่า`;
-  const clo2Note = document.getElementById('sensClo2RangeNote');
-  if(clo2Note) clo2Note.innerHTML = clo2N>SENS_MAX_AXIS_VALUES
-    ? `<span class="warn">เกิน ${SENS_MAX_AXIS_VALUES} ค่า — แสดงเฉพาะ ${SENS_MAX_AXIS_VALUES} ค่าแรก</span>` : `${clo2Vals.length} ค่า`;
+/* "Nice" step: picks a clean round increment (1/2/5 x 10^n) that divides a range into roughly
+   7 steps — used both for chart tick spacing and for subsampling the heatmap to a readable
+   number of rows/columns regardless of how fine the underlying table Gap is set to. */
+function sensNiceStep(range){
+  if(!(range>0)) return 1;
+  const rough = range/7;
+  const mag = Math.pow(10, Math.floor(Math.log10(rough)));
+  const norm = rough/mag;
+  return (norm<1.5?1:norm<3?2:norm<7?5:10)*mag;
+}
+function sensDisplayAxisValues(start, end, step){
+  if(!(step>0) || end<start) return [];
+  const lo = Math.ceil(start/step)*step, hi = Math.floor(end/step)*step;
+  const vals = [];
+  for(let v=lo; v<=hi+1e-9 && vals.length<SENS_MAX_AXIS_VALUES; v+=step) vals.push(+v.toFixed(2));
+  if(!vals.length) vals.push(+start.toFixed(2));
+  return vals;
 }
 function sensRenderCards(){
   const s = SENS_STATE, c = sensCompute(s);
   const set = (id, html) => { const el = document.getElementById(id); if(el) el.innerHTML = html; };
-  set('sensValWoodPrice', sensFmtMoney(s.woodPrice)+' <small>Baht/Bdt</small>');
-  set('sensValClo2Price', sensFmtMoney(s.clo2Price)+' <small>Baht/kg</small>');
-  set('sensValRatio', c.ratio==null ? '—' : c.ratio.toFixed(1));
+  set('sdWoodPrice', sensFmtMoney(s.woodPrice));
+  set('sdClo2Price', sensFmtMoney(s.clo2Price));
+  set('sdRatio', c.ratio==null ? '—' : c.ratio.toFixed(1));
   const ratioFavors = c.decisionRatio!=null && c.ratio!=null && c.ratio > c.decisionRatio;
-  set('sensValRatioNote', c.decisionRatio==null ? '' : `${ratioFavors?'มากกว่า':'น้อยกว่า'} ${c.decisionRatio.toFixed(1)} → Mode ${ratioFavors?'เพิ่ม':'ลด'} Kappa`);
-  set('sensValWoodCost', sensFmtMoney(c.woodCost)+' <small>Baht/Adt</small>');
-  set('sensValClo2Cost', '+'+sensFmtMoney(c.clo2Cost)+' <small>Baht/Adt</small>');
-  set('sensValNetCost', (c.netCost>=0?'+':'')+sensFmtMoney(c.netCost)+' <small>Baht/Adt</small>');
-  const netCostEl = document.getElementById('sensValNetCost');
-  if(netCostEl) netCostEl.style.color = c.netCost < 0 ? '#10B981' : c.netCost > 0 ? '#EF4444' : '';
-  const netCard = document.getElementById('sensNetCostCard');
-  if(netCard){ netCard.classList.toggle('favor', c.mode==='up'); netCard.classList.toggle('unfavor', c.mode==='down'); }
-  set('sensValDecisionRatio', c.decisionRatio==null ? '—' : c.decisionRatio.toFixed(1));
-  set('sensValWoodBreakeven', c.woodBreakeven==null ? '—' : sensFmtMoney(c.woodBreakeven)+' <small>Baht/Bdt</small>');
-  set('sensValWoodMargin', c.woodMarginPct==null ? '' : (c.woodMarginPct<0 ? `ต่ำกว่านี้ ${c.woodMarginPct.toFixed(1)}%` : `สูงกว่านี้ +${c.woodMarginPct.toFixed(1)}%`));
-  set('sensValClo2Breakeven', c.clo2Breakeven==null ? '—' : sensFmtMoney(c.clo2Breakeven)+' <small>Baht/kg</small>');
-  set('sensValClo2Margin', c.clo2MarginPct==null ? '' : (c.clo2MarginPct>=0 ? `ขึ้นได้อีก +${c.clo2MarginPct.toFixed(1)}%` : `ต้องลดลง ${Math.abs(c.clo2MarginPct).toFixed(1)}%`));
+  set('sdRatioNote', c.decisionRatio==null ? '' : `${ratioFavors?'มากกว่า':'น้อยกว่า'} ${c.decisionRatio.toFixed(1)} → ${ratioFavors?'เพิ่ม':'ลด'} Kappa`);
+  set('sdWoodCost', sensFmtMoney(c.woodCost));
+  set('sdWoodCostFormula', `${sensFmtMoney(s.woodPrice)} × ${s.woodCoef}`);
+  set('sdClo2Cost', '+'+sensFmtMoney(c.clo2Cost));
+  set('sdClo2CostFormula', `${sensFmtMoney(s.clo2Price)} × ${s.clo2Coef.toFixed(2)}`);
+  set('sdNetCost', (c.netCost>=0?'+':'')+sensFmtMoney(c.netCost));
+  const netEl = document.getElementById('sdNetCost');
+  if(netEl) netEl.style.color = c.netCost<0 ? '#10B981' : c.netCost>0 ? '#EF4444' : '';
+  set('sdNetCostNote', c.mode==='up' ? 'ต้นทุนลดลง' : c.mode==='down' ? 'ต้นทุนเพิ่ม' : 'เท่าทุน');
+  const netTile = document.getElementById('sdNetCostTile');
+  if(netTile){ netTile.classList.toggle('favor', c.mode==='up'); netTile.classList.toggle('unfavor', c.mode==='down'); }
+
+  set('sdDecisionRatio', c.decisionRatio==null ? '—' : c.decisionRatio.toFixed(1));
+  set('sdDecisionRatioFormula', `${s.clo2Coef.toFixed(2)} ÷ ${s.woodCoef}`);
+  set('sdWoodBreakeven', c.woodBreakeven==null ? '—' : sensFmtMoney(c.woodBreakeven));
+  set('sdWoodMargin', c.woodMarginPct==null ? '' : `Baht/Bdt · ${c.woodMarginPct<0 ? `ลดได้อีก ${c.woodMarginPct.toFixed(1)}%` : `ต้องขึ้นอีก +${c.woodMarginPct.toFixed(1)}%`}`);
+  set('sdClo2Breakeven', c.clo2Breakeven==null ? '—' : sensFmtMoney(c.clo2Breakeven));
+  set('sdClo2Margin', c.clo2MarginPct==null ? '' : `Baht/kg · ${c.clo2MarginPct>=0 ? `ขึ้นได้อีก +${c.clo2MarginPct.toFixed(1)}%` : `ต้องลดลง ${Math.abs(c.clo2MarginPct).toFixed(1)}%`}`);
+
+  set('sdMiniRatio', c.decisionRatio==null ? '—' : '&gt; '+c.decisionRatio.toFixed(1));
+  set('sdMiniRatioLbl', 'ไม้สับ ÷ ClO2 มากกว่านี้ → Mode เพิ่ม Kappa');
+  const woodStepCost = -(s.woodGap * s.woodCoef);
+  set('sdMiniWoodStep', (woodStepCost>=0?'+':'')+woodStepCost.toFixed(2));
+  set('sdMiniWoodStepLbl', `ต้นทุนสุทธิเมื่อไม้สับ ขึ้นทุก ${s.woodGap.toLocaleString('en-US')} Baht/Bdt`);
+  const clo2StepCost = s.clo2Gap * s.clo2Coef;
+  set('sdMiniClo2Step', (clo2StepCost>=0?'+':'')+clo2StepCost.toFixed(2));
+  set('sdMiniClo2StepLbl', `ต้นทุนสุทธิเมื่อ ClO2 ขึ้นทุก ${s.clo2Gap.toFixed(2)} Baht/kg`);
 }
 function sensZoneGradient(hex){
   return (ctx) => {
@@ -11997,13 +12024,6 @@ function sensZoneGradient(hex){
    2,000-5,000 Baht/Bdt wood / 0-45 Baht/kg ClO2), expanding outward to a clean round step only if
    the current price, breakeven point, or configured table range would otherwise fall outside it —
    so the chart stays a stable "overview" rather than re-zooming to the table range on every edit. */
-function sensNiceStep(range){
-  if(!(range>0)) return 1;
-  const rough = range/7;
-  const mag = Math.pow(10, Math.floor(Math.log10(rough)));
-  const norm = rough/mag;
-  return (norm<1.5?1:norm<3?2:norm<7?5:10)*mag;
-}
 const SENS_CHART_X_DEFAULT = [2000, 5000], SENS_CHART_YMAX_DEFAULT = 45;
 function sensChartBounds(s, c){
   let xMin = SENS_CHART_X_DEFAULT[0], xMax = SENS_CHART_X_DEFAULT[1], yMax = SENS_CHART_YMAX_DEFAULT;
@@ -12032,23 +12052,35 @@ function sensRenderChart(){
   const rangeBoxX = [s.woodStart, s.woodEnd, s.woodEnd, s.woodStart, s.woodStart];
   const rangeBoxY = [s.clo2Start, s.clo2Start, s.clo2End, s.clo2End, s.clo2Start];
   const curColor = c.mode==='up' ? '#10B981' : c.mode==='down' ? '#EF4444' : css.ink;
-  const curLabel = sensFmtMoney(s.woodPrice)+' / '+s.clo2Price.toFixed(2)+' → '+(c.netCost>=0?'+':'')+c.netCost.toFixed(2);
+  const callout = [
+    `ราคาไม้สับ ${sensFmtMoney(s.woodPrice)} Baht/Bdt`,
+    `ราคา ClO2 ${s.clo2Price.toFixed(2)} Baht/kg`,
+    `ต้นทุนสุทธิ ${c.netCost>=0?'+':''}${sensFmtMoney(c.netCost)}`
+  ];
+  const breakPts = [];
+  if(c.woodBreakeven!=null && isFinite(c.woodBreakeven)) breakPts.push({x:c.woodBreakeven, y:s.clo2Price, lbl:sensFmtMoney(c.woodBreakeven)});
+  if(c.clo2Breakeven!=null && isFinite(c.clo2Breakeven)) breakPts.push({x:s.woodPrice, y:c.clo2Breakeven, lbl:sensFmtMoney(c.clo2Breakeven)});
 
   if(sensChartInstance) sensChartInstance.destroy();
   sensChartInstance = new Chart(cv.getContext('2d'), {
     data:{
       datasets:[
         { type:'line', label:'ขอบล่าง', data:lineX.map(x=> ({x, y:0})), borderWidth:0, pointRadius:0, fill:false, order:9, datalabels:{display:false} },
-        { type:'line', label:'ต้นทุนสุทธิ − : Mode เพิ่ม Kappa', data:lineX.map((x,i)=> ({x, y:breakevenY[i]})), borderWidth:0, pointRadius:0,
+        { type:'line', label:'Mode เพิ่ม Kappa (ต้นทุนสุทธิ −)', data:lineX.map((x,i)=> ({x, y:breakevenY[i]})), borderWidth:0, pointRadius:0,
           backgroundColor:sensZoneGradient('#10B981'), fill:'-1', order:8, datalabels:{display:false} },
-        { type:'line', label:'ต้นทุนสุทธิ + : Mode ลด Kappa', data:lineX.map(x=> ({x, y:yMax})), borderWidth:0, pointRadius:0,
+        { type:'line', label:'Mode ลด Kappa (ต้นทุนสุทธิ +)', data:lineX.map(x=> ({x, y:yMax})), borderWidth:0, pointRadius:0,
           backgroundColor:sensZoneGradient('#EF4444'), fill:'-1', order:7, datalabels:{display:false} },
-        { type:'line', label:'เส้นคุ้มทุน', data:lineX.map((x,i)=> ({x, y:breakevenY[i]})), borderColor:css.ink, borderWidth:1.8, borderDash:[5,3], pointRadius:0, fill:false, order:5, datalabels:{display:false} },
-        { type:'line', label:'ช่วงราคาในตาราง', data:rangeBoxX.map((x,i)=> ({x, y:rangeBoxY[i]})), borderColor:css.ink2, borderWidth:1.4, borderDash:[4,3], pointRadius:0, fill:false, order:4, datalabels:{display:false} },
+        { type:'line', label:'เส้นคุ้มทุน', data:lineX.map((x,i)=> ({x, y:breakevenY[i]})), borderColor:css.ink, borderWidth:2.2, pointRadius:0, fill:false, order:5,
+          datalabels:{ display:(ctx)=> ctx.dataIndex===1, align:'top', anchor:'end', color:css.ink, font:{size:10.5, family:'IBM Plex Mono', weight:'700'}, formatter:()=> 'เส้นคุ้มทุน' } },
+        { type:'line', label:'ช่วงราคาที่ศึกษา', data:rangeBoxX.map((x,i)=> ({x, y:rangeBoxY[i]})), borderColor:css.ink2, borderWidth:1.4, borderDash:[4,3], pointRadius:0, fill:false, order:4, datalabels:{display:false} },
+        { type:'line', label:'เส้นนำสายตา', data:[{x:s.woodPrice,y:0},{x:s.woodPrice,y:s.clo2Price}], borderColor:css.ink2, borderWidth:1, borderDash:[3,3], pointRadius:0, fill:false, order:3, datalabels:{display:false} },
+        { type:'line', label:'เส้นนำสายตา 2', data:[{x:xMin,y:s.clo2Price},{x:s.woodPrice,y:s.clo2Price}], borderColor:css.ink2, borderWidth:1, borderDash:[3,3], pointRadius:0, fill:false, order:3, datalabels:{display:false} },
+        { type:'scatter', label:'จุดเปลี่ยน', data:breakPts, borderColor:css.ink, backgroundColor:css.surface, pointRadius:5, pointHoverRadius:6, pointBorderWidth:2, order:2,
+          datalabels:{ display:true, align:'top', anchor:'end', offset:5, color:css.ink, font:{size:10, family:'IBM Plex Mono', weight:'700'}, formatter:(v)=> v.lbl } },
         { type:'scatter', label:'ราคาปัจจุบัน', data:[{x:s.woodPrice, y:s.clo2Price}], borderColor:css.ink, backgroundColor:curColor,
           pointRadius:7, pointHoverRadius:8, pointBorderWidth:2, order:1,
-          datalabels:{ display:true, align:'top', anchor:'end', offset:8, backgroundColor:css.surface, borderColor:css.border, borderWidth:1, borderRadius:6,
-            padding:{top:4,bottom:4,left:7,right:7}, color:css.ink, font:{size:10, family:'IBM Plex Mono', weight:'600'}, formatter:()=> curLabel } }
+          datalabels:{ display:true, align:'top', anchor:'end', offset:10, backgroundColor:css.surface, borderColor:css.border, borderWidth:1, borderRadius:7,
+            padding:{top:6,bottom:6,left:9,right:9}, color:css.ink, textAlign:'left', font:{size:10.5, family:'IBM Plex Mono', weight:'600'}, formatter:()=> callout } }
       ]
     },
     options:{ responsive:true, maintainAspectRatio:false,
@@ -12057,12 +12089,12 @@ function sensRenderChart(){
         y:{ min:0, max:yMax, title:{display:true, text:'ราคา ClO2 (Baht/kg)', color:css.ink2, font:{size:11}}, grid:{color:css.grid}, ticks:{color:css.ink2, font:{family:'IBM Plex Mono', size:10}, stepSize:sensNiceStep(yMax)} }
       },
       plugins:{ legend:{display:false},
-        tooltip:{ filter:(item)=> item.datasetIndex>=3, backgroundColor:css.surface, titleColor:css.ink, bodyColor:css.ink2, borderColor:css.border, borderWidth:1, padding:9,
+        tooltip:{ filter:(item)=> item.datasetIndex>=3 && item.datasetIndex<=7, backgroundColor:css.surface, titleColor:css.ink, bodyColor:css.ink2, borderColor:css.border, borderWidth:1, padding:9,
           callbacks:{ label:(x)=> x.dataset.label+': '+x.parsed.x.toFixed(2)+' / '+x.parsed.y.toFixed(2) } } }
     }
   });
   const leg = document.getElementById('sensChartLegend');
-  if(leg) leg.innerHTML = `<span class="item"><span class="box" style="background:#10B981"></span>ต้นทุนสุทธิ − : Mode เพิ่ม Kappa</span><span class="item"><span class="box" style="background:#EF4444"></span>ต้นทุนสุทธิ + : Mode ลด Kappa</span><span class="item"><span class="sw dashed" style="border-color:${css.ink}"></span>เส้นคุ้มทุน</span><span class="item"><span class="sw dashed" style="border-color:${css.ink2}"></span>ช่วงราคาในตาราง</span>`;
+  if(leg) leg.innerHTML = `<span class="item"><span class="box" style="background:#10B981"></span>Mode เพิ่ม Kappa (ต้นทุนสุทธิ −)</span><span class="item"><span class="box" style="background:#EF4444"></span>Mode ลด Kappa (ต้นทุนสุทธิ +)</span><span class="item"><span class="sw dashed" style="border-color:${css.ink2}"></span>ช่วงราคาที่ศึกษา</span>`;
 }
 /* exposed on window — showPage() (defined before boot(), so it can't see boot()'s local scope)
    calls this directly when the user navigates to the Sensitivity page, to fix up the chart's size
@@ -12079,9 +12111,10 @@ function sensRenderSummary(){
     : c.mode==='down'
     ? `ต้นทุนสุทธิ <b>+${sensFmtMoney(c.netCost)} Baht/Adt</b> (ต้นทุนเพิ่ม): ไม่คุ้ม ควร ${modeTxt}`
     : `ต้นทุนสุทธิ <b>เท่าทุนพอดี</b> ไม่มีฝั่งไหนคุ้มกว่ากัน`;
-  el.innerHTML = `<span class="ic">✓</span>1 Kappa ที่เพิ่มขึ้น ที่ราคาไม้สับ <b>${sensFmtMoney(s.woodPrice)} Baht/Bdt</b> และราคา ClO2 <b>${sensFmtMoney(s.clo2Price)} Baht/kg</b><br>`
+  const icon = c.mode==='up' ? '✓' : c.mode==='down' ? '!' : '•';
+  el.innerHTML = `<span class="ic">${icon}</span><span>1 Kappa ที่เพิ่มขึ้น ที่ราคาไม้สับ <b>${sensFmtMoney(s.woodPrice)} Baht/Bdt</b> และราคา ClO2 <b>${sensFmtMoney(s.clo2Price)} Baht/kg</b><br>`
     + `ต้นทุนไม้สับลดลง <b>${sensFmtMoney(Math.abs(c.woodCost))} Baht/Adt</b> และต้นทุน ClO2 เพิ่มขึ้น <b>+${sensFmtMoney(c.clo2Cost)} Baht/Adt</b><br>`
-    + netLine;
+    + netLine + `</span>`;
 }
 function sensHeatColor(net, maxAbs){
   if(!(maxAbs>0)) return 'transparent';
@@ -12092,21 +12125,16 @@ function sensHeatColor(net, maxAbs){
 function sensRenderHeatmap(){
   const s = SENS_STATE;
   const wrap = document.getElementById('sensHeatmapWrap');
-  const titleEl = document.getElementById('sensHeatmapTitle');
-  const detailEl = document.getElementById('sensHeatmapDetail');
+  const footEl = document.getElementById('sensHeatmapFoot');
   if(!wrap) return;
-  const woodVals = sensAxisValues(s.woodStart, s.woodEnd, s.woodGap);
-  const clo2Vals = sensAxisValues(s.clo2Start, s.clo2End, s.clo2Gap);
-  if(!woodVals.length || !clo2Vals.length){ wrap.innerHTML = '<div class="sens-range-note warn" style="padding:12px;">ช่วงราคาหรือ Gap ไม่ถูกต้อง</div>'; return; }
-  if(titleEl) titleEl.innerHTML = `📋 ตาราง Heatmap ต้นทุนสุทธิ Kappa +1 (Baht/Adt) — แถว: ไม้สับ Gap ${s.woodGap.toFixed(2)} | คอลัมน์: ClO2 Gap ${s.clo2Gap.toFixed(2)} | ${woodVals.length} × ${clo2Vals.length} ช่อง`;
-  const renderDetail = (wp, cp) => {
-    if(!detailEl) return;
-    const cc = sensCompute(Object.assign({}, s, {woodPrice:wp, clo2Price:cp}));
-    const modeColor = cc.mode==='up' ? '#10B981' : cc.mode==='down' ? '#EF4444' : 'inherit';
-    const modeTxt = cc.mode==='up' ? 'Mode เพิ่ม Kappa' : cc.mode==='down' ? 'Mode ลด Kappa' : '';
-    detailEl.innerHTML = `ไม้ ${sensFmtMoney(wp)} / ClO2 ${cp.toFixed(2)} → ไม้ ${sensFmtMoney(cc.woodCost)} + ClO2 +${sensFmtMoney(cc.clo2Cost)} = <b style="color:${modeColor}">${cc.netCost>=0?'+':''}${sensFmtMoney(cc.netCost)}</b> ${modeTxt}`;
-  };
-  renderDetail(s.woodPrice, s.clo2Price);
+  /* The table always displays a readable ~7-row x ~7-col subsample (clean round steps, e.g. every
+     100 Baht/Bdt / every 1.00 Baht/kg at the default range) regardless of the configured Gap —
+     the Gap itself still drives the chart's range box and the "per-step" mini-tiles below. */
+  const woodStep = sensNiceStep(s.woodEnd - s.woodStart) || s.woodGap;
+  const clo2Step = sensNiceStep(s.clo2End - s.clo2Start) || s.clo2Gap;
+  const woodVals = sensDisplayAxisValues(s.woodStart, s.woodEnd, woodStep);
+  const clo2Vals = sensDisplayAxisValues(s.clo2Start, s.clo2End, clo2Step);
+  if(!woodVals.length || !clo2Vals.length){ wrap.innerHTML = '<div style="padding:12px;color:#d4342c;font-weight:700;">ช่วงราคาหรือ Gap ไม่ถูกต้อง</div>'; if(footEl) footEl.innerHTML=''; return; }
   /* rows = wood price, columns = ClO2 price */
   const grid = woodVals.map(wp=> clo2Vals.map(cp=> sensCompute(Object.assign({}, s, {woodPrice:wp, clo2Price:cp})).netCost));
   const maxAbs = Math.max(1e-9, ...grid.reduce((a,row)=> a.concat(row), []).map(v=> Math.abs(v)));
@@ -12117,7 +12145,7 @@ function sensRenderHeatmap(){
     html += `<tr><th class="rowhead">${wp.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}</th>`;
     clo2Vals.forEach((cp, ci)=> {
       const net = grid[ri][ci];
-      const isCur = Math.abs(wp - s.woodPrice) < (s.woodGap/2) && Math.abs(cp - s.clo2Price) < (s.clo2Gap/2);
+      const isCur = Math.abs(wp - s.woodPrice) < (woodStep/2) && Math.abs(cp - s.clo2Price) < (clo2Step/2);
       html += `<td class="${isCur?'cur':''}" style="background:${sensHeatColor(net, maxAbs)}" title="ไม้สับ ${wp.toFixed(2)} / ClO2 ${cp.toFixed(2)} → สุทธิ ${net>=0?'+':''}${net.toFixed(2)} Baht/Adt" data-wood="${wp}" data-clo2="${cp}">${net>=0?'+':''}${net.toFixed(2)}</td>`;
     });
     html += '</tr>';
@@ -12125,7 +12153,6 @@ function sensRenderHeatmap(){
   html += '</tbody></table>';
   wrap.innerHTML = html;
   wrap.querySelectorAll('td[data-wood]').forEach(td=> {
-    td.addEventListener('mouseenter', ()=> renderDetail(+td.dataset.wood, +td.dataset.clo2));
     td.addEventListener('click', ()=> {
       SENS_STATE.woodPrice = +td.dataset.wood;
       SENS_STATE.clo2Price = +td.dataset.clo2;
@@ -12134,49 +12161,22 @@ function sensRenderHeatmap(){
       sensRenderAll();
     });
   });
+  const allNeg = grid.every(row=> row.every(v=> v<=0));
+  const allPos = grid.every(row=> row.every(v=> v>=0));
+  const allTxt = allNeg ? 'ทุกช่องเป็นลบ = Mode เพิ่ม Kappa' : allPos ? 'ทุกช่องเป็นบวก = Mode ลด Kappa' : 'มีทั้งช่องบวกและลบ ดูเส้นแบ่งจากกราฟคุ้มทุน';
+  if(footEl) footEl.innerHTML = `แถว: ราคาไม้สับ (Baht/Bdt) · คอลัมน์: ราคา ClO2 (Baht/kg) · แสดงทุก ${woodStep.toLocaleString('en-US')} / ${clo2Step.toFixed(2)} Baht<br>ช่องสีเข้ม = ต้นทุนเปลี่ยนแปลงมาก · กรอบดำ = ใกล้ราคาปัจจุบัน · ${allTxt}`;
 }
-function sensRenderExplain(){
-  const s = SENS_STATE, c = sensCompute(s);
-  const el = document.getElementById('sensExplain');
-  if(!el) return;
-  const wb = c.woodBreakeven, cb = c.clo2Breakeven;
-  const woodDirTxt = (wb==null || c.woodMarginPct==null) ? '' : (c.woodMarginPct<0
-    ? `ตอนนี้ไม้สับ ${sensFmtMoney(s.woodPrice)} ราคาสูงกว่าจุดคุ้มทุนอยู่ ${sensFmtMoney(Math.abs(s.woodPrice-wb))} Baht/Bdt (+${Math.abs(c.woodMarginPct).toFixed(1)}%) จึงยังคุ้ม`
-    : `ตอนนี้ไม้สับ ${sensFmtMoney(s.woodPrice)} ราคาต่ำกว่าจุดคุ้มทุนอยู่ ${sensFmtMoney(Math.abs(s.woodPrice-wb))} Baht/Bdt (${c.woodMarginPct.toFixed(1)}%) จึงยังไม่คุ้ม`);
-  const clo2DirTxt = (cb==null || c.clo2MarginPct==null) ? '' : (c.clo2MarginPct>=0
-    ? `ตอนนี้ ClO2 ${sensFmtMoney(s.clo2Price)} ราคาต้องเพิ่มอีก ${sensFmtMoney(Math.abs(cb-s.clo2Price))} Baht/kg (+${c.clo2MarginPct.toFixed(1)}%) จึงจะถึงจุดเปลี่ยน`
-    : `ตอนนี้ ClO2 ${sensFmtMoney(s.clo2Price)} ราคาเกินจุดคุ้มทุนไปแล้ว ${sensFmtMoney(Math.abs(cb-s.clo2Price))} Baht/kg (${Math.abs(c.clo2MarginPct).toFixed(1)}%)`);
-  el.innerHTML = `
-    <div class="sens-explain-sub">
-      <div class="sens-explain-sub-title">🎯 1) ไม้สับต่ำสุดที่ยังคุ้ม = ${wb==null?'—':sensFmtMoney(wb)+' Baht/Bdt'}</div>
-      <p>ให้ราคา ClO2 คงที่ ${sensFmtMoney(s.clo2Price)} Baht/kg จะหาได้ว่าราคาไม้สับต้องสูงแค่ไหนจึงจะคุ้มกับการเพิ่ม Kappa 1 หน่วย</p>
-      <div class="sens-formula">ราคาไม้สับ Breakeven = (ราคา ClO2 × ${s.clo2Coef}) ÷ ${s.woodCoef} = ${wb==null?'—':sensFmtMoney(wb)}</div>
-      <ul class="sens-explain-list">
-        <li>ราคาไม้สับต่ำกว่า ${wb==null?'—':sensFmtMoney(wb)}: ไม่คุ้ม → Mode ลด Kappa</li>
-        <li>ราคาไม้สับสูงกว่า ${wb==null?'—':sensFmtMoney(wb)}: คุ้มค่า → Mode เพิ่ม Kappa</li>
-      </ul>
-      <p>${woodDirTxt}</p>
-    </div>
-    <div class="sens-explain-sub">
-      <div class="sens-explain-sub-title">📈 2) ClO2 สูงสุดที่ยังคุ้ม = ${cb==null?'—':sensFmtMoney(cb)+' Baht/kg'}</div>
-      <p>ให้ราคาไม้สับคงที่ ${sensFmtMoney(s.woodPrice)} Baht/Bdt จะหาได้ว่าราคา ClO2 คุ้มได้จนถึงราคาเท่าไหร่</p>
-      <div class="sens-formula">ราคา ClO2 Breakeven = (ราคาไม้สับ × ${s.woodCoef}) ÷ ${s.clo2Coef} = ${cb==null?'—':sensFmtMoney(cb)}</div>
-      <ul class="sens-explain-list">
-        <li>ราคา ClO2 ต่ำกว่า ${cb==null?'—':sensFmtMoney(cb)}: ยังคุ้มค่า → Mode เพิ่ม Kappa</li>
-        <li>ราคา ClO2 สูงกว่า ${cb==null?'—':sensFmtMoney(cb)}: ไม่คุ้ม → ควรลดการใช้ ClO2 / Mode ลด Kappa</li>
-      </ul>
-      <p>${clo2DirTxt}</p>
-    </div>
-    <p>ข้อควรรู้: การคิด "ไม้สับต่ำสุด" อิงราคา ClO2 ปัจจุบันคงที่ (เช่นเดียวกับ "ClO2 สูงสุด" ที่อิงราคาไม้สับคงที่) ถ้าทั้งสองราคาเปลี่ยนไปพร้อมกัน ให้ดูผลจริงจากตาราง Heatmap แทน · อัตราส่วนไม้สับ ÷ ClO2 มากกว่า <b>${c.decisionRatio==null?'—':c.decisionRatio.toFixed(1)}</b> จะให้ผลเหมือนกับ Mode เพิ่ม Kappa เสมอ (ตอนนี้ ${sensFmtMoney(s.woodPrice)} ÷ ${sensFmtMoney(s.clo2Price)} = ${c.ratio==null?'—':c.ratio.toFixed(1)})</p>
-  `;
+function sensRenderFooter(){
+  const s = SENS_STATE;
+  const el = document.getElementById('sensFormulaFoot');
+  if(el) el.innerHTML = `สูตร: ต้นทุนสุทธิ = −(ราคาไม้สับ × ${s.woodCoef}) + (ราคา ClO2 × ${s.clo2Coef.toFixed(2)}) · ลบ = Mode เพิ่ม Kappa · บวก = Mode ลด Kappa`;
 }
 function sensRenderAll(){
-  sensRenderRangeNotes();
   sensRenderCards();
   sensRenderChart();
   sensRenderSummary();
   sensRenderHeatmap();
-  sensRenderExplain();
+  sensRenderFooter();
 }
 function sensSyncInputs(){
   const s = SENS_STATE;
@@ -12185,8 +12185,8 @@ function sensSyncInputs(){
   setVal('sensClo2Start', s.clo2Start); setVal('sensClo2End', s.clo2End); setVal('sensClo2Gap', s.clo2Gap);
   setVal('sensWoodPriceNum', s.woodPrice);
   setVal('sensClo2PriceNum', s.clo2Price);
-  setVal('sensWoodCoefRange', s.woodCoef); setVal('sensWoodCoefNum', s.woodCoef);
-  setVal('sensClo2CoefRange', s.clo2Coef); setVal('sensClo2CoefNum', s.clo2Coef);
+  setVal('sensWoodCoefNum', s.woodCoef);
+  setVal('sensClo2CoefNum', s.clo2Coef);
 }
 function initCostSensitivity(){
   const root = document.getElementById('sensChart');
@@ -12208,22 +12208,8 @@ function initCostSensitivity(){
   };
   bindNum('sensWoodPriceNum', 'woodPrice', 2);
   bindNum('sensClo2PriceNum', 'clo2Price', 2);
-
-  const bindPair = (rangeId, numId, key, dec) => {
-    const rEl = document.getElementById(rangeId), nEl = document.getElementById(numId);
-    if(!rEl || !nEl) return;
-    const commit = (v) => {
-      if(!isFinite(v)) return;
-      SENS_STATE[key] = +v.toFixed(dec);
-      sensSaveState();
-      rEl.value = SENS_STATE[key]; nEl.value = SENS_STATE[key];
-      sensRenderAll();
-    };
-    rEl.addEventListener('input', ()=> commit(+rEl.value));
-    nEl.addEventListener('change', ()=> commit(+nEl.value));
-  };
-  bindPair('sensWoodCoefRange', 'sensWoodCoefNum', 'woodCoef', 3);
-  bindPair('sensClo2CoefRange', 'sensClo2CoefNum', 'clo2Coef', 2);
+  bindNum('sensWoodCoefNum', 'woodCoef', 3);
+  bindNum('sensClo2CoefNum', 'clo2Coef', 2);
 
   const bindRange = (id, key) => {
     const el = document.getElementById(id);
@@ -12238,6 +12224,10 @@ function initCostSensitivity(){
   };
   bindRange('sensWoodStart','woodStart'); bindRange('sensWoodEnd','woodEnd'); bindRange('sensWoodGap','woodGap');
   bindRange('sensClo2Start','clo2Start'); bindRange('sensClo2End','clo2End'); bindRange('sensClo2Gap','clo2Gap');
+
+  const toggleBtn = document.getElementById('sensRangeToggle');
+  const settingsPanel = document.getElementById('sensRangeSettings');
+  if(toggleBtn && settingsPanel) toggleBtn.addEventListener('click', ()=> settingsPanel.classList.toggle('open'));
 
   window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', ()=> sensRenderChart());
 }
