@@ -756,11 +756,12 @@
   .sens-dash-header{
     border-radius:14px;padding:20px 24px;color:#fff;
     background-color:#0d2c4d;background-image:linear-gradient(135deg,#0b1f3b 0%,#123a63 100%);
-    display:flex;align-items:flex-start;justify-content:space-between;gap:20px;flex-wrap:wrap;
+    display:flex;flex-direction:column;gap:10px;
     box-shadow:0 2px 5px rgba(8,20,40,.22),0 12px 26px rgba(8,20,40,.20);
   }
-  .sens-dash-title h2{margin:0 0 6px;font-size:23px;font-weight:800;color:#fff;}
-  .sens-dash-title p{margin:0;font-size:12.5px;color:#9FB4CE;max-width:560px;}
+  .sens-dash-header-top{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;}
+  .sens-dash-header-top h2{margin:0;font-size:23px;font-weight:800;color:#fff;}
+  .sens-dash-sub{margin:0;font-size:12.5px;color:#9FB4CE;max-width:680px;}
   .sens-dash-kpis{display:flex;gap:10px;flex-wrap:wrap;}
   .sens-kpi{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:10px;padding:9px 14px;min-width:118px;}
   .sens-kpi .k-lbl{font-size:10px;font-weight:700;color:#9FB4CE;margin-bottom:5px;white-space:nowrap;}
@@ -2337,16 +2338,16 @@
         <section class="page" data-page="cost-sensitivity" hidden>
           <div class="sens-dash">
             <div class="sens-dash-header">
-              <div class="sens-dash-title">
+              <div class="sens-dash-header-top">
                 <h2>Sensivity Kappa vs Wood Chip Prices</h2>
-                <p>ผลต่อต้นทุนเมื่อเพิ่ม Kappa 1 หน่วย: ต้นทุนไม้สับที่ลดลง เทียบ ต้นทุน ClO2 ที่เพิ่มขึ้น · Pulp mill 1 Fiberline</p>
+                <div class="sens-dash-kpis">
+                  <div class="sens-kpi"><div class="k-lbl">ไม้สับที่ลดได้ / 1 Kappa</div><input type="number" step="0.001" class="k-input" id="sensWoodCoefNum"><span class="k-unit">Bdt/Adt</span></div>
+                  <div class="sens-kpi"><div class="k-lbl">ClO2 ที่เพิ่ม / 1 Kappa</div><input type="number" step="0.1" class="k-input" id="sensClo2CoefNum"><span class="k-unit">kg/Adt</span></div>
+                  <div class="sens-kpi"><div class="k-lbl">ราคาไม้สับ</div><input type="number" step="0.01" class="k-input" id="sensWoodPriceNum"><span class="k-unit">Baht/Bdt</span></div>
+                  <div class="sens-kpi"><div class="k-lbl">ราคา ClO2</div><input type="number" step="0.01" class="k-input" id="sensClo2PriceNum"><span class="k-unit">Baht/kg</span></div>
+                </div>
               </div>
-              <div class="sens-dash-kpis">
-                <div class="sens-kpi"><div class="k-lbl">ไม้สับที่ลดได้ / 1 Kappa</div><input type="number" step="0.001" class="k-input" id="sensWoodCoefNum"><span class="k-unit">Bdt/Adt</span></div>
-                <div class="sens-kpi"><div class="k-lbl">ClO2 ที่เพิ่ม / 1 Kappa</div><input type="number" step="0.1" class="k-input" id="sensClo2CoefNum"><span class="k-unit">kg/Adt</span></div>
-                <div class="sens-kpi"><div class="k-lbl">ราคาไม้สับ</div><input type="number" step="0.01" class="k-input" id="sensWoodPriceNum"><span class="k-unit">Baht/Bdt</span></div>
-                <div class="sens-kpi"><div class="k-lbl">ราคา ClO2</div><input type="number" step="0.01" class="k-input" id="sensClo2PriceNum"><span class="k-unit">Baht/kg</span></div>
-              </div>
+              <p class="sens-dash-sub">ผลต่อต้นทุนเมื่อเพิ่ม Kappa 1 หน่วย: ต้นทุนไม้สับที่ลดลง เทียบ ต้นทุน ClO2 ที่เพิ่มขึ้น · Pulp mill 1 Fiberline</p>
             </div>
 
             <div class="sens-dash-grid">
