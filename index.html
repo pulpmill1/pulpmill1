@@ -12077,9 +12077,9 @@ function sensRenderChart(){
      clips at the chart's border; clamp:true is a belt-and-braces fallback if bounds ever shift. */
   const lineLblX = xMin + (xMax-xMin)*0.92;
   const lineLblPt = { x:lineLblX, y:(s.woodCoef*lineLblX)/(s.clo2Coef||1) };
-  const redLblX = xMin + (xMax-xMin)*0.05;
+  const redLblX = xMin + (xMax-xMin)*0.015;
   const redLblPt = { x:redLblX, y:yMax*0.88 };
-  const greenLblX = xMin + (xMax-xMin)*0.05;
+  const greenLblX = xMin + (xMax-xMin)*0.015;
   const greenLblPt = { x:greenLblX, y:yMax*0.12 };
 
   if(sensChartInstance) sensChartInstance.destroy();
@@ -12096,9 +12096,9 @@ function sensRenderChart(){
         { type:'scatter', label:'ป้ายเส้นคุ้มทุน', data:[lineLblPt], pointRadius:0, order:2,
           datalabels:{ display:true, align:'top', anchor:'center', clamp:true, color:css.ink, font:{size:10.5, family:'IBM Plex Mono', weight:'700'}, formatter:()=> 'เส้นคุ้มทุน' } },
         { type:'scatter', label:'ป้าย Mode ลด Kappa', data:[redLblPt], pointRadius:0, order:2,
-          datalabels:{ display:true, align:'right', anchor:'center', offset:0, clamp:true, color:'#B91C1C', font:{size:16, weight:'800'}, formatter:()=> 'Mode ลด Kappa' } },
+          datalabels:{ display:true, align:'right', anchor:'center', offset:0, clamp:true, color:'#B91C1C', font:{size:16, weight:'400'}, formatter:()=> 'Mode ลด Kappa' } },
         { type:'scatter', label:'ป้าย Mode เพิ่ม Kappa', data:[greenLblPt], pointRadius:0, order:2,
-          datalabels:{ display:true, align:'right', anchor:'center', offset:0, clamp:true, color:'#059669', font:{size:16, weight:'800'}, formatter:()=> 'Mode เพิ่ม Kappa' } },
+          datalabels:{ display:true, align:'right', anchor:'center', offset:0, clamp:true, color:'#059669', font:{size:16, weight:'400'}, formatter:()=> 'Mode เพิ่ม Kappa' } },
         { type:'line', label:'เส้นนำสายตา', data:[{x:s.woodPrice,y:0},{x:s.woodPrice,y:s.clo2Price}], borderColor:css.ink2, borderWidth:1, borderDash:[3,3], pointRadius:0, fill:false, order:3, datalabels:{display:false} },
         { type:'line', label:'เส้นนำสายตา 2', data:[{x:xMin,y:s.clo2Price},{x:s.woodPrice,y:s.clo2Price}], borderColor:css.ink2, borderWidth:1, borderDash:[3,3], pointRadius:0, fill:false, order:3, datalabels:{display:false} },
         { type:'scatter', label:'จุดเปลี่ยน', data:breakPts, borderColor:css.ink, backgroundColor:css.surface, pointRadius:5, pointHoverRadius:6, pointBorderWidth:2, order:2,
