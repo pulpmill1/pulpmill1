@@ -825,6 +825,21 @@
   .sens-infographic-modal-imgwrap img{display:block;width:100%;height:auto;}
   .sens-infographic-modal-download{flex:0 0 auto;}
 
+  /* Composed landscape layout used only for the exported Infographic image (built off-screen,
+     rasterized with html2canvas, then discarded) — distinct from the live page's stacked layout. */
+  .sens-infographic-canvas{width:1700px;box-sizing:border-box;background:var(--bg);padding:22px;display:flex;flex-direction:column;gap:16px;}
+  .sens-infographic-canvas .sens-dash-header{border-radius:14px;}
+  .sens-infographic-canvas .k-input-static{display:inline-block;font:inherit;font-size:16px;font-weight:800;color:#fff;}
+  .sens-infographic-row{display:grid;grid-template-columns:300px 560px 1fr;gap:18px;align-items:start;}
+  .sens-infographic-row .sens-dash-col-left{gap:14px;}
+  .sens-infographic-chartcol .sens-chart-wrap{display:none;}
+  .sens-infographic-chartimg{display:block;width:100%;height:auto;border-radius:8px;margin-top:8px;}
+  .sens-infographic-row .sens-dash-col-right .sens-heatmap-wrap{max-height:none;overflow:visible;}
+  .sens-infographic-row .sens-dash-col-right table.sens-heatmap th{position:static;}
+  .sens-infographic-bottom{display:grid;grid-template-columns:1.6fr 1fr;gap:18px;align-items:stretch;}
+  .sens-infographic-bottom .sens-summary{height:100%;box-sizing:border-box;}
+  .sens-infographic-minis{grid-template-columns:repeat(3,1fr);gap:10px;}
+
   .sens-summary{font-size:15.5px;line-height:1.7;color:var(--ink-2);border:1px solid rgba(16,185,129,.3);background:rgba(16,185,129,.05);border-radius:12px;padding:16px 20px;display:flex;gap:14px;align-items:flex-start;}
   .sens-summary.unfavor{border-color:rgba(239,68,68,.3);background:rgba(239,68,68,.05);}
   .sens-summary .ic{flex:0 0 auto;width:34px;height:34px;border-radius:50%;background:rgba(16,185,129,.16);color:#10B981;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;}
@@ -12253,23 +12268,95 @@ function sensSyncInputs(){
   setFmt('sensWoodCoefNum', s.woodCoef, 3);
   setFmt('sensClo2CoefNum', s.clo2Coef, 2);
 }
-/* Infographic export — captures the live .sens-dash DOM (header, cards, chart canvas, table) as a
-   PNG via html2canvas rather than hand-drawing a separate summary, so the exported image always
-   matches whatever prices/Gap/theme are currently on screen with zero extra code to keep in sync. */
+/* Infographic export — composes a dedicated landscape layout (header + 3-column row of
+   price/ratio cards, chart, table + a summary/mini-tile row) from the live .sens-dash values,
+   rendered off-screen and rasterized with html2canvas. Built fresh from the current DOM's
+   textContent/input values on every call, so the exported image always matches whatever
+   prices/Gap/theme are currently on screen with zero extra state to keep in sync. */
 let sensInfographicCanvas = null, sensInfographicBusy = false;
+function sensBuildInfographicNode(chartImgUrl){
+  const root = document.querySelector('.sens-dash');
+
+  const headerClone = root.querySelector('.sens-dash-header').cloneNode(true);
+  headerClone.querySelectorAll('.k-input').forEach(inp=>{
+    const span = document.createElement('span');
+    span.className = 'k-input k-input-static';
+    span.textContent = inp.value;
+    inp.parentNode.replaceChild(span, inp);
+  });
+
+  const colLeft = root.querySelector('.sens-dash-col-left').cloneNode(true);
+  const trailingMini = colLeft.querySelector(':scope > .sens-dash-tiles3');
+  let miniClone = null;
+  if(trailingMini){ miniClone = trailingMini.cloneNode(true); trailingMini.remove(); }
+
+  const chartCol = document.createElement('div');
+  chartCol.className = 'sens-dash-col-mid sens-infographic-chartcol';
+  const chartH = document.createElement('div');
+  chartH.className = 'sens-dash-h';
+  chartH.innerHTML = '<span class="sq"></span>กราฟ Sensivity แสดงจุดคุ้มทุน';
+  const chartImg = document.createElement('img');
+  chartImg.className = 'sens-infographic-chartimg';
+  chartImg.src = chartImgUrl;
+  chartCol.appendChild(chartH);
+  chartCol.appendChild(chartImg);
+
+  const tableCol = document.createElement('div');
+  tableCol.className = 'sens-dash-col-right';
+  const tableH = document.createElement('div');
+  tableH.className = 'sens-dash-h';
+  tableH.innerHTML = '<span class="sq"></span>ตาราง Sensivity ต้นทุนสุทธิ (Baht/Adt)';
+  tableCol.appendChild(tableH);
+  tableCol.appendChild(root.querySelector('#sensHeatmapWrap').cloneNode(true));
+  tableCol.appendChild(root.querySelector('#sensHeatmapFoot').cloneNode(true));
+
+  const row = document.createElement('div');
+  row.className = 'sens-infographic-row';
+  row.appendChild(colLeft);
+  row.appendChild(chartCol);
+  row.appendChild(tableCol);
+
+  const bottom = document.createElement('div');
+  bottom.className = 'sens-infographic-bottom';
+  bottom.appendChild(root.querySelector('#sensSummary').cloneNode(true));
+  if(miniClone){
+    miniClone.classList.add('sens-infographic-minis');
+    bottom.appendChild(miniClone);
+  }
+
+  const container = document.createElement('div');
+  container.className = 'sens-infographic-canvas';
+  container.appendChild(headerClone);
+  container.appendChild(row);
+  container.appendChild(bottom);
+  container.appendChild(root.querySelector('.sens-dash-footer').cloneNode(true));
+  return container;
+}
 async function sensCaptureInfographic(){
   if(sensInfographicBusy) return null;
   const target = document.querySelector('.sens-dash');
+  const chartWrap = document.querySelector('.sens-dash .sens-chart-wrap');
   const statusEl = document.getElementById('sensInfographicStatus');
-  if(!target || typeof html2canvas === 'undefined'){
+  if(!target || !chartWrap || typeof html2canvas === 'undefined'){
     if(statusEl) statusEl.textContent = 'โหลดตัวสร้างภาพไม่สำเร็จ ลองรีเฟรชหน้าแล้วลองใหม่';
     return null;
   }
   sensInfographicBusy = true;
   document.querySelectorAll('.sens-infographic-btn').forEach(b=> b.disabled = true);
   if(statusEl) statusEl.textContent = 'กำลังสร้างภาพ...';
+  let buildWrap = null;
   try{
-    const canvas = await html2canvas(target, { backgroundColor: cssVar('--bg') || '#ffffff', scale:2, useCORS:true });
+    const bg = cssVar('--bg') || '#ffffff';
+    const chartCanvas = await html2canvas(chartWrap, { backgroundColor: cssVar('--surface') || bg, scale:2, useCORS:true });
+    const chartImgUrl = chartCanvas.toDataURL('image/png');
+
+    buildWrap = document.createElement('div');
+    buildWrap.style.cssText = 'position:fixed;left:-99999px;top:0;pointer-events:none;';
+    buildWrap.appendChild(sensBuildInfographicNode(chartImgUrl));
+    document.body.appendChild(buildWrap);
+    await new Promise(r=> requestAnimationFrame(()=> requestAnimationFrame(r)));
+
+    const canvas = await html2canvas(buildWrap.firstElementChild, { backgroundColor: bg, scale:2, useCORS:true });
     sensInfographicCanvas = canvas;
     if(statusEl) statusEl.textContent = '';
     return canvas;
@@ -12277,6 +12364,7 @@ async function sensCaptureInfographic(){
     if(statusEl) statusEl.textContent = 'สร้างภาพไม่สำเร็จ: '+e.message;
     return null;
   }finally{
+    if(buildWrap && buildWrap.parentNode) buildWrap.parentNode.removeChild(buildWrap);
     sensInfographicBusy = false;
     document.querySelectorAll('.sens-infographic-btn').forEach(b=> b.disabled = false);
   }
