@@ -11931,7 +11931,7 @@ WSD_METRICS.forEach(m=> { if(document.getElementById('wsdHost_'+m.id)) initWsdMe
    (favor lowering Kappa — red). Entirely self-contained, no Google Sheets dependency; state
    persists per-browser via localStorage. */
 const SENS_DEFAULTS = {
-  woodPrice: 4080.00, clo2Price: 21.03, woodCoef: 0.023, clo2Coef: 3,
+  woodPrice: 4080.00, clo2Price: 20.13, woodCoef: 0.023, clo2Coef: 3,
   woodStart: 3800, woodEnd: 4500, woodGap: 20,
   clo2Start: 18, clo2End: 25, clo2Gap: 0.5
 };
@@ -12067,7 +12067,7 @@ function sensRenderChart(){
   const callout = [
     `ราคาไม้สับ ${sensFmtMoney(s.woodPrice)} Baht/Bdt`,
     `ราคา ClO2 ${s.clo2Price.toFixed(2)} Baht/kg`,
-    `ต้นทุนสุทธิ ${c.netCost>=0?'+':''}${sensFmtMoney(c.netCost)}`
+    `ต้นทุนสุทธิ ${c.netCost>=0?'+':''}${sensFmtMoney(c.netCost)} Baht/Adt`
   ];
   const breakPts = [];
   if(c.woodBreakeven!=null && isFinite(c.woodBreakeven)) breakPts.push({x:c.woodBreakeven, y:s.clo2Price, lbl:sensFmtMoney(c.woodBreakeven)});
@@ -12096,9 +12096,9 @@ function sensRenderChart(){
         { type:'scatter', label:'ป้ายเส้นคุ้มทุน', data:[lineLblPt], pointRadius:0, order:2,
           datalabels:{ display:true, align:'top', anchor:'center', clamp:true, color:css.ink, font:{size:10.5, family:'IBM Plex Mono', weight:'700'}, formatter:()=> 'เส้นคุ้มทุน' } },
         { type:'scatter', label:'ป้าย Mode ลด Kappa', data:[redLblPt], pointRadius:0, order:2,
-          datalabels:{ display:true, align:'right', anchor:'center', offset:0, clamp:true, color:'#B91C1C', font:{size:24, weight:'800'}, formatter:()=> 'Mode ลด Kappa' } },
+          datalabels:{ display:true, align:'right', anchor:'center', offset:0, clamp:true, color:'#B91C1C', font:{size:16, weight:'800'}, formatter:()=> 'Mode ลด Kappa' } },
         { type:'scatter', label:'ป้าย Mode เพิ่ม Kappa', data:[greenLblPt], pointRadius:0, order:2,
-          datalabels:{ display:true, align:'right', anchor:'center', offset:0, clamp:true, color:'#059669', font:{size:24, weight:'800'}, formatter:()=> 'Mode เพิ่ม Kappa' } },
+          datalabels:{ display:true, align:'right', anchor:'center', offset:0, clamp:true, color:'#059669', font:{size:16, weight:'800'}, formatter:()=> 'Mode เพิ่ม Kappa' } },
         { type:'line', label:'เส้นนำสายตา', data:[{x:s.woodPrice,y:0},{x:s.woodPrice,y:s.clo2Price}], borderColor:css.ink2, borderWidth:1, borderDash:[3,3], pointRadius:0, fill:false, order:3, datalabels:{display:false} },
         { type:'line', label:'เส้นนำสายตา 2', data:[{x:xMin,y:s.clo2Price},{x:s.woodPrice,y:s.clo2Price}], borderColor:css.ink2, borderWidth:1, borderDash:[3,3], pointRadius:0, fill:false, order:3, datalabels:{display:false} },
         { type:'scatter', label:'จุดเปลี่ยน', data:breakPts, borderColor:css.ink, backgroundColor:css.surface, pointRadius:5, pointHoverRadius:6, pointBorderWidth:2, order:2,
