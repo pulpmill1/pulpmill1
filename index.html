@@ -817,7 +817,7 @@
 
   .sens-dash-bottom{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1.1fr);gap:14px;align-items:start;}
   @media (max-width:900px){ .sens-dash-bottom{grid-template-columns:1fr;} }
-  .sens-summary{font-size:13.5px;line-height:1.7;color:var(--ink-2);border:1px solid rgba(16,185,129,.3);background:rgba(16,185,129,.05);border-radius:12px;padding:16px 20px;display:flex;gap:14px;align-items:flex-start;}
+  .sens-summary{font-size:15.5px;line-height:1.7;color:var(--ink-2);border:1px solid rgba(16,185,129,.3);background:rgba(16,185,129,.05);border-radius:12px;padding:16px 20px;display:flex;gap:14px;align-items:flex-start;}
   .sens-summary.unfavor{border-color:rgba(239,68,68,.3);background:rgba(239,68,68,.05);}
   .sens-summary .ic{flex:0 0 auto;width:34px;height:34px;border-radius:50%;background:rgba(16,185,129,.16);color:#10B981;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;}
   .sens-summary.unfavor .ic{background:rgba(239,68,68,.16);color:#EF4444;}
@@ -12078,9 +12078,9 @@ function sensRenderChart(){
   const lineLblX = xMin + (xMax-xMin)*0.92;
   const lineLblPt = { x:lineLblX, y:(s.woodCoef*lineLblX)/(s.clo2Coef||1) };
   const redLblX = xMin + (xMax-xMin)*0.015;
-  const redLblPt = { x:redLblX, y:yMax*0.88 };
+  const redLblPt = { x:redLblX, y:yMax*0.96 };
   const greenLblX = xMin + (xMax-xMin)*0.015;
-  const greenLblPt = { x:greenLblX, y:yMax*0.12 };
+  const greenLblPt = { x:greenLblX, y:yMax*0.04 };
 
   if(sensChartInstance) sensChartInstance.destroy();
   sensChartInstance = new Chart(cv.getContext('2d'), {
