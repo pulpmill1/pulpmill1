@@ -12062,13 +12062,12 @@ function sensRenderChart(){
   /* Label anchor points chosen well inside the plot (not at the data's own edge points), each
      verified to sit inside its intended zone, so the "เส้นคุ้มทุน"/"Mode ..." text never crowds or
      clips at the chart's border; clamp:true is a belt-and-braces fallback if bounds ever shift. */
-  const lineLblX = xMin + (xMax-xMin)*0.82;
+  const lineLblX = xMin + (xMax-xMin)*0.92;
   const lineLblPt = { x:lineLblX, y:(s.woodCoef*lineLblX)/(s.clo2Coef||1) };
-  const redLblX = xMin + (xMax-xMin)*0.08;
-  const redLblBreakY = (s.woodCoef*redLblX)/(s.clo2Coef||1);
-  const redLblPt = { x:redLblX, y:redLblBreakY + (yMax-redLblBreakY)*0.55 };
-  const greenLblX = xMin + (xMax-xMin)*0.15;
-  const greenLblPt = { x:greenLblX, y:((s.woodCoef*greenLblX)/(s.clo2Coef||1))*0.35 };
+  const redLblX = xMin + (xMax-xMin)*0.05;
+  const redLblPt = { x:redLblX, y:yMax*0.88 };
+  const greenLblX = xMin + (xMax-xMin)*0.05;
+  const greenLblPt = { x:greenLblX, y:yMax*0.12 };
 
   if(sensChartInstance) sensChartInstance.destroy();
   sensChartInstance = new Chart(cv.getContext('2d'), {
