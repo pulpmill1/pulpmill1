@@ -799,13 +799,6 @@
   .sens-table-price-edit input{width:92px;font:inherit;font-size:15px;font-weight:800;color:var(--ink);background:var(--surface-2);border:1px solid var(--border);border-radius:7px;padding:5px 9px;}
   .sens-table-price-edit .u{font-size:10px;font-weight:600;color:var(--ink-3);}
 
-  .sens-heatmap-settings-toggle{font:inherit;font-size:10.5px;font-weight:700;color:var(--accent-ink);background:var(--accent-soft);border:1px solid var(--border);border-radius:7px;padding:4px 10px;cursor:pointer;margin-bottom:10px;}
-  .sens-heatmap-settings{display:none;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;padding:10px;background:var(--surface-2);border:1px solid var(--border);border-radius:9px;}
-  .sens-heatmap-settings.open{display:grid;}
-  @media (max-width:520px){ .sens-heatmap-settings{grid-template-columns:1fr;} }
-  .sens-heatmap-settings .sens-range-fields{display:flex;gap:8px;flex-wrap:wrap;}
-  .sens-heatmap-settings label{display:flex;flex-direction:column;gap:3px;font-size:10px;color:var(--ink-3);font-weight:700;}
-  .sens-heatmap-settings input{font:inherit;font-size:11.5px;color:var(--ink);background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:5px 7px;width:76px;}
 
   .sens-heatmap-wrap{overflow:auto;max-height:480px;border:1px solid var(--border);border-radius:10px;}
   table.sens-heatmap{border-collapse:collapse;font-size:11.5px;font-family:"IBM Plex Mono",monospace;width:100%;min-width:0;table-layout:fixed;}
@@ -2410,19 +2403,6 @@
                 <div class="sens-table-price-edit">
                   <label>ราคาไม้สับ<input type="text" inputmode="decimal" id="sensWoodPriceNum2"><span class="u">Baht/Bdt</span></label>
                   <label>ราคา ClO2<input type="text" inputmode="decimal" id="sensClo2PriceNum2"><span class="u">Baht/kg</span></label>
-                </div>
-              </div>
-              <button type="button" class="sens-heatmap-settings-toggle" id="sensRangeToggle">⚙ ตั้งค่าช่วงราคาในตาราง</button>
-              <div class="sens-heatmap-settings" id="sensRangeSettings">
-                <div class="sens-range-fields">
-                  <label>ไม้สับ เริ่ม<input type="number" step="0.01" id="sensWoodStart"></label>
-                  <label>สิ้นสุด<input type="number" step="0.01" id="sensWoodEnd"></label>
-                  <label>Gap<input type="number" step="0.01" id="sensWoodGap"></label>
-                </div>
-                <div class="sens-range-fields">
-                  <label>ClO2 เริ่ม<input type="number" step="0.01" id="sensClo2Start"></label>
-                  <label>สิ้นสุด<input type="number" step="0.01" id="sensClo2End"></label>
-                  <label>Gap<input type="number" step="0.01" id="sensClo2Gap"></label>
                 </div>
               </div>
               <div class="sens-heatmap-wrap" id="sensHeatmapWrap"></div>
@@ -11932,9 +11912,7 @@ WSD_METRICS.forEach(m=> { if(document.getElementById('wsdHost_'+m.id)) initWsdMe
    (favor lowering Kappa — red). Entirely self-contained, no Google Sheets dependency; state
    persists per-browser via localStorage. */
 const SENS_DEFAULTS = {
-  woodPrice: 4080.00, clo2Price: 20.13, woodCoef: 0.023, clo2Coef: 3,
-  woodStart: 2000, woodEnd: 5000, woodGap: 50,
-  clo2Start: 15, clo2End: 35, clo2Gap: 5
+  woodPrice: 4080.00, clo2Price: 20.13, woodCoef: 0.023, clo2Coef: 3
 };
 const SENS_MAX_AXIS_VALUES = 200;
 function sensLoadState(){
@@ -11972,14 +11950,32 @@ function sensAxisValues(start, end, gap){
   return vals;
 }
 /* "Nice" step: picks a clean round increment (1/2/5 x 10^n) that divides a range into roughly
-   7 steps — used both for chart tick spacing and for subsampling the heatmap to a readable
-   number of rows/columns regardless of how fine the underlying table Gap is set to. */
-function sensNiceStep(range){
+   `target` steps (7 by default) — used for chart tick spacing and, with a larger target, for
+   picking the heatmap table's own Gap (see sensAutoRange below). */
+function sensNiceStep(range, target){
   if(!(range>0)) return 1;
-  const rough = range/7;
+  const rough = range/(target||7);
   const mag = Math.pow(10, Math.floor(Math.log10(rough)));
   const norm = rough/mag;
   return (norm<1.5?1:norm<3?2:norm<7?5:10)*mag;
+}
+/* The Sensitivity table's own price range/Gap are no longer user-set — they're derived fresh from
+   whatever wood/ClO2 price is currently entered, so the table always shows a window centered on
+   the live price with a row/column count that reads well on the dashboard (neither a handful of
+   rows nor an unreadably long scroll), regardless of how large or small that price is. */
+function sensAutoRange(price, pct, targetSteps){
+  if(!(price>0)) return { start:0, end:0, gap:1 };
+  const halfSpan = price*pct;
+  const gap = sensNiceStep(halfSpan*2, targetSteps);
+  const start = Math.max(0, Math.floor((price-halfSpan)/gap)*gap);
+  const end = Math.ceil((price+halfSpan)/gap)*gap;
+  return { start, end, gap };
+}
+function sensApplyAutoRange(s){
+  const w = sensAutoRange(s.woodPrice, 0.18, 10);
+  s.woodStart = w.start; s.woodEnd = w.end; s.woodGap = w.gap;
+  const c = sensAutoRange(s.clo2Price, 0.35, 8);
+  s.clo2Start = c.start; s.clo2End = c.end; s.clo2Gap = c.gap;
 }
 function sensRenderCards(){
   const s = SENS_STATE, c = sensCompute(s);
@@ -12207,6 +12203,7 @@ function sensRenderFooter(){
   if(el) el.innerHTML = `สูตร: ต้นทุนสุทธิ = −(ราคาไม้สับ × ${s.woodCoef}) + (ราคา ClO2 × ${s.clo2Coef.toFixed(2)}) · ลบ = Mode เพิ่ม Kappa · บวก = Mode ลด Kappa`;
 }
 function sensRenderAll(){
+  sensApplyAutoRange(SENS_STATE);
   sensSyncInputs();
   sensRenderCards();
   sensRenderChart();
@@ -12217,9 +12214,6 @@ function sensRenderAll(){
 function sensFmtFixed(v, dec){ return v.toLocaleString('en-US', {minimumFractionDigits:dec, maximumFractionDigits:dec}); }
 function sensSyncInputs(){
   const s = SENS_STATE;
-  const setVal = (id, v) => { const el = document.getElementById(id); if(el) el.value = v; };
-  setVal('sensWoodStart', s.woodStart); setVal('sensWoodEnd', s.woodEnd); setVal('sensWoodGap', s.woodGap);
-  setVal('sensClo2Start', s.clo2Start); setVal('sensClo2End', s.clo2End); setVal('sensClo2Gap', s.clo2Gap);
   const setFmt = (id, v, dec) => { const el = document.getElementById(id); if(el && document.activeElement!==el) el.value = sensFmtFixed(v, dec); };
   setFmt('sensWoodPriceNum', s.woodPrice, 2);
   setFmt('sensClo2PriceNum', s.clo2Price, 2);
@@ -12252,24 +12246,6 @@ function initCostSensitivity(){
   bindNum('sensClo2PriceNum2', 'clo2Price', 2);
   bindNum('sensWoodCoefNum', 'woodCoef', 3);
   bindNum('sensClo2CoefNum', 'clo2Coef', 2);
-
-  const bindRange = (id, key) => {
-    const el = document.getElementById(id);
-    if(!el) return;
-    el.addEventListener('change', ()=> {
-      const v = +el.value;
-      if(!isFinite(v)) return;
-      SENS_STATE[key] = +v.toFixed(2);
-      sensSaveState();
-      sensRenderAll();
-    });
-  };
-  bindRange('sensWoodStart','woodStart'); bindRange('sensWoodEnd','woodEnd'); bindRange('sensWoodGap','woodGap');
-  bindRange('sensClo2Start','clo2Start'); bindRange('sensClo2End','clo2End'); bindRange('sensClo2Gap','clo2Gap');
-
-  const toggleBtn = document.getElementById('sensRangeToggle');
-  const settingsPanel = document.getElementById('sensRangeSettings');
-  if(toggleBtn && settingsPanel) toggleBtn.addEventListener('click', ()=> settingsPanel.classList.toggle('open'));
 
   window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', ()=> sensRenderChart());
 }
