@@ -773,7 +773,7 @@
   @media (max-width:1180px){ .sens-dash-grid{grid-template-columns:1fr;} }
 
   .sens-dash-col-left{display:flex;flex-direction:column;gap:16px;}
-  .sens-dash-section .sens-dash-h{display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:800;color:var(--ink);margin-bottom:10px;}
+  .sens-dash-h{display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:800;color:var(--ink);margin-bottom:10px;}
   .sens-dash-h .sq{width:8px;height:8px;border-radius:2px;background:#10B981;flex:0 0 auto;}
   .sens-dash-tiles3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
   @media (max-width:620px){ .sens-dash-tiles3{grid-template-columns:1fr;} }
@@ -788,7 +788,7 @@
 
   .sens-dash-col-mid,.sens-dash-col-right{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px 16px 14px;box-shadow:var(--shadow);}
   .sens-chart-wrap{position:relative;height:420px;margin-top:4px;}
-  .sens-chart-callout{position:absolute;transform:translate(-50%,-100%);background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:9px 16px;box-shadow:var(--shadow);text-align:center;white-space:nowrap;pointer-events:none;font-family:"IBM Plex Mono",monospace;z-index:3;}
+  .sens-chart-callout{position:absolute;transform:translate(-50%,0);background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:9px 16px;box-shadow:var(--shadow);text-align:center;white-space:nowrap;pointer-events:none;font-family:"IBM Plex Mono",monospace;z-index:3;}
   .sens-chart-callout div{font-size:13.5px;font-weight:800;color:var(--ink);}
   .sens-chart-callout .net{font-size:17px;margin-top:3px;}
 
@@ -12078,7 +12078,7 @@ function sensRenderChart(){
         { type:'line', label:'เส้นคุ้มทุน', data:lineX.map((x,i)=> ({x, y:breakevenY[i]})), borderColor:css.ink, borderWidth:2.2, pointRadius:0, fill:false, order:5, datalabels:{display:false} },
         { type:'line', label:'ช่วงราคาที่ศึกษา', data:rangeBoxX.map((x,i)=> ({x, y:rangeBoxY[i]})), borderColor:css.ink2, borderWidth:1.4, borderDash:[4,3], pointRadius:0, fill:false, order:4, datalabels:{display:false} },
         { type:'scatter', label:'ป้ายเส้นคุ้มทุน', data:[lineLblPt], pointRadius:0, order:2,
-          datalabels:{ display:true, align:'top', anchor:'center', clamp:true, color:css.ink, font:{size:12, family:'IBM Plex Mono', weight:'700'}, formatter:()=> 'เส้นคุ้มทุน' } },
+          datalabels:{ display:true, align:'top', anchor:'center', clamp:true, color:css.ink, font:{size:16, family:'IBM Plex Mono', weight:'700'}, formatter:()=> 'เส้นคุ้มทุน' } },
         { type:'scatter', label:'ป้าย Mode ลด Kappa', data:[redLblPt], pointRadius:0, order:2,
           datalabels:{ display:true, align:'right', anchor:'center', offset:0, clamp:true, color:'#B91C1C', font:{size:16, weight:'400'}, formatter:()=> 'Mode ลด Kappa' } },
         { type:'scatter', label:'ป้าย Mode เพิ่ม Kappa', data:[greenLblPt], pointRadius:0, order:2,
@@ -12112,7 +12112,7 @@ function sensRenderChart(){
     const px = sensChartInstance.scales.x.getPixelForValue(s.woodPrice);
     const py = sensChartInstance.scales.y.getPixelForValue(s.clo2Price);
     calloutEl.style.left = px+'px';
-    calloutEl.style.top = (py-20)+'px';
+    calloutEl.style.top = (py+16)+'px';
     document.getElementById('sensCalloutWood').textContent = `ราคาไม้สับ ${sensFmtMoney(s.woodPrice)} Baht/Bdt`;
     document.getElementById('sensCalloutClo2').textContent = `ราคา ClO2 ${s.clo2Price.toFixed(2)} Baht/kg`;
     const netEl = document.getElementById('sensCalloutNet');
