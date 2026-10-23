@@ -811,6 +811,20 @@
   table.sens-heatmap td.cur{outline:2px solid var(--ink);outline-offset:-2px;font-weight:800;}
   .sens-heatmap-foot{margin-top:10px;font-size:10.5px;color:var(--ink-3);line-height:1.6;}
 
+  .sens-infographic-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:14px;padding-top:14px;border-top:1px solid var(--border);}
+  .sens-infographic-btn{font:inherit;font-size:12px;font-weight:700;color:var(--accent-ink);background:var(--accent-soft);border:1px solid var(--border);border-radius:8px;padding:8px 14px;cursor:pointer;}
+  .sens-infographic-btn:hover{filter:brightness(0.97);}
+  .sens-infographic-btn:disabled{opacity:.6;cursor:wait;}
+  .sens-infographic-status{font-size:11px;color:var(--ink-3);}
+  .sens-infographic-modal{position:fixed;inset:0;z-index:9000;display:flex;align-items:center;justify-content:center;padding:20px;}
+  .sens-infographic-modal-backdrop{position:absolute;inset:0;background:rgba(20,20,19,.6);}
+  .sens-infographic-modal-card{position:relative;background:var(--surface);border-radius:14px;box-shadow:0 20px 60px rgba(0,0,0,.35);max-width:min(1100px,96vw);width:100%;max-height:92vh;overflow-y:auto;padding:20px 22px;display:flex;flex-direction:column;gap:14px;align-items:center;}
+  .sens-infographic-modal-close{position:absolute;top:10px;right:12px;width:30px;height:30px;border:none;border-radius:8px;background:var(--surface-2);color:var(--ink-2);font-size:18px;line-height:1;cursor:pointer;}
+  .sens-infographic-modal-close:hover{background:var(--border);color:var(--ink);}
+  .sens-infographic-modal-imgwrap{width:100%;overflow:auto;border-radius:10px;border:1px solid var(--border);}
+  .sens-infographic-modal-imgwrap img{display:block;width:100%;height:auto;}
+  .sens-infographic-modal-download{flex:0 0 auto;}
+
   .sens-summary{font-size:15.5px;line-height:1.7;color:var(--ink-2);border:1px solid rgba(16,185,129,.3);background:rgba(16,185,129,.05);border-radius:12px;padding:16px 20px;display:flex;gap:14px;align-items:flex-start;}
   .sens-summary.unfavor{border-color:rgba(239,68,68,.3);background:rgba(239,68,68,.05);}
   .sens-summary .ic{flex:0 0 auto;width:34px;height:34px;border-radius:50%;background:rgba(16,185,129,.16);color:#10B981;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;}
@@ -2407,6 +2421,11 @@
               </div>
               <div class="sens-heatmap-wrap" id="sensHeatmapWrap"></div>
               <div class="sens-heatmap-foot" id="sensHeatmapFoot"></div>
+              <div class="sens-infographic-actions">
+                <button type="button" class="sens-infographic-btn" id="sensInfographicViewBtn">🖼️ ดูภาพ Infographic</button>
+                <button type="button" class="sens-infographic-btn" id="sensInfographicDownloadBtn">⬇️ ดาวน์โหลด PNG</button>
+                <span class="sens-infographic-status" id="sensInfographicStatus"></span>
+              </div>
             </div>
 
             <div class="sens-dash-footer">
@@ -2608,8 +2627,20 @@
   </div>
 </div>
 
+<div class="sens-infographic-modal" id="sensInfographicModal" hidden>
+  <div class="sens-infographic-modal-backdrop" id="sensInfographicModalBackdrop"></div>
+  <div class="sens-infographic-modal-card" role="dialog" aria-modal="true">
+    <button class="sens-infographic-modal-close" id="sensInfographicModalClose" type="button" aria-label="Close">×</button>
+    <div class="sens-infographic-modal-imgwrap" id="sensInfographicModalImgWrap">
+      <img id="sensInfographicImg" alt="Sensitivity Kappa vs Wood Chip Prices infographic">
+    </div>
+    <button type="button" class="sens-infographic-btn sens-infographic-modal-download" id="sensInfographicModalDownloadBtn">⬇️ ดาวน์โหลด PNG</button>
+  </div>
+</div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.5.1/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
 /* Pages are shown/hidden in place (no real navigation), so the browser's own scroll-position
    restoration on reload would otherwise leave the very first paint mid-scroll — disable it and
@@ -12222,6 +12253,42 @@ function sensSyncInputs(){
   setFmt('sensWoodCoefNum', s.woodCoef, 3);
   setFmt('sensClo2CoefNum', s.clo2Coef, 2);
 }
+/* Infographic export — captures the live .sens-dash DOM (header, cards, chart canvas, table) as a
+   PNG via html2canvas rather than hand-drawing a separate summary, so the exported image always
+   matches whatever prices/Gap/theme are currently on screen with zero extra code to keep in sync. */
+let sensInfographicCanvas = null, sensInfographicBusy = false;
+async function sensCaptureInfographic(){
+  if(sensInfographicBusy) return null;
+  const target = document.querySelector('.sens-dash');
+  const statusEl = document.getElementById('sensInfographicStatus');
+  if(!target || typeof html2canvas === 'undefined'){
+    if(statusEl) statusEl.textContent = 'โหลดตัวสร้างภาพไม่สำเร็จ ลองรีเฟรชหน้าแล้วลองใหม่';
+    return null;
+  }
+  sensInfographicBusy = true;
+  document.querySelectorAll('.sens-infographic-btn').forEach(b=> b.disabled = true);
+  if(statusEl) statusEl.textContent = 'กำลังสร้างภาพ...';
+  try{
+    const canvas = await html2canvas(target, { backgroundColor: cssVar('--bg') || '#ffffff', scale:2, useCORS:true });
+    sensInfographicCanvas = canvas;
+    if(statusEl) statusEl.textContent = '';
+    return canvas;
+  }catch(e){
+    if(statusEl) statusEl.textContent = 'สร้างภาพไม่สำเร็จ: '+e.message;
+    return null;
+  }finally{
+    sensInfographicBusy = false;
+    document.querySelectorAll('.sens-infographic-btn').forEach(b=> b.disabled = false);
+  }
+}
+function sensDownloadCanvas(canvas){
+  if(!canvas) return;
+  const link = document.createElement('a');
+  const stamp = new Date().toISOString().slice(0,19).replace(/[:T]/g,'-');
+  link.download = `sensitivity-kappa-${stamp}.png`;
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+}
 function initCostSensitivity(){
   const root = document.getElementById('sensChart');
   if(!root) return;
@@ -12248,6 +12315,25 @@ function initCostSensitivity(){
   bindNum('sensClo2CoefNum', 'clo2Coef', 2);
 
   window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', ()=> sensRenderChart());
+
+  const infoModal = document.getElementById('sensInfographicModal');
+  const infoImg = document.getElementById('sensInfographicImg');
+  const openInfographicModal = (canvas) => {
+    if(!canvas || !infoModal || !infoImg) return;
+    infoImg.src = canvas.toDataURL('image/png');
+    infoModal.hidden = false;
+  };
+  document.getElementById('sensInfographicViewBtn').addEventListener('click', async ()=> {
+    const canvas = await sensCaptureInfographic();
+    openInfographicModal(canvas);
+  });
+  document.getElementById('sensInfographicDownloadBtn').addEventListener('click', async ()=> {
+    const canvas = await sensCaptureInfographic();
+    sensDownloadCanvas(canvas);
+  });
+  document.getElementById('sensInfographicModalDownloadBtn').addEventListener('click', ()=> sensDownloadCanvas(sensInfographicCanvas));
+  document.getElementById('sensInfographicModalClose').addEventListener('click', ()=> { infoModal.hidden = true; });
+  document.getElementById('sensInfographicModalBackdrop').addEventListener('click', ()=> { infoModal.hidden = true; });
 }
 initCostSensitivity();
 
