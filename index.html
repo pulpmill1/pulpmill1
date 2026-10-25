@@ -801,7 +801,7 @@
 
 
   .sens-heatmap-wrap{overflow:auto;max-height:480px;border:1px solid var(--border);border-radius:10px;}
-  table.sens-heatmap{border-collapse:collapse;font-size:11.5px;font-family:"IBM Plex Mono",monospace;width:100%;min-width:0;table-layout:fixed;}
+  table.sens-heatmap{border-collapse:collapse;font-size:15px;font-family:"IBM Plex Mono",monospace;width:100%;min-width:0;table-layout:fixed;}
   table.sens-heatmap th{position:sticky;top:0;background:var(--accent-soft);color:var(--accent-ink);font-weight:700;padding:7px 5px;border:1px solid var(--border);text-align:center;white-space:nowrap;z-index:2;overflow:hidden;text-overflow:ellipsis;}
   table.sens-heatmap th.corner,table.sens-heatmap th.rowhead{position:sticky;left:0;}
   table.sens-heatmap th.corner{top:0;z-index:3;}
@@ -809,7 +809,7 @@
   table.sens-heatmap td{padding:6px 8px;text-align:right;white-space:nowrap;cursor:pointer;border:1px solid var(--border);color:var(--ink);overflow:hidden;text-overflow:ellipsis;}
   table.sens-heatmap td:hover{outline:2px solid var(--accent);outline-offset:-2px;}
   table.sens-heatmap td.cur{outline:2px solid var(--ink);outline-offset:-2px;font-weight:800;}
-  .sens-heatmap-foot{margin-top:10px;font-size:10.5px;color:var(--ink-3);line-height:1.6;}
+  .sens-heatmap-foot{margin-top:10px;font-size:15px;color:var(--ink-3);line-height:1.6;}
 
   .sens-infographic-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:14px;padding-top:14px;border-top:1px solid var(--border);}
   .sens-infographic-btn{font:inherit;font-size:12px;font-weight:700;color:var(--accent-ink);background:var(--accent-soft);border:1px solid var(--border);border-radius:8px;padding:8px 14px;cursor:pointer;}
@@ -966,7 +966,6 @@
           <span class="tb-avatar" id="roleAvatar">CE</span>
           <span class="tb-user-text">
             <span class="tb-user-name" id="roleSelectedName">CEO</span>
-            <span class="tb-user-role">Role view</span>
           </span>
           <span class="tb-caret">▾</span>
         </button>
@@ -12387,13 +12386,14 @@ function initCostSensitivity(){
     const nEl = document.getElementById(numId);
     if(!nEl) return;
     nEl.addEventListener('focus', ()=> { nEl.value = String(SENS_STATE[key]); nEl.select(); });
-    nEl.addEventListener('change', ()=> {
+    nEl.addEventListener('blur', ()=> {
       const v = parseFloat(String(nEl.value).replace(/,/g,''));
       if(isFinite(v)) SENS_STATE[key] = +v.toFixed(dec);
       nEl.value = sensFmtFixed(SENS_STATE[key], dec);
       sensSaveState();
       sensRenderAll();
     });
+    nEl.addEventListener('keydown', (e)=> { if(e.key === 'Enter') nEl.blur(); });
   };
   bindNum('sensWoodPriceNum', 'woodPrice', 2);
   bindNum('sensClo2PriceNum', 'clo2Price', 2);
