@@ -822,23 +822,10 @@
   .sens-infographic-modal-close{position:absolute;top:10px;right:12px;width:30px;height:30px;border:none;border-radius:8px;background:var(--surface-2);color:var(--ink-2);font-size:18px;line-height:1;cursor:pointer;}
   .sens-infographic-modal-close:hover{background:var(--border);color:var(--ink);}
   .sens-infographic-modal-imgwrap{width:100%;overflow:auto;border-radius:10px;border:1px solid var(--border);}
-  .sens-infographic-modal-imgwrap img{display:block;width:100%;height:auto;}
+  .sens-infographic-modal-imgwrap iframe{display:block;width:100%;aspect-ratio:16/9;border:0;background:#cbd5e1;}
+  a.sens-infographic-btn{text-decoration:none;display:inline-block;}
   .sens-infographic-modal-download{flex:0 0 auto;}
 
-  /* Composed landscape layout used only for the exported Infographic image (built off-screen,
-     rasterized with html2canvas, then discarded) — distinct from the live page's stacked layout. */
-  .sens-infographic-canvas{width:1700px;box-sizing:border-box;background:var(--bg);padding:22px;display:flex;flex-direction:column;gap:16px;}
-  .sens-infographic-canvas .sens-dash-header{border-radius:14px;}
-  .sens-infographic-canvas .k-input-static{display:inline-block;font:inherit;font-size:16px;font-weight:800;color:#fff;}
-  .sens-infographic-row{display:grid;grid-template-columns:300px 560px 1fr;gap:18px;align-items:start;}
-  .sens-infographic-row .sens-dash-col-left{gap:14px;}
-  .sens-infographic-chartcol .sens-chart-wrap{display:none;}
-  .sens-infographic-chartimg{display:block;width:100%;height:auto;border-radius:8px;margin-top:8px;}
-  .sens-infographic-row .sens-dash-col-right .sens-heatmap-wrap{max-height:none;overflow:visible;}
-  .sens-infographic-row .sens-dash-col-right table.sens-heatmap th{position:static;}
-  .sens-infographic-bottom{display:grid;grid-template-columns:1.6fr 1fr;gap:18px;align-items:stretch;}
-  .sens-infographic-bottom .sens-summary{height:100%;box-sizing:border-box;}
-  .sens-infographic-minis{grid-template-columns:repeat(3,1fr);gap:10px;}
 
   .sens-summary{font-size:15.5px;line-height:1.7;color:var(--ink-2);border:1px solid rgba(16,185,129,.3);background:rgba(16,185,129,.05);border-radius:12px;padding:16px 20px;display:flex;gap:14px;align-items:flex-start;}
   .sens-summary.unfavor{border-color:rgba(239,68,68,.3);background:rgba(239,68,68,.05);}
@@ -2646,15 +2633,15 @@
   <div class="sens-infographic-modal-card" role="dialog" aria-modal="true">
     <button class="sens-infographic-modal-close" id="sensInfographicModalClose" type="button" aria-label="Close">×</button>
     <div class="sens-infographic-modal-imgwrap" id="sensInfographicModalImgWrap">
-      <img id="sensInfographicImg" alt="Sensitivity Kappa vs Wood Chip Prices infographic">
+      <iframe id="sensInfographicFrame" title="Sensitivity Kappa vs Wood Chip Prices infographic"></iframe>
     </div>
+    <a class="sens-infographic-btn sens-infographic-modal-open" id="sensInfographicOpenLink" href="infographic-kappa.html" target="_blank" rel="noopener">⛶ เปิดเต็มจอ</a>
     <button type="button" class="sens-infographic-btn sens-infographic-modal-download" id="sensInfographicModalDownloadBtn">⬇️ ดาวน์โหลด PNG</button>
   </div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.5.1/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
 /* Pages are shown/hidden in place (no real navigation), so the browser's own scroll-position
    restoration on reload would otherwise leave the very first paint mid-scroll — disable it and
@@ -12267,114 +12254,26 @@ function sensSyncInputs(){
   setFmt('sensWoodCoefNum', s.woodCoef, 3);
   setFmt('sensClo2CoefNum', s.clo2Coef, 2);
 }
-/* Infographic export — composes a dedicated landscape layout (header + 3-column row of
-   price/ratio cards, chart, table + a summary/mini-tile row) from the live .sens-dash values,
-   rendered off-screen and rasterized with html2canvas. Built fresh from the current DOM's
-   textContent/input values on every call, so the exported image always matches whatever
-   prices/Gap/theme are currently on screen with zero extra state to keep in sync. */
-let sensInfographicCanvas = null, sensInfographicBusy = false;
-function sensBuildInfographicNode(chartImgUrl){
-  const root = document.querySelector('.sens-dash');
-
-  const headerClone = root.querySelector('.sens-dash-header').cloneNode(true);
-  headerClone.querySelectorAll('.k-input').forEach(inp=>{
-    const span = document.createElement('span');
-    span.className = 'k-input k-input-static';
-    span.textContent = inp.value;
-    inp.parentNode.replaceChild(span, inp);
-  });
-
-  const colLeft = root.querySelector('.sens-dash-col-left').cloneNode(true);
-  const trailingMini = colLeft.querySelector(':scope > .sens-dash-tiles3');
-  let miniClone = null;
-  if(trailingMini){ miniClone = trailingMini.cloneNode(true); trailingMini.remove(); }
-
-  const chartCol = document.createElement('div');
-  chartCol.className = 'sens-dash-col-mid sens-infographic-chartcol';
-  const chartH = document.createElement('div');
-  chartH.className = 'sens-dash-h';
-  chartH.innerHTML = '<span class="sq"></span>กราฟ Sensivity แสดงจุดคุ้มทุน';
-  const chartImg = document.createElement('img');
-  chartImg.className = 'sens-infographic-chartimg';
-  chartImg.src = chartImgUrl;
-  chartCol.appendChild(chartH);
-  chartCol.appendChild(chartImg);
-
-  const tableCol = document.createElement('div');
-  tableCol.className = 'sens-dash-col-right';
-  const tableH = document.createElement('div');
-  tableH.className = 'sens-dash-h';
-  tableH.innerHTML = '<span class="sq"></span>ตาราง Sensivity ต้นทุนสุทธิ (Baht/Adt)';
-  tableCol.appendChild(tableH);
-  tableCol.appendChild(root.querySelector('#sensHeatmapWrap').cloneNode(true));
-  tableCol.appendChild(root.querySelector('#sensHeatmapFoot').cloneNode(true));
-
-  const row = document.createElement('div');
-  row.className = 'sens-infographic-row';
-  row.appendChild(colLeft);
-  row.appendChild(chartCol);
-  row.appendChild(tableCol);
-
-  const bottom = document.createElement('div');
-  bottom.className = 'sens-infographic-bottom';
-  bottom.appendChild(root.querySelector('#sensSummary').cloneNode(true));
-  if(miniClone){
-    miniClone.classList.add('sens-infographic-minis');
-    bottom.appendChild(miniClone);
-  }
-
-  const container = document.createElement('div');
-  container.className = 'sens-infographic-canvas';
-  container.appendChild(headerClone);
-  container.appendChild(row);
-  container.appendChild(bottom);
-  container.appendChild(root.querySelector('.sens-dash-footer').cloneNode(true));
-  return container;
+/* Infographic export — the image is infographic-kappa.html, a standalone page built from
+   templates/kappa_infographic_template.html (its own fixed 1920×1080 design, not this dashboard's theme).
+   It takes the current prices and coefficients from the URL and can save itself as a 3840×2160 PNG. */
+function sensInfographicUrl(extra){
+  const s = SENS_STATE, q = new URLSearchParams({w:String(s.woodPrice), c:String(s.clo2Price), a:String(s.woodCoef), b:String(s.clo2Coef)});
+  if(extra) Object.keys(extra).forEach(k=> q.set(k, String(extra[k])));
+  return 'infographic-kappa.html?' + q.toString();
 }
-async function sensCaptureInfographic(){
-  if(sensInfographicBusy) return null;
-  const target = document.querySelector('.sens-dash');
-  const chartWrap = document.querySelector('.sens-dash .sens-chart-wrap');
+/* download without leaving the page: load the infographic off-screen at full size with ?download=1,
+   which saves the PNG on load, then drop the frame */
+function sensDownloadInfographic(){
   const statusEl = document.getElementById('sensInfographicStatus');
-  if(!target || !chartWrap || typeof html2canvas === 'undefined'){
-    if(statusEl) statusEl.textContent = 'โหลดตัวสร้างภาพไม่สำเร็จ ลองรีเฟรชหน้าแล้วลองใหม่';
-    return null;
-  }
-  sensInfographicBusy = true;
-  document.querySelectorAll('.sens-infographic-btn').forEach(b=> b.disabled = true);
+  const fr = document.createElement('iframe');
+  fr.setAttribute('aria-hidden', 'true');
+  fr.style.cssText = 'position:fixed;left:-99999px;top:0;width:1920px;height:1080px;border:0;';
+  fr.src = sensInfographicUrl({clean:1, download:1});
+  document.body.appendChild(fr);
   if(statusEl) statusEl.textContent = 'กำลังสร้างภาพ...';
-  let buildWrap = null;
-  try{
-    const bg = cssVar('--bg') || '#ffffff';
-    const chartCanvas = await html2canvas(chartWrap, { backgroundColor: cssVar('--surface') || bg, scale:2, useCORS:true });
-    const chartImgUrl = chartCanvas.toDataURL('image/png');
-
-    buildWrap = document.createElement('div');
-    buildWrap.style.cssText = 'position:fixed;left:-99999px;top:0;pointer-events:none;';
-    buildWrap.appendChild(sensBuildInfographicNode(chartImgUrl));
-    document.body.appendChild(buildWrap);
-    await new Promise(r=> requestAnimationFrame(()=> requestAnimationFrame(r)));
-
-    const canvas = await html2canvas(buildWrap.firstElementChild, { backgroundColor: bg, scale:2, useCORS:true });
-    sensInfographicCanvas = canvas;
-    if(statusEl) statusEl.textContent = '';
-    return canvas;
-  }catch(e){
-    if(statusEl) statusEl.textContent = 'สร้างภาพไม่สำเร็จ: '+e.message;
-    return null;
-  }finally{
-    if(buildWrap && buildWrap.parentNode) buildWrap.parentNode.removeChild(buildWrap);
-    sensInfographicBusy = false;
-    document.querySelectorAll('.sens-infographic-btn').forEach(b=> b.disabled = false);
-  }
-}
-function sensDownloadCanvas(canvas){
-  if(!canvas) return;
-  const link = document.createElement('a');
-  const stamp = new Date().toISOString().slice(0,19).replace(/[:T]/g,'-');
-  link.download = `sensitivity-kappa-${stamp}.png`;
-  link.href = canvas.toDataURL('image/png');
-  link.click();
+  setTimeout(()=> { if(statusEl) statusEl.textContent = ''; }, 4000);
+  setTimeout(()=> { if(fr.parentNode) fr.parentNode.removeChild(fr); }, 30000);
 }
 function initCostSensitivity(){
   const root = document.getElementById('sensChart');
@@ -12404,22 +12303,21 @@ function initCostSensitivity(){
 
   window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', ()=> sensRenderChart());
 
+  /* Infographic buttons — view in a modal, open full screen, or download as PNG (all via infographic-kappa.html) */
   const infoModal = document.getElementById('sensInfographicModal');
-  const infoImg = document.getElementById('sensInfographicImg');
-  const openInfographicModal = (canvas) => {
-    if(!canvas || !infoModal || !infoImg) return;
-    infoImg.src = canvas.toDataURL('image/png');
+  const infoFrame = document.getElementById('sensInfographicFrame');
+  const infoOpen = document.getElementById('sensInfographicOpenLink');
+  document.getElementById('sensInfographicViewBtn').addEventListener('click', ()=> {
+    if(!infoModal || !infoFrame) return;
+    infoFrame.src = sensInfographicUrl({clean:1});
+    if(infoOpen) infoOpen.href = sensInfographicUrl();
     infoModal.hidden = false;
-  };
-  document.getElementById('sensInfographicViewBtn').addEventListener('click', async ()=> {
-    const canvas = await sensCaptureInfographic();
-    openInfographicModal(canvas);
   });
-  document.getElementById('sensInfographicDownloadBtn').addEventListener('click', async ()=> {
-    const canvas = await sensCaptureInfographic();
-    sensDownloadCanvas(canvas);
+  document.getElementById('sensInfographicDownloadBtn').addEventListener('click', sensDownloadInfographic);
+  document.getElementById('sensInfographicModalDownloadBtn').addEventListener('click', ()=> {
+    const w = infoFrame && infoFrame.contentWindow;
+    if(w && typeof w.savePng === 'function') w.savePng(); else sensDownloadInfographic();
   });
-  document.getElementById('sensInfographicModalDownloadBtn').addEventListener('click', ()=> sensDownloadCanvas(sensInfographicCanvas));
   document.getElementById('sensInfographicModalClose').addEventListener('click', ()=> { infoModal.hidden = true; });
   document.getElementById('sensInfographicModalBackdrop').addEventListener('click', ()=> { infoModal.hidden = true; });
 }
