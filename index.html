@@ -2443,7 +2443,7 @@
         <section class="page" data-page="process-cooking" hidden>
           <div id="chipCookingHost">
             <div class="mon-group">
-              <div class="mon-group-head"><span class="gi">🪵</span><span class="gt">Chip filling</span><span class="gs">22 ค่า · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
+              <div class="mon-group-head"><span class="gi">🪵</span><span class="gt">Chip filling</span><span class="gs">13 ค่า · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
               <div class="mon-tiles" id="chipTiles_cookChipFill"></div>
               <div class="mon-detail" id="chipDetail_cookChipFill" hidden></div>
             </div>
@@ -2485,7 +2485,7 @@
           </div>
           <button type="button" class="foot-toggle" data-target="cookFoot" aria-expanded="false" aria-controls="cookFoot">ดูรายละเอียด</button>
           <div class="foot" id="cookFoot" hidden>
-            ที่มา: Google Sheets tab "Cooking Logsheet" (<code>gid=937055806</code>) · ทุกคอลัมน์ของชีต (ยกเว้นคอลัมน์ระบุตัวแถว เช่น Month/Date/Cooking No./Cooking Batch ACC./Digester no.) ถูกนำมาแสดง รวมถึงคอลัมน์ที่ยังไม่มีการบันทึกข้อมูลจริง (เช่น H-factor, Target cook temp., Bulk density) ซึ่งจะแสดง "ไม่มีข้อมูล" จนกว่าจะมีการบันทึก · กลุ่มตามหมวดหมู่ที่มีอยู่แล้วในหัวตารางของชีต (Chip filling / Pre Steaming &amp; Pre Heating / Hot Liquor Filling / Heat&amp;Cook / Displacement / Discharge / Liquor / Batch timing) · คอลัมน์ที่มีรูปแบบ "ชม:นาที" แปลงเป็นทศนิยมชั่วโมงก่อนแสดงผล<br>
+            ที่มา: Google Sheets tab "Cooking Logsheet" (<code>gid=937055806</code>) · แสดงคอลัมน์ส่วนใหญ่ของชีต (ยกเว้นคอลัมน์ระบุตัวแถว เช่น Month/Date/Cooking No./Cooking Batch ACC./Digester no. และคอลัมน์ที่ไม่ได้นำมาแสดงใน Dashboard) รวมถึงคอลัมน์ที่ยังไม่มีการบันทึกข้อมูลจริง (เช่น H-factor, Target cook temp.) ซึ่งจะแสดง "ไม่มีข้อมูล" จนกว่าจะมีการบันทึก · กลุ่มตามหมวดหมู่ที่มีอยู่แล้วในหัวตารางของชีต (Chip filling / Pre Steaming &amp; Pre Heating / Hot Liquor Filling / Heat&amp;Cook / Displacement / Discharge / Liquor / Batch timing) · คอลัมน์ที่มีรูปแบบ "ชม:นาที" แปลงเป็นทศนิยมชั่วโมงก่อนแสดงผล<br>
             กราฟแสดงทุก cook เป็นจุดข้อมูลของตัวเอง (ไม่เฉลี่ยรวมรายวัน) โดยแกน x ระบุทั้งวันที่และเลข Cooking Batch ACC. ของ cook นั้น · ตัวเลขสรุปบนกรอบหลัก (ค่าล่าสุด/ค่าเฉลี่ย 7 วัน) ยังคำนวณจากค่าเฉลี่ยรายวันตามปกติ
           </div>
         </section>
@@ -6523,26 +6523,17 @@ const PLS_BLEACHING_ROWS = plsAggregateByDay(PLS_BLEACHING_ROWS_RAW);
    "ไม่มีข้อมูล" จนกว่าทางโรงงานจะเริ่มบันทึก */
 CHIP_MON_META.push(
   {key:'ckPulpYieldCk', col:8, th:'Pulp yield CK', unit:'Adt', dec:2, grp:'cookChipFill', scored:false},
-  {key:'ckChipFillingStart', col:9, th:'Chip filling start', unit:'hr', dec:2, grp:'cookChipFill', scored:false},
-  {key:'ckChipFillingStop', col:10, th:'Chip filling stop', unit:'hr', dec:2, grp:'cookChipFill', scored:false},
-  {key:'ckStopDischarge', col:11, th:'Stop discharge', unit:'hr', dec:2, grp:'cookChipFill', scored:false},
-  {key:'ckChipFillingTime', col:12, th:'Chip filling time', unit:'hr', dec:2, grp:'cookChipFill', scored:false},
-  {key:'ckChipFillingWaitingTime', col:13, th:'Chip filling waiting time', unit:'hr', dec:2, grp:'cookChipFill', scored:false},
-  {key:'ckChipStorage', col:14, th:'Chip Storage', unit:'1/2', dec:2, grp:'cookChipFill', scored:false},
-  {key:'ckBulkDensity', col:15, th:'Bulk density', unit:'kg/m3', dec:2, grp:'cookChipFill', scored:false},
   {key:'ckPackingSteamRatio', col:16, th:'Packing Steam ratio', unit:'', dec:2, grp:'cookChipFill', scored:false},
   {key:'ckPressurePackingSteamCal', col:17, th:'Pressure packing steam (Cal.)', unit:'bar', dec:2, grp:'cookChipFill', scored:false},
   {key:'ckLpSteamPreSteaming', col:18, th:'LP Steam Pre steaming', unit:'ton', dec:2, grp:'cookChipFill', scored:false},
   {key:'ckPackingDegree', col:19, th:'Packing degree', unit:'', dec:2, grp:'cookChipFill', scored:false},
   {key:'ckDrynessOnline', col:20, th:'Dryness (online)', unit:'%', dec:2, grp:'cookChipFill', scored:false, pct01:true},
-  {key:'ckDrynessLab', col:21, th:'Dryness (lab)', unit:'', dec:2, grp:'cookChipFill', scored:false},
   {key:'ckDrynessOpe', col:22, th:'Dryness (OPE)', unit:'%', dec:2, grp:'cookChipFill', scored:false, pct01:true},
   {key:'ckSurgeBinLevelBeforeChipFilling', col:23, th:'Surge bin level before Chip filling', unit:'%', dec:2, grp:'cookChipFill', scored:false, pct01:true},
   {key:'ckLoadBelt321c021', col:24, th:'Load Belt 321C021', unit:'%', dec:2, grp:'cookChipFill', scored:false, pct01:true},
   {key:'ckChipFlow', col:25, th:'Chip flow', unit:'GT/min', dec:2, grp:'cookChipFill', scored:false},
   {key:'ckChipWeightWeightScale', col:26, th:'Chip weight. (Weight Scale) (GT)', unit:'GT', dec:2, grp:'cookChipFill', scored:false},
   {key:'ckChipWeightCal', col:27, th:'Chip weight. (Cal.)', unit:'GT', dec:2, grp:'cookChipFill', scored:false},
-  {key:'ckDiffWeightScaleCal', col:28, th:'Diff. Weight Scale-Cal', unit:'%', dec:2, grp:'cookChipFill', scored:false, pct01:true},
   {key:'ckChipWeightWeightScale27', col:29, th:'Chip weight. (Weight Scale) (Bdt)', unit:'Bdt', dec:2, grp:'cookChipFill', scored:false},
   {key:'ckPstStart', col:30, th:'PST start', unit:'hr', dec:2, grp:'cookPresteam', scored:false},
   {key:'ckPhtStart', col:31, th:'PHT start', unit:'hr', dec:2, grp:'cookPresteam', scored:false},
