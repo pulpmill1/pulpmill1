@@ -6799,10 +6799,12 @@ const chipMonCeil = (()=>{
   // never show "today" — the mill's own day isn't closed out yet, so cap at yesterday
   return Math.min(mx, chipMonYesterdayEnd);
 })();
-/* ceiling ต่อแหล่งข้อมูล — ชีตหลัก (main) ใช้ chipMonCeil ที่คำนวณจากคอลัมน์ anchor ข้างบน ส่วนชีตใหม่
-   (เช่น 'cooking') ยังไม่มีคอลัมน์ anchor ที่เชื่อถือได้แบบเดียวกัน จึงครอบแค่ "ไม่เกินเมื่อวาน" เฉยๆ
-   (กัน future placeholder row เหมือนชีตหลัก โดยไม่ต้องมี anchor column) */
-const CHIP_MON_CEIL_BY_SRC = { main: chipMonCeil, cooking: chipMonYesterdayEnd, brownStock: chipMonYesterdayEnd, bleaching: chipMonYesterdayEnd };
+/* ceiling ต่อแหล่งข้อมูล — ชีตหลัก (main) ใช้ chipMonCeil ที่คำนวณจากคอลัมน์ anchor ข้างบน (ไม่โชว์ "วันนี้"
+   เพราะวันของโรงงานยังไม่ปิด) ส่วน Cooking/Brown stock/Bleaching เป็น log รายชั่วโมงที่กรอกสดระหว่างวัน
+   จึงครอบแค่ "ไม่เกินเวลาปัจจุบัน" แทน (โชว์ข้อมูลล่าสุดที่มีจริง ณ ขณะนี้ รวมถึงของวันนี้ที่กรอกไปแล้ว) —
+   x.v!=null ที่ filter อยู่แล้วตอนใช้ ceiling นี้ (ดูด้านล่าง) กันแถว placeholder ที่ยังไม่มีค่าจริงออกอยู่แล้ว */
+const chipMonNow = Date.now();
+const CHIP_MON_CEIL_BY_SRC = { main: chipMonCeil, cooking: chipMonNow, brownStock: chipMonNow, bleaching: chipMonNow };
 const CHIP_MON_SERIES = {};
 CHIP_MON_META.forEach(m=> {
   const srcRows = CHIP_MON_ROWS_BY_SRC[m.src || 'main'];
