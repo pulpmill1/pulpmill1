@@ -893,7 +893,6 @@
           <button class="nav-item" data-page="process-cooking"><span class="nav-label" data-i18n-nav="navProcessCooking">Cooking</span></button>
           <button class="nav-item" data-page="process-brownstock"><span class="nav-label" data-i18n-nav="navProcessBrownStock">Brown stock</span></button>
           <button class="nav-item" data-page="process-bleaching"><span class="nav-label" data-i18n-nav="navProcessBleaching">Bleaching</span></button>
-          <button class="nav-item" data-page="process-qualitytopm"><span class="nav-label" data-i18n-nav="navProcessQualityToPm">Quality to pm</span></button>
         </div>
       </div>
       <button class="nav-item" data-page="loss-production"><span style="display:flex; align-items:center; min-width:0;"><span class="nav-ico">📉</span><span class="nav-label" data-i18n-nav="navLossProduction">Loss production</span></span></button>
@@ -2580,14 +2579,6 @@
           <button type="button" class="foot-toggle" data-target="bleachFoot" aria-expanded="false" aria-controls="bleachFoot">ดูรายละเอียด</button>
           <div class="foot" id="bleachFoot" hidden>
             ที่มา: Google Sheets tab "Bleaching Logsheet" (<code>gid=1596215251</code>) · หนึ่งแถวในชีต = หนึ่งชั่วโมง (คอลัมน์ TIME) · ทุกคอลัมน์ของชีตถูกนำมาแสดง ยกเว้นคอลัมน์ระบุตัวแถว (Month/Date/TIME) และคอลัมน์ข้อความ/หมวดหมู่ (Mode APC/Valmet/OPC, O2 Type, make up, Switch Pulp to HD, pulp grade) ที่ไม่ใช่ตัวเลข · กลุ่มตามหมวดหมู่ที่มีอยู่แล้วในหัวตารางของชีต (รวมกลุ่มย่อยท้ายชีตหลัง "TOTAL" ที่มีคอลัมน์เดียวจำนวนมาก เช่น ClO2/OWL/LC/NaOH/Dirt-Shive/White water/F-factor/จุดวัดอุณหภูมิ เข้าเป็นกลุ่ม Summary / Totals กลุ่มเดียว)<br>กราฟแสดงทุกชั่วโมงเป็นจุดข้อมูลของตัวเอง (ไม่เฉลี่ยรวมรายวัน) โดยแกน x ระบุทั้งวันที่และเวลา (ชั่วโมง:นาที) · ตัวเลขสรุปบนกรอบหลัก (ค่าล่าสุด/ค่าเฉลี่ย 7 วัน) คำนวณจากค่าเฉลี่ยรายวันตามปกติ
-          </div>
-        </section>
-
-        <section class="page" data-page="process-qualitytopm" hidden>
-          <div class="empty-state">
-            <div class="icon">🧪</div>
-            <h2>Quality to PM Dashboard</h2>
-            <p>หน้านี้ยังไม่มีข้อมูล — รอเชื่อมต่อแหล่งข้อมูล Quality to PM จาก Google Sheets<br>แจ้งลิงก์ชีทและชื่อแท็บที่ต้องการดึงข้อมูลได้เลยครับ</p>
           </div>
         </section>
 
@@ -5394,14 +5385,13 @@ const PAGE_META = {
   'process-cooking':{th:'Cooking', en:'Cooking', hasData:false},
   'process-brownstock':{th:'Brown stock', en:'Brown stock', hasData:false},
   'process-bleaching':{th:'Bleaching', en:'Bleaching', hasData:false},
-  'process-qualitytopm':{th:'Quality to pm', en:'Quality to pm', hasData:false},
   'loss-production':{th:'Loss production', en:'Loss production', hasData:false},
 };
 
 const I18N = {
   th:{
     navProduction:'Production', navProductionPm1:'Pulp mill 1', navProductionPm2:'Pulp mill 2', navProductionPm12:'Pulp mill 1+2', navYield:'Yield', navYieldWeightScale:'Weight scale digester', navCost:'Cost', navCostBu21:'Bu21 cost', navCostProductive:'Productive cost', navCostUnitConsumption:'Unit consumption', navCostSensitivity:'Sensitivity',
-    navProcessArea:'Process area', navProcessRawMaterial:'Raw material', navProcessCooking:'Cooking', navProcessBrownStock:'Brown stock', navProcessBleaching:'Bleaching', navProcessQualityToPm:'Quality to pm',
+    navProcessArea:'Process area', navProcessRawMaterial:'Raw material', navProcessCooking:'Cooking', navProcessBrownStock:'Brown stock', navProcessBleaching:'Bleaching',
     navLossProduction:'Loss production',
     searchPlaceholder:'ค้นหา KPI (Search metrics)',
     lastDataAt:'ข้อมูลล่าสุด ณ', noDataYet:'ยังไม่เชื่อมต่อแหล่งข้อมูล',
@@ -5420,7 +5410,7 @@ const I18N = {
   },
   en:{
     navProduction:'Production', navProductionPm1:'Pulp mill 1', navProductionPm2:'Pulp mill 2', navProductionPm12:'Pulp mill 1+2', navYield:'Yield', navYieldWeightScale:'Weight scale digester', navCost:'Cost', navCostBu21:'Bu21 cost', navCostProductive:'Productive cost', navCostUnitConsumption:'Unit consumption', navCostSensitivity:'Sensitivity',
-    navProcessArea:'Process area', navProcessRawMaterial:'Raw material', navProcessCooking:'Cooking', navProcessBrownStock:'Brown stock', navProcessBleaching:'Bleaching', navProcessQualityToPm:'Quality to pm',
+    navProcessArea:'Process area', navProcessRawMaterial:'Raw material', navProcessCooking:'Cooking', navProcessBrownStock:'Brown stock', navProcessBleaching:'Bleaching',
     navLossProduction:'Loss production',
     searchPlaceholder:'Search metrics',
     lastDataAt:'Latest data as of', noDataYet:'No data source connected yet',
