@@ -2442,7 +2442,7 @@
         <section class="page" data-page="process-cooking" hidden>
           <div id="chipCookingHost">
             <div class="mon-group">
-              <div class="mon-group-head"><span class="gi">🪵</span><span class="gt">Chip filling</span><span class="gs">13 ค่า · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
+              <div class="mon-group-head"><span class="gi">🪵</span><span class="gt">Chip filling</span><span class="gs">14 ค่า · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
               <div class="mon-tiles" id="chipTiles_cookChipFill"></div>
               <div class="mon-detail" id="chipDetail_cookChipFill" hidden></div>
             </div>
@@ -6513,6 +6513,7 @@ const PLS_BLEACHING_ROWS = plsAggregateByDay(PLS_BLEACHING_ROWS_RAW);
    "ไม่มีข้อมูล" จนกว่าทางโรงงานจะเริ่มบันทึก */
 CHIP_MON_META.push(
   {key:'ckPulpYieldCk', col:8, th:'Pulp yield CK', unit:'Adt', dec:2, grp:'cookChipFill', scored:false},
+  {key:'ckChipFillingTimeMin', col:12, th:'Chip filling time', unit:'min', dec:2, grp:'cookChipFill', scored:false, mul:60},
   {key:'ckPackingSteamRatio', col:16, th:'Packing Steam ratio', unit:'', dec:2, grp:'cookChipFill', scored:false},
   {key:'ckPressurePackingSteamCal', col:17, th:'Pressure packing steam (Cal.)', unit:'bar', dec:2, grp:'cookChipFill', scored:false},
   {key:'ckLpSteamPreSteaming', col:18, th:'LP Steam Pre steaming', unit:'ton', dec:2, grp:'cookChipFill', scored:false},
@@ -6772,6 +6773,7 @@ function chipMonVal(rec, meta){
     return Math.round((src/p)*1000)/1000;
   }
   const raw = chipMonRaw(rec.r[meta.col]);
+  if(meta.mul) return raw==null ? null : Math.round(raw*meta.mul*100)/100;
   if(meta.pct01) return (raw==null || raw<0 || raw>100) ? null : raw;
   return raw;
 }
