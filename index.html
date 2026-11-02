@@ -871,18 +871,6 @@
           <button class="nav-item" data-page="yield-weightscale"><span class="nav-label" data-i18n-nav="navYieldWeightScale">Weight scale digester</span></button>
         </div>
       </div>
-      <div class="nav-group" data-group="cost">
-        <button class="nav-parent" data-toggle="cost">
-          <span style="display:flex; align-items:center; min-width:0;"><span class="nav-ico">💰</span><span class="nav-label" data-i18n-nav="navCost">Cost</span></span>
-          <span class="chev">▸</span>
-        </button>
-        <div class="nav-children">
-          <button class="nav-item" data-page="cost-bu21"><span class="nav-label" data-i18n-nav="navCostBu21">Bu21 cost</span></button>
-          <button class="nav-item" data-page="cost-productive"><span class="nav-label" data-i18n-nav="navCostProductive">Productive cost</span></button>
-          <button class="nav-item" data-page="cost-unitconsumption"><span class="nav-label" data-i18n-nav="navCostUnitConsumption">Unit consumption</span></button>
-          <button class="nav-item" data-page="cost-sensitivity"><span class="nav-label" data-i18n-nav="navCostSensitivity">Sensitivity</span></button>
-        </div>
-      </div>
       <div class="nav-group" data-group="process-area">
         <button class="nav-parent" data-toggle="process-area">
           <span style="display:flex; align-items:center; min-width:0;"><span class="nav-ico">🏗</span><span class="nav-label" data-i18n-nav="navProcessArea">Process area</span></span>
@@ -893,6 +881,18 @@
           <button class="nav-item" data-page="process-cooking"><span class="nav-label" data-i18n-nav="navProcessCooking">Cooking</span></button>
           <button class="nav-item" data-page="process-brownstock"><span class="nav-label" data-i18n-nav="navProcessBrownStock">Brown stock</span></button>
           <button class="nav-item" data-page="process-bleaching"><span class="nav-label" data-i18n-nav="navProcessBleaching">Bleaching</span></button>
+        </div>
+      </div>
+      <div class="nav-group" data-group="cost">
+        <button class="nav-parent" data-toggle="cost">
+          <span style="display:flex; align-items:center; min-width:0;"><span class="nav-ico">💰</span><span class="nav-label" data-i18n-nav="navCost">Cost</span></span>
+          <span class="chev">▸</span>
+        </button>
+        <div class="nav-children">
+          <button class="nav-item" data-page="cost-bu21"><span class="nav-label" data-i18n-nav="navCostBu21">Bu21 cost</span></button>
+          <button class="nav-item" data-page="cost-productive"><span class="nav-label" data-i18n-nav="navCostProductive">Productive cost</span></button>
+          <button class="nav-item" data-page="cost-unitconsumption"><span class="nav-label" data-i18n-nav="navCostUnitConsumption">Unit consumption</span></button>
+          <button class="nav-item" data-page="cost-sensitivity"><span class="nav-label" data-i18n-nav="navCostSensitivity">Sensitivity</span></button>
         </div>
       </div>
       <button class="nav-item" data-page="loss-production"><span style="display:flex; align-items:center; min-width:0;"><span class="nav-ico">📉</span><span class="nav-label" data-i18n-nav="navLossProduction">Loss production</span></span></button>
@@ -6411,6 +6411,10 @@ const CHIP_MON_GROUPS = [
   {id:'blD1',          ico:'⚪', th:'D1 Stage', rail:'#2A8C6E', chartType:'line', page:'process-bleaching'},
   {id:'blSummary',     ico:'📊', th:'Summary / Totals', rail:'#455A64', chartType:'line', page:'process-bleaching'},
 ];
+/* Cooking/Brown stock/Bleaching charts default to the latest single day, not the dashboard-wide
+   14d default — a one-off for this round's instruction, scoped to these 3 pages only; any group
+   added to them later should default to 14d like everywhere else unless told otherwise. */
+const CHIP_MON_TODAY_DEFAULT_PAGES = ['process-cooking', 'process-brownstock', 'process-bleaching'];
 
 const chipMonDre = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/;
 const CHIP_MON_ROWS = [];
@@ -10934,8 +10938,13 @@ function chipMonDetailRows(grpId, m, a){
   const s = CHIP_MON_SERIES_RAW[m.key] || CHIP_MON_SERIES[m.key];
   const win = rpkResolve(CHIP_MON_RANGE[grpId], a.anchor.ts, s.length ? s[0].ts : null);
   let rows = win ? s.filter(x=> x.ts>=win[0] && x.ts<=win[1]) : [];
-  if(rows.length < 2) rows = s.filter(x=> x.ts >= a.anchor.ts - 30*86400000);
-  if(rows.length < 2) rows = s.slice(-30);
+  // An explicit single-day pick (today/yesterday) is a real answer even with 0-1 rows — the
+  // "too sparse, widen the window" safety net below is only for the wider multi-day presets,
+  // where <2 points can't show a trend at all.
+  const preset = (CHIP_MON_RANGE[grpId] && CHIP_MON_RANGE[grpId].preset) || '14d';
+  const isSingleDay = preset==='today' || preset==='yesterday';
+  if(!isSingleDay && rows.length < 2) rows = s.filter(x=> x.ts >= a.anchor.ts - 30*86400000);
+  if(!isSingleDay && rows.length < 2) rows = s.slice(-30);
   return rows;
 }
 // one row's x-axis/table label — plain date for day-level rows; Cooking adds its own running
@@ -11578,7 +11587,10 @@ function initChipMon(){
   });
   const chipMonToggle = (g, k)=> {
     if(CHIP_MON_STATE[g] === k){ CHIP_MON_STATE[g] = null; chipMonRenderDetail(g); return; }
-    if(CHIP_MON_STATE[g] !== k) CHIP_MON_RANGE[g] = null;
+    if(CHIP_MON_STATE[g] !== k){
+      const grp = CHIP_MON_GROUPS.find(x=> x.id===g);
+      CHIP_MON_RANGE[g] = (grp && CHIP_MON_TODAY_DEFAULT_PAGES.includes(grp.page)) ? { preset:'today', custom:null } : null;
+    }
     CHIP_MON_STATE[g] = k;
     chipMonRenderDetail(g);
     document.getElementById('chipDetail_'+g).scrollIntoView({behavior:'smooth', block:'nearest'});
