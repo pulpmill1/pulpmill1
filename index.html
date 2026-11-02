@@ -10986,8 +10986,8 @@ function woodCmpYieldValue(vals){
 /* Range-preset bar (rpk) state, one per section — resolves via rpkResolve() to an inclusive
    [startTs,endTs] window anchored to this series' own latest/earliest day, then converted below
    into the same {start,end,lo,hi,spanDays,isMonthly} shape the chart/table code already expects.
-   Default "thisMonth" matches the old default (day 1 to the last day of the current month). */
-const WOOD_CMP_RANGE = { preset:'thisMonth', custom:null };
+   Default "14d" shows the most recent 14 days on open. */
+const WOOD_CMP_RANGE = { preset:'14d', custom:null };
 const WOOD_CMP_MONTHLY_THRESHOLD_DAYS = 31;
 function woodCmpAvg(series, y, mi){
   const vals = series.filter(x=> x.y===y && x.mi===mi).map(x=> x.v);
@@ -11145,7 +11145,7 @@ function woodCmpRenderBody(){
 }
 function initWoodCmp(){
   if(!document.getElementById('woodCmpRpk')) return;
-  WOOD_CMP_RANGE.preset = 'thisMonth';
+  WOOD_CMP_RANGE.preset = '14d';
   WOOD_CMP_RANGE.custom = null;
   woodCmpRenderRpk();
   woodCmpRenderBody();
