@@ -2477,7 +2477,7 @@
               <div class="mon-detail" id="chipDetail_cookLiquor" hidden></div>
             </div>
             <div class="mon-group">
-              <div class="mon-group-head"><span class="gi">⏱️</span><span class="gt">Batch timing</span><span class="gs">6 ค่า · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
+              <div class="mon-group-head"><span class="gi">⏱️</span><span class="gt">Batch timing</span><span class="gs">0 ค่า · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
               <div class="mon-tiles" id="chipTiles_cookTiming"></div>
               <div class="mon-detail" id="chipDetail_cookTiming" hidden></div>
             </div>
@@ -6603,13 +6603,6 @@ CHIP_MON_META.push(
   {key:'ckWblTankNpp11No1452t004', col:118, th:'WBL tank NPP11 No.1 (452T004)', unit:'%', dec:2, grp:'cookLiquor', scored:false, pct01:true},
   {key:'ckWblTankNpp11No2452t005', col:119, th:'WBL tank NPP11 No.2 (452T005)', unit:'%', dec:2, grp:'cookLiquor', scored:false, pct01:true},
   {key:'ckWlTank471li190', col:120, th:'WL tank (471LI190)', unit:'%', dec:2, grp:'cookLiquor', scored:false, pct01:true},
-  {key:'ckBatchTimingWaitingTime', col:121, th:'Batch timing. (ไม่รวม Waiting time)', unit:'hr', dec:2, grp:'cookTiming', scored:false},
-  {key:'ckWaitingTime', col:123, th:'Waiting time', unit:'hr', dec:2, grp:'cookTiming', scored:false},
-  {key:'ckTotalCycleTime', col:125, th:'Total cycle time (duration)', unit:'hr', dec:2, grp:'cookTiming', scored:false},
-  {key:'ckTotalCycleTime124', col:126, th:'Total cycle time (min)', unit:'min', dec:2, grp:'cookTiming', scored:false},
-
-  {key:'ckBatchTimingMin', col:122, th:'Batch timing (min)', unit:'min', dec:2, grp:'cookTiming', scored:false},
-  {key:'ckWaitingTimeMin', col:124, th:'Waiting time (min)', unit:'min', dec:2, grp:'cookTiming', scored:false},
 );
 /* ทุก metric ที่ push ไว้ข้างบน (กลุ่ม cookChipFill/cookPresteam/cookHlf/cookHeatCook/cookDisplace/
    cookDischarge/cookLiquor/cookTiming) มี src:'cooking' เพื่อให้ loop สร้าง CHIP_MON_SERIES ข้างล่าง
