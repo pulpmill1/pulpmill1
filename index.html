@@ -11401,11 +11401,25 @@ function bchPickRecord(dig, win){
   }
   return best;
 }
-function bchBuildRows(win){
-  const digRows = BCH_DIGESTERS.map(dig=> {
+// "Today" shows one specific batch (so its date/Cooking Batch ACC. are shown, to make clear
+// this IS the latest batch) — every other preset shows the AVERAGE of every completed cook
+// in that window instead, so no single date/batch number applies and none is shown.
+function bchDigesterData(dig, win, isToday){
+  if(isToday){
     const rec = bchPickRecord(dig, win);
-    return { dig, rec, vals: BCH_SEGMENTS.map(seg=> rec ? rec.r[seg.col] : null) };
+    return { dig, rec, hasData: !!rec, vals: BCH_SEGMENTS.map(seg=> rec ? rec.r[seg.col] : null) };
+  }
+  if(!win) return { dig, rec:null, hasData:false, vals: BCH_SEGMENTS.map(()=> null) };
+  const matches = PLS_COOKING_ROWS_RAW.filter(rec=> rec.dig===dig && rec.ts>=win[0] && rec.ts<=win[1] && rec.r[BCH_DISCHARGE_COL]!=null);
+  const vals = BCH_SEGMENTS.map(seg=> {
+    const vs = matches.map(m=> m.r[seg.col]).filter(v=> v!=null);
+    return vs.length ? vs.reduce((a,b)=> a+b, 0)/vs.length : null;
   });
+  return { dig, rec:null, hasData: matches.length>0, vals };
+}
+function bchBuildRows(win){
+  const isToday = BCH_RANGE.preset === 'today';
+  const digRows = BCH_DIGESTERS.map(dig=> bchDigesterData(dig, win, isToday));
   const avgVals = BCH_SEGMENTS.map((seg, si)=> {
     const vals = digRows.map(r=> r.vals[si]).filter(v=> v!=null);
     return vals.length ? vals.reduce((a,b)=> a+b, 0)/vals.length : null;
@@ -11442,8 +11456,11 @@ function bchDrawChart(digRows, avgVals){
   if(!cv) return;
   const c = { ink2:cssVar('--ink-2'), grid:cssVar('--grid'), surface:cssVar('--surface'), border:cssVar('--border'), ink:cssVar('--ink') };
   const EN = currentLang==='en';
+  const isToday = BCH_RANGE.preset === 'today';
   const labels = digRows.map(r=> {
-    const sub = r.rec ? (r.rec.d+'/'+(r.rec.mi+1)+'/'+r.rec.y+(r.rec.batchAcc!=null?' #'+r.rec.batchAcc:'')) : (EN?'No data':'ไม่มีข้อมูล');
+    let sub;
+    if(isToday) sub = r.rec ? (r.rec.d+'/'+(r.rec.mi+1)+'/'+r.rec.y+(r.rec.batchAcc!=null?' #'+r.rec.batchAcc:'')) : (EN?'No data':'ไม่มีข้อมูล');
+    else sub = r.hasData ? (EN?'(average)':'(ค่าเฉลี่ย)') : (EN?'No data':'ไม่มีข้อมูล');
     return ['Digester '+r.dig, sub];
   }).concat([['Digester 1-5', EN?'(average)':'(ค่าเฉลี่ย)']]);
   const allRowsVals = digRows.map(r=> r.vals).concat([avgVals]);
@@ -11485,6 +11502,7 @@ function bchDrawChart(digRows, avgVals){
 }
 function bchTableHtml(digRows, avgVals){
   const EN = currentLang==='en';
+  const isToday = BCH_RANGE.preset === 'today';
   const f = v=> v==null ? '—' : Math.round(v);
   const theadHtml = '<th class="wcmp-key">'+(EN?'Digester':'หม้อต้ม')+'</th><th class="wcmp-key">'+(EN?'Batch':'Batch')+'</th>'
     + BCH_SEGMENTS.map(seg=> '<th>'+seg.label+' (min)</th>').join('') + '<th>'+(EN?'Total (min)':'รวม (นาที)')+'</th>';
@@ -11493,7 +11511,9 @@ function bchTableHtml(digRows, avgVals){
     return '<tr><td>'+label+'</td><td>'+sub+'</td>'+vals.map(v=> '<td class="num">'+f(v)+'</td>').join('')+'<td class="num">'+f(total)+'</td></tr>';
   };
   const bodyHtml = digRows.map(r=> {
-    const sub = r.rec ? (r.rec.d+'/'+(r.rec.mi+1)+'/'+r.rec.y+(r.rec.batchAcc!=null?' #'+r.rec.batchAcc:'')) : (EN?'—':'ไม่มีข้อมูล');
+    let sub;
+    if(isToday) sub = r.rec ? (r.rec.d+'/'+(r.rec.mi+1)+'/'+r.rec.y+(r.rec.batchAcc!=null?' #'+r.rec.batchAcc:'')) : (EN?'—':'ไม่มีข้อมูล');
+    else sub = r.hasData ? (EN?'(average)':'(ค่าเฉลี่ย)') : (EN?'—':'ไม่มีข้อมูล');
     return rowHtml('Digester '+r.dig, sub, r.vals);
   }).join('') + rowHtml('Digester 1-5', EN?'(average)':'(ค่าเฉลี่ย)', avgVals);
   return '<div class="md-tablewrap"><table class="md-table wide"><thead><tr>'+theadHtml+'</tr></thead><tbody>'+bodyHtml+'</tbody></table></div>';
@@ -11510,7 +11530,7 @@ function bchRenderBody(){
   const earliest = PLS_COOKING_ROWS_RAW.length ? PLS_COOKING_ROWS_RAW[0].ts : null;
   const win = rpkResolve(BCH_RANGE, latest, earliest);
   const { digRows, avgVals } = bchBuildRows(win);
-  const anyData = digRows.some(r=> r.rec);
+  const anyData = digRows.some(r=> r.hasData);
   const rangeNote = '<div class="md-rangenote">'+bchWinLabel(win)+'</div>';
   if(!anyData){
     body.innerHTML = '<div class="empty-state"><div class="icon">⏱️</div><h2>'+(EN?'No completed batch in this window':'ไม่มี Batch ที่ Discharge เสร็จในช่วงนี้')+'</h2></div>' + rangeNote;
