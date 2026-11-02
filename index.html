@@ -11502,7 +11502,11 @@ function bchRenderBody(){
   const body = document.getElementById('bchBody');
   if(!body) return;
   const EN = currentLang==='en';
-  const latest = PLS_COOKING_ROWS_RAW.length ? PLS_COOKING_ROWS_RAW[PLS_COOKING_ROWS_RAW.length-1].ts : null;
+  // Anchored to the real current time (same as every other Process-area group's "today" ceiling)
+  // rather than the raw sheet's own last row — a blank/placeholder row pre-dated into the future
+  // (e.g. a date formula dragged down for the rest of the year) would otherwise become "latest"
+  // and silently point every preset's window at that empty future date instead of real data.
+  const latest = chipMonNow;
   const earliest = PLS_COOKING_ROWS_RAW.length ? PLS_COOKING_ROWS_RAW[0].ts : null;
   const win = rpkResolve(BCH_RANGE, latest, earliest);
   const { digRows, avgVals } = bchBuildRows(win);
