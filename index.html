@@ -11399,11 +11399,16 @@ function chipMonDrawDetailChart(grpId, m, a, tgt){
   const flat = (v, col, lab) => ({ type:'line', label:lab, data:labels.map(()=> v), borderColor:col, borderWidth:1.6,
     borderDash:[7,3], pointRadius:0, fill:false, tension:0, order:5, datalabels:{display:false} });
   const refs = [];
+  // Value labels only help when there's room for them — past ~30 points on screen they overlap
+  // and bury the trend line they're meant to annotate, so they're switched off entirely once the
+  // range gets that dense (the line itself, tooltip-on-hover, and the table view stay available).
+  const nBars = vals.filter(v=> v!=null).length;
+  const showPointLabels = nBars <= 30;
   // Yield Balance Tank's own values show on the chart (unlike other pairKey overlays, e.g. Wood
   // species' Pulp mill 2 line, which stay label-free to avoid cluttering a 5-series stacked view).
   const yieldExtraLabels = m.key==='yieldBdt'
-    ? { display:(x)=> x.dataset.data[x.dataIndex]!=null, align:'top', anchor:'end', offset:4, color:pairCol,
-        font:{family:'IBM Plex Mono', size:9.5, weight:'600'},
+    ? { display:(x)=> showPointLabels && x.dataset.data[x.dataIndex]!=null, align:'top', anchor:'end', offset:4, color:pairCol,
+        font:{family:'IBM Plex Mono', size:10.5, weight:'600'},
         formatter:(v)=> v==null ? '' : v.toLocaleString('en-US', {minimumFractionDigits:m.dec, maximumFractionDigits:m.dec}) }
     : {display:false};
   if(yieldExtra) refs.push({ type:'line', label:pairLbl, data:yieldExtra, borderColor:pairCol, backgroundColor:pairCol,
@@ -11426,19 +11431,19 @@ function chipMonDrawDetailChart(grpId, m, a, tgt){
   if(yScale.lo!=null) lo = yScale.lo;
   if(yScale.hi!=null) hi = yScale.hi;
 
-  const nBars = vals.filter(v=> v!=null).length;
   // Process area logsheets (Cooking/Brown stock/Bleaching) show a LINE, not a bar — same for the
   // Yield (BDt/ADt) combo chart, which overlays Yield against Yield Balance Tank as two lines —
   // everything else (datalabels, target lines, tooltip, axes) stays identical, only this one
   // dataset's shape differs.
-  // Every line-chart metric shows its own value labels on the chart (not just Yield (Bdt/Adt))
+  // Every line-chart metric shows its own value labels on the chart (not just Yield (Bdt/Adt)),
+  // suppressed together with yieldExtraLabels above once the range gets too dense (showPointLabels)
   // — Yield (Bdt/Adt) places them below each point since Yield Balance Tank's pair line sits
   // above (via yieldExtraLabels) so the two lines' numbers don't collide when close in value;
   // every other metric (no pair line to avoid) places them above each point instead.
-  const primaryLineLabels = { display:(x)=> x.dataset.data[x.dataIndex]!=null,
+  const primaryLineLabels = { display:(x)=> showPointLabels && x.dataset.data[x.dataIndex]!=null,
     align: m.key==='yieldBdt' ? 'bottom' : 'top', anchor: m.key==='yieldBdt' ? 'start' : 'end',
     offset:4, color:grp.rail,
-    font:{family:'IBM Plex Mono', size:9.5, weight:'600'},
+    font:{family:'IBM Plex Mono', size:10.5, weight:'600'},
     formatter:(v)=> v==null ? '' : v.toLocaleString('en-US', {minimumFractionDigits:m.dec, maximumFractionDigits:m.dec}) };
   const primaryDs = (grp.chartType==='line' || m.key==='yieldBdt')
     ? { type:'line', label:actualLbl, data:vals, borderColor:grp.rail, backgroundColor:grp.rail,
