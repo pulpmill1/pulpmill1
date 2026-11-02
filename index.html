@@ -10,7 +10,6 @@
     --grid:#E6ECED; --box-border:#999999;
     --shadow:0 1px 2px rgba(18,34,38,.06), 0 8px 22px rgba(18,34,38,.05);
     --good:#0B7A28; --good-soft:#E4F5E8;
-    --role:#7C4DFF; --role-ink:#FFFFFF; --role-soft:#F1ECFF; --role-soft-ink:#5B34D6;
   }
   @media (prefers-color-scheme: dark){
     :root:not([data-theme="light"]){
@@ -20,7 +19,6 @@
       --grid:#263134; --box-border:#8A8A8A;
       --shadow:0 1px 2px rgba(0,0,0,.35), 0 10px 26px rgba(0,0,0,.4);
       --good:#4ADE80; --good-soft:rgba(74,222,128,.14);
-      --role:#8B67FF; --role-ink:#FFFFFF; --role-soft:rgba(155,123,255,.20); --role-soft-ink:#D8CCFF;
     }
   }
   :root[data-theme="dark"]{
@@ -30,7 +28,6 @@
     --grid:#263134; --box-border:#8A8A8A;
     --shadow:0 1px 2px rgba(0,0,0,.35), 0 10px 26px rgba(0,0,0,.4);
     --good:#4ADE80; --good-soft:rgba(74,222,128,.14);
-    --role:#8B67FF; --role-ink:#FFFFFF; --role-soft:rgba(155,123,255,.20); --role-soft-ink:#D8CCFF;
   }
 
   *{box-sizing:border-box;}
@@ -409,48 +406,12 @@
   :root[data-theme="dark"] .tb-lang-btn.active,
   @media (prefers-color-scheme: dark){ .tb-lang-btn.active{color:#08181A;} }
 
-  .tb-user{position:relative; flex-shrink:0;}
-  .tb-user-btn{
-    display:flex; align-items:center; gap:8px; background:var(--surface-2); border:1px solid var(--border);
-    border-radius:9px; padding:5px 10px 5px 6px; cursor:pointer; color:var(--ink);
-  }
-  .tb-avatar{
-    width:30px; height:30px; border-radius:9px; background:var(--role); color:var(--role-ink);
-    font-size:10.5px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0;
-  }
-  .tb-avatar.wide{font-size:8px; letter-spacing:-.02em;}
-  .tb-user-text{display:flex; flex-direction:column; text-align:left; line-height:1.25;}
-  .tb-user-name{font-size:12px; font-weight:700;}
-  .tb-user-role{font-size:10px; color:var(--ink-3);}
-  .tb-caret{font-size:9px; color:var(--ink-3);}
-  .tb-user-menu{
-    position:absolute; top:calc(100% + 6px); right:0; width:190px; background:var(--surface);
-    border:1px solid var(--border); border-radius:10px; box-shadow:var(--shadow); padding:6px; z-index:30;
-  }
   .tb-menu-label{font-size:10px; font-weight:700; color:var(--ink-3); text-transform:uppercase; letter-spacing:.03em; padding:6px 9px 4px;}
   .tb-menu-item{display:block; width:100%; text-align:left; background:none; border:none; font:inherit; font-size:12.5px;
     color:var(--ink-2); padding:8px 9px; border-radius:7px; cursor:pointer;}
   .tb-menu-item:hover{background:var(--surface-2);}
   .tb-menu-item.active{background:var(--accent-soft); color:var(--accent-ink); font-weight:700;}
   .tb-menu-sep{height:1px; background:var(--border); margin:5px 2px;}
-
-  /* ---- Role View selector dropdown ---- */
-  .tb-role-menu{width:330px; max-width:92vw; max-height:min(420px, 70vh); overflow-y:auto;}
-  .tb-role-item{
-    display:flex; align-items:flex-start; gap:10px; width:100%; text-align:left;
-    background:none; border:none; border-bottom:1px solid var(--border); font:inherit;
-    padding:9px 8px; border-radius:8px; cursor:pointer; color:var(--ink);
-  }
-  .tb-role-item:last-of-type{border-bottom:none;}
-  .tb-role-item:hover{background:var(--surface-2);}
-  .tb-role-item:focus-visible{outline:2px solid var(--accent); outline-offset:-2px; background:var(--surface-2);}
-  .tb-role-item.active{background:var(--role-soft);}
-  .tb-role-item .tb-avatar{margin-top:1px;}
-  .tb-role-text{min-width:0;}
-  .tb-role-name-row{display:flex; align-items:center; gap:6px;}
-  .tb-role-name{font-size:12.5px; font-weight:700; color:var(--ink);}
-  .tb-role-check{color:var(--role-soft-ink); font-size:11.5px; font-weight:700;}
-  .tb-role-desc{font-size:10.8px; color:var(--ink-2); margin-top:2px; line-height:1.5;}
 
   .tb-more-menu{
     position:absolute; top:calc(100% + 6px); right:20px; width:200px; background:var(--surface);
@@ -497,11 +458,6 @@
   @media (max-width:900px){
     .tb-lang, .tb-visits, #refreshBtn, #notifBtn, #exportBtn{display:none;}
     .tb-more{display:flex;}
-  }
-  @media (max-width:560px){
-    .tb-user-text{display:none;}
-    .tb-user-btn{padding:5px;}
-    .tb-caret{display:none;}
   }
   .highlight-flash{animation:tb-flash 1.6s ease;}
   @keyframes tb-flash{
@@ -944,22 +900,6 @@
           <div class="tb-menu-label" id="exportMenuLabel">ส่งออกข้อมูล</div>
           <button class="tb-menu-item" id="exportPdfBtn" type="button">🖨️ พิมพ์ / บันทึกเป็น PDF</button>
           <button class="tb-menu-item" id="exportCsvBtn" type="button">📄 ส่งออก CSV (เปิดได้ใน Excel)</button>
-        </div>
-      </div>
-
-      <div class="tb-user" id="tbUser">
-        <button class="tb-user-btn" id="tbUserBtn" type="button" aria-haspopup="listbox" aria-expanded="false">
-          <span class="tb-avatar" id="roleAvatar">CE</span>
-          <span class="tb-user-text">
-            <span class="tb-user-name" id="roleSelectedName">CEO</span>
-          </span>
-          <span class="tb-caret">▾</span>
-        </button>
-        <div class="tb-user-menu tb-role-menu" id="tbUserMenu" role="listbox" aria-label="Role View" hidden>
-          <div class="tb-menu-label" id="roleViewLabel">Role View</div>
-          <div id="roleMenuList"></div>
-          <div class="tb-menu-sep"></div>
-          <div class="tb-menu-label" id="roleNoteText" style="font-weight:400; text-transform:none; font-size:10.5px; line-height:1.5; padding:2px 9px 4px;">Role View เปลี่ยนเฉพาะมุมมองการแสดงผล ไม่เปลี่ยนสิทธิ์การเข้าถึงข้อมูล</div>
         </div>
       </div>
 
@@ -2672,8 +2612,6 @@ function showPage(pageId){
   if(typeof updateToolbarForPage === 'function') updateToolbarForPage(pageId);
   const searchPanelEl = document.getElementById('tbSearchPanel');
   if(searchPanelEl) searchPanelEl.hidden = true;
-  const userMenuEl = document.getElementById('tbUserMenu');
-  if(userMenuEl) userMenuEl.hidden = true;
   const moreMenuEl = document.getElementById('tbMoreMenu');
   if(moreMenuEl) moreMenuEl.hidden = true;
   const searchWrapEl = document.getElementById('tbSearch');
@@ -5400,8 +5338,6 @@ const I18N = {
     exportTitle:'ส่งออกข้อมูล (PDF / CSV)',
     exportDisabledNoData:'หน้านี้ยังไม่มีข้อมูลให้ส่งออก',
     exportDisabledNoCap:'',
-    roleViewLabel:'Role View',
-    roleNote:'Role View เปลี่ยนเฉพาะมุมมองการแสดงผล ไม่เปลี่ยนสิทธิ์การเข้าถึงข้อมูล',
     moreLabel:'เพิ่มเติม', moreRefresh:'รีเฟรชข้อมูล', moreExport:'ส่งออกข้อมูล (PDF / CSV)', moreNotif:'การแจ้งเตือน',
     searchEmpty:'ไม่พบ KPI ที่ตรงกับคำค้นหา', searchToggle:'ค้นหา KPI',
     sidebarToggle:'พับ/ขยายเมนูด้านซ้าย', moreBtn:'เมนูเพิ่มเติม',
@@ -5419,8 +5355,6 @@ const I18N = {
     exportTitle:'Export (PDF / CSV)',
     exportDisabledNoData:'No data available to export on this page',
     exportDisabledNoCap:'',
-    roleViewLabel:'Role View',
-    roleNote:'Role View only changes the display perspective — it does not change data access.',
     moreLabel:'More', moreRefresh:'Refresh data', moreExport:'Export (PDF / CSV)', moreNotif:'Notifications',
     searchEmpty:'No KPIs match your search', searchToggle:'Search KPI',
     sidebarToggle:'Collapse/expand sidebar', moreBtn:'More menu',
@@ -5546,7 +5480,6 @@ const TX_EN = {
   'ที่มา: Google Sheets tab':'Source: Google Sheets tab',
   // misc toolbar (also in I18N dict, kept for the observer)
   'ข้อมูลล่าสุด ณ':'Data as of',
-  'Role View เปลี่ยนเฉพาะมุมมองการแสดงผล ไม่เปลี่ยนสิทธิ์การเข้าถึงข้อมูล':'Role View changes only what is shown, not data-access permissions',
   // legend / colour-rule labels
   '≥ Target (เขียว)':'≥ Target (green)','≥ Budget (เขียว)':'≥ Budget (green)',
   '70–99.9% ของ Budget':'70–99.9% of budget','70–99.9% ของ Budget (ส้ม)':'70–99.9% of budget (orange)',
@@ -5762,7 +5695,7 @@ if(sidebarToggleBtn){
    PDF = the browser's own print dialog (Save as PDF); CSV = a Blob + <a download>,
    which every real browser (not just this one) supports out of the box. ---- */
 function closeAllTbMenus(){
-  ['tbUserMenu','tbMoreMenu','tbSearchPanel','tbNotifMenu','tbExportMenu'].forEach(function(id){
+  ['tbMoreMenu','tbSearchPanel','tbNotifMenu','tbExportMenu'].forEach(function(id){
     const el = document.getElementById(id);
     if(el) el.hidden = true;
   });
@@ -5910,94 +5843,9 @@ if(moreRefreshBtnEl) moreRefreshBtnEl.addEventListener('click', triggerRefresh);
   });
 })();
 
-/* ---- user menu / Role View selector (display-only — never changes data access
-   or the underlying user account; see roleNoteText in the dropdown) ---- */
-const tbUserBtn = document.getElementById('tbUserBtn');
-const tbUserMenu = document.getElementById('tbUserMenu');
-
-const ROLE_VIEWS = [
-  {code:'CE', nameEn:'CEO', nameTh:'ประธานเจ้าหน้าที่บริหาร', desc:'Budget attainment, year-on-year delivery and the executive summary.'},
-  {code:'MM', nameEn:'Mill Manager', nameTh:'ผู้จัดการโรงงาน', desc:'Whole-mill health, budget risk and the areas dragging the composite score.'},
-  {code:'ECC', nameEn:'ECC Command Center', nameTh:'ศูนย์ควบคุมและประสานงานการเดินโรงงาน', desc:'Mill-wide operating status, critical alerts, production–utility balance and cross-area coordination.'},
-  {code:'FL', nameEn:'Fiber Line Manager', nameTh:'ผู้จัดการสายการผลิตเยื่อ', desc:'Stage-by-stage throughput, inventory balance and cross-area deviations.'},
-  {code:'CH', nameEn:'Chemical Manager', nameTh:'ผู้จัดการโรงงานเคมี', desc:'Chemical production, quality, inventory, supply reliability and production cost.'},
-  {code:'PE', nameEn:'Process Engineer', nameTh:'วิศวกรกระบวนการ', desc:'Every metric with its control band, trend fit and correlated drivers.'},
-  {code:'SS', nameEn:'Shift Supervisor', nameTh:'หัวหน้ากะ', desc:'What is abnormal right now, what to act on, and the shift log.'},
-  {code:'OP', nameEn:'Operator', nameTh:'พนักงานควบคุมเครื่อง', desc:'Tank levels, pulp routing and the current readings for the running stage.'},
-  {code:'QC', nameEn:'QA/QC', nameTh:'ประกันและควบคุมคุณภาพ', desc:'Lab results, specification compliance, quality variation and off-spec tracking.'},
-  {code:'RD', nameEn:'R&D', nameTh:'วิจัยและพัฒนา', desc:'Trial performance, process–quality relationships, yield improvement and validated benefits.'},
-];
-let currentRoleCode = ROLE_VIEWS[0].code;
-try{
-  const savedRoleCode = localStorage.getItem('fl1_role_view_code');
-  if(savedRoleCode && ROLE_VIEWS.some(r=> r.code===savedRoleCode)) currentRoleCode = savedRoleCode;
-}catch(e){}
-
-function buildRoleMenu(){
-  const list = document.getElementById('roleMenuList');
-  if(!list) return;
-  list.innerHTML = ROLE_VIEWS.map(r=>{
-    const active = r.code === currentRoleCode;
-    return `<button type="button" class="tb-role-item${active?' active':''}" data-role="${r.code}" role="option" aria-selected="${active}">`
-      + `<span class="tb-avatar${r.code.length>2?' wide':''}">${r.code}</span>`
-      + `<span class="tb-role-text">`
-      + `<span class="tb-role-name-row"><span class="tb-role-name">${r.nameEn}</span>${active?'<span class="tb-role-check">✓</span>':''}</span>`
-      + `<span class="tb-role-desc">${r.nameTh} — ${r.desc}</span>`
-      + `</span></button>`;
-  }).join('');
-}
-
-function applyRoleView(code){
-  const role = ROLE_VIEWS.find(r=> r.code===code) || ROLE_VIEWS[0];
-  currentRoleCode = role.code;
-  try{ localStorage.setItem('fl1_role_view_code', role.code); }catch(e){}
-  const avatarEl = document.getElementById('roleAvatar');
-  if(avatarEl){
-    avatarEl.textContent = role.code;
-    avatarEl.classList.toggle('wide', role.code.length > 2);
-  }
-  const nameEl = document.getElementById('roleSelectedName');
-  if(nameEl) nameEl.textContent = role.nameEn;
-  buildRoleMenu();
-}
-
-if(tbUserBtn && tbUserMenu){
-  tbUserBtn.addEventListener('click', (e)=>{
-    e.stopPropagation();
-    const willOpen = tbUserMenu.hidden;
-    closeAllTbMenus();
-    tbUserMenu.hidden = !willOpen;
-    tbUserBtn.setAttribute('aria-expanded', String(willOpen));
-    if(willOpen){
-      const activeItem = tbUserMenu.querySelector('.tb-role-item.active');
-      if(activeItem) activeItem.focus();
-    }
-  });
-  const roleMenuListEl = document.getElementById('roleMenuList');
-  if(roleMenuListEl){
-    roleMenuListEl.addEventListener('click', (e)=>{
-      const btn = e.target.closest('.tb-role-item');
-      if(!btn) return;
-      applyRoleView(btn.dataset.role);
-      tbUserMenu.hidden = true;
-      tbUserBtn.setAttribute('aria-expanded', 'false');
-      tbUserBtn.focus();
-    });
-    roleMenuListEl.addEventListener('keydown', (e)=>{
-      const items = Array.from(roleMenuListEl.querySelectorAll('.tb-role-item'));
-      const idx = items.indexOf(document.activeElement);
-      if(e.key==='ArrowDown'){ e.preventDefault(); (items[idx+1]||items[0]).focus(); }
-      else if(e.key==='ArrowUp'){ e.preventDefault(); (items[idx-1]||items[items.length-1]).focus(); }
-    });
-  }
-}
-buildRoleMenu();
-applyRoleView(currentRoleCode);
-
 /* close open menus on Escape */
 document.addEventListener('keydown', (e)=>{
   if(e.key !== 'Escape') return;
-  if(tbUserMenu && !tbUserMenu.hidden){ tbUserMenu.hidden = true; if(tbUserBtn){ tbUserBtn.setAttribute('aria-expanded','false'); tbUserBtn.focus(); } }
   closeAllTbMenus();
 });
 
@@ -6036,10 +5884,6 @@ function applyLang(lang){
   if(moreNotifBtnEl) moreNotifBtnEl.textContent = '🔔 ' + t('moreNotif');
   const tbMoreLabelEl = document.getElementById('tbMoreLabel');
   if(tbMoreLabelEl) tbMoreLabelEl.textContent = t('moreLabel');
-  const roleViewLabelEl = document.getElementById('roleViewLabel');
-  if(roleViewLabelEl) roleViewLabelEl.textContent = t('roleViewLabel');
-  const roleNoteEl = document.getElementById('roleNoteText');
-  if(roleNoteEl) roleNoteEl.textContent = t('roleNote');
   document.querySelectorAll('[data-i18n-nav]').forEach(el=>{ el.textContent = t(el.dataset.i18nNav); });
   buildSearchIndex();
   updateToolbarForPage(currentPageId);
@@ -6147,7 +5991,6 @@ if(tbSearchToggleBtn){
 
 /* close popovers on outside click */
 document.addEventListener('click', (e)=>{
-  if(tbUserMenu && !tbUserMenu.hidden && !document.getElementById('tbUser').contains(e.target)) tbUserMenu.hidden = true;
   if(tbMoreMenu && !tbMoreMenu.hidden && !document.getElementById('tbMoreBtn').contains(e.target) && !tbMoreMenu.contains(e.target)) tbMoreMenu.hidden = true;
   const tbSearchEl = document.getElementById('tbSearch');
   if(tbSearchPanel && !tbSearchPanel.hidden && tbSearchEl && !tbSearchEl.contains(e.target)) tbSearchPanel.hidden = true;
