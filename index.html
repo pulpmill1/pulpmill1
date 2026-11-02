@@ -11062,12 +11062,19 @@ function woodCmpDrawChart(range){
   let lo = allVals.length ? Math.min(...allVals) : 0, hi = allVals.length ? Math.max(...allVals) : 1;
   const pad = (hi-lo)*0.16 || 0.1;
   lo -= pad; hi += pad;
+  // Same ~30-point density threshold as the detail charts: past that the two lines' value
+  // labels overlap each other and the lines they annotate, so they drop out entirely.
+  const showLabels = labels.length <= 30;
   const cfg = {
     data:{ labels, datasets:[
       { type:'line', label:'Pulp mill 1', data:pulp1Vals, borderColor:col1, backgroundColor:col1,
-        borderWidth:1.8, pointRadius:2.6, pointBackgroundColor:col1, tension:.25, spanGaps:true, order:1, datalabels:{display:false} },
+        borderWidth:1.8, pointRadius:2.6, pointBackgroundColor:col1, tension:.25, spanGaps:true, order:1,
+        datalabels:{ display:(x)=> showLabels && x.dataset.data[x.dataIndex]!=null, align:'top', anchor:'end', offset:4, color:col1,
+          font:{family:'IBM Plex Mono', size:10.5, weight:'600'}, formatter:(v)=> v==null ? '' : v.toFixed(3) } },
       { type:'line', label:'Pulp mill 2', data:pulp2Vals, borderColor:col2, backgroundColor:col2,
-        borderWidth:1.8, pointRadius:2.6, pointBackgroundColor:col2, tension:.25, spanGaps:true, order:2, datalabels:{display:false} }
+        borderWidth:1.8, pointRadius:2.6, pointBackgroundColor:col2, tension:.25, spanGaps:true, order:2,
+        datalabels:{ display:(x)=> showLabels && x.dataset.data[x.dataIndex]!=null, align:'bottom', anchor:'start', offset:4, color:col2,
+          font:{family:'IBM Plex Mono', size:10.5, weight:'600'}, formatter:(v)=> v==null ? '' : v.toFixed(3) } }
     ]},
     options:{ responsive:true, maintainAspectRatio:false, interaction:{mode:'index', intersect:false},
       scales:{
@@ -11214,8 +11221,13 @@ function woodStackDrawChart(prefix, rowsOwn, rowsPair){
   // value label on every segment (the direct-label mitigation the earthy brown/green/orange
   // palette needs for its CVD-borderline adjacent pairs) — suppressed only below 6% where the
   // segment is too thin for the larger text to fit without overlapping its neighbours.
+  // Beyond ~30 periods the bars themselves get too thin for 5 stacked segment labels each —
+  // same density threshold as the detail charts — so labels drop out entirely in that case,
+  // on top of the existing per-segment %>=6 rule for thin slices within a single bar.
+  const barCount = Math.max(rowsOwn.length, rowsPair ? rowsPair.length : 0);
+  const showSegLabels = barCount <= 30;
   const segDatalabels = col => ({
-    display: ctx => { const v = ctx.dataset.data[ctx.dataIndex]; return v!=null && v>=6; },
+    display: ctx => { const v = ctx.dataset.data[ctx.dataIndex]; return showSegLabels && v!=null && v>=6; },
     color: WOOD_SPECIES_LABEL_INK[col.label], font:{ size:10.5, weight:'700', family:'IBM Plex Mono' },
     formatter: v => v==null ? '' : v.toFixed(1)+'%'
   });
@@ -11785,13 +11797,18 @@ function wsdDrawChart(metric, dig, rows, tgt, alertSet){
   let lo = allVals.length ? Math.min(...allVals) : -10, hi = allVals.length ? Math.max(...allVals) : 10;
   const pad = (hi-lo)*0.18 || 2;
   lo -= pad; hi += pad;
+  // Same ~30-point density threshold as the Yield/Process-area detail charts.
+  const showLabels = vals.filter(v=> v!=null).length <= 30;
   const cfg = {
     data:{ labels, datasets:[
       { type:'line', label:metric.th, data:vals, borderColor:'#0A2E55', backgroundColor:'#0A2E55',
         borderWidth:1.6, pointRadius: rows.length>120 ? 0 : 2.6,
         pointBackgroundColor:(ctx)=> alertIdx.includes(ctx.dataIndex) ? '#d4342c' : '#0A2E55',
         pointBorderColor:(ctx)=> alertIdx.includes(ctx.dataIndex) ? '#d4342c' : '#0A2E55',
-        tension:.15, spanGaps:true, order:2, datalabels:{display:false} },
+        tension:.15, spanGaps:true, order:2,
+        datalabels:{ display:(x)=> showLabels && x.dataset.data[x.dataIndex]!=null, align:'top', anchor:'end', offset:4, color:'#0A2E55',
+          font:{family:'IBM Plex Mono', size:10.5, weight:'600'},
+          formatter:(v)=> v==null ? '' : v.toLocaleString('en-US', {minimumFractionDigits:metric.dec, maximumFractionDigits:metric.dec}) } },
       ...refs
     ]},
     options:{ responsive:true, maintainAspectRatio:false, animation:false, interaction:{mode:'index', intersect:false},
@@ -12444,13 +12461,18 @@ function rmwDrawChart(digIdx, rows){
   let lo = allVals.length ? Math.min.apply(null, allVals) : 0, hi = allVals.length ? Math.max.apply(null, allVals) : 1;
   const pad = (hi-lo)*0.18 || 2;
   lo -= pad; hi += pad;
+  // Same ~30-point density threshold as the Yield/Process-area detail charts.
+  const showLabels = vals.filter(function(v){ return v!=null; }).length <= 30;
   const cfg = {
     data:{ labels, datasets:[
       { type:'line', label:'Digester '+(digIdx+1), data:vals, borderColor:'#0A2E55', backgroundColor:'#0A2E55',
         borderWidth:1.6, pointRadius: rows.length>90 ? 0 : 2.6,
         pointBackgroundColor:function(ctx){ return alertIdx.includes(ctx.dataIndex) ? '#d4342c' : '#0A2E55'; },
         pointBorderColor:function(ctx){ return alertIdx.includes(ctx.dataIndex) ? '#d4342c' : '#0A2E55'; },
-        tension:.15, spanGaps:true, order:2, datalabels:{display:false} },
+        tension:.15, spanGaps:true, order:2,
+        datalabels:{ display:function(x){ return showLabels && x.dataset.data[x.dataIndex]!=null; }, align:'top', anchor:'end', offset:4, color:'#0A2E55',
+          font:{family:'IBM Plex Mono', size:10.5, weight:'600'},
+          formatter:function(v){ return v==null ? '' : v.toFixed(0); } } },
       { type:'line', label:'ค่าเฉลี่ยอีก 4 Digester', data:avgVals, borderColor:'#F0932B', borderWidth:1.6,
         borderDash:[7,3], pointRadius:0, fill:false, tension:.15, spanGaps:true, order:5, datalabels:{display:false} }
     ]},
@@ -12715,15 +12737,24 @@ function wcdDrawChart(rows, unit){
   const scaleVals = rows.map(function(r){ return wcdValue(r,'chipGT',unit); });
   const diffVals = rows.map(function(r){ return wcdValue(r,'diff',unit); });
   const dense = rows.length > 90;
+  // Same ~30-point density threshold as the Yield/Process-area detail charts — with 3 overlapping
+  // lines here, labels are staggered top/bottom/top-with-extra-offset to keep them apart.
+  const showLabels = rows.length <= 30;
   const lblRevise = 'Revise weight ('+unit+')', lblScale = 'ปริมาณไม้สับตาม Weight scale ('+unit+')', lblDiff = 'Diff Revise weight ('+unit+')';
   const cfg = {
     data:{ labels, datasets:[
       { type:'line', label:lblRevise, data:reviseVals, borderColor:'#0A2E55', backgroundColor:'#0A2E55',
-        borderWidth:1.6, pointRadius: dense?0:2.2, tension:.15, spanGaps:true, order:2, yAxisID:'y1', datalabels:{display:false} },
+        borderWidth:1.6, pointRadius: dense?0:2.2, tension:.15, spanGaps:true, order:2, yAxisID:'y1',
+        datalabels:{ display:function(x){ return showLabels && x.dataset.data[x.dataIndex]!=null; }, align:'top', anchor:'end', offset:4, color:'#0A2E55',
+          font:{family:'IBM Plex Mono', size:10.5, weight:'600'}, formatter:function(v){ return v==null?'':v.toFixed(0); } } },
       { type:'line', label:lblScale, data:scaleVals, borderColor:'#2A8C6E', backgroundColor:'#2A8C6E',
-        borderWidth:1.6, pointRadius: dense?0:2.2, tension:.15, spanGaps:true, order:3, yAxisID:'y1', datalabels:{display:false} },
+        borderWidth:1.6, pointRadius: dense?0:2.2, tension:.15, spanGaps:true, order:3, yAxisID:'y1',
+        datalabels:{ display:function(x){ return showLabels && x.dataset.data[x.dataIndex]!=null; }, align:'bottom', anchor:'start', offset:4, color:'#2A8C6E',
+          font:{family:'IBM Plex Mono', size:10.5, weight:'600'}, formatter:function(v){ return v==null?'':v.toFixed(0); } } },
       { type:'line', label:lblDiff, data:diffVals, borderColor:'#1565C0', backgroundColor:'#1565C0',
-        borderWidth:1.6, borderDash:[5,3], pointRadius: dense?0:2.2, tension:.15, spanGaps:true, order:1, yAxisID:'y', datalabels:{display:false} }
+        borderWidth:1.6, borderDash:[5,3], pointRadius: dense?0:2.2, tension:.15, spanGaps:true, order:1, yAxisID:'y',
+        datalabels:{ display:function(x){ return showLabels && x.dataset.data[x.dataIndex]!=null; }, align:'top', anchor:'end', offset:14, color:'#1565C0',
+          font:{family:'IBM Plex Mono', size:10.5, weight:'600'}, formatter:function(v){ return v==null?'':v.toFixed(0); } } }
     ]},
     options:{ responsive:true, maintainAspectRatio:false, animation:false, interaction:{mode:'index', intersect:false},
       scales:{
