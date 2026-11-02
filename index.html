@@ -2477,7 +2477,7 @@
               <div class="mon-detail" id="chipDetail_cookLiquor" hidden></div>
             </div>
             <div class="mon-group">
-              <div class="mon-group-head"><span class="gi">⏱️</span><span class="gt">Batch timing</span><span class="gs">0 ค่า · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
+              <div class="mon-group-head"><span class="gi">⏱️</span><span class="gt">Batch timing</span><span class="gs">Batch ล่าสุดที่ Discharge เสร็จ แยก Digester 1-5</span></div>
               <div class="mon-tiles" id="chipTiles_cookTiming"></div>
               <div class="mon-detail" id="chipDetail_cookTiming" hidden></div>
             </div>
@@ -6050,6 +6050,7 @@ function applyLang(lang){
   if(typeof chipMonRenderTiles === 'function' && document.getElementById('chipMonHost')){
     if(typeof renderExecKpiPanel === 'function') renderExecKpiPanel();
     CHIP_MON_GROUPS.forEach(g=>{ chipMonRenderTiles(g); chipMonRenderDetail(g.id); });
+    if(typeof initBatchTiming === 'function') initBatchTiming();
     if(typeof renderNotifCentre === 'function') renderNotifCentre();
     if(typeof renderYieldAnalysisTable === 'function') renderYieldAnalysisTable();
     if(typeof renderYieldAnalysisTableDaily === 'function') renderYieldAnalysisTableDaily();
@@ -6516,7 +6517,7 @@ function plsAggregateByDay(rawRows){
     return { y:day.y, mi:day.mi, d:day.d, ts:day.ts, r:r };
   }).sort(function(a,b){ return a.ts-b.ts; });
 }
-const PLS_COOKING_ROWS_RAW = plsBuildRawRows(cookingLogRows, 'Cooking No.', 3, {batchAcc:5});
+const PLS_COOKING_ROWS_RAW = plsBuildRawRows(cookingLogRows, 'Cooking No.', 3, {batchAcc:5, dig:7});
 const PLS_COOKING_ROWS = plsAggregateByDay(PLS_COOKING_ROWS_RAW);
 const PLS_BROWNSTOCK_ROWS_RAW = plsBuildRawRows(brownStockRows, 'TIME', 2, {h:3});
 const PLS_BROWNSTOCK_ROWS = plsAggregateByDay(PLS_BROWNSTOCK_ROWS_RAW);
@@ -11358,6 +11359,204 @@ function initWoodStackAll(){
   initWoodStack('woodStack2', pairKeys, null);
   initWoodStack('woodStackTot', ownKeys, pairKeys);
 }
+/* ==================================================================================
+   Batch timing — Cooking Logsheet batch-duration breakdown, split by Digester 1-5 plus
+   a combined "Digester 1-5" average row, drawn as a horizontal stacked bar (per the
+   mill's reference infographic) instead of the flat metric-tile list every other group
+   uses. Each row shows that digester's MOST RECENT cook that already has a Discharge
+   time logged — a cook still in progress (later stages still blank) is skipped so a
+   half-finished batch never masquerades as "the latest timing". Column H of the
+   Cooking Logsheet (0-indexed 7) carries the digester number; columns EA/EB, EE/EF,
+   EG/EH, EI, EJ/EK, EL/EM carry the 11 time/waiting-time pairs (EC/ED unused, per the
+   mill) — values are already in minutes, no unit conversion. Reuses the same
+   range-preset bar as every other detail chart, so the window searched for "latest
+   qualifying cook" can be widened past the default "today". ================== */
+const BCH_SEGMENTS = [
+  { key:'chipFill',      label:'Chip filling time',         col:130, color:'#2E5FA3' },
+  { key:'chipFillWait',  label:'Chip filling waiting time', col:131, color:'#AFD3F5', isWait:true },
+  { key:'pstPht',        label:'PST&PHT time',              col:134, color:'#7B3FA0' },
+  { key:'pstWait',       label:'PST waiting time',          col:135, color:'#DCC6ED', isWait:true },
+  { key:'hlFill',        label:'HL filling time',           col:136, color:'#0E8C7D' },
+  { key:'hlFillWait',    label:'HL filling waiting time',   col:137, color:'#A8E6DD', isWait:true },
+  { key:'heatCook',      label:'Heat&Cook time',            col:138, color:'#E08A1E' },
+  { key:'displace',      label:'Displacement time',         col:139, color:'#2E7D32' },
+  { key:'displaceWait',  label:'Displacement waiting time', col:140, color:'#C3E6C3', isWait:true },
+  { key:'discharge',     label:'Discharge time',            col:141, color:'#C9342C' },
+  { key:'dischargeWait', label:'Discharge waiting time',    col:142, color:'#F5C2BD', isWait:true },
+];
+const BCH_DISCHARGE_COL = 141; // qualification: a digester's data only counts once Discharge time is logged
+const BCH_DIGESTERS = [1, 2, 3, 4, 5];
+const BCH_RANGE = { preset:'today', custom:null };
+let BCH_VIEW = 'chart';
+let BCH_CHART = null;
+function bchPickRecord(dig, win){
+  if(!win) return null;
+  let best = null;
+  for(let i=0; i<PLS_COOKING_ROWS_RAW.length; i++){
+    const rec = PLS_COOKING_ROWS_RAW[i];
+    if(rec.dig !== dig) continue;
+    if(rec.ts < win[0] || rec.ts > win[1]) continue;
+    if(rec.r[BCH_DISCHARGE_COL] == null) continue;
+    if(!best || rec.ts > best.ts) best = rec;
+  }
+  return best;
+}
+function bchBuildRows(win){
+  const digRows = BCH_DIGESTERS.map(dig=> {
+    const rec = bchPickRecord(dig, win);
+    return { dig, rec, vals: BCH_SEGMENTS.map(seg=> rec ? rec.r[seg.col] : null) };
+  });
+  const avgVals = BCH_SEGMENTS.map((seg, si)=> {
+    const vals = digRows.map(r=> r.vals[si]).filter(v=> v!=null);
+    return vals.length ? vals.reduce((a,b)=> a+b, 0)/vals.length : null;
+  });
+  return { digRows, avgVals };
+}
+function bchWinLabel(win){
+  if(!win) return '';
+  const EN = currentLang==='en';
+  const f = ts=> { const d = new Date(ts); return EN ? (MONTH_ABBR_EN[d.getMonth()]+' '+d.getDate()+', '+d.getFullYear()) : (d.getDate()+' '+MONTH_ABBR_TH[d.getMonth()]+' '+d.getFullYear()); };
+  const lbl = EN ? 'Search window' : 'ช่วงที่ค้นหา';
+  const sameDay = new Date(win[0]).toDateString() === new Date(win[1]).toDateString();
+  return sameDay ? (lbl+': '+f(win[0])) : (lbl+': '+f(win[0])+' – '+f(win[1]));
+}
+function bchDrawTotals(chart, totals, ink){
+  const meta0 = chart.getDatasetMeta(0);
+  const xScale = chart.scales.x;
+  const ctx = chart.ctx;
+  ctx.save();
+  ctx.font = '700 12.5px IBM Plex Mono, monospace';
+  ctx.textBaseline = 'middle';
+  ctx.textAlign = 'left';
+  ctx.fillStyle = ink;
+  totals.forEach((t, i)=> {
+    const bar = meta0.data[i];
+    if(!bar) return;
+    const x = (t==null ? xScale.left : xScale.getPixelForValue(t)) + 10;
+    ctx.fillText(t==null ? '—' : (Math.round(t)+' min'), x, bar.y);
+  });
+  ctx.restore();
+}
+function bchDrawChart(digRows, avgVals){
+  const cv = document.getElementById('bchChart');
+  if(!cv) return;
+  const c = { ink2:cssVar('--ink-2'), grid:cssVar('--grid'), surface:cssVar('--surface'), border:cssVar('--border'), ink:cssVar('--ink') };
+  const EN = currentLang==='en';
+  const labels = digRows.map(r=> {
+    const sub = r.rec ? (r.rec.d+'/'+(r.rec.mi+1)+'/'+r.rec.y+(r.rec.batchAcc!=null?' #'+r.rec.batchAcc:'')) : (EN?'No data':'ไม่มีข้อมูล');
+    return ['Digester '+r.dig, sub];
+  }).concat([['Digester 1-5', EN?'(average)':'(ค่าเฉลี่ย)']]);
+  const allRowsVals = digRows.map(r=> r.vals).concat([avgVals]);
+  const totals = allRowsVals.map(vals=> vals.some(v=> v!=null) ? vals.reduce((a,b)=> a+(b||0), 0) : null);
+  const datasets = BCH_SEGMENTS.map((seg, si)=> ({
+    label: seg.label, data: allRowsVals.map(vals=> vals[si]),
+    backgroundColor: seg.color, borderColor: c.surface, borderWidth: 1, borderSkipped:false, stack: 'a',
+    datalabels: {
+      display: (x)=> x.dataset.data[x.dataIndex]!=null && x.dataset.data[x.dataIndex]>0,
+      color: seg.isWait ? '#2b2b2b' : '#ffffff',
+      font: { family:'IBM Plex Mono', size:11.5, weight:'700' },
+      formatter: (v)=> v==null ? '' : Math.round(v)
+    }
+  }));
+  const cfg = {
+    type:'bar',
+    data:{ labels, datasets },
+    options:{
+      indexAxis:'y', responsive:true, maintainAspectRatio:false, animation:false,
+      layout:{ padding:{ right:80 } },
+      scales:{
+        x:{ stacked:true, grid:{color:c.grid}, ticks:{color:c.ink2, font:{family:'IBM Plex Mono', size:10.5}},
+          title:{display:true, text:(EN?'Elapsed duration (minutes)':'ระยะเวลาสะสม (นาที)'), color:c.ink2, font:{family:'IBM Plex Mono', size:10}} },
+        y:{ stacked:true, grid:{display:false}, ticks:{color:c.ink, font:{family:'IBM Plex Mono', size:11, weight:'700'}} }
+      },
+      plugins:{ legend:{display:false},
+        tooltip:{ position:'cursorOffset', backgroundColor:c.surface, titleColor:c.ink, bodyColor:c.ink2, borderColor:c.border, borderWidth:1, padding:9,
+          callbacks:{ label:(x)=> x.dataset.label+': '+(x.parsed.x==null?'—':Math.round(x.parsed.x))+' min' } } }
+    },
+    plugins:[{ id:'bchTotalLabels', afterDatasetsDraw:(chart)=> bchDrawTotals(chart, totals, c.ink) }]
+  };
+  if(BCH_CHART){ try{ BCH_CHART.destroy(); }catch(e){} }
+  BCH_CHART = new Chart(cv.getContext('2d'), cfg);
+  const leg = document.getElementById('bchLegend');
+  if(leg){
+    leg.innerHTML = BCH_SEGMENTS.map(seg=> '<span class="item"><span class="box" style="background:'+seg.color+'"></span>'
+      + (seg.isWait ? '<span style="opacity:.75">'+seg.label+'</span>' : '<b>'+seg.label+'</b>') + '</span>').join('');
+  }
+}
+function bchTableHtml(digRows, avgVals){
+  const EN = currentLang==='en';
+  const f = v=> v==null ? '—' : Math.round(v);
+  const theadHtml = '<th class="wcmp-key">'+(EN?'Digester':'หม้อต้ม')+'</th><th class="wcmp-key">'+(EN?'Batch':'Batch')+'</th>'
+    + BCH_SEGMENTS.map(seg=> '<th>'+seg.label+' (min)</th>').join('') + '<th>'+(EN?'Total (min)':'รวม (นาที)')+'</th>';
+  const rowHtml = (label, sub, vals)=> {
+    const total = vals.some(v=> v!=null) ? vals.reduce((a,b)=> a+(b||0), 0) : null;
+    return '<tr><td>'+label+'</td><td>'+sub+'</td>'+vals.map(v=> '<td class="num">'+f(v)+'</td>').join('')+'<td class="num">'+f(total)+'</td></tr>';
+  };
+  const bodyHtml = digRows.map(r=> {
+    const sub = r.rec ? (r.rec.d+'/'+(r.rec.mi+1)+'/'+r.rec.y+(r.rec.batchAcc!=null?' #'+r.rec.batchAcc:'')) : (EN?'—':'ไม่มีข้อมูล');
+    return rowHtml('Digester '+r.dig, sub, r.vals);
+  }).join('') + rowHtml('Digester 1-5', EN?'(average)':'(ค่าเฉลี่ย)', avgVals);
+  return '<div class="md-tablewrap"><table class="md-table wide"><thead><tr>'+theadHtml+'</tr></thead><tbody>'+bodyHtml+'</tbody></table></div>';
+}
+function bchRenderBody(){
+  const body = document.getElementById('bchBody');
+  if(!body) return;
+  const EN = currentLang==='en';
+  const latest = PLS_COOKING_ROWS_RAW.length ? PLS_COOKING_ROWS_RAW[PLS_COOKING_ROWS_RAW.length-1].ts : null;
+  const earliest = PLS_COOKING_ROWS_RAW.length ? PLS_COOKING_ROWS_RAW[0].ts : null;
+  const win = rpkResolve(BCH_RANGE, latest, earliest);
+  const { digRows, avgVals } = bchBuildRows(win);
+  const anyData = digRows.some(r=> r.rec);
+  const rangeNote = '<div class="md-rangenote">'+bchWinLabel(win)+'</div>';
+  if(!anyData){
+    body.innerHTML = '<div class="empty-state"><div class="icon">⏱️</div><h2>'+(EN?'No completed batch in this window':'ไม่มี Batch ที่ Discharge เสร็จในช่วงนี้')+'</h2></div>' + rangeNote;
+    return;
+  }
+  if(BCH_VIEW === 'table'){
+    body.innerHTML = bchTableHtml(digRows, avgVals) + rangeNote;
+  } else {
+    body.innerHTML = '<div class="md-chart-wrap" style="height:300px"><canvas id="bchChart"></canvas></div><div class="legend-row" id="bchLegend"></div>' + rangeNote;
+    bchDrawChart(digRows, avgVals);
+  }
+}
+function bchRenderRpk(){
+  const host = document.getElementById('bchRpk');
+  if(!host) return;
+  host.innerHTML = rpkBarHtml('bchRpk', BCH_RANGE);
+  rpkWire('bchRpk', BCH_RANGE, (next)=> { BCH_RANGE.preset = next.preset; BCH_RANGE.custom = next.custom; bchRenderRpk(); bchRenderBody(); });
+}
+function initBatchTiming(){
+  const host = document.getElementById('chipTiles_cookTiming');
+  if(!host) return;
+  if(!PLS_COOKING_ROWS_RAW.length){
+    host.innerHTML = '<div class="empty-state"><div class="icon">⏱️</div><h2>ยังไม่มีข้อมูล</h2><p>ไม่พบข้อมูลใน Google Sheet tab "Cooking Logsheet" (gid=937055806)</p></div>';
+    return;
+  }
+  // single grid item spanning the full row — #chipTiles_cookTiming still carries the shared
+  // .mon-tiles grid CSS (display:grid; repeat(auto-fill, minmax(216px,1fr))) meant for the
+  // flat metric-tile layout every other group uses; without this it would get squeezed into
+  // just the first auto-fill column instead of the full width.
+  host.innerHTML = `
+    <div style="grid-column:1/-1;">
+      <div class="ya-controls">
+        <span id="bchRpk"></span>
+        <span class="md-pills">
+          <button type="button" class="md-viewbtn on" data-view="chart">กราฟ</button>
+          <button type="button" class="md-viewbtn" data-view="table">ตาราง</button>
+        </span>
+      </div>
+      <div class="md-body" id="bchBody"></div>
+    </div>
+  `;
+  bchRenderRpk();
+  BCH_VIEW = 'chart';
+  host.querySelectorAll('.md-viewbtn').forEach(b=> b.addEventListener('click', ()=> {
+    BCH_VIEW = b.dataset.view;
+    host.querySelectorAll('.md-viewbtn').forEach(x=> x.classList.toggle('on', x===b));
+    bchRenderBody();
+  }));
+  bchRenderBody();
+}
 function chipMonRenderDetailBody(grpId, m, a, tgt){
   const body = document.getElementById('chipDetailBody_'+grpId);
   if(!body) return;
@@ -11566,6 +11765,9 @@ function initChipMon(){
     CHIP_MON_STATE[grp.id] = grp.id === 'yield' ? 'yieldBdt' : null;
     chipMonRenderDetail(grp.id);
   });
+  // Batch timing (cookTiming) has 0 CHIP_MON_META entries — its own horizontal-stacked-bar
+  // UI replaces the (now empty) #chipTiles_cookTiming tile grid the loop above just rendered.
+  initBatchTiming();
   const chipMonToggle = (g, k)=> {
     if(CHIP_MON_STATE[g] === k){ CHIP_MON_STATE[g] = null; chipMonRenderDetail(g); return; }
     if(CHIP_MON_STATE[g] !== k){
@@ -11603,6 +11805,7 @@ function initChipMon(){
     renderYieldAnalysisTableMB();
     woodCmpRenderBody();
     CHIP_MON_GROUPS.forEach(grp=> { chipMonRenderTiles(grp); chipMonRenderDetail(grp.id); });
+    initBatchTiming();
     if(typeof renderNotifCentre === 'function') renderNotifCentre();
   });
 }
