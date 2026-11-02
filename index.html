@@ -7039,7 +7039,7 @@ const RPK_PRESETS = [
 const RPK_TODAY_STR = (()=> { const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); })();
 function rpkBarHtml(instId, state){
   const EN = currentLang==='en';
-  const preset = (state && state.preset) || '30d';
+  const preset = (state && state.preset) || '14d';
   const btns = RPK_PRESETS.map(p=> p===null ? '<span class="rpk-sep"></span>'
     : '<button type="button" class="rpk-btn'+(preset===p.id?' on':'')+'" data-rpk="'+instId+'" data-preset="'+p.id+'">'+(EN?p.en:p.th)+'</button>'
   ).join('');
@@ -7050,10 +7050,10 @@ function rpkBarHtml(instId, state){
   return '<span class="rpk-bar" data-rpk-bar="'+instId+'">'+btns+'</span>'+customHtml;
 }
 /* Resolves {preset, custom} to an inclusive [startTs,endTs] day-boundary window, anchored to the
-   series' own latest/earliest row timestamps. Falls back to a 30-day trailing window (the old
+   series' own latest/earliest row timestamps. Falls back to a 14-day trailing window (the
    default) for an unset/unknown preset. */
 function rpkResolve(state, latestTs, earliestTs){
-  const preset = (state && state.preset) || '30d';
+  const preset = (state && state.preset) || '14d';
   if(latestTs==null) return null;
   const L = new Date(latestTs);
   const dayStart = d=> new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
@@ -7071,13 +7071,13 @@ function rpkResolve(state, latestTs, earliestTs){
   if(preset==='all') return [earliestTs!=null ? dayStart(new Date(earliestTs)) : dayStart(L), dayEnd(L)];
   if(preset==='custom'){
     const c = state.custom;
-    if(!c || !c.start || !c.end) return [dayStart(addDays(L,-29)), dayEnd(L)];
+    if(!c || !c.start || !c.end) return [dayStart(addDays(L,-13)), dayEnd(L)];
     const sp = c.start.split('-').map(Number), ep = c.end.split('-').map(Number);
     let a = new Date(sp[0],sp[1]-1,sp[2]).getTime(), b = dayEnd(new Date(ep[0],ep[1]-1,ep[2]));
     if(a>b){ const t=a; a=b; b=t; }
     return [a,b];
   }
-  return [dayStart(addDays(L,-29)), dayEnd(L)];
+  return [dayStart(addDays(L,-13)), dayEnd(L)];
 }
 /* Wires every preset button + (when shown) the two custom date inputs for one bar instance.
    onApply(nextState) receives the fully-updated {preset, custom} state to persist and re-render from. */
@@ -11431,13 +11431,15 @@ function chipMonDrawDetailChart(grpId, m, a, tgt){
   // Yield (BDt/ADt) combo chart, which overlays Yield against Yield Balance Tank as two lines —
   // everything else (datalabels, target lines, tooltip, axes) stays identical, only this one
   // dataset's shape differs.
-  // Yield (Bdt/Adt) shows its own value labels below each point (Yield Balance Tank's sit above,
-  // via yieldExtraLabels) so the two lines' numbers don't collide when they're close in value.
-  const primaryLineLabels = m.key==='yieldBdt'
-    ? { display:(x)=> x.dataset.data[x.dataIndex]!=null, align:'bottom', anchor:'start', offset:4, color:grp.rail,
-        font:{family:'IBM Plex Mono', size:9.5, weight:'600'},
-        formatter:(v)=> v==null ? '' : v.toLocaleString('en-US', {minimumFractionDigits:m.dec, maximumFractionDigits:m.dec}) }
-    : {display:false};
+  // Every line-chart metric shows its own value labels on the chart (not just Yield (Bdt/Adt))
+  // — Yield (Bdt/Adt) places them below each point since Yield Balance Tank's pair line sits
+  // above (via yieldExtraLabels) so the two lines' numbers don't collide when close in value;
+  // every other metric (no pair line to avoid) places them above each point instead.
+  const primaryLineLabels = { display:(x)=> x.dataset.data[x.dataIndex]!=null,
+    align: m.key==='yieldBdt' ? 'bottom' : 'top', anchor: m.key==='yieldBdt' ? 'start' : 'end',
+    offset:4, color:grp.rail,
+    font:{family:'IBM Plex Mono', size:9.5, weight:'600'},
+    formatter:(v)=> v==null ? '' : v.toLocaleString('en-US', {minimumFractionDigits:m.dec, maximumFractionDigits:m.dec}) };
   const primaryDs = (grp.chartType==='line' || m.key==='yieldBdt')
     ? { type:'line', label:actualLbl, data:vals, borderColor:grp.rail, backgroundColor:grp.rail,
         borderWidth:1.8, pointRadius: nBars>60 ? 0 : 2.6, pointBackgroundColor:grp.rail, tension:.2,
