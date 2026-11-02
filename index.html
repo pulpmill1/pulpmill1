@@ -11386,27 +11386,29 @@ const BCH_SEGMENTS = [
 ];
 const BCH_DISCHARGE_COL = 141; // qualification: a digester's data only counts once Discharge time is logged
 const BCH_DIGESTERS = [1, 2, 3, 4, 5];
-const BCH_RANGE = { preset:'today', custom:null };
+// "Latest" (a custom extra preset bolted onto the shared range-preset bar — see bchRenderRpk)
+// is the real-time default: the single most recent cook per digester with Discharge time
+// already logged, win=null meaning "search all history, no date restriction". Every real
+// RPK_PRESETS entry (Today included) instead averages every completed cook within that
+// window, per digester — a cook still missing its Discharge time is never a finished batch,
+// so it's excluded from both the "latest" pick and every average, in every preset.
+const BCH_RANGE = { preset:'latest', custom:null };
 let BCH_VIEW = 'chart';
 let BCH_CHART = null;
 function bchPickRecord(dig, win){
-  if(!win) return null;
   let best = null;
   for(let i=0; i<PLS_COOKING_ROWS_RAW.length; i++){
     const rec = PLS_COOKING_ROWS_RAW[i];
     if(rec.dig !== dig) continue;
-    if(rec.ts < win[0] || rec.ts > win[1]) continue;
+    if(win && (rec.ts < win[0] || rec.ts > win[1])) continue;
     if(rec.r[BCH_DISCHARGE_COL] == null) continue;
     if(!best || rec.ts > best.ts) best = rec;
   }
   return best;
 }
-// "Today" shows one specific batch (so its date/Cooking Batch ACC. are shown, to make clear
-// this IS the latest batch) — every other preset shows the AVERAGE of every completed cook
-// in that window instead, so no single date/batch number applies and none is shown.
-function bchDigesterData(dig, win, isToday){
-  if(isToday){
-    const rec = bchPickRecord(dig, win);
+function bchDigesterData(dig, win, isLatest){
+  if(isLatest){
+    const rec = bchPickRecord(dig, null);
     return { dig, rec, hasData: !!rec, vals: BCH_SEGMENTS.map(seg=> rec ? rec.r[seg.col] : null) };
   }
   if(!win) return { dig, rec:null, hasData:false, vals: BCH_SEGMENTS.map(()=> null) };
@@ -11418,8 +11420,8 @@ function bchDigesterData(dig, win, isToday){
   return { dig, rec:null, hasData: matches.length>0, vals };
 }
 function bchBuildRows(win){
-  const isToday = BCH_RANGE.preset === 'today';
-  const digRows = BCH_DIGESTERS.map(dig=> bchDigesterData(dig, win, isToday));
+  const isLatest = BCH_RANGE.preset === 'latest';
+  const digRows = BCH_DIGESTERS.map(dig=> bchDigesterData(dig, win, isLatest));
   const avgVals = BCH_SEGMENTS.map((seg, si)=> {
     const vals = digRows.map(r=> r.vals[si]).filter(v=> v!=null);
     return vals.length ? vals.reduce((a,b)=> a+b, 0)/vals.length : null;
@@ -11456,13 +11458,15 @@ function bchDrawChart(digRows, avgVals){
   if(!cv) return;
   const c = { ink2:cssVar('--ink-2'), grid:cssVar('--grid'), surface:cssVar('--surface'), border:cssVar('--border'), ink:cssVar('--ink') };
   const EN = currentLang==='en';
-  const isToday = BCH_RANGE.preset === 'today';
+  const isLatest = BCH_RANGE.preset === 'latest';
+  // Only "Latest" ties each digester to one specific real batch, so only it gets a
+  // date/Cooking Batch ACC. sub-label — every averaging preset (Today included) shows a
+  // plain single-line "Digester N" with no sub-label at all.
   const labels = digRows.map(r=> {
-    let sub;
-    if(isToday) sub = r.rec ? (r.rec.d+'/'+(r.rec.mi+1)+'/'+r.rec.y+(r.rec.batchAcc!=null?' #'+r.rec.batchAcc:'')) : (EN?'No data':'ไม่มีข้อมูล');
-    else sub = r.hasData ? (EN?'(average)':'(ค่าเฉลี่ย)') : (EN?'No data':'ไม่มีข้อมูล');
+    if(!isLatest) return 'Digester '+r.dig;
+    const sub = r.rec ? (r.rec.d+'/'+(r.rec.mi+1)+'/'+r.rec.y+(r.rec.batchAcc!=null?' #'+r.rec.batchAcc:'')) : (EN?'No data':'ไม่มีข้อมูล');
     return ['Digester '+r.dig, sub];
-  }).concat([['Digester 1-5', EN?'(average)':'(ค่าเฉลี่ย)']]);
+  }).concat(['Digester 1-5']);
   const allRowsVals = digRows.map(r=> r.vals).concat([avgVals]);
   const totals = allRowsVals.map(vals=> vals.some(v=> v!=null) ? vals.reduce((a,b)=> a+(b||0), 0) : null);
   const datasets = BCH_SEGMENTS.map((seg, si)=> ({
@@ -11502,7 +11506,7 @@ function bchDrawChart(digRows, avgVals){
 }
 function bchTableHtml(digRows, avgVals){
   const EN = currentLang==='en';
-  const isToday = BCH_RANGE.preset === 'today';
+  const isLatest = BCH_RANGE.preset === 'latest';
   const f = v=> v==null ? '—' : Math.round(v);
   const theadHtml = '<th class="wcmp-key">'+(EN?'Digester':'หม้อต้ม')+'</th><th class="wcmp-key">'+(EN?'Batch':'Batch')+'</th>'
     + BCH_SEGMENTS.map(seg=> '<th>'+seg.label+' (min)</th>').join('') + '<th>'+(EN?'Total (min)':'รวม (นาที)')+'</th>';
@@ -11512,28 +11516,28 @@ function bchTableHtml(digRows, avgVals){
   };
   const bodyHtml = digRows.map(r=> {
     let sub;
-    if(isToday) sub = r.rec ? (r.rec.d+'/'+(r.rec.mi+1)+'/'+r.rec.y+(r.rec.batchAcc!=null?' #'+r.rec.batchAcc:'')) : (EN?'—':'ไม่มีข้อมูล');
-    else sub = r.hasData ? (EN?'(average)':'(ค่าเฉลี่ย)') : (EN?'—':'ไม่มีข้อมูล');
+    if(isLatest) sub = r.rec ? (r.rec.d+'/'+(r.rec.mi+1)+'/'+r.rec.y+(r.rec.batchAcc!=null?' #'+r.rec.batchAcc:'')) : (EN?'—':'ไม่มีข้อมูล');
+    else sub = r.hasData ? '' : (EN?'—':'ไม่มีข้อมูล');
     return rowHtml('Digester '+r.dig, sub, r.vals);
-  }).join('') + rowHtml('Digester 1-5', EN?'(average)':'(ค่าเฉลี่ย)', avgVals);
+  }).join('') + rowHtml('Digester 1-5', '', avgVals);
   return '<div class="md-tablewrap"><table class="md-table wide"><thead><tr>'+theadHtml+'</tr></thead><tbody>'+bodyHtml+'</tbody></table></div>';
 }
 function bchRenderBody(){
   const body = document.getElementById('bchBody');
   if(!body) return;
   const EN = currentLang==='en';
+  const isLatest = BCH_RANGE.preset === 'latest';
   // Anchored to the real current time (same as every other Process-area group's "today" ceiling)
   // rather than the raw sheet's own last row — a blank/placeholder row pre-dated into the future
   // (e.g. a date formula dragged down for the rest of the year) would otherwise become "latest"
   // and silently point every preset's window at that empty future date instead of real data.
-  const latest = chipMonNow;
-  const earliest = PLS_COOKING_ROWS_RAW.length ? PLS_COOKING_ROWS_RAW[0].ts : null;
-  const win = rpkResolve(BCH_RANGE, latest, earliest);
+  // "Latest" itself needs no window at all — bchBuildRows searches the full history for it.
+  const win = isLatest ? null : rpkResolve(BCH_RANGE, chipMonNow, PLS_COOKING_ROWS_RAW.length ? PLS_COOKING_ROWS_RAW[0].ts : null);
   const { digRows, avgVals } = bchBuildRows(win);
   const anyData = digRows.some(r=> r.hasData);
-  const rangeNote = '<div class="md-rangenote">'+bchWinLabel(win)+'</div>';
+  const rangeNote = '<div class="md-rangenote">'+(isLatest ? (EN?'Showing the latest completed batch per digester, real-time':'แสดง Batch ล่าสุดที่ Discharge เสร็จแล้วต่อ Digester แบบเรียลไทม์') : bchWinLabel(win))+'</div>';
   if(!anyData){
-    body.innerHTML = '<div class="empty-state"><div class="icon">⏱️</div><h2>'+(EN?'No completed batch in this window':'ไม่มี Batch ที่ Discharge เสร็จในช่วงนี้')+'</h2></div>' + rangeNote;
+    body.innerHTML = '<div class="empty-state"><div class="icon">⏱️</div><h2>'+(EN?'No completed batch found':'ไม่มี Batch ที่ Discharge เสร็จ')+'</h2></div>' + rangeNote;
     return;
   }
   if(BCH_VIEW === 'table'){
@@ -11546,7 +11550,13 @@ function bchRenderBody(){
 function bchRenderRpk(){
   const host = document.getElementById('bchRpk');
   if(!host) return;
-  host.innerHTML = rpkBarHtml('bchRpk', BCH_RANGE);
+  const EN = currentLang==='en';
+  // "Latest" isn't one of the shared RPK_PRESETS (it's specific to this section, not a
+  // date-range preset at all) so it's bolted on as its own small pill in front of the
+  // standard bar rather than added to that shared list. rpkWire still picks it up — it just
+  // wires every [data-rpk="bchRpk"] button it finds, whatever generated it.
+  host.innerHTML = '<span class="rpk-bar"><button type="button" class="rpk-btn'+(BCH_RANGE.preset==='latest'?' on':'')+'" data-rpk="bchRpk" data-preset="latest">'+(EN?'Latest':'ล่าสุด')+'</button></span>'
+    + rpkBarHtml('bchRpk', BCH_RANGE);
   rpkWire('bchRpk', BCH_RANGE, (next)=> { BCH_RANGE.preset = next.preset; BCH_RANGE.custom = next.custom; bchRenderRpk(); bchRenderBody(); });
 }
 function initBatchTiming(){
