@@ -6188,9 +6188,20 @@ if(document.getElementById('monthlySummaryBody1')){
    columns that have already moved at least once are resolved by their header text
    instead of a hardcoded index. Columns before "End Prod." have been stable throughout
    and stay as plain numbers below. */
+/* Header text in this sheet gets retyped/copy-pasted by hand over time, which has silently
+   introduced a different dash character (en dash, minus sign, etc. — visually identical to a
+   plain hyphen in a screenshot but a different byte) into some labels without anyone noticing —
+   exactly how "Pin 9.5-4.8" / "Accept 2 22.2-9.5" type labels have gone stale before. Normalizing
+   every dash-like character to a plain "-" (and collapsing whitespace runs) before comparing makes
+   the match tolerant of that, instead of requiring a byte-for-byte match that silently breaks again
+   the next time someone retypes a header. */
+function chipColNorm(s){
+  return String(s||'').trim().replace(/[‐-―−]/g, '-').replace(/\s+/g, ' ');
+}
 function resolveChipCol(label, fallback){
   const headerRow = (typeof chipWoodRows !== 'undefined' && chipWoodRows[1]) || [];
-  const idx = headerRow.findIndex(function(h){ return String(h||'').trim() === label; });
+  const target = chipColNorm(label);
+  const idx = headerRow.findIndex(function(h){ return chipColNorm(h) === target; });
   return idx >= 0 ? idx : fallback;
 }
 /* The mill has renamed nearly every "Actual" column in this tab with a "Pulp 1 "/"Pulp 2 " prefix
