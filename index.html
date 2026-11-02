@@ -11341,7 +11341,7 @@ function initWoodStack(prefix, seriesKeysOwn, seriesKeysPair){
   const rpkHost = document.getElementById(prefix+'Rpk');
   if(!rpkHost) return;
   WOOD_STACK_KEYS[prefix] = { own:seriesKeysOwn, pair:seriesKeysPair||null };
-  WOOD_STACK_RANGE[prefix] = { preset:'thisMonth', custom:null };
+  WOOD_STACK_RANGE[prefix] = { preset:'14d', custom:null };
   woodStackRenderRpk(prefix);
   WOOD_STACK_VIEW[prefix] = 'chart';
   const btnChart = document.getElementById(prefix+'BtnChart'), btnTable = document.getElementById(prefix+'BtnTable');
