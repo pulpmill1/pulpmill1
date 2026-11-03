@@ -46,6 +46,12 @@ one, so the link people already have keeps working.
   even though nothing in the dashboard's actual data changed — don't mistake a big byte-size jump
   for a data change without checking which tab grew. The dashboard does not read this tab; it's
   out of scope unless the user asks for it.
+- **A fourth tab, `ติดตามงาน Warning`, appeared on 2026-11-03** — same pattern: a simple
+  Date/Description/Action/Remark follow-up log (equipment warnings and planned work, not Loss
+  events), unrelated schema, added ~50KB/67K-chars to the workbook with zero change to the
+  `2022`-`2026` data. The sheet owner appears to be growing this workbook with adjacent
+  operational tabs over time — expect more of these; the check is always the same: diff the
+  `2022`-`2026` CSVs specifically, not the overall file size.
 - Row layout per year tab (identical across 2022-2026): row 2 = title, row 4 = header, data from
   row 5. Header (meaning-based matching in the code, not column position — tabs do drift):
   `Month | Date | EQ num | EQ Type | Loss Category | Type | Loss Production (ADT desc + value,
