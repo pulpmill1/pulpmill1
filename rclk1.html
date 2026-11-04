@@ -1,0 +1,824 @@
+<!doctype html>
+<html lang="th"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RC&amp;LK1 Daily Dashboard 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;600&family=Noto+Serif+Thai:wght@400&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<style>
+:root{--font-anthropic-sans:"IBM Plex Sans Thai","Noto Sans Thai",system-ui,sans-serif;--font-anthropic-serif:"Noto Serif Thai",Georgia,serif;
+--color-fg:#1f1e1b;--color-fg-muted:#6b6963;--color-bg:#f7f6f2;--color-panel:#ffffff;--color-border-line:#e4e1d8;--color-ok:#1f7a3a;--color-warn:#a8650a;--color-bad:#c0392b;
+--cds-font-size-caption:12.5px;--cds-font-size-body:14px;--cds-font-size-heading:15.5px;--cds-font-size-title:30px;--cds-font-weight-medium:600;
+--cds-gap-xs:4px;--cds-gap-sm:8px;--cds-gap-md:12px;--cds-gap-lg:18px;--cds-gap-xl:28px;--cds-pad-xs:4px;--cds-pad-sm:8px;--cds-pad-md:12px;--cds-pad-lg:16px;--cds-pad-xl:24px;--cds-radius:8px;
+--cds-chart-grid:#ecebe6;--cds-chart-axis:#c9c6bd;--cds-chart-reference:#8f8c84;--cds-chart-status-critical:#c0392b;--cds-chart-muted:#b9b6ae;
+--cds-surface-popover:#ffffff;--cds-border:#dedbd2;--cds-shadow-popover:0 6px 18px rgba(0,0,0,.12);--cds-text-secondary:#6b6963;--cds-dur-slow:.3s}
+@media (prefers-color-scheme:dark){:root{--color-fg:#ecebe6;--color-fg-muted:#a3a19a;--color-bg:#1b1b19;--color-panel:#252523;--color-border-line:#3a3936;--color-ok:#5cc47e;--color-warn:#e3a640;--color-bad:#ef6b5c;
+--cds-chart-grid:#33322f;--cds-chart-axis:#55534e;--cds-chart-reference:#8f8c84;--cds-chart-status-critical:#ef6b5c;--cds-surface-popover:#2d2d2a;--cds-border:#44433f;--cds-shadow-popover:0 6px 18px rgba(0,0,0,.5);--cds-text-secondary:#a3a19a}}
+html,body{margin:0;background:var(--color-bg);color:var(--color-fg);font-family:var(--font-anthropic-sans)}
+#dash-root{max-width:1500px;margin:0 auto;padding:24px 24px 48px;box-sizing:border-box}
+@media (max-width:640px){#dash-root{padding:16px}}
+#dash-root *{box-sizing:border-box}
+#dash-root [hidden]{display:none !important}
+#dash-root .rc-status{margin:0;font-size:12.5px;color:var(--color-fg-muted)}
+#dash-root .rc-status.bad{color:var(--color-bad)}
+#dash-root .dash-skeleton{background:linear-gradient(90deg,var(--color-border-line),transparent,var(--color-border-line));background-size:200% 100%;animation:sk 1.4s linear infinite;border-radius:8px;opacity:.5}
+@keyframes sk{from{background-position:200% 0}to{background-position:-200% 0}}
+
+#dash-root .rc { font-family: var(--font-anthropic-sans); display: flex; flex-direction: column; gap: var(--cds-gap-md); }
+#dash-root .rc-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: var(--cds-gap-md); }
+#dash-root .rc-title { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); margin: 0; }
+#dash-root .rc-sub { color: var(--color-fg-muted); margin: var(--cds-gap-xs) 0 0; font-size: var(--cds-font-size-body); }
+#dash-root .rc-sub b { font-weight: 600; font-variant-numeric: tabular-nums; color: var(--color-fg); }
+#dash-root .rc-ctrls { display: flex; flex-wrap: wrap; align-items: center; gap: var(--cds-gap-sm); }
+#dash-root .rc-ctrl { display: flex; align-items: center; gap: var(--cds-gap-xs); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+#dash-root .rc-ctrl select, #dash-root .rc-ctrl input, #dash-root .rc-btn { font: inherit; font-size: var(--cds-font-size-caption); color: var(--color-fg); background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-xs) var(--cds-pad-sm); }
+#dash-root .rc-btn { cursor: pointer; }
+#dash-root .rc-tabs { display: flex; flex-wrap: wrap; gap: var(--cds-gap-xs); border-bottom: 1px solid var(--color-border-line); }
+#dash-root .rc-tabs button { font: inherit; font-size: var(--cds-font-size-body); background: none; border: none; border-bottom: 2px solid transparent; color: var(--color-fg-muted); padding: var(--cds-pad-sm) var(--cds-pad-md); cursor: pointer; margin-bottom: -1px; }
+#dash-root .rc-tabs button[aria-selected="true"] { color: var(--color-fg); border-bottom-color: var(--color-fg); font-weight: var(--cds-font-weight-medium); }
+#dash-root .rc-page { display: flex; flex-direction: column; gap: var(--cds-gap-md); }
+#dash-root .rc-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr)); gap: var(--cds-gap-md); }
+#dash-root .rc-tile { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-md); display: flex; flex-direction: column; gap: 2px; }
+#dash-root .rc-tile-label { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+#dash-root .rc-tile-value { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); font-variant-numeric: tabular-nums; min-height: 1.3em; }
+#dash-root .rc-tile-unit { font-family: var(--font-anthropic-sans); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); margin-left: .3em; }
+#dash-root .rc-tile-note { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); font-variant-numeric: tabular-nums; }
+#dash-root .rc-tile-status { font-size: var(--cds-font-size-caption); font-variant-numeric: tabular-nums; color: var(--color-fg-muted); min-height: 1.2em; }
+#dash-root .rc-tile-status.good, #dash-root .rc-ok-txt { color: var(--color-ok); }
+#dash-root .rc-tile-status.bad, #dash-root .rc-bad-txt { color: var(--color-bad); }
+#dash-root .rc-tgt { display: flex; align-items: center; gap: 6px; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); margin-top: var(--cds-gap-xs); }
+#dash-root .rc-tgt input { font: inherit; width: 6.5rem; min-width: 0; color: var(--color-fg); background: var(--color-bg); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: 2px 6px; font-variant-numeric: tabular-nums; }
+#dash-root .rc-section { font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); margin: var(--cds-gap-md) 0 0; }
+#dash-root .rc-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr)); gap: var(--cds-gap-md); }
+#dash-root .rc-card { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); display: flex; flex-direction: column; gap: var(--cds-gap-xs); min-width: 0; }
+#dash-root .rc-card h3 { font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); margin: 0; }
+#dash-root .rc-note { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); margin: 0; }
+#dash-root .rc-legend { display: flex; flex-wrap: wrap; gap: var(--cds-gap-md); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); margin: 0; padding: 0; list-style: none; }
+#dash-root .rc-legend li { display: flex; align-items: center; gap: 6px; }
+#dash-root .rc-sw { width: 10px; height: 10px; border-radius: 2px; display: inline-block; flex: none; }
+#dash-root .rc-chart { position: relative; min-height: 200px; }
+#dash-root .rc-chart svg { display: block; overflow: visible; }
+#dash-root .rc-tip { position: absolute; pointer-events: none; background: var(--cds-surface-popover); border: 1px solid var(--cds-border); border-radius: var(--cds-radius); box-shadow: var(--cds-shadow-popover); padding: var(--cds-pad-xs) var(--cds-pad-sm); font-size: var(--cds-font-size-caption); white-space: nowrap; z-index: 2; }
+#dash-root .rc-tip .d { color: var(--cds-text-secondary); margin-bottom: 2px; }
+#dash-root .rc-tip .l { display: flex; align-items: center; gap: 6px; font-variant-numeric: tabular-nums; }
+#dash-root .rc-fail { display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 200px; color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); }
+#dash-root .rc-fail i { width: .375rem; height: .375rem; border-radius: 50%; background: var(--color-bad); display: inline-block; }
+#dash-root .rc-details summary { cursor: pointer; font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); }
+#dash-root .rc-tablebox { max-height: 30rem; overflow: auto; margin-top: var(--cds-gap-sm); }
+#dash-root table.rc-table { width: 100%; border-collapse: collapse; font-size: var(--cds-font-size-caption); font-variant-numeric: tabular-nums; }
+#dash-root .rc-table th { position: sticky; top: 0; background: var(--color-panel); text-align: right; font-weight: var(--cds-font-weight-medium); color: var(--color-fg-muted); padding: var(--cds-pad-xs) var(--cds-pad-sm); border-bottom: 1px solid var(--color-border-line); vertical-align: bottom; white-space: nowrap; }
+#dash-root .rc-th-u { font-weight: 400; }
+#dash-root .rc-table td { text-align: right; padding: var(--cds-pad-xs) var(--cds-pad-sm); border-bottom: 1px solid var(--color-border-line); white-space: nowrap; }
+#dash-root .rc-table th:first-child, #dash-root .rc-table td:first-child { text-align: left; position: sticky; left: 0; background: var(--color-panel); }
+#dash-root .rc-table th:first-child { z-index: 1; }
+#dash-root [data-dash-source-state=empty] { color: transparent; }
+#dash-root [data-dash-source-state=refreshing] { opacity: .5; transition: opacity var(--cds-dur-slow); }
+
+#dash-root .rc-ana-box summary { cursor: pointer; font-size: var(--cds-font-size-caption); font-weight: var(--cds-font-weight-medium); color: var(--color-fg-muted); margin-top: var(--cds-gap-xs); }
+#dash-root .rc-ana { display: flex; flex-direction: column; gap: 4px; margin-top: var(--cds-gap-xs); }
+#dash-root .rc-ana-l { margin: 0; font-size: var(--cds-font-size-caption); line-height: 1.55; color: var(--color-fg); }
+#dash-root .rc-tag { font-weight: var(--cds-font-weight-medium); color: var(--color-fg-muted); font-size: 0.85em; letter-spacing: .02em; }
+#dash-root .rc-tag-engineering-judgment { color: var(--color-fg); }
+#dash-root .rc-tag-hypothesis, #dash-root .rc-tag-assumption { color: var(--color-warn); }
+#dash-root .rc-top { margin: 0; padding-left: 1.4em; font-size: var(--cds-font-size-caption); line-height: 1.6; font-variant-numeric: tabular-nums; }
+#dash-root .rc-reltable td, #dash-root .rc-qsum td { white-space: normal; }
+#dash-root .rc-reltable td, #dash-root .rc-reltable th, #dash-root .rc-qsum td, #dash-root .rc-qsum th { text-align: left; }
+#dash-root .rc-why { color: var(--color-fg-muted); min-width: 14rem; }
+#dash-root .rc-hm { position: relative; overflow-x: auto; min-height: 300px; }
+#dash-root .rc-hm svg { min-width: 560px; }
+</style>
+<script>
+window.dash = (() => {
+  const GID = '921351261';
+  const FILES = [
+    ['m01', '1-0Fx2Q-7cnHJV3zrCuVZ5ZxJDhndBKfhTRzqxVT_l5E'], ['m02', '1F7BAh-dmKCUY_af2G4rQHUgYMO5SapKywHmn_RQkdDQ'],
+    ['m03', '1B_czi5pJBXjMGoOviaxk-61NUMVSbJf0kkPHe_9q3Bs'], ['m04', '1XURUEzExFDgnvNW8JF_7GB9qvfAhUcRSpXx9g69gziQ'],
+    ['m05', '15PcKcoMMAXAEWyCQJDszeSfiRUPYnTtLjgCOyjthB4c'], ['m06', '1-ADNK3FP8mQja32WB_3PqrAjPuxQF3j0_H8aos7qtqA'],
+    ['m07', '12PmUvQoPCa0gwke42ncju6l5OIeOTfspueepG8Ys1m8'], ['m08', '1MNu2HNqfrY8r-Nnydw8PQDN641rnkycxMKA0imuLnks'],
+    ['m09', '1GAJxwoASm5MbFmbQVQ64QVGL76r3LU_MLDk7ttK-q8s'], ['m10', '1OcC-1l9CUED9E-k5Mr5J5TudYM6wC4XGRNUjsPcNoko'],
+    ['m11', '1B1TBDGVKqsuoq8l4l-0bJe48cOZTwF7Z2BE_E87VxaQ'],
+  ];
+  const DEFAULTS = {"start": null, "end": null, "pair": "lm_ds|heat_cao|0", "t_lime_t": null, "t_wl_made": null, "t_lm_feed_h": null, "t_gl_feed_h": null, "t_slak_off": null, "t_lmf_stop": null, "t_burner_off": null, "t_sd_tss": null, "t_gleq_ss": null, "t_glc_ss": null, "t_air_ratio": 3750, "t_firing": null, "t_sd_tta": null, "t_gleq_tta": null, "t_glc_tta": null, "t_wl_ea": null, "t_wl_sulf": null, "t_ce": null, "t_lm_tta": null, "t_lm_ds": null, "t_lm_caco3": null, "t_lm_cao": null, "t_so2": null, "t_h2s": null, "t_trs": null, "t_nox": null, "t_co": null, "t_dust": null, "t_bl_stock": 280, "t_sa_stock": 1600, "t_hcl_stock": 150, "t_lpg": 25};
+  const KEY = 'rclk1_dash_params_v1';
+  let params = {...DEFAULTS};
+  try { const s = JSON.parse(localStorage.getItem(KEY) || '{}'); for (const k of Object.keys(s)) if (k.startsWith('t_') || k === 'pair') params[k] = s[k]; } catch (e) { /* storage unavailable */ }
+  const save = () => { try { const o = {}; for (const k of Object.keys(params)) if (k.startsWith('t_') || k === 'pair') o[k] = params[k]; localStorage.setItem(KEY, JSON.stringify(o)); } catch (e) { /* ignore */ } };
+
+  const draws = new Map(); const onDataFns = []; const loaders = {}; const calcs = {};
+  let daily = {status: 'loading', data: [], message: ''};
+  let busy = false;
+  const redraw = () => {
+    if (busy) return; busy = true;
+    try {
+      for (const fn of onDataFns) { try { fn(); } catch (e) { console.error(e); } }
+      for (const [name, fn] of draws) {
+        for (const el of document.querySelectorAll('#dash-root [data-draw="' + name + '"]')) {
+          if (el.closest('[hidden]')) continue;
+          try { fn(el); } catch (e) { console.error('draw ' + name, e); }
+        }
+      }
+    } finally { busy = false; }
+  };
+  let t = null;
+  window.addEventListener('resize', () => { clearTimeout(t); t = setTimeout(redraw, 200); });
+
+  const parseCSV = (text) => {
+    const rows = []; let row = [], f = '', q = false;
+    for (let i = 0; i < text.length; i++) {
+      const c = text[i];
+      if (q) { if (c === '"') { if (text[i + 1] === '"') { f += '"'; i++; } else q = false; } else f += c; }
+      else if (c === '"') q = true;
+      else if (c === ',') { row.push(f); f = ''; }
+      else if (c === '\n') { row.push(f); rows.push(row); row = []; f = ''; }
+      else if (c !== '\r') f += c;
+    }
+    if (f !== '' || row.length) { row.push(f); rows.push(row); }
+    return rows;
+  };
+  const status = (txt, bad) => { const el = document.getElementById('rc-status'); if (el) { el.textContent = txt; el.className = 'rc-status' + (bad ? ' bad' : ''); } };
+
+  const boot = async () => {
+    status('กำลังโหลดข้อมูลจาก Google Sheets…');
+    const res = await Promise.all(FILES.map(async ([id, sid]) => {
+      try {
+        const r = await fetch('https://docs.google.com/spreadsheets/d/' + sid + '/export?format=csv&gid=' + GID + '&range=A1:NB45', {cache: 'no-store'});
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        const txt = await r.text();
+        if (/^\s*<(!doctype|html)/i.test(txt)) throw new Error('ไฟล์ยังไม่ได้แชร์แบบ "ทุกคนที่มีลิงก์"');
+        const grid = parseCSV(txt);
+        const answer = {sheets: [{data: [{startRow: 0, startColumn: 0, rowData: grid.slice(0, 45).map((r) => ({values: r.map((v) => ({formattedValue: v}))}))}]}]};
+        return [id, loaders[id] ? loaders[id]({answer}).rows : [], null];
+      } catch (e) { console.error(id, e); return [id, [], e.message]; }
+    }));
+    const failed = res.filter((x) => x[2]);
+    const byId = Object.fromEntries(res.map((x) => [x[0], x[1]]));
+    const c = calcs.daily;
+    daily = {status: 'ok', data: c.fn(...c.inputs.map((i) => byId[i] || []))};
+    if (!daily.data.length) daily = {status: 'error', data: [], message: 'no data'};
+    const now = new Date();
+    status(failed.length
+      ? 'โหลดไม่สำเร็จ ' + failed.length + ' เดือน (' + failed.map((x) => x[0].replace('m', 'เดือน ')).join(', ') + ') · ' + failed[0][2]
+      : 'ข้อมูลสดจาก Google Sheets · โหลดเมื่อ ' + now.toLocaleString('th-TH'), failed.length > 0);
+    redraw();
+  };
+
+  const api = {
+    colors: ['#2F6FDB', '#E0662D', '#159A73', '#A64AC9', '#C79A12', '#5C6F82', '#D64579', '#2FA5BE'],
+    data: (id) => id === 'daily' ? daily : {status: 'loading', data: []},
+    onData: (fn) => { onDataFns.push(fn); try { fn(); } catch (e) { console.error(e); } },
+    draw: (name, fn) => { draws.set(name, fn); },
+    loader: (id, o) => { loaders[id] = o.fn; },
+    calc: (id, o) => { calcs[id] = o; },
+    params: () => ({...params}),
+    setParams: (o) => { Object.assign(params, o); save(); redraw(); },
+    resetParams: () => { params = {...DEFAULTS}; save(); redraw(); },
+    setLink: (n) => { try { history.replaceState(null, '', '#' + n); } catch (e) { /* ignore */ } redraw(); },
+    refresh: () => boot(),
+  };
+  document.addEventListener('DOMContentLoaded', () => { boot(); });
+  return api;
+})();
+</script>
+</head><body><div id="dash-root"><div class="rc"><p id="rc-status" class="rc-status">กำลังโหลด…</p>
+  <header class="rc-head" id="top">
+    <div>
+      <h1 class="rc-title">RC&amp;LK1 Daily Dashboard 2026</h1>
+      <p class="rc-sub">ช่วงข้อมูล <b data-draw="range-text" data-source="daily">—</b> · ข้อมูลล่าสุดวันที่ <b data-draw="last-day" data-source="daily" data-field="day">—</b></p>
+    </div>
+    <div class="rc-ctrls">
+      <label class="rc-ctrl">เลือกเร็ว <select data-draw="quick" aria-label="เลือกช่วงเวลา" data-source="daily"></select></label>
+      <label class="rc-ctrl">จาก <input type="date" min="2026-01-01" max="2026-12-31" data-range="start" aria-label="วันที่เริ่ม"></label>
+      <label class="rc-ctrl">ถึง <input type="date" min="2026-01-01" max="2026-12-31" data-range="end" aria-label="วันที่สิ้นสุด"></label>
+      <button type="button" class="rc-btn rc-reset">ค่าเริ่มต้น</button><button type="button" class="rc-btn" onclick="dash.refresh()">โหลดข้อมูลใหม่</button>
+    </div>
+  </header>
+  <nav class="rc-tabs" role="tablist"><button type="button" role="tab" data-tab="production" aria-selected="true">1 Production &amp; Downtime</button><button type="button" role="tab" data-tab="quality" aria-selected="false">2 Quality</button><button type="button" role="tab" data-tab="emission" aria-selected="false">3 Emission</button><button type="button" role="tab" data-tab="chemical" aria-selected="false">4 Chemical use</button><button type="button" role="tab" data-tab="fuel" aria-selected="false">5 Fuel</button><button type="button" role="tab" data-tab="stock" aria-selected="false">6 Stock</button><button type="button" role="tab" data-tab="relation" aria-selected="false">7 ความสัมพันธ์ของข้อมูล</button></nav>
+  <p class="rc-note">ช่อง Target กรอกได้ทันที สถานะเทียบค่าในช่วงที่เลือก: <span class="rc-ok-txt">ผ่าน</span> · <span class="rc-bad-txt">ไม่ผ่าน</span> · ค่า Lab ที่เป็น 0 นับเป็นไม่ได้วัด</p>
+  <section class="rc-page" id="production" data-tabpage="production"><h2 class="rc-section">Production</h2><div class="rc-tiles"><div class="rc-tile" id="tile-lime_t"><span class="rc-tile-label">Burnt lime production</span><span class="rc-tile-value"><span data-draw="v" data-source="daily" data-k="lime_t" data-agg="avgpos" data-dec="0" data-fetchpriority="high">—</span><span class="rc-tile-unit">t/d</span></span><span class="rc-tile-note">เฉลี่ยวันที่เดินเครื่อง</span><span class="rc-tile-status" data-draw="st" data-source="daily" data-k="lime_t" data-agg="avgpos" data-dec="0" data-dir="min">—</span><label class="rc-tgt" title="ยิ่งสูงยิ่งดี (≥ target)">Target <input type="number" step="any" inputmode="decimal" data-t="lime_t" aria-label="Target Burnt lime production"><span class="rc-tgt-dir">≥</span></label></div><div class="rc-tile" id="tile-wl_made"><span class="rc-tile-label">White liquor made</span><span class="rc-tile-value"><span data-draw="v" data-source="daily" data-k="wl_made" data-agg="avg" data-dec="0" data-fetchpriority="high">—</span><span class="rc-tile-unit">m³/d</span></span><span class="rc-tile-note">เฉลี่ยต่อวัน</span><span class="rc-tile-status" data-draw="st" data-source="daily" data-k="wl_made" data-agg="avg" data-dec="0" data-dir="min">—</span><label class="rc-tgt" title="ยิ่งสูงยิ่งดี (≥ target)">Target <input type="number" step="any" inputmode="decimal" data-t="wl_made" aria-label="Target White liquor made"><span class="rc-tgt-dir">≥</span></label></div></div><div class="rc-grid"><div class="rc-card" id="chart-lime_t"><h3>Burnt lime production</h3><p class="rc-note">t/d รายวัน · เส้นประ = target</p><div class="rc-chart dash-skeleton" data-draw="chart" data-source="daily" data-keys="lime_t" data-type="bar" data-unit="t/d" data-dec="0" data-names="Burnt lime production" data-tk="lime_t"></div></div><div class="rc-card" id="chart-wl_made"><h3>White liquor made</h3><p class="rc-note">m³/d รายวัน · เส้นประ = target</p><div class="rc-chart dash-skeleton" data-draw="chart" data-source="daily" data-keys="wl_made" data-type="bar" data-unit="m³/d" data-dec="0" data-names="White liquor made" data-tk="wl_made"></div></div></div><h2 class="rc-section">Feed rate</h2><p class="rc-note">ค่าเฉลี่ยรายวันจาก DCS</p><div class="rc-tiles"><div class="rc-tile" id="tile-lm_feed_h"><span class="rc-tile-label">Lime mud feed</span><span class="rc-tile-value"><span data-draw="v" data-source="daily" data-k="lm_feed_h" data-agg="avg" data-dec="1" data-fetchpriority="high">—</span><span class="rc-tile-unit">m³/h</span></span><span class="rc-tile-note">เฉลี่ยต่อวัน</span><span class="rc-tile-status" data-draw="st" data-source="daily" data-k="lm_feed_h" data-agg="avg" data-dec="1" data-dir="min">—</span><label class="rc-tgt" title="ยิ่งสูงยิ่งดี (≥ target)">Target <input type="number" step="any" inputmode="decimal" data-t="lm_feed_h" aria-label="Target Lime mud feed"><span class="rc-tgt-dir">≥</span></label></div><div class="rc-tile" id="tile-gl_feed_h"><span class="rc-tile-label">Green liquor feed</span><span class="rc-tile-value"><span data-draw="v" data-source="daily" data-k="gl_feed_h" data-agg="avg" data-dec="1" data-fetchpriority="high">—</span><span class="rc-tile-unit">m³/h</span></span><span class="rc-tile-note">เฉลี่ยต่อวัน</span><span class="rc-tile-status" data-draw="st" data-source="daily" data-k="gl_feed_h" data-agg="avg" data-dec="1" data-dir="min">—</span><label class="rc-tgt" title="ยิ่งสูงยิ่งดี (≥ target)">Target <input type="number" step="any" inputmode="decimal" data-t="gl_feed_h" aria-label="Target Green liquor feed"><span class="rc-tgt-dir">≥</span></label></div></div><div class="rc-grid"><div class="rc-card" id="chart-lm_feed_h"><h3>Lime mud feed</h3><p class="rc-note">m³/h รายวัน · เส้นประ = target</p><div class="rc-chart dash-skeleton" data-draw="chart" data-source="daily" data-keys="lm_feed_h" data-type="line" data-unit="m³/h" data-dec="1" data-names="Lime mud feed" data-tk="lm_feed_h"></div></div><div class="rc-card" id="chart-gl_feed_h"><h3>Green liquor feed</h3><p class="rc-note">m³/h รายวัน · เส้นประ = target</p><div class="rc-chart dash-skeleton" data-draw="chart" data-source="daily" data-keys="gl_feed_h" data-type="line" data-unit="m³/h" data-dec="1" data-names="Green liquor feed" data-tk="gl_feed_h"></div></div></div><h2 class="rc-section">Downtime</h2><p class="rc-note">ชั่วโมงหยุดต่อวัน · ผลรวมทั้งช่วงแสดงใต้ตัวเลข</p><div class="rc-tiles"><div class="rc-tile" id="tile-slak_off"><span class="rc-tile-label">Time OFF Lime slaking</span><span class="rc-tile-value"><span data-draw="v" data-source="daily" data-k="slak_off" data-agg="avg" data-dec="2" data-fetchpriority="high">—</span><span class="rc-tile-unit">hr/d</span></span><span class="rc-tile-note">เฉลี่ยต่อวัน</span><span class="rc-tile-note">รวม <span data-draw="sum" data-source="daily" data-k="slak_off" data-dec="1">—</span> hr ในช่วงที่เลือก</span><span class="rc-tile-status" data-draw="st" data-source="daily" data-k="slak_off" data-agg="avg" data-dec="2" data-dir="max">—</span><label class="rc-tgt" title="ยิ่งต่ำยิ่งดี (≤ target)">Target <input type="number" step="any" inputmode="decimal" data-t="slak_off" aria-label="Target Time OFF Lime slaking"><span class="rc-tgt-dir">≤</span></label></div><div class="rc-tile" id="tile-lmf_stop"><span class="rc-tile-label">Time Stop LM filter</span><span class="rc-tile-value"><span data-draw="v" data-source="daily" data-k="lmf_stop" data-agg="avg" data-dec="2" data-fetchpriority="high">—</span><span class="rc-tile-unit">hr/d</span></span><span class="rc-tile-note">เฉลี่ยต่อวัน</span><span class="rc-tile-note">รวม <span data-draw="sum" data-source="daily" data-k="lmf_stop" data-dec="1">—</span> hr ในช่วงที่เลือก</span><span class="rc-tile-status" data-draw="st" data-source="daily" data-k="lmf_stop" data-agg="avg" data-dec="2" data-dir="max">—</span><label class="rc-tgt" title="ยิ่งต่ำยิ่งดี (≤ target)">Target <input type="number" step="any" inputmode="decimal" data-t="lmf_stop" aria-label="Target Time Stop LM filter"><span class="rc-tgt-dir">≤</span></label></div><div class="rc-tile" id="tile-burner_off"><span class="rc-tile-label">Off Time Oil burner kiln</span><span class="rc-tile-value"><span data-draw="v" data-source="daily" data-k="burner_off" data-agg="avg" data-dec="2" data-fetchpriority="high">—</span><span class="rc-tile-unit">hr/d</span></span><span class="rc-tile-note">เฉลี่ยต่อวัน</span><span class="rc-tile-note">รวม <span data-draw="sum" data-source="daily" data-k="burner_off" data-dec="1">—</span> hr ในช่วงที่เลือก</span><span class="rc-tile-status" data-draw="st" data-source="daily" data-k="burner_off" data-agg="avg" data-dec="2" data-dir="max">—</span><label class="rc-tgt" title="ยิ่งต่ำยิ่งดี (≤ target)">Target <input type="number" step="any" inputmode="decimal" data-t="burner_off" aria-label="Target Off Time Oil burner kiln"><span class="rc-tgt-dir">≤</span></label></div></div><div class="rc-grid"><div class="rc-card" id="chart-slak_off"><h3>Time OFF Lime slaking</h3><p class="rc-note">hr รายวัน · เส้นประ = target</p><div class="rc-chart dash-skeleton" data-draw="chart" data-source="daily" data-keys="slak_off" data-type="bar" data-unit="hr" data-dec="2" data-names="Time OFF Lime slaking" data-tk="slak_off"></div></div><div class="rc-card" id="chart-lmf_stop"><h3>Time Stop LM filter</h3><p class="rc-note">hr รายวัน · เส้นประ = target</p><div class="rc-chart dash-skeleton" data-draw="chart" data-source="daily" data-keys="lmf_stop" data-type="bar" data-unit="hr" data-dec="2" data-names="Time Stop LM filter" data-tk="lmf_stop"></div></div><div class="rc-card" id="chart-burner_off"><h3>Off Time Oil burner kiln</h3><p class="rc-note">hr รายวัน · เส้นประ = target</p><div class="rc-chart dash-skeleton" data-draw="chart" data-source="daily" data-keys="burner_off" data-type="bar" data-unit="hr" data-dec="2" data-names="Off Time Oil burner kiln" data-tk="burner_off"></div></div></div><details class="rc-card rc-details"><summary>ตารางข้อมูลรายวัน</summary><div class="rc-tablebox"><table class="rc-table" data-source="daily" data-row-key="day"><thead><tr><th data-field="day">วันที่</th><th data-field="lime_t">Burnt lime production<br><span class="rc-th-u">t/d</span></th><th data-field="wl_made">White liquor made<br><span class="rc-th-u">m³/d</span></th><th data-field="lm_feed_h">Lime mud feed<br><span class="rc-th-u">m³/h</span></th><th data-field="gl_feed_h">Green liquor feed<br><span class="rc-th-u">m³/h</span></th><th data-field="slak_off">Time OFF Lime slaking<br><span class="rc-th-u">hr/d</span></th><th data-field="lmf_stop">Time Stop LM filter<br><span class="rc-th-u">hr/d</span></th><th data-field="burner_off">Off Time Oil burner kiln<br><span class="rc-th-u">hr/d</span></th></tr></thead><tbody data-draw="tbl" data-keys="lime_t,wl_made,lm_feed_h,gl_feed_h,slak_off,lmf_stop,burner_off" data-decs="0,0,1,1,2,2,2"></tbody></table></div></details></section><section class="rc-page" id="quality" data-tabpage="quality" hidden><div class="rc-card" id="quality-overview"><h3>ภาพรวมคุณภาพในช่วงที่เลือก</h3><p class="rc-note">สรุปโดย AI จากข้อมูลจริง · ป้ายกำกับ [CALCULATION] คำนวณจากข้อมูล · [BENCHMARK] ช่วงทั่วไปในอุตสาหกรรม (ไม่ใช่มาตรฐานของโรงงาน) · [ENGINEERING JUDGMENT] การตีความเชิงกระบวนการ · [HYPOTHESIS] สมมติฐานที่ต้องพิสูจน์</p><div class="rc-ana" data-draw="qsum" data-source="daily" data-keys="sd_tss,gleq_ss,glc_ss,air_ratio,firing,sd_tta,gleq_tta,glc_tta,wl_ea,wl_sulf,ce,lm_tta,lm_ds,lm_caco3,lm_cao"></div></div><h2 class="rc-section">2.1 Green liquor TSS</h2><div class="rc-tiles"><div class="rc-tile" id="tile-sd_tss"><span class="rc-tile-label">TSS SD tank (NPP)</span><span class="rc-tile-value"><span data-draw="v" data-source="daily" data-k="sd_tss" data-agg="avg" data-dec="0" data-fetchpriority="high">—</span><span class="rc-tile-unit">mg/L</span></span><span class="rc-tile-note">เฉลี่ยต่อวัน</span><span class="rc-tile-status" data-draw="st" data-source="daily" data-k="sd_tss" data-agg="avg" data-dec="0" data-dir="max">—</span><label class="rc-tgt" title="ยิ่งต่ำยิ่งดี (≤ target)">Target <input type="number" step="any" inputmode="decimal" data-t="sd_tss" aria-label="Target TSS SD tank (NPP)"><span class="rc-tgt-dir">≤</span></label></div><div class="rc-tile" id="tile-gleq_ss"><span class="rc-tile-label">TSS GLEQ</span><span class="rc-tile-value"><span data-draw="v" data-source="daily" data-k="gleq_ss" data-agg="avg" data-dec="0" data-fetchpriority="high">—</span><span class="rc-tile-unit">mg/L</span></span><span class="rc-tile-note">เฉลี่ยต่อวัน</span><span class="rc-tile-status" data-draw="st" data-source="daily" data-k="gleq_ss" data-agg="avg" data-dec="0" data-dir="max">—</span><label class="rc-tgt" title="ยิ่งต่ำยิ่งดี (≤ target)">Target <input type="number" step="any" inputmode="decimal" data-t="gleq_ss" aria-label="Target TSS GLEQ"><span class="rc-tgt-dir">≤</span></label></div><div class="rc-tile" id="tile-glc_ss"><span class="rc-tile-label">TSS GLC</span><span class="rc-tile-value"><span data-draw="v" data-source="daily" data-k="glc_ss" data-agg="avg" data-dec="0" data-fetchpriority="high">—</span><span class="rc-tile-unit">mg/L</span></span><span class="rc-tile-note">เฉลี่ยต่อวัน</span><span class="rc-tile-status" data-draw="st" data-source="daily" data-k="glc_ss" data-agg="avg" data-dec="0" data-dir="max">—</span><label class="rc-tgt" title="ยิ่งต่ำยิ่งดี (≤ target)">Target <input type="number" step="any" inputmode="decimal" data-t="glc_ss" aria-label="Target TSS GLC"><span class="rc-tgt-dir">≤</span></label></div><div class="rc-tile" id="tile-air_ratio"><span class="rc-tile-label">Air ratio</span><span class="rc-tile-value"><span data-draw="v" data-source="daily" data-k="air_ratio" data-agg="avg" data-dec="0" data-fetchpriority="high">—</span><span class="rc-tile-unit">Nm³/TDS</span></span><span class="rc-tile-note">เฉลี่ยต่อวัน</span><span class="rc-tile-status" data-draw="st" data-source="daily" data-k="air_ratio" data-agg="avg" data-dec="0" data-dir="min">—</span><label class="rc-tgt" title="ยิ่งสูงยิ่งดี (≥ target)">Target <input type="number" step="any" inputmode="decimal" data-t="air_ratio" aria-label="Target Air ratio"><span class="rc-tgt-dir">≥</span></label></div><div class="rc-tile" id="tile-firing"><span class="rc-tile-label">Firing</span><span class="rc-tile-value"><span data-draw="v" data-source="daily" data-k="firing" data-agg="avg" data-dec="0" data-fetchpriority="high">—</span><span class="rc-tile-unit">TDS/d</span></span><span class="rc-tile-note">เฉลี่ยต่อวัน</span><span class="rc-tile-status" data-draw="st" data-source="daily" data-k="firing" data-agg="avg" data-dec="0" data-dir="min">—</span><label class="rc-tgt" title="ยิ่งสูงยิ่งดี (≥ target)">Target <input type="number" step="any" inputmode="decimal" data-t="firing" aria-label="Target Firing"><span class="rc-tgt-dir">≥</span></label></div></div><div class="rc-grid"><div class="rc-card" id="chart-sd_tss"><h3>TSS SD tank (NPP)</h3><p class="rc-note">mg/L รายวัน · เส้นประ = target</p><div class="rc-chart dash-skeleton" data-draw="chart" data-source="daily" data-keys="sd_tss" data-type="line" data-unit="mg/L" data-dec="0" data-names="TSS SD tank (NPP)" data-tk="sd_tss"></div><details class="rc-ana-box" open><summary>การวิเคราะห์โดย AI (Kraft recausticizing &amp; lime kiln)</summary><div class="rc-ana" data-draw="ana" data-source="daily" data-k="sd_tss"></div></details></div><div class="rc-card" id="chart-gleq_ss"><h3>TSS GLEQ</h3><p class="rc-note">mg/L รายวัน · เส้นประ = target</p><div class="rc-chart dash-skeleton" data-draw="chart" data-source="daily" data-keys="gleq_ss" data-type="line" data-unit="mg/L" data-dec="0" data-names="TSS GLEQ" data-tk="gleq_ss"></div><details class="rc-ana-box" open><summary>การวิเคราะห์โดย AI (Kraft recausticizing &amp; lime kiln)</summary><div class="rc-ana" data-draw="ana" data-source="daily" data-k="gleq_ss"></div></details></div><div class="rc-card" id="chart-glc_ss"><h3>TSS GLC</h3><p class="rc-note">mg/L รายวัน · เส้นประ = target</p><div class="rc-chart dash-skeleton" data-draw="chart" data-source="daily" data-keys="glc_ss" data-type="line" data-unit="mg/L" data-dec="0" data-names="TSS GLC" data-tk="glc_ss"></div><details class="rc-ana-box" open><summary>การวิเคราะห์โดย AI (Kraft recausticizing &amp; lime kiln)</summary><div class="rc-ana" data-draw="ana" data-source="daily" data-k="glc_ss"></div></details></div><div class="rc-card" id="chart-air_ratio"><h3>Air ratio</h3><p class="rc-note">Nm³/TDS รายวัน · เส้นประ = target</p><div class="rc-chart dash-skeleton" data-draw="chart" data-source="daily" data-keys="air_ratio" data-type="line" data-unit="Nm³/TDS" data-dec="0" data-names="Air ratio" data-tk="air_ratio"></div><details class="rc-ana-box" open><summary>การวิเคราะห์โดย AI (Kraft recausticizing &amp; lime kiln)</summary><div class="rc-ana" data-draw="ana" data-source="daily" data-k="air_ratio"></div></details></div><div class="rc-card" id="chart-firing"><h3>Firing</h3><p class="rc-note">TDS/d รายวัน · เส้นประ = target</p><div class="rc-chart dash-skeleton" data-draw="chart" data-source="daily" data-keys="firing" data-type="line" data-unit="TDS/d" data-dec="0" data-names="Firing" data-tk="firing"></div><details class="rc-ana-box" open><summary>การวิเคราะห์โดย AI (Kraft recausticizing &amp; lime kiln)</summary><div class="rc-ana" data-draw="ana" data-source="daily" data-k="firing"></div></details></div></div><h2 class="rc-section">2.2 Green liquor TTA</h2><div class="rc-tiles"><div class="rc-tile" id="tile-sd_tta"><span class="rc-tile-label">TTA SD NPP</span><span class="rc-tile-value"><span data-draw="v" data-source="daily" data-k="sd_tta" data-agg="avg" data-dec="1" data-fetchpriority="high">—</span><span class="rc-tile-unit">g/L</span></span><span class="rc-tile-note">เฉลี่ยต่อวัน</span><span class="rc-tile-status" data-draw="st" data-source="daily" data-k="sd_tta" data-agg="avg" data-dec="1" data-dir="near">—</span><label class="rc-tgt" title="ใกล้ target (±5%)">Target <input type="number" step="any" inputmode="decimal" data-t="sd_tta" aria-label="Target TTA SD NPP"><span class="rc-tgt-dir">±5%</span></label></div><div class="rc-tile" id="tile-gleq_tta"><span class="rc-tile-label">TTA GL EQ</span><span class="rc-tile-value"><span data-draw="v" data-source="daily" data-k="gleq_tta" data-agg="avg" data-dec="1" data-fetchpriority="high">—</span><span class="rc-tile-unit">g/L</span></span><span class="rc-tile-note">เฉลี่ยต่อวัน</span><span class="rc-tile-status" data-draw="st" data-source="daily" data-k="gleq_tta" data-agg="avg" data-dec="1" data-dir="near">—</span><label class="rc-tgt" title="ใกล้ target (±5%)">Target <input type="number" step="any" inputmode="decimal" data-t="gleq_tta" aria-label="Target TTA GL EQ"><span class="rc-tgt-dir">±5%</span></label></div><div class="rc-tile" id="tile-glc_tta"><span class="rc-tile-label">TTA GLC</span><span class="rc-tile-value"><span data-draw="v" data-source="daily" data-k="glc_tta" data-agg="avg" data-dec="1" data-fetchpriority="high">—</span><span class="rc-tile-unit">g/L</span></span><span class="rc-tile-note">เฉลี่ยต่อวัน</span><span class="rc-tile-status" data-draw="st" data-source="daily" data-k="glc_tta" data-agg="avg" data-dec="1" data-dir="near">—</span><label class="rc-tgt" title="ใกล้ target (±5%)">Target <input type="number" step="any" inputmode="decimal" data-t="glc_tta" aria-label="Target TTA GLC"><span class="rc-tgt-dir">±5%</span></label></div></div><div class="rc-grid"><div class="rc-card" id="chart-sd_tta"><h3>TTA SD NPP</h3><p class="rc-note">g/L รายวัน · เส้นประ = target</p><div class="rc-chart dash-skeleton" data-draw="chart" data-source="daily" data-keys="sd_tta" data-type="line" data-unit="g/L" data-dec="1" data-names="TTA SD NPP" data-tk="sd_tta"></div><details class="rc-ana-box" open><summary>การวิเคราะห์โดย AI (Kraft recausticizing &amp; lime kiln)</summary><div class="rc-ana" data-draw="ana" data-source="daily" data-k="sd_tta"></div></details></div><div class="rc-card" id="chart-gleq_tta"><h3>TTA GL EQ</h3><p class="rc-note">g/L รายวัน · เส้นประ = target</p><div class="rc-chart dash-skeleton" data-draw="chart" data-source="daily" data-keys="gleq_tta" data-type="line" data-unit="g/L" data-dec="1" data-names="TTA GL EQ" data-tk="gleq_tta"></div><details class="rc-ana-box" open><summary>การวิเคราะห์โดย AI (Kraft recausticizing &amp; lime kiln)</summary><div class="rc-ana" data-draw="ana" data-source="daily" data-k="gleq_tta"></div></details></div><div class="rc-card" id="chart-glc_tta"><h3>TTA GLC</h3><p class="rc-note">g/L รายวัน · เส้นประ = target</p><div class="rc-chart dash-skeleton" data-draw="chart" data-source="daily" data-keys="glc_tta" data-type="line" data-unit="g/L" data-dec="1" data-names="TTA GLC" data-tk="glc_tta"></div><details class="rc-ana-box" open><summary>การวิเคราะห์โดย AI (Kraft recausticizing &amp; lime kiln)</summary><div class="rc-ana" data-draw="ana" data-source="daily" data-k="glc_tta"></div></details></div></div><h2 class="rc-section">2.3 White liquor</h2><p class="rc-note">WL Filter (RC1)</p><div class="rc-tiles"><div class="rc-tile" id="tile-wl_ea"><span class="rc-tile-label">EA RC1</span><span class="rc-tile-value"><span data-draw="v" data-source="daily" data-k="wl_ea" data-agg="avg" data-dec="1" data-fetchpriority="high">—</span><span class="rc-tile-unit">g/L</span></span><span class="rc-tile-note">เฉลี่ยต่อวัน</span><span class="rc-tile-status" data-draw="st" data-source="daily" data-k="wl_ea" data-agg="avg" data-dec="1" data-dir="near">—</span><label class="rc-tgt" title="ใกล้ target (±5%)">Target <input type="number" step="any" inputmode="decimal" data-t="wl_ea" aria-label="Target EA RC1"><span class="rc-tgt-dir">±5%</span></label></div><div class="rc-tile" id="tile-wl_sulf"><span class="rc-tile-label">%Sulfidity RC1</span><span class="rc-tile-value"><span data-draw="v" data-source="daily" data-k="wl_sulf" data-agg="avg" data-dec="1" data-fetchpriority="high">—</span><span class="rc-tile-unit">%</span></span><span class="rc-tile-note">เฉลี่ยต่อวัน</span><span class="rc-tile-status" data-draw="st" data-source="daily" data-k="wl_sulf" data-agg="avg" data-dec="1" data-dir="near">—</span><label class="rc-tgt" title="ใกล้ target (±5%)">Target <input type="number" step="any" inputmode="decimal" data-t="wl_sulf" aria-label="Target %Sulfidity RC1"><span class="rc-tgt-dir">±5%</span></label></div><div class="rc-tile" id="tile-ce"><span class="rc-tile-label">%CE</span><span class="rc-tile-value"><span data-draw="v" data-source="daily" data-k="ce" data-agg="avg" data-dec="1" data-fetchpriority="high">—</span><span class="rc-tile-unit">%</span></span><span class="rc-tile-note">เฉลี่ยต่อวัน</span><span class="rc-tile-status" data-draw="st" data-source="daily" data-k="ce" data-agg="avg" data-dec="1" data-dir="min">—</span><label class="rc-tgt" title="ยิ่งสูงยิ่งดี (≥ target)">Target <input type="number" step="any" inputmode="decimal" data-t="ce" aria-label="Target %CE"><span class="rc-tgt-dir">≥</span></label></div></div><div class="rc-grid"><div class="rc-card" id="chart-wl_ea"><h3>EA RC1</h3><p class="rc-note">g/L รายวัน · เส้นประ = target</p><div class="rc-chart dash-skeleton" data-draw="chart" data-source="daily" data-keys="wl_ea" data-type="line" data-unit="g/L" data-dec="1" data-names="EA RC1" data-tk="wl_ea"></div><details class="rc-ana-box" open><summary>การวิเคราะห์โดย AI (Kraft recausticizing &amp; lime kiln)</summary><div class="rc-ana" data-draw="ana" data-source="daily" data-k="wl_ea"></div></details></div><div class="rc-card" id="chart-wl_sulf"><h3>%Sulfidity RC1</h3><p class="rc-note">% รายวัน · เส้นประ = target</p><div class="rc-chart dash-skeleton" data-draw="chart" data-source="daily" data-keys="wl_sulf" data-type="line" data-unit="%" data-dec="1" data-names="%Sulfidity RC1" data-tk="wl_sulf"></div><details class="rc-ana-box" open><summary>การวิเคราะห์โดย AI (Kraft recausticizing &amp; lime kiln)</summary><div class="rc-ana" data-draw="ana" data-source="daily" data-k="wl_sulf"></div></details></div><div class="rc-card" id="chart-ce"><h3>%CE</h3><p class="rc-note">% รายวัน · เส้นประ = target</p><div class="rc-chart dash-skeleton" data-draw="chart" data-source="daily" data-keys="ce" data-type="line" data-unit="%" data-dec="1" data-names="%CE" data-tk="ce"></div><details class="rc-ana-box" open><summary>การวิเคราะห์โดย AI (Kraft recausticizing &amp; lime kiln)</summary><div class="rc-ana" data-draw="ana" data-source="daily" data-k="ce"></div></details></div></div><h2 class="rc-section">2.4 Lime mud</h2><p class="rc-note">LM TTA = LM filtrate · LM Dry Solids = LM cake · CaCO₃ / CaO = คอลัมน์ Burnt lime ใน sheet</p><div class="rc-tiles"><div class="rc-tile" id="tile-lm_tta"><span class="rc-tile-label">LM TTA</span><span class="rc-tile-value"><span data-draw="v" data-source="daily" data-k="lm_tta" data-agg="avg" data-dec="2" data-fetchpriority="high">—</span><span class="rc-tile-unit">g/L</span></span><span class="rc-tile-note">เฉลี่ยต่อวัน</span><span class="rc-tile-status" data-draw="st" data-source="daily" data-k="lm_tta" data-agg="avg" data-dec="2" data-dir="max">—</span><label class="rc-tgt" title="ยิ่งต่ำยิ่งดี (≤ target)">Target <input type="number" step="any" inputmode="decimal" data-t="lm_tta" aria-label="Target LM TTA"><span class="rc-tgt-dir">≤</span></label></div><div class="rc-tile" id="tile-lm_ds"><span class="rc-tile-label">LM Dry Solids</span><span class="rc-tile-value"><span data-draw="v" data-source="daily" data-k="lm_ds" data-agg="avg" data-dec="1" data-fetchpriority="high">—</span><span class="rc-tile-unit">%</span></span><span class="rc-tile-note">เฉลี่ยต่อวัน</span><span class="rc-tile-status" data-draw="st" data-source="daily" data-k="lm_ds" data-agg="avg" data-dec="1" data-dir="min">—</span><label class="rc-tgt" title="ยิ่งสูงยิ่งดี (≥ target)">Target <input type="number" step="any" inputmode="decimal" data-t="lm_ds" aria-label="Target LM Dry Solids"><span class="rc-tgt-dir">≥</span></label></div><div class="rc-tile" id="tile-lm_caco3"><span class="rc-tile-label">LM CaCO₃</span><span class="rc-tile-value"><span data-draw="v" data-source="daily" data-k="lm_caco3" data-agg="avg" data-dec="2" data-fetchpriority="high">—</span><span class="rc-tile-unit">%</span></span><span class="rc-tile-note">เฉลี่ยต่อวัน</span><span class="rc-tile-status" data-draw="st" data-source="daily" data-k="lm_caco3" data-agg="avg" data-dec="2" data-dir="max">—</span><label class="rc-tgt" title="ยิ่งต่ำยิ่งดี (≤ target)">Target <input type="number" step="any" inputmode="decimal" data-t="lm_caco3" aria-label="Target LM CaCO₃"><span class="rc-tgt-dir">≤</span></label></div><div class="rc-tile" id="tile-lm_cao"><span class="rc-tile-label">LM CaO</span><span class="rc-tile-value"><span data-draw="v" data-source="daily" data-k="lm_cao" data-agg="avg" data-dec="2" data-fetchpriority="high">—</span><span class="rc-tile-unit">%</span></span><span class="rc-tile-note">เฉลี่ยต่อวัน</span><span class="rc-tile-status" data-draw="st" data-source="daily" data-k="lm_cao" data-agg="avg" data-dec="2" data-dir="min">—</span><label class="rc-tgt" title="ยิ่งสูงยิ่งดี (≥ target)">Target <input type="number" step="any" inputmode="decimal" data-t="lm_cao" aria-label="Target LM CaO"><span class="rc-tgt-dir">≥</span></label></div></div><div class="rc-grid"><div class="rc-card" id="chart-lm_tta"><h3>LM TTA</h3><p class="rc-note">g/L รายวัน · เส้นประ = target</p><div class="rc-chart dash-skeleton" data-draw="chart" data-source="daily" data-keys="lm_tta" data-type="line" data-unit="g/L" data-dec="2" data-names="LM TTA" data-tk="lm_tta"></div><details class="rc-ana-box" open><summary>การวิเคราะห์โดย AI (Kraft recausticizing &amp; lime kiln)</summary><div class="rc-ana" data-draw="ana" data-source="daily" data-k="lm_tta"></div></details></div><div class="rc-card" id="chart-lm_ds"><h3>LM Dry Solids</h3><p class="rc-note">% รายวัน · เส้นประ = target</p><div class="rc-chart dash-skeleton" data-draw="chart" data-source="daily" data-keys="lm_ds" data-type="line" data-unit="%" data-dec="1" data-names="LM Dry Solids" data-tk="lm_ds"></div><details class="rc-ana-box" open><summary>การวิเคราะห์โดย AI (Kraft recausticizing &amp; lime kiln)</summary><div class="rc-ana" data-draw="ana" data-source="daily" data-k="lm_ds"></div></details></div><div class="rc-card" id="chart-lm_caco3"><h3>LM CaCO₃</h3><p class="rc-note">% รายวัน · เส้นประ = target</p><div class="rc-chart dash-skeleton" data-draw="chart" data-source="daily" data-keys="lm_caco3" data-type="line" data-unit="%" data-dec="2" data-names="LM CaCO₃" data-tk="lm_caco3"></div><details class="rc-ana-box" open><summary>การวิเคราะห์โดย AI (Kraft recausticizing &amp; lime kiln)</summary><div class="rc-ana" data-draw="ana" data-source="daily" data-k="lm_caco3"></div></details></div><div class="rc-card" id="chart-lm_cao"><h3>LM CaO</h3><p class="rc-note">% รายวัน · เส้นประ = target</p><div class="rc-chart dash-skeleton" data-draw="chart" data-source="daily" data-keys="lm_cao" data-type="line" data-unit="%" data-dec="2" data-names="LM CaO" data-tk="lm_cao"></div><details class="rc-ana-box" open><summary>การวิเคราะห์โดย AI (Kraft recausticizing &amp; lime kiln)</summary><div class="rc-ana" data-draw="ana" data-source="daily" data-k="lm_cao"></div></details></div></div><details class="rc-card rc-details"><summary>ตารางข้อมูลรายวัน</summary><div class="rc-tablebox"><table class="rc-table" data-source="daily" data-row-key="day"><thead><tr><th data-field="day">วันที่</th><th data-field="sd_tss">TSS SD tank (NPP)<br><span class="rc-th-u">mg/L</span></th><th data-field="gleq_ss">TSS GLEQ<br><span class="rc-th-u">mg/L</span></th><th data-field="glc_ss">TSS GLC<br><span class="rc-th-u">mg/L</span></th><th data-field="air_ratio">Air ratio<br><span class="rc-th-u">Nm³/TDS</span></th><th data-field="firing">Firing<br><span class="rc-th-u">TDS/d</span></th><th data-field="sd_tta">TTA SD NPP<br><span class="rc-th-u">g/L</span></th><th data-field="gleq_tta">TTA GL EQ<br><span class="rc-th-u">g/L</span></th><th data-field="glc_tta">TTA GLC<br><span class="rc-th-u">g/L</span></th><th data-field="wl_ea">EA RC1<br><span class="rc-th-u">g/L</span></th><th data-field="wl_sulf">%Sulfidity RC1<br><span class="rc-th-u">%</span></th><th data-field="ce">%CE<br><span class="rc-th-u">%</span></th><th data-field="lm_tta">LM TTA<br><span class="rc-th-u">g/L</span></th><th data-field="lm_ds">LM Dry Solids<br><span class="rc-th-u">%</span></th><th data-field="lm_caco3">LM CaCO₃<br><span class="rc-th-u">%</span></th><th data-field="lm_cao">LM CaO<br><span class="rc-th-u">%</span></th></tr></thead><tbody data-draw="tbl" data-keys="sd_tss,gleq_ss,glc_ss,air_ratio,firing,sd_tta,gleq_tta,glc_tta,wl_ea,wl_sulf,ce,lm_tta,lm_ds,lm_caco3,lm_cao" data-decs="0,0,0,0,0,1,1,1,1,1,1,2,1,2,2"></tbody></table></div></details></section><section class="rc-page" id="emission" data-tabpage="emission" hidden><h2 class="rc-section">Emission (CEMS average)</h2><div class="rc-tiles"><div class="rc-tile" id="tile-so2"><span class="rc-tile-label">SOx</span><span class="rc-tile-value"><span data-draw="v" data-source="daily" data-k="so2" data-agg="avg" data-dec="0" data-fetchpriority="high">—</span><span class="rc-tile-unit">ppm</span></span><span class="rc-tile-note">เฉลี่ยต่อวัน</span><span class="rc-tile-status" data-draw="st" data-source="daily" data-k="so2" data-agg="avg" data-dec="0" data-dir="max">—</span><label class="rc-tgt" title="ยิ่งต่ำยิ่งดี (≤ target)">Target <input type="number" step="any" inputmode="decimal" data-t="so2" aria-label="Target SOx"><span class="rc-tgt-dir">≤</span></label></div><div class="rc-tile" id="tile-h2s"><span class="rc-tile-label">H₂S</span><span class="rc-tile-value"><span data-draw="v" data-source="daily" data-k="h2s" data-agg="avg" data-dec="1" data-fetchpriority="high">—</span><span class="rc-tile-unit">ppm</span></span><span class="rc-tile-note">เฉลี่ยต่อวัน</span><span class="rc-tile-status" data-draw="st" data-source="daily" data-k="h2s" data-agg="avg" data-dec="1" data-dir="max">—</span><label class="rc-tgt" title="ยิ่งต่ำยิ่งดี (≤ target)">Target <input type="number" step="any" inputmode="decimal" data-t="h2s" aria-label="Target H₂S"><span class="rc-tgt-dir">≤</span></label></div><div class="rc-tile" id="tile-trs"><span class="rc-tile-label">TRS</span><span class="rc-tile-value"><span data-draw="v" data-source="daily" data-k="trs" data-agg="avg" data-dec="1" data-fetchpriority="high">—</span><span class="rc-tile-unit">ppm</span></span><span class="rc-tile-note">เฉลี่ยต่อวัน</span><span class="rc-tile-status" data-draw="st" data-source="daily" data-k="trs" data-agg="avg" data-dec="1" data-dir="max">—</span><label class="rc-tgt" title="ยิ่งต่ำยิ่งดี (≤ target)">Target <input type="number" step="any" inputmode="decimal" data-t="trs" aria-label="Target TRS"><span class="rc-tgt-dir">≤</span></label></div><div class="rc-tile" id="tile-nox"><span class="rc-tile-label">NOx</span><span class="rc-tile-value"><span data-draw="v" data-source="daily" data-k="nox" data-agg="avg" data-dec="0" data-fetchpriority="high">—</span><span class="rc-tile-unit">ppm</span></span><span class="rc-tile-note">เฉลี่ยต่อวัน</span><span class="rc-tile-status" data-draw="st" data-source="daily" data-k="nox" data-agg="avg" data-dec="0" data-dir="max">—</span><label class="rc-tgt" title="ยิ่งต่ำยิ่งดี (≤ target)">Target <input type="number" step="any" inputmode="decimal" data-t="nox" aria-label="Target NOx"><span class="rc-tgt-dir">≤</span></label></div><div class="rc-tile" id="tile-co"><span class="rc-tile-label">CO</span><span class="rc-tile-value"><span data-draw="v" data-source="daily" data-k="co" data-agg="avg" data-dec="0" data-fetchpriority="high">—</span><span class="rc-tile-unit">ppm</span></span><span class="rc-tile-note">เฉลี่ยต่อวัน</span><span class="rc-tile-status" data-draw="st" data-source="daily" data-k="co" data-agg="avg" data-dec="0" data-dir="max">—</span><label class="rc-tgt" title="ยิ่งต่ำยิ่งดี (≤ target)">Target <input type="number" step="any" inputmode="decimal" data-t="co" aria-label="Target CO"><span class="rc-tgt-dir">≤</span></label></div><div class="rc-tile" id="tile-dust"><span class="rc-tile-label">Dust</span><span class="rc-tile-value"><span data-draw="v" data-source="daily" data-k="dust" data-agg="avg" data-dec="1" data-fetchpriority="high">—</span><span class="rc-tile-unit">mg/Nm³</span></span><span class="rc-tile-note">เฉลี่ยต่อวัน</span><span class="rc-tile-status" data-draw="st" data-source="daily" data-k="dust" data-agg="avg" data-dec="1" data-dir="max">—</span><label class="rc-tgt" title="ยิ่งต่ำยิ่งดี (≤ target)">Target <input type="number" step="any" inputmode="decimal" data-t="dust" aria-label="Target Dust"><span class="rc-tgt-dir">≤</span></label></div></div><div class="rc-grid"><div class="rc-card" id="chart-so2"><h3>SOx</h3><p class="rc-note">ppm รายวัน · เส้นประ = target</p><div class="rc-chart dash-skeleton" data-draw="chart" data-source="daily" data-keys="so2" data-type="line" data-unit="ppm" data-dec="0" data-names="SOx" data-tk="so2"></div></div><div class="rc-card" id="chart-h2s"><h3>H₂S</h3><p class="rc-note">ppm รายวัน · เส้นประ = target</p><div class="rc-chart dash-skeleton" data-draw="chart" data-source="daily" data-keys="h2s" data-type="line" data-unit="ppm" data-dec="1" data-names="H₂S" data-tk="h2s"></div></div><div class="rc-card" id="chart-trs"><h3>TRS</h3><p class="rc-note">ppm รายวัน · เส้นประ = target</p><div class="rc-chart dash-skeleton" data-draw="chart" data-source="daily" data-keys="trs" data-type="line" data-unit="ppm" data-dec="1" data-names="TRS" data-tk="trs"></div></div><div class="rc-card" id="chart-nox"><h3>NOx</h3><p class="rc-note">ppm รายวัน · เส้นประ = target</p><div class="rc-chart dash-skeleton" data-draw="chart" data-source="daily" data-keys="nox" data-type="line" data-unit="ppm" data-dec="0" data-names="NOx" data-tk="nox"></div></div><div class="rc-card" id="chart-co"><h3>CO</h3><p class="rc-note">ppm รายวัน · เส้นประ = target</p><div class="rc-chart dash-skeleton" data-draw="chart" data-source="daily" data-keys="co" data-type="line" data-unit="ppm" data-dec="0" data-names="CO" data-tk="co"></div></div><div class="rc-card" id="chart-dust"><h3>Dust</h3><p class="rc-note">mg/Nm³ รายวัน · เส้นประ = target</p><div class="rc-chart dash-skeleton" data-draw="chart" data-source="daily" data-keys="dust" data-type="line" data-unit="mg/Nm³" data-dec="1" data-names="Dust" data-tk="dust"></div></div></div><details class="rc-card rc-details"><summary>ตารางข้อมูลรายวัน</summary><div class="rc-tablebox"><table class="rc-table" data-source="daily" data-row-key="day"><thead><tr><th data-field="day">วันที่</th><th data-field="so2">SOx<br><span class="rc-th-u">ppm</span></th><th data-field="h2s">H₂S<br><span class="rc-th-u">ppm</span></th><th data-field="trs">TRS<br><span class="rc-th-u">ppm</span></th><th data-field="nox">NOx<br><span class="rc-th-u">ppm</span></th><th data-field="co">CO<br><span class="rc-th-u">ppm</span></th><th data-field="dust">Dust<br><span class="rc-th-u">mg/Nm³</span></th></tr></thead><tbody data-draw="tbl" data-keys="so2,h2s,trs,nox,co,dust" data-decs="0,1,1,0,0,1"></tbody></table></div></details></section><section class="rc-page" id="chemical" data-tabpage="chemical" hidden><h2 class="rc-section">Lime</h2><div class="rc-tiles"><div class="rc-tile" id="tile-bl_mu"><span class="rc-tile-label">Burnt lime purchase – Make up</span><span class="rc-tile-value"><span data-draw="v" data-source="daily" data-k="bl_mu" data-agg="sum" data-dec="1" data-fetchpriority="high">—</span><span class="rc-tile-unit">ton</span></span><span class="rc-tile-note">รวมทั้งช่วง</span></div><div class="rc-tile" id="tile-ql_mu"><span class="rc-tile-label">Quick lime – Make up</span><span class="rc-tile-value"><span data-draw="v" data-source="daily" data-k="ql_mu" data-agg="sum" data-dec="1" data-fetchpriority="high">—</span><span class="rc-tile-unit">ton</span></span><span class="rc-tile-note">รวมทั้งช่วง</span></div><div class="rc-tile" id="tile-ls_mu"><span class="rc-tile-label">Lime stone – Make up</span><span class="rc-tile-value"><span data-draw="v" data-source="daily" data-k="ls_mu" data-agg="sum" data-dec="1" data-fetchpriority="high">—</span><span class="rc-tile-unit">ton</span></span><span class="rc-tile-note">รวมทั้งช่วง</span></div></div><div class="rc-grid"><div class="rc-card" id="chart-bl_mu"><h3>Burnt lime purchase – Make up</h3><p class="rc-note">ton รายวัน</p><div class="rc-chart dash-skeleton" data-draw="chart" data-source="daily" data-keys="bl_mu" data-type="bar" data-unit="ton" data-dec="1" data-names="Burnt lime purchase – Make up" data-tk=""></div></div><div class="rc-card" id="chart-ql_mu"><h3>Quick lime – Make up</h3><p class="rc-note">ton รายวัน</p><div class="rc-chart dash-skeleton" data-draw="chart" data-source="daily" data-keys="ql_mu" data-type="bar" data-unit="ton" data-dec="1" data-names="Quick lime – Make up" data-tk=""></div></div><div class="rc-card" id="chart-ls_mu"><h3>Lime stone – Make up</h3><p class="rc-note">ton รายวัน</p><div class="rc-chart dash-skeleton" data-draw="chart" data-source="daily" data-keys="ls_mu" data-type="bar" data-unit="ton" data-dec="1" data-names="Lime stone – Make up" data-tk=""></div></div></div><h2 class="rc-section">Make-up chemical</h2><div class="rc-tiles"><div class="rc-tile" id="tile-dew_mu"><span class="rc-tile-label">Dewatering – Make up</span><span class="rc-tile-value"><span data-draw="v" data-source="daily" data-k="dew_mu" data-agg="sum" data-dec="0" data-fetchpriority="high">—</span><span class="rc-tile-unit">kg</span></span><span class="rc-tile-note">รวมทั้งช่วง</span></div><div class="rc-tile" id="tile-s_mu"><span class="rc-tile-label">Sulphur – Make up</span><span class="rc-tile-value"><span data-draw="v" data-source="daily" data-k="s_mu" data-agg="sum" data-dec="0" data-fetchpriority="high">—</span><span class="rc-tile-unit">ถุง</span></span><span class="rc-tile-note">รวมทั้งช่วง</span></div><div class="rc-tile" id="tile-s_rcv"><span class="rc-tile-label">Sulphur – Receive</span><span class="rc-tile-value"><span data-draw="v" data-source="daily" data-k="s_rcv" data-agg="sum" data-dec="0" data-fetchpriority="high">—</span><span class="rc-tile-unit">ถุง</span></span><span class="rc-tile-note">รวมทั้งช่วง</span></div><div class="rc-tile" id="tile-na_mu"><span class="rc-tile-label">Na₂SO₄ – Make up</span><span class="rc-tile-value"><span data-draw="v" data-source="daily" data-k="na_mu" data-agg="sum" data-dec="0" data-fetchpriority="high">—</span><span class="rc-tile-unit">ถุง</span></span><span class="rc-tile-note">รวมทั้งช่วง</span></div><div class="rc-tile" id="tile-na_rcv"><span class="rc-tile-label">Na₂SO₄ – Receive</span><span class="rc-tile-value"><span data-draw="v" data-source="daily" data-k="na_rcv" data-agg="sum" data-dec="0" data-fetchpriority="high">—</span><span class="rc-tile-unit">ถุง</span></span><span class="rc-tile-note">รวมทั้งช่วง</span></div><div class="rc-tile" id="tile-sa_mu"><span class="rc-tile-label">Sulphamic acid – Make up</span><span class="rc-tile-value"><span data-draw="v" data-source="daily" data-k="sa_mu" data-agg="sum" data-dec="0" data-fetchpriority="high">—</span><span class="rc-tile-unit">kg</span></span><span class="rc-tile-note">รวมทั้งช่วง</span></div><div class="rc-tile" id="tile-hcl_mu"><span class="rc-tile-label">HCl – Make up</span><span class="rc-tile-value"><span data-draw="v" data-source="daily" data-k="hcl_mu" data-agg="sum" data-dec="0" data-fetchpriority="high">—</span><span class="rc-tile-unit">kg</span></span><span class="rc-tile-note">รวมทั้งช่วง</span></div><div class="rc-tile" id="tile-pol_mu"><span class="rc-tile-label">Polymer – Make up</span><span class="rc-tile-value"><span data-draw="v" data-source="daily" data-k="pol_mu" data-agg="sum" data-dec="0" data-fetchpriority="high">—</span><span class="rc-tile-unit">kg</span></span><span class="rc-tile-note">รวมทั้งช่วง</span></div><div class="rc-tile" id="tile-naoh_mu"><span class="rc-tile-label">NaOH 50% – Make up</span><span class="rc-tile-value"><span data-draw="v" data-source="daily" data-k="naoh_mu" data-agg="sum" data-dec="2" data-fetchpriority="high">—</span><span class="rc-tile-unit">ton</span></span><span class="rc-tile-note">รวมทั้งช่วง</span></div></div><div class="rc-grid"><div class="rc-card" id="chart-dew_mu"><h3>Dewatering – Make up</h3><p class="rc-note">kg รายวัน</p><div class="rc-chart dash-skeleton" data-draw="chart" data-source="daily" data-keys="dew_mu" data-type="bar" data-unit="kg" data-dec="0" data-names="Dewatering – Make up" data-tk=""></div></div><div class="rc-card" id="chart-s_mu"><h3>Sulphur</h3><ul class="rc-legend"><li><span class="rc-sw" data-c="0"></span>Make up</li><li><span class="rc-sw" data-c="1"></span>Receive</li></ul><div class="rc-chart dash-skeleton" data-draw="chart" data-source="daily" data-keys="s_mu,s_rcv" data-type="bar" data-unit="ถุง" data-dec="0" data-names="Make up|Receive" data-tk=""></div></div><div class="rc-card" id="chart-na_mu"><h3>Na₂SO₄</h3><ul class="rc-legend"><li><span class="rc-sw" data-c="0"></span>Make up</li><li><span class="rc-sw" data-c="1"></span>Receive</li></ul><div class="rc-chart dash-skeleton" data-draw="chart" data-source="daily" data-keys="na_mu,na_rcv" data-type="bar" data-unit="ถุง" data-dec="0" data-names="Make up|Receive" data-tk=""></div></div><div class="rc-card" id="chart-sa_mu"><h3>Sulphamic acid – Make up</h3><p class="rc-note">kg รายวัน</p><div class="rc-chart dash-skeleton" data-draw="chart" data-source="daily" data-keys="sa_mu" data-type="bar" data-unit="kg" data-dec="0" data-names="Sulphamic acid – Make up" data-tk=""></div></div><div class="rc-card" id="chart-hcl_mu"><h3>HCl – Make up</h3><p class="rc-note">kg รายวัน</p><div class="rc-chart dash-skeleton" data-draw="chart" data-source="daily" data-keys="hcl_mu" data-type="bar" data-unit="kg" data-dec="0" data-names="HCl – Make up" data-tk=""></div></div><div class="rc-card" id="chart-pol_mu"><h3>Polymer – Make up</h3><p class="rc-note">kg รายวัน</p><div class="rc-chart dash-skeleton" data-draw="chart" data-source="daily" data-keys="pol_mu" data-type="bar" data-unit="kg" data-dec="0" data-names="Polymer – Make up" data-tk=""></div></div><div class="rc-card" id="chart-naoh_mu"><h3>NaOH 50% – Make up</h3><p class="rc-note">ton รายวัน</p><div class="rc-chart dash-skeleton" data-draw="chart" data-source="daily" data-keys="naoh_mu" data-type="bar" data-unit="ton" data-dec="2" data-names="NaOH 50% – Make up" data-tk=""></div></div></div><h2 class="rc-section">Liquid Oxygen</h2><div class="rc-tiles"><div class="rc-tile" id="tile-lox_mu"><span class="rc-tile-label">Liquid Oxygen – Make up</span><span class="rc-tile-value"><span data-draw="v" data-source="daily" data-k="lox_mu" data-agg="sum" data-dec="1" data-fetchpriority="high">—</span><span class="rc-tile-unit">481FQxx</span></span><span class="rc-tile-note">รวมทั้งช่วง</span></div><div class="rc-tile" id="tile-lox_bal"><span class="rc-tile-label">Liquid Oxygen – balance tank chemical</span><span class="rc-tile-value"><span data-draw="v" data-source="daily" data-k="lox_bal" data-agg="last" data-dec="1" data-fetchpriority="high">—</span><span class="rc-tile-unit">CHE.Plant</span></span><span class="rc-tile-note">ค่าล่าสุดในช่วง</span></div></div><div class="rc-grid"><div class="rc-card" id="chart-lox_mu"><h3>Liquid Oxygen – Make up</h3><p class="rc-note">481FQxx รายวัน</p><div class="rc-chart dash-skeleton" data-draw="chart" data-source="daily" data-keys="lox_mu" data-type="bar" data-unit="481FQxx" data-dec="1" data-names="Liquid Oxygen – Make up" data-tk=""></div></div><div class="rc-card" id="chart-lox_bal"><h3>Liquid Oxygen – balance tank chemical</h3><p class="rc-note">CHE.Plant รายวัน</p><div class="rc-chart dash-skeleton" data-draw="chart" data-source="daily" data-keys="lox_bal" data-type="line" data-unit="CHE.Plant" data-dec="1" data-names="Liquid Oxygen – balance tank chemical" data-tk=""></div></div></div><details class="rc-card rc-details"><summary>ตารางข้อมูลรายวัน</summary><div class="rc-tablebox"><table class="rc-table" data-source="daily" data-row-key="day"><thead><tr><th data-field="day">วันที่</th><th data-field="bl_mu">Burnt lime purchase – Make up<br><span class="rc-th-u">ton</span></th><th data-field="ql_mu">Quick lime – Make up<br><span class="rc-th-u">ton</span></th><th data-field="ls_mu">Lime stone – Make up<br><span class="rc-th-u">ton</span></th><th data-field="dew_mu">Dewatering – Make up<br><span class="rc-th-u">kg</span></th><th data-field="s_mu">Sulphur – Make up<br><span class="rc-th-u">ถุง</span></th><th data-field="s_rcv">Sulphur – Receive<br><span class="rc-th-u">ถุง</span></th><th data-field="na_mu">Na₂SO₄ – Make up<br><span class="rc-th-u">ถุง</span></th><th data-field="na_rcv">Na₂SO₄ – Receive<br><span class="rc-th-u">ถุง</span></th><th data-field="sa_mu">Sulphamic acid – Make up<br><span class="rc-th-u">kg</span></th><th data-field="hcl_mu">HCl – Make up<br><span class="rc-th-u">kg</span></th><th data-field="pol_mu">Polymer – Make up<br><span class="rc-th-u">kg</span></th><th data-field="naoh_mu">NaOH 50% – Make up<br><span class="rc-th-u">ton</span></th><th data-field="lox_mu">Liquid Oxygen – Make up<br><span class="rc-th-u">481FQxx</span></th><th data-field="lox_bal">Liquid Oxygen – balance tank chemical<br><span class="rc-th-u">CHE.Plant</span></th></tr></thead><tbody data-draw="tbl" data-keys="bl_mu,ql_mu,ls_mu,dew_mu,s_mu,s_rcv,na_mu,na_rcv,sa_mu,hcl_mu,pol_mu,naoh_mu,lox_mu,lox_bal" data-decs="1,1,1,0,0,0,0,0,0,0,0,2,1,1"></tbody></table></div></details></section><section class="rc-page" id="fuel" data-tabpage="fuel" hidden><h2 class="rc-section">5.1 สัดส่วนเชื้อเพลิง</h2><p class="rc-note">Used Oil total = Used Oil A + Used Oil ในเครือ</p><div class="rc-tiles"><div class="rc-tile" id="tile-f_bio"><span class="rc-tile-label">Biogas</span><span class="rc-tile-value"><span data-draw="v" data-source="daily" data-k="f_bio" data-agg="avg" data-dec="1" data-fetchpriority="high">—</span><span class="rc-tile-unit">%</span></span><span class="rc-tile-note">เฉลี่ยต่อวัน</span></div><div class="rc-tile" id="tile-f_uo"><span class="rc-tile-label">Used Oil total</span><span class="rc-tile-value"><span data-draw="v" data-source="daily" data-k="f_uo" data-agg="avg" data-dec="1" data-fetchpriority="high">—</span><span class="rc-tile-unit">%</span></span><span class="rc-tile-note">เฉลี่ยต่อวัน</span></div><div class="rc-tile" id="tile-f_uoa"><span class="rc-tile-label">Used Oil A</span><span class="rc-tile-value"><span data-draw="v" data-source="daily" data-k="f_uoa" data-agg="avg" data-dec="1" data-fetchpriority="high">—</span><span class="rc-tile-unit">%</span></span><span class="rc-tile-note">เฉลี่ยต่อวัน</span></div><div class="rc-tile" id="tile-f_uog"><span class="rc-tile-label">Used Oil ในเครือ</span><span class="rc-tile-value"><span data-draw="v" data-source="daily" data-k="f_uog" data-agg="avg" data-dec="1" data-fetchpriority="high">—</span><span class="rc-tile-unit">%</span></span><span class="rc-tile-note">เฉลี่ยต่อวัน</span></div><div class="rc-tile" id="tile-f_bc"><span class="rc-tile-label">Bunker C</span><span class="rc-tile-value"><span data-draw="v" data-source="daily" data-k="f_bc" data-agg="avg" data-dec="1" data-fetchpriority="high">—</span><span class="rc-tile-unit">%</span></span><span class="rc-tile-note">เฉลี่ยต่อวัน</span></div><div class="rc-tile" id="tile-f_coal"><span class="rc-tile-label">Pulverized Coal</span><span class="rc-tile-value"><span data-draw="v" data-source="daily" data-k="f_coal" data-agg="avg" data-dec="1" data-fetchpriority="high">—</span><span class="rc-tile-unit">%</span></span><span class="rc-tile-note">เฉลี่ยต่อวัน</span></div></div><div class="rc-grid"><div class="rc-card" id="chart-f_bio"><h3>สัดส่วนเชื้อเพลิงรายวัน</h3><ul class="rc-legend"><li><span class="rc-sw" data-c="0"></span>Biogas</li><li><span class="rc-sw" data-c="1"></span>Used Oil A</li><li><span class="rc-sw" data-c="2"></span>Used Oil ในเครือ</li><li><span class="rc-sw" data-c="3"></span>Bunker C</li><li><span class="rc-sw" data-c="4"></span>Pulverized Coal</li></ul><div class="rc-chart dash-skeleton" data-draw="chart" data-source="daily" data-keys="f_bio,f_uoa,f_uog,f_bc,f_coal" data-type="stack" data-unit="%" data-dec="1" data-names="Biogas|Used Oil A|Used Oil ในเครือ|Bunker C|Pulverized Coal" data-tk=""></div></div></div><h2 class="rc-section">5.2 Fuel used</h2><div class="rc-tiles"><div class="rc-tile" id="tile-bc_l"><span class="rc-tile-label">Lime Kiln Bunker C Oil</span><span class="rc-tile-value"><span data-draw="v" data-source="daily" data-k="bc_l" data-agg="sum" data-dec="0" data-fetchpriority="high">—</span><span class="rc-tile-unit">litres</span></span><span class="rc-tile-note">รวมทั้งช่วง</span></div><div class="rc-tile" id="tile-uo_a_l"><span class="rc-tile-label">Used oil A</span><span class="rc-tile-value"><span data-draw="v" data-source="daily" data-k="uo_a_l" data-agg="sum" data-dec="0" data-fetchpriority="high">—</span><span class="rc-tile-unit">litres</span></span><span class="rc-tile-note">รวมทั้งช่วง</span></div><div class="rc-tile" id="tile-uo_grp_l"><span class="rc-tile-label">Used oil ในเครือ</span><span class="rc-tile-value"><span data-draw="v" data-source="daily" data-k="uo_grp_l" data-agg="sum" data-dec="0" data-fetchpriority="high">—</span><span class="rc-tile-unit">litres</span></span><span class="rc-tile-note">รวมทั้งช่วง</span></div><div class="rc-tile" id="tile-biogas"><span class="rc-tile-label">Biogas</span><span class="rc-tile-value"><span data-draw="v" data-source="daily" data-k="biogas" data-agg="sum" data-dec="0" data-fetchpriority="high">—</span><span class="rc-tile-unit">m³</span></span><span class="rc-tile-note">รวมทั้งช่วง</span></div><div class="rc-tile" id="tile-coal_kg"><span class="rc-tile-label">Pulverized Coal</span><span class="rc-tile-value"><span data-draw="v" data-source="daily" data-k="coal_kg" data-agg="sum" data-dec="0" data-fetchpriority="high">—</span><span class="rc-tile-unit">kg</span></span><span class="rc-tile-note">รวมทั้งช่วง</span></div></div><div class="rc-grid"><div class="rc-card" id="chart-bc_l"><h3>Lime Kiln Bunker C Oil</h3><p class="rc-note">litres รายวัน</p><div class="rc-chart dash-skeleton" data-draw="chart" data-source="daily" data-keys="bc_l" data-type="bar" data-unit="litres" data-dec="0" data-names="Lime Kiln Bunker C Oil" data-tk=""></div></div><div class="rc-card" id="chart-uo_a_l"><h3>Used oil A</h3><p class="rc-note">litres รายวัน</p><div class="rc-chart dash-skeleton" data-draw="chart" data-source="daily" data-keys="uo_a_l" data-type="bar" data-unit="litres" data-dec="0" data-names="Used oil A" data-tk=""></div></div><div class="rc-card" id="chart-uo_grp_l"><h3>Used oil ในเครือ</h3><p class="rc-note">litres รายวัน</p><div class="rc-chart dash-skeleton" data-draw="chart" data-source="daily" data-keys="uo_grp_l" data-type="bar" data-unit="litres" data-dec="0" data-names="Used oil ในเครือ" data-tk=""></div></div><div class="rc-card" id="chart-biogas"><h3>Biogas</h3><p class="rc-note">m³ รายวัน</p><div class="rc-chart dash-skeleton" data-draw="chart" data-source="daily" data-keys="biogas" data-type="bar" data-unit="m³" data-dec="0" data-names="Biogas" data-tk=""></div></div><div class="rc-card" id="chart-coal_kg"><h3>Pulverized Coal</h3><p class="rc-note">kg รายวัน</p><div class="rc-chart dash-skeleton" data-draw="chart" data-source="daily" data-keys="coal_kg" data-type="bar" data-unit="kg" data-dec="0" data-names="Pulverized Coal" data-tk=""></div></div></div><h2 class="rc-section">5.3 Heat consumption</h2><div class="rc-tiles"><div class="rc-tile" id="tile-heat_pd"><span class="rc-tile-label">Heat consumption</span><span class="rc-tile-value"><span data-draw="v" data-source="daily" data-k="heat_pd" data-agg="avg" data-dec="0" data-fetchpriority="high">—</span><span class="rc-tile-unit">kCal/kg PD</span></span><span class="rc-tile-note">เฉลี่ยต่อวัน</span></div><div class="rc-tile" id="tile-heat_cao"><span class="rc-tile-label">Heat consumption</span><span class="rc-tile-value"><span data-draw="v" data-source="daily" data-k="heat_cao" data-agg="avg" data-dec="0" data-fetchpriority="high">—</span><span class="rc-tile-unit">kCal/kg CaO</span></span><span class="rc-tile-note">เฉลี่ยต่อวัน</span></div></div><div class="rc-grid"><div class="rc-card" id="chart-heat_pd"><h3>Heat consumption</h3><p class="rc-note">kCal/kg PD รายวัน</p><div class="rc-chart dash-skeleton" data-draw="chart" data-source="daily" data-keys="heat_pd" data-type="line" data-unit="kCal/kg PD" data-dec="0" data-names="Heat consumption" data-tk=""></div><details class="rc-ana-box" open><summary>การวิเคราะห์โดย AI (Kraft recausticizing &amp; lime kiln)</summary><div class="rc-ana" data-draw="ana" data-source="daily" data-k="heat_pd"></div></details></div><div class="rc-card" id="chart-heat_cao"><h3>Heat consumption</h3><p class="rc-note">kCal/kg CaO รายวัน</p><div class="rc-chart dash-skeleton" data-draw="chart" data-source="daily" data-keys="heat_cao" data-type="line" data-unit="kCal/kg CaO" data-dec="0" data-names="Heat consumption" data-tk=""></div><details class="rc-ana-box" open><summary>การวิเคราะห์โดย AI (Kraft recausticizing &amp; lime kiln)</summary><div class="rc-ana" data-draw="ana" data-source="daily" data-k="heat_cao"></div></details></div></div><details class="rc-card rc-details"><summary>ตารางข้อมูลรายวัน</summary><div class="rc-tablebox"><table class="rc-table" data-source="daily" data-row-key="day"><thead><tr><th data-field="day">วันที่</th><th data-field="f_bio">Biogas<br><span class="rc-th-u">%</span></th><th data-field="f_uo">Used Oil total<br><span class="rc-th-u">%</span></th><th data-field="f_uoa">Used Oil A<br><span class="rc-th-u">%</span></th><th data-field="f_uog">Used Oil ในเครือ<br><span class="rc-th-u">%</span></th><th data-field="f_bc">Bunker C<br><span class="rc-th-u">%</span></th><th data-field="f_coal">Pulverized Coal<br><span class="rc-th-u">%</span></th><th data-field="bc_l">Lime Kiln Bunker C Oil<br><span class="rc-th-u">litres</span></th><th data-field="uo_a_l">Used oil A<br><span class="rc-th-u">litres</span></th><th data-field="uo_grp_l">Used oil ในเครือ<br><span class="rc-th-u">litres</span></th><th data-field="biogas">Biogas<br><span class="rc-th-u">m³</span></th><th data-field="coal_kg">Pulverized Coal<br><span class="rc-th-u">kg</span></th><th data-field="heat_pd">Heat consumption<br><span class="rc-th-u">kCal/kg PD</span></th><th data-field="heat_cao">Heat consumption<br><span class="rc-th-u">kCal/kg CaO</span></th></tr></thead><tbody data-draw="tbl" data-keys="f_bio,f_uo,f_uoa,f_uog,f_bc,f_coal,bc_l,uo_a_l,uo_grp_l,biogas,coal_kg,heat_pd,heat_cao" data-decs="1,1,1,1,1,1,0,0,0,0,0,0,0"></tbody></table></div></details></section><section class="rc-page" id="stock" data-tabpage="stock" hidden><h2 class="rc-section">Tank &amp; silo level</h2><p class="rc-note">ค่า 6:00 ของวันล่าสุดในช่วง</p><div class="rc-tiles"><div class="rc-tile" id="tile-lv_gleq"><span class="rc-tile-label">Green liquor Eq tank</span><span class="rc-tile-value"><span data-draw="v" data-source="daily" data-k="lv_gleq" data-agg="last" data-dec="1" data-fetchpriority="high">—</span><span class="rc-tile-unit">%</span></span><span class="rc-tile-note">ค่าล่าสุดในช่วง</span></div><div class="rc-tile" id="tile-lv_gls"><span class="rc-tile-label">Green liquor storage</span><span class="rc-tile-value"><span data-draw="v" data-source="daily" data-k="lv_gls" data-agg="last" data-dec="1" data-fetchpriority="high">—</span><span class="rc-tile-unit">%</span></span><span class="rc-tile-note">ค่าล่าสุดในช่วง</span></div><div class="rc-tile" id="tile-lv_wl"><span class="rc-tile-label">White liquor storage</span><span class="rc-tile-value"><span data-draw="v" data-source="daily" data-k="lv_wl" data-agg="last" data-dec="1" data-fetchpriority="high">—</span><span class="rc-tile-unit">%</span></span><span class="rc-tile-note">ค่าล่าสุดในช่วง</span></div><div class="rc-tile" id="tile-lv_wwl"><span class="rc-tile-label">Weak wash liquor storage</span><span class="rc-tile-value"><span data-draw="v" data-source="daily" data-k="lv_wwl" data-agg="last" data-dec="1" data-fetchpriority="high">—</span><span class="rc-tile-unit">%</span></span><span class="rc-tile-note">ค่าล่าสุดในช่วง</span></div><div class="rc-tile" id="tile-lv_lm"><span class="rc-tile-label">Lime mud storage</span><span class="rc-tile-value"><span data-draw="v" data-source="daily" data-k="lv_lm" data-agg="last" data-dec="1" data-fetchpriority="high">—</span><span class="rc-tile-unit">%</span></span><span class="rc-tile-note">ค่าล่าสุดในช่วง</span></div><div class="rc-tile" id="tile-lv_ls"><span class="rc-tile-label">Lime stone silo</span><span class="rc-tile-value"><span data-draw="v" data-source="daily" data-k="lv_ls" data-agg="last" data-dec="1" data-fetchpriority="high">—</span><span class="rc-tile-unit">%</span></span><span class="rc-tile-note">ค่าล่าสุดในช่วง</span></div><div class="rc-tile" id="tile-lv_bl_empty"><span class="rc-tile-label">Burnt lime silo empty</span><span class="rc-tile-value"><span data-draw="v" data-source="daily" data-k="lv_bl_empty" data-agg="last" data-dec="2" data-fetchpriority="high">—</span><span class="rc-tile-unit">m</span></span><span class="rc-tile-note">ค่าล่าสุดในช่วง</span></div><div class="rc-tile" id="tile-lv_bc"><span class="rc-tile-label">Bunker C tank</span><span class="rc-tile-value"><span data-draw="v" data-source="daily" data-k="lv_bc" data-agg="last" data-dec="1" data-fetchpriority="high">—</span><span class="rc-tile-unit">%</span></span><span class="rc-tile-note">ค่าล่าสุดในช่วง</span></div></div><div class="rc-grid"><div class="rc-card" id="chart-lv_gleq"><h3>Liquor tank level</h3><ul class="rc-legend"><li><span class="rc-sw" data-c="0"></span>Green liquor Eq tank</li><li><span class="rc-sw" data-c="1"></span>Green liquor storage</li><li><span class="rc-sw" data-c="2"></span>White liquor storage</li><li><span class="rc-sw" data-c="3"></span>Weak wash liquor storage</li></ul><div class="rc-chart dash-skeleton" data-draw="chart" data-source="daily" data-keys="lv_gleq,lv_gls,lv_wl,lv_wwl" data-type="line" data-unit="%" data-dec="1" data-names="Green liquor Eq tank|Green liquor storage|White liquor storage|Weak wash liquor storage" data-tk=""></div></div><div class="rc-card" id="chart-lv_lm"><h3>Lime mud storage &amp; Lime stone silo</h3><ul class="rc-legend"><li><span class="rc-sw" data-c="0"></span>Lime mud storage</li><li><span class="rc-sw" data-c="1"></span>Lime stone silo</li></ul><div class="rc-chart dash-skeleton" data-draw="chart" data-source="daily" data-keys="lv_lm,lv_ls" data-type="line" data-unit="%" data-dec="1" data-names="Lime mud storage|Lime stone silo" data-tk=""></div></div><div class="rc-card" id="chart-lv_bc"><h3>Bunker C tank</h3><p class="rc-note">% รายวัน</p><div class="rc-chart dash-skeleton" data-draw="chart" data-source="daily" data-keys="lv_bc" data-type="line" data-unit="%" data-dec="1" data-names="Bunker C tank" data-tk=""></div></div><div class="rc-card" id="chart-lv_bl_empty"><h3>Burnt lime silo empty</h3><p class="rc-note">m รายวัน</p><div class="rc-chart dash-skeleton" data-draw="chart" data-source="daily" data-keys="lv_bl_empty" data-type="line" data-unit="m" data-dec="2" data-names="Burnt lime silo empty" data-tk=""></div></div></div><h2 class="rc-section">Fuel stock</h2><div class="rc-tiles"><div class="rc-tile" id="tile-uo_stock"><span class="rc-tile-label">Used oil stock total (A + ในเครือ)</span><span class="rc-tile-value"><span data-draw="v" data-source="daily" data-k="uo_stock" data-agg="last" data-dec="0" data-fetchpriority="high">—</span><span class="rc-tile-unit">litres</span></span><span class="rc-tile-note">ค่าล่าสุดในช่วง</span></div><div class="rc-tile" id="tile-uo_a_stock"><span class="rc-tile-label">Used oil A stock</span><span class="rc-tile-value"><span data-draw="v" data-source="daily" data-k="uo_a_stock" data-agg="last" data-dec="0" data-fetchpriority="high">—</span><span class="rc-tile-unit">litres</span></span><span class="rc-tile-note">ค่าล่าสุดในช่วง</span></div><div class="rc-tile" id="tile-coal_stock"><span class="rc-tile-label">Pulverized coal stock</span><span class="rc-tile-value"><span data-draw="v" data-source="daily" data-k="coal_stock" data-agg="last" data-dec="0" data-fetchpriority="high">—</span><span class="rc-tile-unit">kg</span></span><span class="rc-tile-note">ค่าล่าสุดในช่วง</span></div></div><div class="rc-grid"><div class="rc-card" id="chart-uo_stock"><h3>Used oil stock</h3><ul class="rc-legend"><li><span class="rc-sw" data-c="0"></span>Used oil stock total (A + ในเครือ)</li><li><span class="rc-sw" data-c="1"></span>Used oil A stock</li></ul><div class="rc-chart dash-skeleton" data-draw="chart" data-source="daily" data-keys="uo_stock,uo_a_stock" data-type="line" data-unit="litres" data-dec="0" data-names="Used oil stock total (A + ในเครือ)|Used oil A stock" data-tk=""></div></div><div class="rc-card" id="chart-coal_stock"><h3>Pulverized coal stock</h3><p class="rc-note">kg รายวัน</p><div class="rc-chart dash-skeleton" data-draw="chart" data-source="daily" data-keys="coal_stock" data-type="line" data-unit="kg" data-dec="0" data-names="Pulverized coal stock" data-tk=""></div></div></div><h2 class="rc-section">Chemical stock</h2><p class="rc-note">Target ตั้งต้นจากหัวคอลัมน์ใน sheet (Burnt lime &gt; 280 ton, Sulphamic &gt; 1600 kg, HCl &gt; 150 kg, LPG &gt; 25 PSI)</p><div class="rc-tiles"><div class="rc-tile" id="tile-bl_stock"><span class="rc-tile-label">Burnt lime purchase stock</span><span class="rc-tile-value"><span data-draw="v" data-source="daily" data-k="bl_stock" data-agg="last" data-dec="1" data-fetchpriority="high">—</span><span class="rc-tile-unit">ton</span></span><span class="rc-tile-note">ค่าล่าสุดในช่วง</span><span class="rc-tile-status" data-draw="st" data-source="daily" data-k="bl_stock" data-agg="last" data-dec="1" data-dir="min">—</span><label class="rc-tgt" title="ยิ่งสูงยิ่งดี (≥ target)">Target <input type="number" step="any" inputmode="decimal" data-t="bl_stock" aria-label="Target Burnt lime purchase stock"><span class="rc-tgt-dir">≥</span></label></div><div class="rc-tile" id="tile-ql_stock"><span class="rc-tile-label">Quick lime stock</span><span class="rc-tile-value"><span data-draw="v" data-source="daily" data-k="ql_stock" data-agg="last" data-dec="1" data-fetchpriority="high">—</span><span class="rc-tile-unit">ton</span></span><span class="rc-tile-note">ค่าล่าสุดในช่วง</span></div><div class="rc-tile" id="tile-ls_stock"><span class="rc-tile-label">Lime stone stock</span><span class="rc-tile-value"><span data-draw="v" data-source="daily" data-k="ls_stock" data-agg="last" data-dec="1" data-fetchpriority="high">—</span><span class="rc-tile-unit">ton</span></span><span class="rc-tile-note">ค่าล่าสุดในช่วง</span></div><div class="rc-tile" id="tile-dew_stock"><span class="rc-tile-label">Dewatering stock</span><span class="rc-tile-value"><span data-draw="v" data-source="daily" data-k="dew_stock" data-agg="last" data-dec="0" data-fetchpriority="high">—</span><span class="rc-tile-unit">kg</span></span><span class="rc-tile-note">ค่าล่าสุดในช่วง</span></div><div class="rc-tile" id="tile-s_stock"><span class="rc-tile-label">Sulphur stock</span><span class="rc-tile-value"><span data-draw="v" data-source="daily" data-k="s_stock" data-agg="last" data-dec="0" data-fetchpriority="high">—</span><span class="rc-tile-unit">ถุง</span></span><span class="rc-tile-note">ค่าล่าสุดในช่วง</span></div><div class="rc-tile" id="tile-na_stock"><span class="rc-tile-label">Na₂SO₄ stock</span><span class="rc-tile-value"><span data-draw="v" data-source="daily" data-k="na_stock" data-agg="last" data-dec="0" data-fetchpriority="high">—</span><span class="rc-tile-unit">ถุง</span></span><span class="rc-tile-note">ค่าล่าสุดในช่วง</span></div><div class="rc-tile" id="tile-sa_stock"><span class="rc-tile-label">Sulphamic acid stock</span><span class="rc-tile-value"><span data-draw="v" data-source="daily" data-k="sa_stock" data-agg="last" data-dec="0" data-fetchpriority="high">—</span><span class="rc-tile-unit">kg</span></span><span class="rc-tile-note">ค่าล่าสุดในช่วง</span><span class="rc-tile-status" data-draw="st" data-source="daily" data-k="sa_stock" data-agg="last" data-dec="0" data-dir="min">—</span><label class="rc-tgt" title="ยิ่งสูงยิ่งดี (≥ target)">Target <input type="number" step="any" inputmode="decimal" data-t="sa_stock" aria-label="Target Sulphamic acid stock"><span class="rc-tgt-dir">≥</span></label></div><div class="rc-tile" id="tile-hcl_stock"><span class="rc-tile-label">HCl stock</span><span class="rc-tile-value"><span data-draw="v" data-source="daily" data-k="hcl_stock" data-agg="last" data-dec="0" data-fetchpriority="high">—</span><span class="rc-tile-unit">kg</span></span><span class="rc-tile-note">ค่าล่าสุดในช่วง</span><span class="rc-tile-status" data-draw="st" data-source="daily" data-k="hcl_stock" data-agg="last" data-dec="0" data-dir="min">—</span><label class="rc-tgt" title="ยิ่งสูงยิ่งดี (≥ target)">Target <input type="number" step="any" inputmode="decimal" data-t="hcl_stock" aria-label="Target HCl stock"><span class="rc-tgt-dir">≥</span></label></div><div class="rc-tile" id="tile-lpg"><span class="rc-tile-label">LPG Gas</span><span class="rc-tile-value"><span data-draw="v" data-source="daily" data-k="lpg" data-agg="last" data-dec="1" data-fetchpriority="high">—</span><span class="rc-tile-unit">PSI</span></span><span class="rc-tile-note">ค่าล่าสุดในช่วง</span><span class="rc-tile-status" data-draw="st" data-source="daily" data-k="lpg" data-agg="last" data-dec="1" data-dir="min">—</span><label class="rc-tgt" title="ยิ่งสูงยิ่งดี (≥ target)">Target <input type="number" step="any" inputmode="decimal" data-t="lpg" aria-label="Target LPG Gas"><span class="rc-tgt-dir">≥</span></label></div><div class="rc-tile" id="tile-pol_stock"><span class="rc-tile-label">Polymer stock</span><span class="rc-tile-value"><span data-draw="v" data-source="daily" data-k="pol_stock" data-agg="last" data-dec="0" data-fetchpriority="high">—</span><span class="rc-tile-unit">kg</span></span><span class="rc-tile-note">ค่าล่าสุดในช่วง</span></div></div><div class="rc-grid"><div class="rc-card" id="chart-bl_stock"><h3>Burnt lime purchase stock</h3><p class="rc-note">ton รายวัน · เส้นประ = target</p><div class="rc-chart dash-skeleton" data-draw="chart" data-source="daily" data-keys="bl_stock" data-type="line" data-unit="ton" data-dec="1" data-names="Burnt lime purchase stock" data-tk="bl_stock"></div></div><div class="rc-card" id="chart-s_stock"><h3>Sulphur &amp; Na₂SO₄ stock</h3><ul class="rc-legend"><li><span class="rc-sw" data-c="0"></span>Sulphur stock</li><li><span class="rc-sw" data-c="1"></span>Na₂SO₄ stock</li></ul><div class="rc-chart dash-skeleton" data-draw="chart" data-source="daily" data-keys="s_stock,na_stock" data-type="line" data-unit="ถุง" data-dec="0" data-names="Sulphur stock|Na₂SO₄ stock" data-tk=""></div></div><div class="rc-card" id="chart-sa_stock"><h3>Sulphamic acid stock</h3><p class="rc-note">kg รายวัน · เส้นประ = target</p><div class="rc-chart dash-skeleton" data-draw="chart" data-source="daily" data-keys="sa_stock" data-type="line" data-unit="kg" data-dec="0" data-names="Sulphamic acid stock" data-tk="sa_stock"></div></div><div class="rc-card" id="chart-hcl_stock"><h3>HCl stock</h3><p class="rc-note">kg รายวัน · เส้นประ = target</p><div class="rc-chart dash-skeleton" data-draw="chart" data-source="daily" data-keys="hcl_stock" data-type="line" data-unit="kg" data-dec="0" data-names="HCl stock" data-tk="hcl_stock"></div></div><div class="rc-card" id="chart-lpg"><h3>LPG Gas</h3><p class="rc-note">PSI รายวัน · เส้นประ = target</p><div class="rc-chart dash-skeleton" data-draw="chart" data-source="daily" data-keys="lpg" data-type="line" data-unit="PSI" data-dec="1" data-names="LPG Gas" data-tk="lpg"></div></div><div class="rc-card" id="chart-dew_stock"><h3>Dewatering stock</h3><p class="rc-note">kg รายวัน</p><div class="rc-chart dash-skeleton" data-draw="chart" data-source="daily" data-keys="dew_stock" data-type="line" data-unit="kg" data-dec="0" data-names="Dewatering stock" data-tk=""></div></div></div><details class="rc-card rc-details"><summary>ตารางข้อมูลรายวัน</summary><div class="rc-tablebox"><table class="rc-table" data-source="daily" data-row-key="day"><thead><tr><th data-field="day">วันที่</th><th data-field="lv_gleq">Green liquor Eq tank<br><span class="rc-th-u">%</span></th><th data-field="lv_gls">Green liquor storage<br><span class="rc-th-u">%</span></th><th data-field="lv_wl">White liquor storage<br><span class="rc-th-u">%</span></th><th data-field="lv_wwl">Weak wash liquor storage<br><span class="rc-th-u">%</span></th><th data-field="lv_lm">Lime mud storage<br><span class="rc-th-u">%</span></th><th data-field="lv_ls">Lime stone silo<br><span class="rc-th-u">%</span></th><th data-field="lv_bl_empty">Burnt lime silo empty<br><span class="rc-th-u">m</span></th><th data-field="lv_bc">Bunker C tank<br><span class="rc-th-u">%</span></th><th data-field="uo_stock">Used oil stock total (A + ในเครือ)<br><span class="rc-th-u">litres</span></th><th data-field="uo_a_stock">Used oil A stock<br><span class="rc-th-u">litres</span></th><th data-field="coal_stock">Pulverized coal stock<br><span class="rc-th-u">kg</span></th><th data-field="bl_stock">Burnt lime purchase stock<br><span class="rc-th-u">ton</span></th><th data-field="ql_stock">Quick lime stock<br><span class="rc-th-u">ton</span></th><th data-field="ls_stock">Lime stone stock<br><span class="rc-th-u">ton</span></th><th data-field="dew_stock">Dewatering stock<br><span class="rc-th-u">kg</span></th><th data-field="s_stock">Sulphur stock<br><span class="rc-th-u">ถุง</span></th><th data-field="na_stock">Na₂SO₄ stock<br><span class="rc-th-u">ถุง</span></th><th data-field="sa_stock">Sulphamic acid stock<br><span class="rc-th-u">kg</span></th><th data-field="hcl_stock">HCl stock<br><span class="rc-th-u">kg</span></th><th data-field="lpg">LPG Gas<br><span class="rc-th-u">PSI</span></th><th data-field="pol_stock">Polymer stock<br><span class="rc-th-u">kg</span></th></tr></thead><tbody data-draw="tbl" data-keys="lv_gleq,lv_gls,lv_wl,lv_wwl,lv_lm,lv_ls,lv_bl_empty,lv_bc,uo_stock,uo_a_stock,coal_stock,bl_stock,ql_stock,ls_stock,dew_stock,s_stock,na_stock,sa_stock,hcl_stock,lpg,pol_stock" data-decs="1,1,1,1,1,1,2,1,0,0,0,1,1,1,0,0,0,0,0,1,0"></tbody></table></div></details></section><section class="rc-page" id="relation" data-tabpage="relation" hidden><p class="rc-note">วิเคราะห์โดย AI ในมุมผู้เชี่ยวชาญ white liquor &amp; rotary lime kiln ของโรง kraft ใช้ Pearson correlation รายวันของช่วงที่เลือก (ควรเลือก 30 วันขึ้นไป หรือ YTD) ความสัมพันธ์ที่มี cause → effect ทดสอบ lag 0–2 วัน</p><div class="rc-card" id="rel-summary"><h3>บทสรุปความสัมพันธ์</h3><div class="rc-ana" data-draw="relsum" data-source="daily"></div></div><div class="rc-card" id="rel-expected"><h3>ความสัมพันธ์ตามหลักกระบวนการ เทียบกับข้อมูลจริง</h3><p class="rc-note">“สอดคล้อง” = ทิศทางตรงกับหลักการและมีนัยสำคัญ (|r| ≥ 0.3) · “ขัดแย้ง” = มีนัยแต่ทิศกลับกัน · “ไม่ชัด” = อ่อนหรือไม่มีนัย</p><div class="rc-tablebox"><table class="rc-table rc-reltable"><thead><tr><th>ตัวแปรต้น → ตัวแปรตาม</th><th>ทิศที่คาด</th><th>เหตุผลเชิงกระบวนการ</th><th>r (lag ที่แรงสุด)</th><th>n วัน</th><th>ผล</th></tr></thead><tbody><tr><td>LM DS → Heat (kCal/kg CaO)</td><td>− (แปรผกผัน)</td><td class="rc-why">Mud ชื้นมาก → ต้องระเหยน้ำมากขึ้น → heat สูง</td><td data-draw="rel" data-what="r" data-source="daily" data-a="lm_ds" data-b="heat_cao" data-sign="-1" data-lag="0">—</td><td data-draw="rel" data-what="n" data-source="daily" data-a="lm_ds" data-b="heat_cao" data-sign="-1" data-lag="0">—</td><td data-draw="rel" data-what="verdict" data-source="daily" data-a="lm_ds" data-b="heat_cao" data-sign="-1" data-lag="0">—</td></tr><tr><td>CaCO₃ residual → Heat (kCal/kg CaO)</td><td>− (แปรผกผัน)</td><td class="rc-why">เผาหนักขึ้น (heat สูง) → residual CaCO₃ ต่ำลง</td><td data-draw="rel" data-what="r" data-source="daily" data-a="lm_caco3" data-b="heat_cao" data-sign="-1" data-lag="0">—</td><td data-draw="rel" data-what="n" data-source="daily" data-a="lm_caco3" data-b="heat_cao" data-sign="-1" data-lag="0">—</td><td data-draw="rel" data-what="verdict" data-source="daily" data-a="lm_caco3" data-b="heat_cao" data-sign="-1" data-lag="0">—</td></tr><tr><td>Burnt lime production → Heat (kCal/kg CaO)</td><td>− (แปรผกผัน)</td><td class="rc-why">Production ต่ำ → shell heat loss ต่อตันสูงขึ้น</td><td data-draw="rel" data-what="r" data-source="daily" data-a="lime_t" data-b="heat_cao" data-sign="-1" data-lag="0">—</td><td data-draw="rel" data-what="n" data-source="daily" data-a="lime_t" data-b="heat_cao" data-sign="-1" data-lag="0">—</td><td data-draw="rel" data-what="verdict" data-source="daily" data-a="lime_t" data-b="heat_cao" data-sign="-1" data-lag="0">—</td></tr><tr><td>TSS SD tank → TSS GLC</td><td>+ (แปรผันตาม)</td><td class="rc-why">Dregs load สูง → clarified GL ขุ่นขึ้น</td><td data-draw="rel" data-what="r" data-source="daily" data-a="sd_tss" data-b="glc_ss" data-sign="1" data-lag="1">—</td><td data-draw="rel" data-what="n" data-source="daily" data-a="sd_tss" data-b="glc_ss" data-sign="1" data-lag="1">—</td><td data-draw="rel" data-what="verdict" data-source="daily" data-a="sd_tss" data-b="glc_ss" data-sign="1" data-lag="1">—</td></tr><tr><td>Air ratio → TSS SD tank</td><td>− (แปรผกผัน)</td><td class="rc-why">Air ต่อ TDS ต่ำ → carbon ใน smelt/dregs สูง [HYPOTHESIS]</td><td data-draw="rel" data-what="r" data-source="daily" data-a="air_ratio" data-b="sd_tss" data-sign="-1" data-lag="0">—</td><td data-draw="rel" data-what="n" data-source="daily" data-a="air_ratio" data-b="sd_tss" data-sign="-1" data-lag="0">—</td><td data-draw="rel" data-what="verdict" data-source="daily" data-a="air_ratio" data-b="sd_tss" data-sign="-1" data-lag="0">—</td></tr><tr><td>TSS GLC → LM DS</td><td>− (แปรผกผัน)</td><td class="rc-why">Dregs carryover → lime mud กรองยาก</td><td data-draw="rel" data-what="r" data-source="daily" data-a="glc_ss" data-b="lm_ds" data-sign="-1" data-lag="1">—</td><td data-draw="rel" data-what="n" data-source="daily" data-a="glc_ss" data-b="lm_ds" data-sign="-1" data-lag="1">—</td><td data-draw="rel" data-what="verdict" data-source="daily" data-a="glc_ss" data-b="lm_ds" data-sign="-1" data-lag="1">—</td></tr><tr><td>CaO → %CE</td><td>+ (แปรผันตาม)</td><td class="rc-why">Lime คุณภาพดี → causticizing ดีขึ้น</td><td data-draw="rel" data-what="r" data-source="daily" data-a="lm_cao" data-b="ce" data-sign="1" data-lag="1">—</td><td data-draw="rel" data-what="n" data-source="daily" data-a="lm_cao" data-b="ce" data-sign="1" data-lag="1">—</td><td data-draw="rel" data-what="verdict" data-source="daily" data-a="lm_cao" data-b="ce" data-sign="1" data-lag="1">—</td></tr><tr><td>CaCO₃ residual → %CE</td><td>− (แปรผกผัน)</td><td class="rc-why">Residual CaCO₃ เป็น inert ใน slaker</td><td data-draw="rel" data-what="r" data-source="daily" data-a="lm_caco3" data-b="ce" data-sign="-1" data-lag="1">—</td><td data-draw="rel" data-what="n" data-source="daily" data-a="lm_caco3" data-b="ce" data-sign="-1" data-lag="1">—</td><td data-draw="rel" data-what="verdict" data-source="daily" data-a="lm_caco3" data-b="ce" data-sign="-1" data-lag="1">—</td></tr><tr><td>%CE → LM DS</td><td>− (แปรผกผัน)</td><td class="rc-why">Over-liming → mud ละเอียด กรองยาก</td><td data-draw="rel" data-what="r" data-source="daily" data-a="ce" data-b="lm_ds" data-sign="-1" data-lag="0">—</td><td data-draw="rel" data-what="n" data-source="daily" data-a="ce" data-b="lm_ds" data-sign="-1" data-lag="0">—</td><td data-draw="rel" data-what="verdict" data-source="daily" data-a="ce" data-b="lm_ds" data-sign="-1" data-lag="0">—</td></tr><tr><td>TTA GL EQ → EA RC1</td><td>+ (แปรผันตาม)</td><td class="rc-why">GL TTA สูง → WL EA สูง</td><td data-draw="rel" data-what="r" data-source="daily" data-a="gleq_tta" data-b="wl_ea" data-sign="1" data-lag="0">—</td><td data-draw="rel" data-what="n" data-source="daily" data-a="gleq_tta" data-b="wl_ea" data-sign="1" data-lag="0">—</td><td data-draw="rel" data-what="verdict" data-source="daily" data-a="gleq_tta" data-b="wl_ea" data-sign="1" data-lag="0">—</td></tr><tr><td>LM TTA → TRS</td><td>+ (แปรผันตาม)</td><td class="rc-why">Na₂S ใน mud → TRS ที่ kiln</td><td data-draw="rel" data-what="r" data-source="daily" data-a="lm_tta" data-b="trs" data-sign="1" data-lag="0">—</td><td data-draw="rel" data-what="n" data-source="daily" data-a="lm_tta" data-b="trs" data-sign="1" data-lag="0">—</td><td data-draw="rel" data-what="verdict" data-source="daily" data-a="lm_tta" data-b="trs" data-sign="1" data-lag="0">—</td></tr><tr><td>LM TTA → SOx</td><td>− (แปรผกผัน)</td><td class="rc-why">Na ใน mud ดักจับ SO₂ เป็น Na₂SO₄ [HYPOTHESIS]</td><td data-draw="rel" data-what="r" data-source="daily" data-a="lm_tta" data-b="so2" data-sign="-1" data-lag="0">—</td><td data-draw="rel" data-what="n" data-source="daily" data-a="lm_tta" data-b="so2" data-sign="-1" data-lag="0">—</td><td data-draw="rel" data-what="verdict" data-source="daily" data-a="lm_tta" data-b="so2" data-sign="-1" data-lag="0">—</td></tr><tr><td>Firing → GL feed</td><td>+ (แปรผันตาม)</td><td class="rc-why">RB load → GL flow</td><td data-draw="rel" data-what="r" data-source="daily" data-a="firing" data-b="gl_feed_h" data-sign="1" data-lag="0">—</td><td data-draw="rel" data-what="n" data-source="daily" data-a="firing" data-b="gl_feed_h" data-sign="1" data-lag="0">—</td><td data-draw="rel" data-what="verdict" data-source="daily" data-a="firing" data-b="gl_feed_h" data-sign="1" data-lag="0">—</td></tr><tr><td>GL feed → WL made</td><td>+ (แปรผันตาม)</td><td class="rc-why">GL เข้ามาก → WL ออกมาก</td><td data-draw="rel" data-what="r" data-source="daily" data-a="gl_feed_h" data-b="wl_made" data-sign="1" data-lag="0">—</td><td data-draw="rel" data-what="n" data-source="daily" data-a="gl_feed_h" data-b="wl_made" data-sign="1" data-lag="0">—</td><td data-draw="rel" data-what="verdict" data-source="daily" data-a="gl_feed_h" data-b="wl_made" data-sign="1" data-lag="0">—</td></tr><tr><td>LM feed → Burnt lime production</td><td>+ (แปรผันตาม)</td><td class="rc-why">Mud feed มาก → production มาก</td><td data-draw="rel" data-what="r" data-source="daily" data-a="lm_feed_h" data-b="lime_t" data-sign="1" data-lag="0">—</td><td data-draw="rel" data-what="n" data-source="daily" data-a="lm_feed_h" data-b="lime_t" data-sign="1" data-lag="0">—</td><td data-draw="rel" data-what="verdict" data-source="daily" data-a="lm_feed_h" data-b="lime_t" data-sign="1" data-lag="0">—</td></tr><tr><td>Off Time oil burner → Burnt lime production</td><td>− (แปรผกผัน)</td><td class="rc-why">Oil burner หยุด → production หาย</td><td data-draw="rel" data-what="r" data-source="daily" data-a="burner_off" data-b="lime_t" data-sign="-1" data-lag="0">—</td><td data-draw="rel" data-what="n" data-source="daily" data-a="burner_off" data-b="lime_t" data-sign="-1" data-lag="0">—</td><td data-draw="rel" data-what="verdict" data-source="daily" data-a="burner_off" data-b="lime_t" data-sign="-1" data-lag="0">—</td></tr><tr><td>Time Stop LM filter → Burnt lime production</td><td>− (แปรผกผัน)</td><td class="rc-why">LM filter หยุด → feed เข้า kiln ลด</td><td data-draw="rel" data-what="r" data-source="daily" data-a="lmf_stop" data-b="lime_t" data-sign="-1" data-lag="1">—</td><td data-draw="rel" data-what="n" data-source="daily" data-a="lmf_stop" data-b="lime_t" data-sign="-1" data-lag="1">—</td><td data-draw="rel" data-what="verdict" data-source="daily" data-a="lmf_stop" data-b="lime_t" data-sign="-1" data-lag="1">—</td></tr><tr><td>%PV coal → CO</td><td>+ (แปรผันตาม)</td><td class="rc-why">PV coal เผาไหม้ยากกว่า → CO สูง [HYPOTHESIS]</td><td data-draw="rel" data-what="r" data-source="daily" data-a="f_coal" data-b="co" data-sign="1" data-lag="0">—</td><td data-draw="rel" data-what="n" data-source="daily" data-a="f_coal" data-b="co" data-sign="1" data-lag="0">—</td><td data-draw="rel" data-what="verdict" data-source="daily" data-a="f_coal" data-b="co" data-sign="1" data-lag="0">—</td></tr><tr><td>%PV coal → Dust</td><td>+ (แปรผันตาม)</td><td class="rc-why">เถ้าจาก coal → dust สูง [HYPOTHESIS]</td><td data-draw="rel" data-what="r" data-source="daily" data-a="f_coal" data-b="dust" data-sign="1" data-lag="0">—</td><td data-draw="rel" data-what="n" data-source="daily" data-a="f_coal" data-b="dust" data-sign="1" data-lag="0">—</td><td data-draw="rel" data-what="verdict" data-source="daily" data-a="f_coal" data-b="dust" data-sign="1" data-lag="0">—</td></tr></tbody></table></div></div><div class="rc-grid"><div class="rc-card" id="rel-scatter"><h3>กราฟกระจาย (scatter) ของคู่ที่เลือก</h3><label class="rc-ctrl">คู่ตัวแปร <select class="rc-pair" aria-label="เลือกคู่ตัวแปร"><option value="lm_ds|heat_cao|0">LM DS → Heat (kCal/kg CaO)</option><option value="lm_caco3|heat_cao|0">CaCO₃ residual → Heat (kCal/kg CaO)</option><option value="lime_t|heat_cao|0">Burnt lime production → Heat (kCal/kg CaO)</option><option value="sd_tss|glc_ss|1">TSS SD tank → TSS GLC (lag 1 วัน)</option><option value="air_ratio|sd_tss|0">Air ratio → TSS SD tank</option><option value="glc_ss|lm_ds|1">TSS GLC → LM DS (lag 1 วัน)</option><option value="lm_cao|ce|1">CaO → %CE (lag 1 วัน)</option><option value="lm_caco3|ce|1">CaCO₃ residual → %CE (lag 1 วัน)</option><option value="ce|lm_ds|0">%CE → LM DS</option><option value="gleq_tta|wl_ea|0">TTA GL EQ → EA RC1</option><option value="lm_tta|trs|0">LM TTA → TRS</option><option value="lm_tta|so2|0">LM TTA → SOx</option><option value="firing|gl_feed_h|0">Firing → GL feed</option><option value="gl_feed_h|wl_made|0">GL feed → WL made</option><option value="lm_feed_h|lime_t|0">LM feed → Burnt lime production</option><option value="burner_off|lime_t|0">Off Time oil burner → Burnt lime production</option><option value="lmf_stop|lime_t|1">Time Stop LM filter → Burnt lime production (lag 1 วัน)</option><option value="f_coal|co|0">%PV coal → CO</option><option value="f_coal|dust|0">%PV coal → Dust</option></select></label><div class="rc-chart" data-draw="scatter" data-source="daily"></div></div><div class="rc-card" id="rel-top"><h3>คู่ที่สัมพันธ์กันมากที่สุดในข้อมูล</h3><p class="rc-note">ค้นหาจากทุกคู่ (lag 0) ที่มีนัยสำคัญ ไม่นับคู่ที่สัมพันธ์กันตามนิยาม (เช่น สัดส่วนเชื้อเพลิงด้วยกันเอง)</p><div class="rc-ana" data-draw="top" data-source="daily" data-keys="lime_t,lm_feed_h,heat_cao,lm_ds,lm_caco3,lm_cao,lm_tta,ce,wl_ea,wl_sulf,gleq_tta,glc_ss,sd_tss,air_ratio,firing,trs,so2,co,f_uo,f_coal,gl_feed_h,wl_made,nox,h2s,dust,burner_off,lmf_stop"></div></div></div><div class="rc-card" id="rel-heatmap"><h3>Correlation matrix</h3><ul class="rc-legend"><li><span class="rc-sw" data-c="0"></span>แปรผันตาม (+)</li><li><span class="rc-sw" data-c="1"></span>แปรผกผัน (−)</li><li>สีเข้ม = สัมพันธ์แรง · ชี้ที่ช่องเพื่อดูค่า r และ n</li></ul><div class="rc-hm" data-draw="heatmap" data-source="daily" data-keys="lime_t,lm_feed_h,heat_cao,lm_ds,lm_caco3,lm_cao,lm_tta,ce,wl_ea,wl_sulf,gleq_tta,glc_ss,sd_tss,air_ratio,firing,trs,so2,co,f_uo,f_coal"></div></div></section>
+  <p class="rc-note">แหล่งข้อมูล: sheet “Data” ของไฟล์ Daily Report Recaustic Lime Kiln 01-2026 ถึง 11-2026 (Google Sheets) อ่านสดทุกครั้งที่เปิดหน้า</p>
+</div>
+</div>
+<script>
+(() => {
+  const MTH = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+  const dayLabel = (d) => Number(d.slice(8, 10)) + ' ' + MTH[Number(d.slice(5, 7)) - 1] + ' ' + d.slice(0, 4);
+  const fmt = (v, dec) => (v == null || !Number.isFinite(v)) ? '—' : v.toLocaleString('en-US', {minimumFractionDigits: dec, maximumFractionDigits: dec});
+  const isoDay = (t) => new Date(t).toISOString().slice(0, 10);
+  const okDate = (s) => typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s);
+
+  // ---------- data ----------
+  const loader = ({answer}) => {
+    const MAP = {1: 'raw_date', 3: 'firing', 7: 'air_ratio', 8: 'sd_tta', 9: 'sd_tss', 17: 'wl_made', 22: 'lime_t', 29: 'bc_l', 33: 'uo_stock', 34: 'uo_grp_l', 39: 'uo_a_l', 44: 'uo_a_stock', 46: 'biogas', 48: 'coal_kg', 50: 'coal_stock',
+      52: 'lv_gleq', 53: 'lv_gls', 54: 'lv_wl', 55: 'lv_wwl', 56: 'lv_lm', 57: 'lv_ls', 58: 'lv_bl_empty', 60: 'lv_bc',
+      78: 'bl_mu', 80: 'bl_stock', 81: 'ql_mu', 83: 'ql_stock', 84: 'ls_mu', 86: 'ls_stock', 96: 'dew_mu', 97: 'dew_stock', 104: 's_mu', 105: 's_rcv', 106: 's_stock', 113: 'na_mu', 114: 'na_rcv', 115: 'na_stock',
+      128: 'sa_mu', 130: 'sa_stock', 131: 'hcl_mu', 133: 'hcl_stock', 134: 'lpg', 135: 'pol_mu', 137: 'pol_stock', 141: 'naoh_mu', 143: 'lox_mu', 144: 'lox_bal',
+      161: 'slak_off', 166: 'lmf_stop', 172: 'burner_off', 178: 'gl_feed_h', 180: 'lm_feed_h',
+      230: 'gleq_tta', 233: 'gleq_ss', 234: 'glc_tta', 236: 'glc_ss', 247: 'wl_ea', 251: 'wl_sulf', 252: 'ce', 258: 'lm_tta', 259: 'lm_ds', 261: 'lm_caco3', 262: 'lm_cao',
+      284: 'dust', 285: 'co', 286: 'h2s', 287: 'trs', 288: 'so2', 289: 'nox',
+      350: 'heat_pd', 351: 'heat_cao', 352: 'f_bio', 353: 'f_uo', 354: 'f_uoa', 355: 'f_uog', 356: 'f_bc', 357: 'f_coal'};
+    const TIME = ['slak_off', 'lmf_stop', 'burner_off'];
+    const obj = typeof answer === 'string' ? JSON.parse(answer) : answer;
+    if (!obj || !Array.isArray(obj.sheets) || !obj.sheets[0]) throw new Error('Google Sheets answer has no sheets: ' + Object.keys(obj || {}).join(', '));
+    const byRow = new Map();
+    for (const grid of obj.sheets[0].data || []) {
+      const r0 = grid.startRow || 0, c0 = grid.startColumn || 0;
+      (grid.rowData || []).forEach((rd, i) => {
+        const r = r0 + i; if (!byRow.has(r)) byRow.set(r, {});
+        const o = byRow.get(r);
+        (rd.values || []).forEach((v, j) => { const k = MAP[c0 + j]; if (k && v && v.formattedValue != null) o[k] = v.formattedValue; });
+      });
+    }
+    const num = (s) => { if (s == null) return null; const t = String(s).replace(/,/g, '').replace('%', '').trim(); if (t === '' || t === '-' || t === '.') return null; const n = Number(t); return Number.isFinite(n) ? n : null; };
+    const hrs = (s) => { if (s == null) return null; const m = /^(\d+):(\d{1,2})(?::(\d{1,2}))?$/.exec(String(s).trim()); return m ? Number(m[1]) + Number(m[2]) / 60 + Number(m[3] || 0) / 3600 : num(s); };
+    const keys = Object.values(MAP).filter((k) => k !== 'raw_date');
+    const rows = [];
+    for (const [, o] of [...byRow.entries()].sort((a, b) => a[0] - b[0])) {
+      const m = /^(\d{1,2})-(\d{1,2})-(\d{2})$/.exec(String(o.raw_date || '').trim());
+      if (!m) continue;
+      const row = {day: '20' + m[3] + '-' + m[2].padStart(2, '0') + '-' + m[1].padStart(2, '0')};
+      for (const k of keys) row[k] = TIME.includes(k) ? hrs(o[k]) : num(o[k]);
+      rows.push(row);
+    }
+    return {columns: ['day', ...keys], rows};
+  };
+  const desc = 'Sheet Data rows as one row per day: cells as numbers, times (h:mm) as hours, the date D-M-YY as YYYY-MM-DD';
+  for (const id of ['m01', 'm02', 'm03', 'm04', 'm05', 'm06', 'm07', 'm08', 'm09', 'm10', 'm11']) dash.loader(id, {description: desc, fn: loader});
+
+  dash.calc('daily', {
+    title: 'Daily data 2026',
+    description: 'All monthly files joined, each kept to its own month, up to the last day with Burnt lime production above 0; a lab or heat value of 0 counts as not measured.',
+    inputs: ['m01', 'm02', 'm03', 'm04', 'm05', 'm06', 'm07', 'm08', 'm09', 'm10', 'm11'],
+    fn: (m01, m02, m03, m04, m05, m06, m07, m08, m09, m10, m11) => {
+      const LAB = ['air_ratio', 'firing', 'sd_tta', 'sd_tss', 'gleq_tta', 'gleq_ss', 'glc_tta', 'glc_ss', 'wl_ea', 'wl_sulf', 'ce', 'lm_tta', 'lm_ds', 'lm_caco3', 'lm_cao', 'heat_pd', 'heat_cao'];
+      const seen = new Map();
+      [m01, m02, m03, m04, m05, m06, m07, m08, m09, m10, m11].forEach((rows, i) => {
+        const mm = String(i + 1).padStart(2, '0');
+        for (const r of rows || []) {
+          if (r.day.slice(0, 4) !== '2026' || r.day.slice(5, 7) !== mm) continue;
+          const o = {...r, month: r.day.slice(0, 7)};
+          for (const k of LAB) if (o[k] === 0) o[k] = null;
+          seen.set(o.day, o);
+        }
+      });
+      const all = [...seen.values()].sort((a, b) => a.day < b.day ? -1 : 1);
+      const run = all.filter((r) => r.lime_t > 0);
+      const last = run.length ? run[run.length - 1].day : '';
+      return all.filter((r) => r.day <= last);
+    },
+  });
+
+  // ---------- range ----------
+  const dailyRows = () => { const d = dash.data('daily'); return d.status === 'ok' ? d.data : null; };
+  const range = () => {
+    const rows = dailyRows();
+    const p = dash.params();
+    const lastDay = rows && rows.length ? rows[rows.length - 1].day : null;
+    let end = okDate(p.end) ? p.end : lastDay;
+    let start = okDate(p.start) ? p.start : (end ? end.slice(0, 8) + '01' : null);
+    if (start && end && start > end) [start, end] = [end, start];
+    return {start, end, lastDay};
+  };
+  const inRange = () => { const rows = dailyRows(); const {start, end} = range(); return rows ? rows.filter((r) => (!start || r.day >= start) && (!end || r.day <= end)) : null; };
+  const vals = (rows, k) => rows.map((r) => r[k]).filter((v) => v != null && Number.isFinite(v));
+  const agg = (rows, k, how) => {
+    if (how === 'last') { for (let i = rows.length - 1; i >= 0; i--) if (rows[i][k] != null) return rows[i][k]; return null; }
+    let v = vals(rows, k); if (how === 'avgpos') v = v.filter((x) => x > 0);
+    if (!v.length) return null;
+    const s = v.reduce((a, b) => a + b, 0);
+    return how === 'sum' ? s : s / v.length;
+  };
+  const target = (k) => { const v = dash.params()['t_' + k]; return v == null || v === '' || !Number.isFinite(Number(v)) ? null : Number(v); };
+  const pass = (v, t, dir) => dir === 'min' ? v >= t : dir === 'max' ? v <= t : Math.abs(v - t) <= Math.abs(t) * 0.05;
+
+  // ---------- controls ----------
+  for (const sw of document.querySelectorAll('#dash-root .rc-sw')) sw.style.background = dash.colors[Number(sw.dataset.c) || 0];
+
+  const showTab = (id) => {
+    let found = false;
+    for (const s of document.querySelectorAll('#dash-root [data-tabpage]')) { const on = s.dataset.tabpage === id; s.hidden = !on; found = found || on; }
+    if (!found) return false;
+    for (const b of document.querySelectorAll('#dash-root [data-tab]')) b.setAttribute('aria-selected', b.dataset.tab === id ? 'true' : 'false');
+    return true;
+  };
+  for (const b of document.querySelectorAll('#dash-root [data-tab]')) b.addEventListener('click', () => { if (showTab(b.dataset.tab)) dash.setLink(b.dataset.tab); });
+  const hash = location.hash.slice(1);
+  if (hash) showTab(hash);
+
+  for (const inp of document.querySelectorAll('#dash-root [data-range]')) {
+    inp.addEventListener('change', () => { if (inp.value && inp.validity.valid) dash.setParams({[inp.dataset.range]: inp.value}); });
+    inp.addEventListener('blur', () => { inp.value = range()[inp.dataset.range] || ''; });
+  }
+  for (const b of document.querySelectorAll('#dash-root .rc-reset')) b.addEventListener('click', () => dash.setParams({start: null, end: null}));
+  for (const inp of document.querySelectorAll('#dash-root [data-t]')) {
+    inp.addEventListener('change', () => { const n = inp.value === '' ? null : Number(inp.value); dash.setParams({['t_' + inp.dataset.t]: Number.isFinite(n) ? n : null}); });
+  }
+  dash.onData(() => {
+    const r = range();
+    for (const inp of document.querySelectorAll('#dash-root [data-range]')) if (inp !== document.activeElement) inp.value = r[inp.dataset.range] || '';
+    for (const inp of document.querySelectorAll('#dash-root [data-t]')) if (inp !== document.activeElement) { const t = target(inp.dataset.t); inp.value = t == null ? '' : String(t); }
+  });
+
+  // quick range picker
+  dash.draw('quick', (sel) => {
+    const rows = dailyRows() || [];
+    const months = [...new Set(rows.map((r) => r.month))].sort().reverse();
+    const last = rows.length ? rows[rows.length - 1].day : null;
+    const opts = [new Option('— เลือกช่วง —', '')];
+    if (last) {
+      const back = (n) => isoDay(new Date(last + 'T00:00:00Z').getTime() - (n - 1) * 864e5);
+      opts.push(new Option('7 วันล่าสุด', back(7) + '|' + last), new Option('30 วันล่าสุด', back(30) + '|' + last), new Option('ทั้งปี 2026 (YTD)', rows[0].day + '|' + last));
+    }
+    for (const m of months) {
+      const mr = rows.filter((r) => r.month === m);
+      opts.push(new Option(MTH[Number(m.slice(5, 7)) - 1] + ' ' + m.slice(0, 4), m + '-01|' + mr[mr.length - 1].day));
+    }
+    sel.replaceChildren(...opts);
+    const {start, end} = range();
+    sel.value = [...sel.options].some((o) => o.value === start + '|' + end) ? start + '|' + end : '';
+    sel.onchange = () => { if (!sel.value) return; const [s, e] = sel.value.split('|'); dash.setParams({start: s, end: e}); };
+  });
+
+  dash.draw('range-text', (el) => {
+    const rows = inRange(); const {start, end} = range();
+    el.textContent = rows && start ? dayLabel(start) + ' – ' + dayLabel(end) + ' (' + rows.length + ' วัน)' : '—';
+  });
+  dash.draw('last-day', (el) => {
+    const {lastDay} = range();
+    if (!lastDay) { el.textContent = '—'; el.removeAttribute('data-where'); return; }
+    el.setAttribute('data-where', 'day=' + lastDay);
+    el.textContent = dayLabel(lastDay);
+  });
+
+  // tiles
+  dash.draw('v', (el) => {
+    const rows = inRange();
+    el.textContent = rows ? fmt(agg(rows, el.dataset.k, el.dataset.agg), Number(el.dataset.dec)) : '—';
+  });
+  dash.draw('sum', (el) => {
+    const rows = inRange();
+    el.textContent = rows ? fmt(agg(rows, el.dataset.k, 'sum'), Number(el.dataset.dec)) : '—';
+  });
+  dash.draw('st', (el) => {
+    const rows = inRange(); const k = el.dataset.k; const dec = Number(el.dataset.dec); const dir = el.dataset.dir;
+    el.classList.remove('good', 'bad');
+    const t = target(k);
+    if (!rows) { el.textContent = '—'; return; }
+    if (t == null) { el.textContent = 'ยังไม่ได้ตั้ง target'; return; }
+    const v = agg(rows, k, el.dataset.agg);
+    if (v == null) { el.textContent = 'ไม่มีข้อมูลในช่วงนี้'; return; }
+    const ok = pass(v, t, dir);
+    const days = rows.filter((r) => r[k] != null && (el.dataset.agg !== 'avgpos' || r[k] > 0));
+    const hit = days.filter((r) => pass(r[k], t, dir)).length;
+    const diff = v - t;
+    el.textContent = (ok ? 'ผ่าน' : 'ไม่ผ่าน') + ' · ' + (diff >= 0 ? '+' : '−') + fmt(Math.abs(diff), dec) + ' vs target' + (el.dataset.agg === 'last' ? '' : ' · ผ่าน ' + hit + '/' + days.length + ' วัน');
+    el.classList.add(ok ? 'good' : 'bad');
+  });
+
+  // tables
+  dash.draw('tbl', (tb) => {
+    const rows = inRange();
+    tb.replaceChildren();
+    if (!rows) return;
+    const keys = tb.dataset.keys.split(','); const decs = tb.dataset.decs.split(',').map(Number);
+    for (const r of [...rows].reverse()) {
+      const tr = document.createElement('tr'); tr.dataset.key = r.day;
+      const td0 = document.createElement('td'); td0.textContent = dayLabel(r.day); tr.append(td0);
+      keys.forEach((k, i) => { const td = document.createElement('td'); td.textContent = fmt(r[k], decs[i]); tr.append(td); });
+      tb.append(tr);
+    }
+  });
+
+  // charts
+  const failLine = (el) => { el.replaceChildren(); const d = document.createElement('div'); d.className = 'rc-fail'; d.append(document.createElement('i'), document.createTextNode('Failed to load')); el.append(d); };
+  dash.draw('chart', (el) => {
+    const d = dash.data('daily');
+    if (d.status === 'error') { el.classList.remove('dash-skeleton'); failLine(el); return; }
+    if (d.status !== 'ok') { el.replaceChildren(); el.classList.add('dash-skeleton'); return; }
+    el.classList.remove('dash-skeleton');
+    const keys = el.dataset.keys.split(','); const names = el.dataset.names.split('|');
+    const type = el.dataset.type; const dec = Number(el.dataset.dec); const unit = el.dataset.unit;
+    const tgt = el.dataset.tk ? target(el.dataset.tk) : null;
+    const rows = (inRange() || []).map((r) => ({...r, date: new Date(r.day + 'T00:00:00Z')}));
+    el.replaceChildren();
+    const W = Math.max(280, el.clientWidth || 600), H = 200, mt = 10, mb = 24, mr = 10;
+    let vv = rows.flatMap((r) => keys.map((k) => r[k])).filter((v) => v != null && Number.isFinite(v));
+    if (type === 'stack') vv = rows.map((r) => keys.reduce((s, k) => s + (r[k] || 0), 0));
+    if (!rows.length || !vv.length) { const p = document.createElement('p'); p.className = 'rc-note'; p.textContent = 'ไม่มีข้อมูลในช่วงที่เลือก'; el.append(p); return; }
+    if (tgt != null) vv.push(tgt);
+    let [lo, hi] = d3.extent(vv);
+    const zero = type !== 'line';
+    if (zero) lo = Math.min(0, lo);
+    if (lo === hi) { lo -= 1; hi += 1; }
+    const pad = (hi - lo) * 0.08;
+    const y = d3.scaleLinear([zero ? lo : lo - pad, hi + pad], [H - mb, mt]).nice(5);
+    const ticks = y.ticks(5);
+    const span = y.domain()[1] - y.domain()[0];
+    const tdec = span < 2 ? 2 : span < 10 ? 1 : 0;
+    const tf = (v) => Math.abs(v) >= 10000 ? d3.format('.2~s')(v) : fmt(v, tdec);
+    const svg = d3.select(el).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'img');
+    const probe = svg.append('g').attr('font-size', 11);
+    let ml = 0;
+    for (const t of ticks) ml = Math.max(ml, probe.append('text').text(tf(t)).node().getComputedTextLength());
+    probe.remove();
+    ml = Math.ceil(ml) + 10;
+    const dom = d3.extent(rows, (r) => r.date);
+    const days = (dom[1] - dom[0]) / 864e5;
+    const half = 0.5 * 864e5;
+    const x = d3.scaleUtc(zero ? [new Date(+dom[0] - half), new Date(+dom[1] + half)] : dom, [ml, W - mr]);
+    svg.append('g').selectAll('line').data(ticks).join('line').attr('x1', ml).attr('x2', W - mr).attr('y1', (t) => y(t)).attr('y2', (t) => y(t)).attr('stroke', 'var(--cds-chart-grid)');
+    svg.append('g').selectAll('text').data(ticks).join('text').attr('x', ml - 6).attr('y', (t) => y(t)).attr('dy', '0.32em').attr('text-anchor', 'end').attr('font-size', 11).attr('fill', 'var(--color-fg-muted)').text(tf);
+    const nt = Math.max(2, Math.min(days < 2 ? 2 : 8, Math.floor((W - ml) / 85)));
+    const xa = d3.axisBottom(x).ticks(days > 60 ? d3.utcMonth.every(1) : d3.utcDay.every(Math.max(1, Math.ceil((days + 1) / nt)))).tickSizeOuter(0).tickFormat(days > 60 ? d3.utcFormat('%b') : d3.utcFormat('%-d %b'));
+    const ax = svg.append('g').attr('transform', `translate(0,${H - mb})`).call(xa).attr('font-size', null).attr('font-family', null);
+    ax.selectAll('text').attr('font-size', 11).attr('fill', 'var(--color-fg-muted)');
+    ax.selectAll('line,path').attr('stroke', 'var(--cds-chart-axis)');
+    const n = Math.max(1, days + 1);
+    const slot = (W - ml - mr) / n;
+    if (type === 'bar') {
+      const bw = Math.max(1, Math.min(24, slot * 0.75 / keys.length));
+      keys.forEach((k, i) => {
+        svg.append('g').selectAll('rect').data(rows.filter((r) => r[k] != null)).join('rect')
+          .attr('x', (r) => x(r.date) - (bw * keys.length) / 2 + i * bw).attr('width', bw)
+          .attr('y', (r) => y(Math.max(0, r[k]))).attr('height', (r) => Math.abs(y(r[k]) - y(0)))
+          .attr('rx', Math.min(2, bw / 2)).attr('fill', dash.colors[i]);
+      });
+    } else if (type === 'stack') {
+      const bw = Math.max(1, Math.min(24, slot * 0.75));
+      rows.forEach((r) => {
+        let acc = 0;
+        keys.forEach((k, i) => { const v = r[k] || 0; if (v <= 0) return; svg.append('rect').attr('x', x(r.date) - bw / 2).attr('width', bw).attr('y', y(acc + v)).attr('height', y(acc) - y(acc + v)).attr('fill', dash.colors[i]); acc += v; });
+      });
+    } else {
+      keys.forEach((k, i) => {
+        const def = (r) => r[k] != null && Number.isFinite(r[k]);
+        svg.append('path').datum(rows).attr('d', d3.line().defined(def).x((r) => x(r.date)).y((r) => y(r[k]))).attr('fill', 'none').attr('stroke', dash.colors[i]).attr('stroke-width', 2).attr('stroke-linecap', 'round').attr('stroke-linejoin', 'round');
+        const lone = rows.filter((r, j) => def(r) && !(rows[j - 1] && def(rows[j - 1])) && !(rows[j + 1] && def(rows[j + 1])));
+        svg.append('g').selectAll('circle').data(lone).join('circle').attr('cx', (r) => x(r.date)).attr('cy', (r) => y(r[k])).attr('r', 2.2).attr('fill', dash.colors[i]);
+      });
+    }
+    if (tgt != null) {
+      svg.append('line').attr('x1', ml).attr('x2', W - mr).attr('y1', y(tgt)).attr('y2', y(tgt)).attr('stroke', 'var(--cds-chart-status-critical)').attr('stroke-width', 1.5).attr('stroke-dasharray', '5 4');
+      svg.append('text').attr('x', W - mr).attr('y', y(tgt) - 4).attr('text-anchor', 'end').attr('font-size', 11).attr('fill', 'var(--color-fg-muted)').text('Target ' + fmt(tgt, dec));
+    }
+    const rule = svg.append('line').attr('y1', mt).attr('y2', H - mb).attr('stroke', 'var(--cds-chart-reference)').attr('opacity', 0);
+    const dots = keys.map((k, i) => svg.append('circle').attr('r', 3.5).attr('fill', dash.colors[i]).attr('opacity', 0));
+    const tip = document.createElement('div'); tip.className = 'rc-tip'; tip.hidden = true; el.append(tip);
+    const bis = d3.bisector((r) => r.date).center;
+    svg.append('rect').attr('x', ml).attr('y', mt).attr('width', W - ml - mr).attr('height', H - mt - mb).attr('fill', 'transparent')
+      .on('pointermove', (ev) => {
+        const [px] = d3.pointer(ev); const r = rows[bis(rows, x.invert(px))]; if (!r) return;
+        const cx = x(r.date);
+        rule.attr('x1', cx).attr('x2', cx).attr('opacity', 1);
+        keys.forEach((k, i) => { if (type === 'line' && r[k] != null) dots[i].attr('cx', cx).attr('cy', y(r[k])).attr('opacity', 1); else dots[i].attr('opacity', 0); });
+        tip.replaceChildren();
+        const dd = document.createElement('div'); dd.className = 'd'; dd.textContent = dayLabel(r.day); tip.append(dd);
+        keys.forEach((k, i) => {
+          const l = document.createElement('div'); l.className = 'l';
+          if (keys.length > 1) { const sw = document.createElement('span'); sw.className = 'rc-sw'; sw.style.background = dash.colors[i]; l.append(sw); }
+          l.append(document.createTextNode(names[i] + ' ' + fmt(r[k], dec) + ' ' + unit));
+          tip.append(l);
+        });
+        tip.hidden = false;
+        const sc = el.clientWidth / W; const tw = tip.offsetWidth;
+        let left = cx * sc + 12; if (left + tw > el.clientWidth) left = cx * sc - tw - 12;
+        tip.style.left = Math.max(0, left) + 'px'; tip.style.top = '4px';
+      })
+      .on('pointerleave', () => { tip.hidden = true; rule.attr('opacity', 0); dots.forEach((c) => c.attr('opacity', 0)); });
+  });
+
+  // =================== Expert analysis ===================
+  const NM = {lime_t: 'Burnt lime production', wl_made: 'WL made', lm_feed_h: 'LM feed', gl_feed_h: 'GL feed', slak_off: 'Time OFF slaker', lmf_stop: 'Time Stop LM filter', burner_off: 'Off Time oil burner',
+    sd_tss: 'TSS SD tank', gleq_ss: 'TSS GLEQ', glc_ss: 'TSS GLC', air_ratio: 'Air ratio', firing: 'Firing', sd_tta: 'TTA SD NPP', gleq_tta: 'TTA GL EQ', glc_tta: 'TTA GLC',
+    wl_ea: 'EA RC1', wl_sulf: '%Sulfidity RC1', ce: '%CE', lm_tta: 'LM TTA', lm_ds: 'LM DS', lm_caco3: 'CaCO₃ residual', lm_cao: 'CaO', heat_cao: 'Heat (kCal/kg CaO)', heat_pd: 'Heat (kCal/kg PD)',
+    trs: 'TRS', so2: 'SOx', nox: 'NOx', co: 'CO', h2s: 'H₂S', dust: 'Dust', f_uo: '%Used oil', f_coal: '%PV coal', f_bc: '%Bunker C', f_bio: '%Biogas', s_mu: 'Sulphur make up', na_mu: 'Na₂SO₄ make up'};
+  const UN = {sd_tss: 'mg/L', gleq_ss: 'mg/L', glc_ss: 'mg/L', air_ratio: 'Nm³/TDS', firing: 'TDS/d', sd_tta: 'g/L', gleq_tta: 'g/L', glc_tta: 'g/L', wl_ea: 'g/L', wl_sulf: '%', ce: '%', lm_tta: 'g/L', lm_ds: '%', lm_caco3: '%', lm_cao: '%', heat_cao: 'kCal/kg CaO', heat_pd: 'kCal/kg PD'};
+  const DEC = {sd_tss: 0, gleq_ss: 0, glc_ss: 0, air_ratio: 0, firing: 0, sd_tta: 1, gleq_tta: 1, glc_tta: 1, wl_ea: 1, wl_sulf: 1, ce: 1, lm_tta: 2, lm_ds: 1, lm_caco3: 2, lm_cao: 2, heat_cao: 0, heat_pd: 0};
+  // industry-typical ranges (not mill standards)
+  const BM = {
+    sd_tss: [500, 1500, 'Raw green liquor (ก่อน clarifier) ทั่วไป'],
+    glc_ss: [0, 100, 'Clarified GL ทั่วไป ≤100 mg/L (โรงงานที่ดี <50 mg/L)'],
+    gleq_tta: [140, 165, 'GL TTA โรง hardwood kraft ทั่วไป (as NaOH)'],
+    glc_tta: [140, 165, 'GL TTA โรง hardwood kraft ทั่วไป (as NaOH)'],
+    sd_tta: [140, 165, 'GL TTA โรง hardwood kraft ทั่วไป (as NaOH)'],
+    wl_ea: [95, 125, 'WL EA ทั่วไป (as NaOH)'],
+    wl_sulf: [25, 35, 'Sulfidity WL โรง hardwood ทั่วไป'],
+    ce: [78, 84, 'CE ทั่วไป (equilibrium limit ~85–88% ขึ้นกับ TTA)'],
+    lm_ds: [75, 85, 'LM cake หลัง precoat/disc filter รุ่นใหม่'],
+    lm_caco3: [1.5, 3.0, 'Residual CaCO₃ ใน burnt lime ทั่วไป'],
+    lm_cao: [85, 92, 'CaO ใน burnt lime ทั่วไป'],
+    heat_cao: [1300, 1550, 'Lime kiln รุ่นใหม่ 5.5–6.5 GJ/t CaO (เตาเก่า 1,550–1,900)'],
+  };
+  const CV = {sd_tss: [15, 30], gleq_ss: [15, 30], glc_ss: [25, 50], air_ratio: [4, 8], firing: [5, 10], sd_tta: [3, 6], gleq_tta: [3, 6], glc_tta: [3, 6], wl_ea: [3, 6], wl_sulf: [4, 8], ce: [2, 4], lm_tta: [20, 40], lm_ds: [3, 6], lm_caco3: [20, 40], lm_cao: [2, 4], heat_cao: [8, 15], heat_pd: [8, 15]};
+
+  const stats = (rows, k) => {
+    const pts = rows.map((r, i) => ({i, day: r.day, v: r[k]})).filter((p) => p.v != null && Number.isFinite(p.v));
+    const n = pts.length; if (!n) return {n: 0};
+    const v = pts.map((p) => p.v);
+    const mean = d3.mean(v), sd = n > 1 ? d3.deviation(v) : 0;
+    const mn = d3.least(pts, (p) => p.v), mx = d3.greatest(pts, (p) => p.v);
+    let slope = null, rT = null;
+    if (n >= 7) {
+      const t0 = new Date(pts[0].day + 'T00:00:00Z').getTime();
+      const xs = pts.map((p) => (new Date(p.day + 'T00:00:00Z').getTime() - t0) / 864e5);
+      const mx_ = d3.mean(xs);
+      let sxy = 0, sxx = 0, syy = 0;
+      xs.forEach((x, j) => { sxy += (x - mx_) * (v[j] - mean); sxx += (x - mx_) ** 2; syy += (v[j] - mean) ** 2; });
+      if (sxx > 0 && syy > 0) { slope = sxy / sxx; rT = sxy / Math.sqrt(sxx * syy); }
+    }
+    const out = sd > 0 ? pts.filter((p) => Math.abs(p.v - mean) / sd > 2.5) : [];
+    const last7 = pts.slice(-7).map((p) => p.v), prev = pts.slice(0, -7).map((p) => p.v);
+    return {n, mean, sd, cv: mean ? sd / Math.abs(mean) * 100 : null, mn, mx, slope, rT, out, last7: last7.length ? d3.mean(last7) : null, prev: prev.length >= 5 ? d3.mean(prev) : null};
+  };
+  const byDay = (rows) => new Map(rows.map((r) => [r.day, r]));
+  const shift = (day, n) => isoDay(new Date(day + 'T00:00:00Z').getTime() + n * 864e5);
+  const pearson = (rows, a, b, lag = 0) => {
+    const m = byDay(rows); const xs = [], ys = [];
+    for (const r of rows) { const o = lag ? m.get(shift(r.day, lag)) : r; if (!o) continue; const x = r[a], y = o[b]; if (x != null && y != null && Number.isFinite(x) && Number.isFinite(y)) { xs.push(x); ys.push(y); } }
+    const n = xs.length; if (n < 8) return {n, r: null};
+    const mx = d3.mean(xs), my = d3.mean(ys); let sxy = 0, sxx = 0, syy = 0;
+    for (let i = 0; i < n; i++) { sxy += (xs[i] - mx) * (ys[i] - my); sxx += (xs[i] - mx) ** 2; syy += (ys[i] - my) ** 2; }
+    if (!sxx || !syy) return {n, r: null};
+    const r = sxy / Math.sqrt(sxx * syy);
+    const t = Math.abs(r) * Math.sqrt((n - 2) / Math.max(1e-9, 1 - r * r));
+    return {n, r, sig: t >= 2.0, slope: sxy / sxx, xs, ys};
+  };
+  const strength = (r) => { const a = Math.abs(r); return a >= 0.7 ? 'แรง' : a >= 0.5 ? 'ค่อนข้างแรง' : a >= 0.3 ? 'ปานกลาง' : 'อ่อน'; };
+  const rTxt = (p) => p.r == null ? 'ข้อมูลไม่พอ' : 'r = ' + fmt(p.r, 2) + ' (' + strength(p.r) + (p.sig ? '' : ', ไม่มีนัยสำคัญ') + ', n=' + p.n + ')';
+
+  // one analysis line = [tag, text]
+  const lineEl = (tag, text) => { const p = document.createElement('p'); p.className = 'rc-ana-l'; const b = document.createElement('span'); b.className = 'rc-tag rc-tag-' + tag.toLowerCase().replace(/\s+/g, '-'); b.textContent = '[' + tag + ']'; p.append(b, document.createTextNode(' ' + text)); return p; };
+
+  const expert = (k, A, rows, f, u) => {
+    const L = []; const m = A.mean;
+    const r = (a, b, lag) => pearson(rows, a, b, lag);
+    const sumOf = (key) => agg(rows, key, 'sum');
+    if (k === 'sd_tss') {
+      if (m > 1500) L.push(['ENGINEERING JUDGMENT', 'Raw GL TSS สูงกว่าช่วงทั่วไป แปลว่ามีภาระ dregs จาก smelt มาก ซึ่งมักมาจาก unburnt carbon หรือ reduction ที่ recovery boiler ต่ำ หรือ NPE (Mg, Mn, Fe, Si) สะสม clarifier จึงต้องรับภาระหนักขึ้น']);
+      else L.push(['ENGINEERING JUDGMENT', 'Raw GL TSS อยู่ในระดับที่ clarifier รองรับได้ตามปกติ ควรเฝ้าดูวันที่ค่ากระโดด เพราะมักตรงกับช่วงที่ RB เดินไม่นิ่ง (load swing, smelt spout plugging)']);
+      const p = r('air_ratio', 'sd_tss', 0);
+      if (p.r != null) L.push(['CALCULATION', 'ความสัมพันธ์กับ Air ratio: ' + rTxt(p) + (p.r < -0.3 && p.sig ? ' → air ต่อ TDS ต่ำมักตามด้วย TSS สูง สอดคล้องกับสมมติฐานเรื่อง carbon carryover' : '')]);
+      L.push(['HYPOTHESIS', 'ถ้า TSS สูงต่อเนื่อง ควรตรวจ dregs LOI (carbon) กับ Mg/Mn ใน dregs เพื่อแยกว่าสาเหตุมาจาก combustion หรือ NPE']);
+    }
+    if (k === 'gleq_ss') {
+      const s = stats(rows, 'sd_tss');
+      if (s.n && m != null) L.push(['CALCULATION', 'GLEQ / SD tank TSS = ' + fmt(m / s.mean * 100, 0) + '% ของ raw GL ' + (m < s.mean * 0.5 ? '(มีการตกตะกอนบางส่วนก่อนเข้า clarifier)' : '(ของแข็งส่วนใหญ่ยังค้างอยู่ จึงต้องพึ่ง clarifier เป็นหลัก)')]);
+      L.push(['ENGINEERING JUDGMENT', 'ความแกว่งของ TSS ที่ GLEQ ส่งผลตรงต่อ underflow และ sludge blanket ของ clarifier ควรคุม level ของ GL EQ tank ไม่ให้ต่ำจนเกิด short-circuit']);
+    }
+    if (k === 'glc_ss') {
+      const s = stats(rows, 'gleq_ss');
+      if (s.n && s.mean) L.push(['CALCULATION', 'Clarifier removal efficiency ≈ ' + fmt((1 - m / s.mean) * 100, 1) + '% (1 − GLC/GLEQ)']);
+      if (m > 100) L.push(['ENGINEERING JUDGMENT', 'Clarified GL TSS สูงกว่า 100 mg/L → dregs carryover เข้า slaker จะทำให้ lime mud ตกตะกอนและกรองยากขึ้น (LM DS ต่ำ, heat ใน kiln สูง) และพา NPE เข้า lime cycle มากขึ้น']);
+      else L.push(['ENGINEERING JUDGMENT', 'Clarified GL ใส่อยู่ในเกณฑ์ ความเสี่ยงที่ dregs จะไปกระทบ lime cycle ต่ำ']);
+      const p = r('glc_ss', 'lm_ds', 1);
+      if (p.r != null) L.push(['CALCULATION', 'GLC TSS (วัน t) → LM DS (วัน t+1): ' + rTxt(p)]);
+      L.push(['ENGINEERING JUDGMENT', 'ถ้าค่าสูง ให้ตรวจ underflow rate, sludge blanket level, flocculant dose, rake torque (ตั้งไว้ <10 kNm) และ GL flow surge จาก RB']);
+    }
+    if (k === 'air_ratio') {
+      const t = target('air_ratio');
+      if (t != null) L.push(['CALCULATION', 'ต่ำกว่า target ' + rows.filter((x) => x.air_ratio != null && x.air_ratio < t).length + ' วัน จาก ' + A.n + ' วัน']);
+      L.push(['ENGINEERING JUDGMENT', 'Air ratio ต่ำเสี่ยงต่อ combustion ไม่สมบูรณ์ (CO สูง, carbon ใน smelt สูง, dregs มาก) ส่วนค่าสูงเกินทำให้ flue gas loss สูงและ bed เย็นลง ควรดูคู่กับ Firing load']);
+    }
+    if (k === 'firing') {
+      const p = r('firing', 'gl_feed_h', 0);
+      L.push(['ENGINEERING JUDGMENT', 'Firing คือ load ต้นทางของ GL ทั้งหมด CV ของ Firing ที่สูงจะส่งต่อไปเป็นความแกว่งของ GL flow, TTA และ lime ratio ที่ slaker']);
+      if (p.r != null) L.push(['CALCULATION', 'Firing ↔ GL feed: ' + rTxt(p)]);
+    }
+    if (k === 'sd_tta' || k === 'gleq_tta' || k === 'glc_tta') {
+      if (A.cv != null) L.push(['ENGINEERING JUDGMENT', A.cv <= 3 ? 'TTA นิ่งดี (CV ≤3%) ช่วยให้คุม lime-to-liquor ratio และ CE ได้แม่น' : 'TTA แกว่ง (CV >3%) จะทำให้ lime dose ไม่สัมพันธ์กับ alkali จริง เกิดช่วง under-liming/over-liming สลับกัน ควรตรวจการคุม WWL ไป dissolving tank (density/conductivity control)']);
+      if (k === 'glc_tta') { const s = stats(rows, 'gleq_tta'); if (s.n) L.push(['CALCULATION', 'TTA GLC − GL EQ = ' + fmt(m - s.mean, 1) + ' g/L ' + (m - s.mean < -3 ? '→ มีการเจือจางระหว่าง EQ กับ clarifier (เช่น น้ำล้าง dregs หรือ seal water) ควรหาแหล่งน้ำเข้า' : '→ ไม่มีการเจือจางที่มีนัย')]); }
+      if (k === 'gleq_tta') { const p = r('gleq_tta', 'wl_ea', 0); if (p.r != null) L.push(['CALCULATION', 'GL TTA → WL EA: ' + rTxt(p)]); }
+    }
+    if (k === 'wl_ea') {
+      const t = stats(rows, 'gleq_tta'); const c = stats(rows, 'ce');
+      if (t.n && c.n) L.push(['CALCULATION', 'EA ที่คาดจาก GL TTA × (CE + sulfidity effect) โดยประมาณ ≈ ' + fmt(t.mean * (c.mean / 100) * 0.85 + t.mean * 0.15, 0) + ' g/L เทียบจริง ' + fmt(m, 1) + ' g/L (ใช้ประมาณ Na₂S ~30% ของ TTA ครึ่งหนึ่งนับเป็น EA) [ASSUMPTION]']);
+      L.push(['ENGINEERING JUDGMENT', 'EA ที่แกว่งส่งผลตรงต่อ alkali charge ที่ digester ควรคุม EA ให้นิ่งก่อนไล่ค่าเฉลี่ยให้สูงขึ้น']);
+    }
+    if (k === 'wl_sulf') {
+      const s = sumOf('s_mu'), n = sumOf('na_mu');
+      L.push(['CALCULATION', 'ในช่วงนี้ใช้ Sulphur make up ' + fmt(s, 0) + ' ถุง และ Na₂SO₄ make up ' + fmt(n, 0) + ' ถุง']);
+      L.push(['ENGINEERING JUDGMENT', 'Sulfidity สะท้อน sulfur balance ทั้งระบบ (RB reduction, S loss จาก NCG/flue gas, Na₂SO₄/S make up) ปรับได้ช้า ควรดูเป็นแนวโน้มรายสัปดาห์มากกว่ารายวัน']);
+    }
+    if (k === 'ce') {
+      if (m < 78) L.push(['ENGINEERING JUDGMENT', 'CE ต่ำกว่าช่วงทั่วไป → Na₂CO₃ dead load สูง อาจมาจาก under-liming, burnt lime คุณภาพต่ำ (CaO ต่ำ, CaCO₃ residual สูง) หรือ retention ใน causticizer ไม่พอ']);
+      else if (m > 84) L.push(['ENGINEERING JUDGMENT', 'CE สูงใกล้ equilibrium → เสี่ยง over-liming: lime mud ละเอียด, กรองยาก, LM DS ต่ำ และมี free lime เข้า kiln']);
+      else L.push(['ENGINEERING JUDGMENT', 'CE อยู่ในช่วงเหมาะสม เป็นจุดสมดุลระหว่าง conversion กับคุณภาพการกรองของ lime mud']);
+      const p1 = r('lm_cao', 'ce', 0), p2 = r('ce', 'lm_ds', 0);
+      if (p1.r != null) L.push(['CALCULATION', 'CaO ของ burnt lime → CE: ' + rTxt(p1)]);
+      if (p2.r != null) L.push(['CALCULATION', 'CE → LM DS: ' + rTxt(p2) + (p2.r < -0.3 && p2.sig ? ' → CE สูงตามด้วย DS ต่ำ เป็นสัญญาณ over-liming' : '')]);
+    }
+    if (k === 'lm_tta') {
+      const p = r('lm_tta', 'trs', 0);
+      L.push(['ENGINEERING JUDGMENT', 'Residual alkali ใน lime mud สูงหมายถึงล้าง mud ไม่พอ Na (โดยเฉพาะ Na₂S) ที่เข้า kiln ทำให้เกิด TRS, ring/ball formation และ dust ที่เหนียว']);
+      if (p.r != null) L.push(['CALCULATION', 'LM TTA → TRS emission: ' + rTxt(p) + (p.r > 0.3 && p.sig ? ' → ข้อมูลสนับสนุนว่าการล้าง mud มีผลต่อ TRS' : '')]);
+      L.push(['ENGINEERING JUDGMENT', 'ถ้าค่าสูง ให้ตรวจ shower water ที่ LM filter, mud washer dilution, การทำ precoat และ vacuum']);
+    }
+    if (k === 'lm_ds') {
+      const ref = 75;
+      if (m < ref) {
+        const dw = 1.786 * (1 / (m / 100) - 1 / (ref / 100));
+        const kcal = dw * 2.6 * 239;
+        L.push(['CALCULATION', 'ทุก 1 t CaO ต้องระเหยน้ำเพิ่มประมาณ ' + fmt(dw, 2) + ' t เมื่อเทียบกับ DS 75% → heat เพิ่มขึ้นประมาณ ' + fmt(kcal, 0) + ' kCal/kg CaO [ASSUMPTION: 1.786 t CaCO₃/t CaO, ใช้พลังงาน 2.6 GJ/t น้ำรวม loss]']);
+      } else L.push(['ENGINEERING JUDGMENT', 'LM DS อยู่ในระดับดี ภาระการระเหยน้ำใน kiln ต่ำ']);
+      const p = r('lm_ds', 'heat_cao', 0);
+      if (p.r != null) L.push(['CALCULATION', 'LM DS → Heat consumption: ' + rTxt(p) + (p.r < -0.3 && p.sig ? ' → ข้อมูลยืนยันว่า DS เป็นตัวขับ heat ที่สำคัญ' : p.r > 0.3 ? ' → ทิศทางขัดกับหลักการ แปลว่ามีตัวแปรอื่นครอบอยู่ (เช่น production load หรือ fuel mix)' : '')]);
+      L.push(['ENGINEERING JUDGMENT', 'ถ้า DS ต่ำ ให้ตรวจ vacuum, ความหนา precoat, การหมุนกลับ/เปลี่ยน scraper, รอบ acid wash, อุณหภูมิ mud และคุณภาพ GL clarified']);
+    }
+    if (k === 'lm_caco3') {
+      const p = r('lm_caco3', 'heat_cao', 0);
+      if (m < 1.5) L.push(['ENGINEERING JUDGMENT', 'Residual CaCO₃ ต่ำกว่าช่วงทั่วไป → เผาเกิน (over-burning) สิ้นเปลืองเชื้อเพลิงและ lime reactivity ลดลง ลด front-end temp/fuel ได้']);
+      else if (m > 3) L.push(['ENGINEERING JUDGMENT', 'Residual CaCO₃ สูง → เผาไม่สุก (under-burning) ทำให้ CaO ต่ำ ต้องใช้ lime มากขึ้นและมี dead load วนใน lime cycle ควรดู burning zone temp, O₂ และ residence time']);
+      else L.push(['ENGINEERING JUDGMENT', 'ระดับการเผาเหมาะสม อยู่ระหว่าง under-burning กับ over-burning']);
+      if (p.r != null) L.push(['CALCULATION', 'CaCO₃ residual ↔ Heat: ' + rTxt(p) + ' (หลักการคาดว่าเป็นลบ: เผาหนักขึ้น residual ลดลง)']);
+    }
+    if (k === 'lm_cao') {
+      const p = r('lm_cao', 'ce', 0);
+      L.push(['ENGINEERING JUDGMENT', 'CaO ต่ำมักมาจาก residual CaCO₃ สูง หรือ inerts/NPE สูง (MgO, SiO₂ จาก dregs carryover หรือ make-up lime) ส่งผลให้ต้องใช้ lime มากขึ้นต่อ CE เท่าเดิม']);
+      if (p.r != null) L.push(['CALCULATION', 'CaO → CE: ' + rTxt(p)]);
+    }
+    if (k === 'heat_cao') {
+      L.push(['CALCULATION', 'เท่ากับ ' + fmt(m * 4.1868 / 1000, 2) + ' GJ/t CaO']);
+      const drivers = ['lm_ds', 'lm_caco3', 'lime_t', 'f_uo', 'f_coal', 'f_bc'].map((d) => ({d, p: r(d, 'heat_cao', 0)})).filter((x) => x.p.r != null).sort((a, b) => Math.abs(b.p.r) - Math.abs(a.p.r));
+      if (drivers.length) L.push(['CALCULATION', 'ตัวแปรที่สัมพันธ์กับ heat มากที่สุด: ' + drivers.slice(0, 3).map((x) => NM[x.d] + ' ' + rTxt(x.p)).join(' · ')]);
+      L.push(['ENGINEERING JUDGMENT', 'ตัวขับหลักของ heat ในเตาหมุนคือ ความชื้นของ mud (LM DS), ระดับการเผา (residual CaCO₃), production load (heat loss ที่ shell ต่อตันจะสูงเมื่อเดินต่ำ), excess O₂ และ chain/feed-end condition']);
+    }
+    if (k === 'heat_pd') L.push(['ENGINEERING JUDGMENT', 'kCal/kg PD คิดต่อผลผลิตรวม ใช้เทียบกับ kCal/kg CaO เพื่อแยกผลของคุณภาพ lime (ถ้า CaO% ต่ำลง kCal/kg CaO จะสูงขึ้นเร็วกว่า)']);
+    return L;
+  };
+
+  dash.draw('ana', (el) => {
+    el.replaceChildren();
+    const rows = inRange(); if (!rows) return;
+    const k = el.dataset.k; const f = DEC[k] ?? 1; const u = UN[k] || '';
+    const A = stats(rows, k);
+    if (A.n < 3) { el.append(lineEl('FACT', 'ข้อมูลในช่วงนี้มี ' + A.n + ' วัน น้อยเกินกว่าจะวิเคราะห์')); return; }
+    const cvb = CV[k] || [5, 10];
+    const stab = A.cv == null ? '' : A.cv <= cvb[0] ? 'นิ่งดี' : A.cv <= cvb[1] ? 'แกว่งปานกลาง' : 'แกว่งสูง';
+    el.append(lineEl('CALCULATION', 'เฉลี่ย ' + fmt(A.mean, f) + ' ' + u + ' (ต่ำสุด ' + fmt(A.mn.v, f) + ' วันที่ ' + dayLabel(A.mn.day) + ', สูงสุด ' + fmt(A.mx.v, f) + ' วันที่ ' + dayLabel(A.mx.day) + ') · CV ' + fmt(A.cv, 1) + '% → ' + stab + ' · n=' + A.n + ' วัน'));
+    if (A.slope != null && Math.abs(A.rT) >= 0.3) el.append(lineEl('CALCULATION', 'แนวโน้ม' + (A.slope > 0 ? 'เพิ่มขึ้น' : 'ลดลง') + ' ประมาณ ' + fmt(Math.abs(A.slope * 30), f) + ' ' + u + ' ต่อ 30 วัน (r = ' + fmt(A.rT, 2) + ')'));
+    else if (A.slope != null) el.append(lineEl('CALCULATION', 'ไม่มีแนวโน้มขึ้นหรือลงที่ชัดเจนในช่วงนี้'));
+    if (A.last7 != null && A.prev != null) el.append(lineEl('CALCULATION', '7 วันล่าสุดเฉลี่ย ' + fmt(A.last7, f) + ' เทียบช่วงก่อนหน้า ' + fmt(A.prev, f) + ' ' + u + ' (' + (A.last7 >= A.prev ? '+' : '−') + fmt(Math.abs(A.last7 - A.prev), f) + ')'));
+    const t = target(k);
+    if (t != null) { const dir = {ce: 'min', lm_ds: 'min', lm_cao: 'min', air_ratio: 'min', firing: 'min'}[k] || (['sd_tta', 'gleq_tta', 'glc_tta', 'wl_ea', 'wl_sulf'].includes(k) ? 'near' : 'max'); const ok = rows.filter((x) => x[k] != null && pass(x[k], t, dir)).length; el.append(lineEl('CALCULATION', 'ผ่าน target ' + ok + '/' + A.n + ' วัน (' + fmt(ok / A.n * 100, 0) + '%)')); }
+    const bm = BM[k];
+    if (bm) el.append(lineEl('BENCHMARK', 'ช่วงทั่วไปในอุตสาหกรรม ' + fmt(bm[0], f) + '–' + fmt(bm[1], f) + ' ' + u + ' (' + bm[2] + '; industry typical ไม่ใช่มาตรฐานของโรงงาน) → ค่าเฉลี่ย' + (A.mean < bm[0] ? 'ต่ำกว่าช่วง' : A.mean > bm[1] ? 'สูงกว่าช่วง' : 'อยู่ในช่วง')));
+    if (A.out.length) el.append(lineEl('CALCULATION', 'ค่าผิดปกติ (|z|>2.5) ' + A.out.length + ' วัน: ' + A.out.slice(0, 4).map((p) => dayLabel(p.day) + ' = ' + fmt(p.v, f)).join(', ') + ' ควรตรวจว่าเป็นค่าจริงหรือ sampling/บันทึกผิด'));
+    for (const [tag, text] of expert(k, A, rows, f, u)) el.append(lineEl(tag, text));
+  });
+
+  // quality overview
+  dash.draw('qsum', (el) => {
+    el.replaceChildren();
+    const rows = inRange(); if (!rows) return;
+    const keys = el.dataset.keys.split(',');
+    const issues = [];
+    const tb = document.createElement('table'); tb.className = 'rc-table rc-qsum';
+    const hd = document.createElement('tr');
+    for (const h of ['พารามิเตอร์', 'เฉลี่ย', 'แนวโน้ม', 'ความเสถียร', 'เทียบ target', 'เทียบ benchmark']) { const th = document.createElement('th'); th.textContent = h; hd.append(th); }
+    const thead = document.createElement('thead'); thead.append(hd); tb.append(thead);
+    const body = document.createElement('tbody');
+    for (const k of keys) {
+      const A = stats(rows, k); const f = DEC[k] ?? 1; const tr = document.createElement('tr');
+      const cells = [NM[k] + ' (' + (UN[k] || '') + ')'];
+      if (A.n < 3) { cells.push('—', '—', '—', '—', '—'); }
+      else {
+        cells.push(fmt(A.mean, f));
+        cells.push(A.slope != null && Math.abs(A.rT) >= 0.3 ? (A.slope > 0 ? '↑ ' : '↓ ') + fmt(Math.abs(A.slope * 30), f) + '/30d' : '→');
+        const cvb = CV[k] || [5, 10]; const st = A.cv <= cvb[0] ? 'นิ่ง' : A.cv <= cvb[1] ? 'ปานกลาง' : 'แกว่งสูง';
+        cells.push(st + ' (CV ' + fmt(A.cv, 1) + '%)');
+        const t = target(k);
+        if (t == null) cells.push('ไม่ได้ตั้ง');
+        else { const dir = {ce: 'min', lm_ds: 'min', lm_cao: 'min', air_ratio: 'min', firing: 'min'}[k] || (['sd_tta', 'gleq_tta', 'glc_tta', 'wl_ea', 'wl_sulf'].includes(k) ? 'near' : 'max'); const ok = pass(A.mean, t, dir); cells.push(ok ? 'ผ่าน' : 'ไม่ผ่าน'); if (!ok) issues.push({k, w: 3, why: 'ไม่ผ่าน target'}); }
+        const bm = BM[k];
+        if (!bm) cells.push('—');
+        else { const pos = A.mean < bm[0] ? 'ต่ำกว่าช่วง' : A.mean > bm[1] ? 'สูงกว่าช่วง' : 'ในช่วง'; cells.push(pos); const bad = (k === 'glc_ss' || k === 'sd_tss' || k === 'heat_cao') ? A.mean > bm[1] : (k === 'lm_ds' || k === 'lm_cao') ? A.mean < bm[0] : pos !== 'ในช่วง'; if (bad) issues.push({k, w: 2, why: pos + ' benchmark'}); }
+        if (st === 'แกว่งสูง') issues.push({k, w: 1, why: 'แกว่งสูง'});
+      }
+      cells.forEach((c, i) => { const td = document.createElement('td'); td.textContent = c; if (c === 'ผ่าน') td.className = 'rc-ok-txt'; if (c === 'ไม่ผ่าน' || c === 'แกว่งสูง' || c.startsWith('แกว่งสูง')) td.className = 'rc-bad-txt'; tr.append(td); });
+      body.append(tr);
+    }
+    tb.append(body);
+    const box = document.createElement('div'); box.className = 'rc-tablebox'; box.append(tb); el.append(box);
+    const agg2 = new Map(); for (const i of issues) { const o = agg2.get(i.k) || {k: i.k, w: 0, why: []}; o.w += i.w; o.why.push(i.why); agg2.set(i.k, o); }
+    const top = [...agg2.values()].sort((a, b) => b.w - a.w).slice(0, 3);
+    el.append(lineEl('ENGINEERING JUDGMENT', top.length ? 'ประเด็นที่ควรจัดการก่อน: ' + top.map((o, i) => (i + 1) + ') ' + NM[o.k] + ' (' + o.why.join(', ') + ')').join(' · ') : 'ไม่พบพารามิเตอร์ที่หลุด target หรือ benchmark อย่างมีนัยในช่วงนี้'));
+    if (rows.length < 20) el.append(lineEl('FACT', 'ช่วงที่เลือกมี ' + rows.length + ' วัน การดูแนวโน้มและความสัมพันธ์จะน่าเชื่อถือกว่าเมื่อเลือกช่วง 30 วันขึ้นไปหรือ YTD'));
+  });
+
+  // relationship cells
+  dash.draw('rel', (el) => {
+    const rows = inRange(); el.className = 'rc-rel-cell';
+    if (!rows) { el.textContent = '—'; return; }
+    const a = el.dataset.a, b = el.dataset.b, sign = Number(el.dataset.sign), maxLag = Number(el.dataset.lag) || 0;
+    let best = null;
+    for (let lag = 0; lag <= maxLag; lag++) { const p = pearson(rows, a, b, lag); if (p.r != null && (!best || Math.abs(p.r) > Math.abs(best.r))) best = {...p, lag}; }
+    const what = el.dataset.what;
+    if (!best) { el.textContent = what === 'verdict' ? 'ข้อมูลไม่พอ' : '—'; return; }
+    if (what === 'r') el.textContent = fmt(best.r, 2) + (best.lag ? ' (lag ' + best.lag + 'd)' : '');
+    else if (what === 'n') el.textContent = String(best.n);
+    else {
+      const agree = Math.sign(best.r) === sign;
+      if (!best.sig || Math.abs(best.r) < 0.3) { el.textContent = 'ไม่ชัด (' + strength(best.r) + ')'; }
+      else if (agree) { el.textContent = 'สอดคล้อง (' + strength(best.r) + ')'; el.classList.add('rc-ok-txt'); }
+      else { el.textContent = 'ขัดแย้ง (' + strength(best.r) + ')'; el.classList.add('rc-bad-txt'); }
+    }
+  });
+
+  // heatmap
+  dash.draw('heatmap', (el) => {
+    el.replaceChildren();
+    const rows = inRange(); if (!rows) return;
+    const keys = el.dataset.keys.split(',');
+    const n = keys.length;
+    const lab = keys.map((k) => NM[k] || k);
+    const W = Math.max(560, el.clientWidth || 700);
+    const probe = d3.select(el).append('svg').attr('width', 0).attr('height', 0);
+    let lw = 0; for (const l of lab) lw = Math.max(lw, probe.append('text').attr('font-size', 11).text(l).node().getComputedTextLength());
+    probe.remove();
+    lw = Math.ceil(lw) + 8;
+    const cs = Math.max(14, Math.min(34, (W - lw - 8) / n));
+    const H = lw + cs * n + 8;
+    const svg = d3.select(el).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${lw + cs * n + 8} ${H}`);
+    const tip = document.createElement('div'); tip.className = 'rc-tip'; tip.hidden = true; el.append(tip);
+    for (let i = 0; i < n; i++) {
+      svg.append('text').attr('x', lw - 6).attr('y', lw + i * cs + cs / 2).attr('dy', '0.32em').attr('text-anchor', 'end').attr('font-size', 11).attr('fill', 'var(--color-fg-muted)').text(lab[i]);
+      svg.append('text').attr('transform', `translate(${lw + i * cs + cs / 2},${lw - 6}) rotate(-60)`).attr('font-size', 11).attr('fill', 'var(--color-fg-muted)').text(lab[i]);
+      for (let j = 0; j < n; j++) {
+        const p = i === j ? {r: 1, n: 0} : pearson(rows, keys[i], keys[j], 0);
+        const g = svg.append('g');
+        g.append('rect').attr('x', lw + j * cs + 1).attr('y', lw + i * cs + 1).attr('width', cs - 2).attr('height', cs - 2).attr('rx', 2)
+          .attr('fill', p.r == null ? 'var(--cds-chart-grid)' : p.r >= 0 ? dash.colors[0] : dash.colors[1]).attr('fill-opacity', p.r == null ? 0.4 : 0.12 + 0.88 * Math.abs(p.r));
+        if (cs >= 26 && p.r != null && i !== j) g.append('text').attr('x', lw + j * cs + cs / 2).attr('y', lw + i * cs + cs / 2).attr('dy', '0.32em').attr('text-anchor', 'middle').attr('font-size', 9).attr('fill', Math.abs(p.r) > 0.55 ? 'var(--color-bg)' : 'var(--color-fg)').text(fmt(p.r, 1).replace('0.', '.'));
+        if (i !== j) g.on('pointerenter', (ev) => { tip.replaceChildren(); const d = document.createElement('div'); d.className = 'd'; d.textContent = lab[i] + ' × ' + lab[j]; const l = document.createElement('div'); l.className = 'l'; l.textContent = rTxt(p); tip.append(d, l); tip.hidden = false; const sc = el.clientWidth / (lw + cs * n + 8); let left = (lw + j * cs + cs) * sc + 8; if (left + tip.offsetWidth > el.clientWidth) left = (lw + j * cs) * sc - tip.offsetWidth - 8; tip.style.left = Math.max(0, left) + 'px'; tip.style.top = Math.max(0, (lw + i * cs) * sc - 8) + 'px'; })
+          .on('pointerleave', () => { tip.hidden = true; });
+      }
+    }
+  });
+
+  // strongest pairs
+  const FAMILY = [['f_uo', 'f_uoa', 'f_uog', 'f_bc', 'f_coal', 'f_bio'], ['sd_tta', 'gleq_tta', 'glc_tta'], ['heat_cao', 'heat_pd'], ['lm_caco3', 'lm_cao'], ['sd_tss', 'gleq_ss']];
+  const sameFam = (a, b) => FAMILY.some((f) => f.includes(a) && f.includes(b));
+  dash.draw('top', (el) => {
+    el.replaceChildren();
+    const rows = inRange(); if (!rows) return;
+    const keys = el.dataset.keys.split(',');
+    const res = [];
+    for (let i = 0; i < keys.length; i++) for (let j = i + 1; j < keys.length; j++) { const p = pearson(rows, keys[i], keys[j], 0); if (p.r != null && p.sig && !sameFam(keys[i], keys[j])) res.push({a: keys[i], b: keys[j], p}); }
+    res.sort((x, y) => Math.abs(y.p.r) - Math.abs(x.p.r));
+    const ol = document.createElement('ol'); ol.className = 'rc-top';
+    for (const x of res.slice(0, 10)) { const li = document.createElement('li'); li.textContent = NM[x.a] + ' ↔ ' + NM[x.b] + ': ' + (x.p.r > 0 ? 'แปรผันตาม' : 'แปรผกผัน') + ' · ' + rTxt(x.p); ol.append(li); }
+    if (!res.length) el.append(lineEl('FACT', 'ไม่พบคู่ที่สัมพันธ์อย่างมีนัยสำคัญในช่วงนี้ ลองเลือกช่วงข้อมูลที่ยาวขึ้น'));
+    else el.append(ol);
+  });
+
+  // scatter of chosen pair
+  dash.draw('scatter', (el) => {
+    el.replaceChildren();
+    const rows = inRange(); if (!rows) return;
+    const pv = String(dash.params().pair || 'lm_ds|heat_cao|0').split('|');
+    const [a, b] = pv; const lag = Number(pv[2]) || 0;
+    const p = pearson(rows, a, b, lag);
+    if (p.r == null) { el.append(lineEl('FACT', 'ข้อมูลคู่นี้ในช่วงที่เลือกมีไม่พอ (ต้องมีอย่างน้อย 8 วันที่มีค่าทั้งสองตัว)')); return; }
+    const W = Math.max(280, el.clientWidth || 600), H = 240, mt = 10, mb = 34, mr = 10;
+    const ys = d3.extent(p.ys), xs = d3.extent(p.xs);
+    const y = d3.scaleLinear(ys, [H - mb, mt]).nice(5), x0 = d3.scaleLinear(xs, [0, 1]).nice(5);
+    const svg = d3.select(el).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`);
+    const tf = (v) => Math.abs(v) >= 10000 ? d3.format('.2~s')(v) : d3.format(',.4~g')(v);
+    let ml = 0; const pr = svg.append('g'); for (const t of y.ticks(5)) ml = Math.max(ml, pr.append('text').attr('font-size', 11).text(tf(t)).node().getComputedTextLength()); pr.remove(); ml = Math.ceil(ml) + 10;
+    const x = d3.scaleLinear(x0.domain(), [ml, W - mr]);
+    svg.append('g').selectAll('line').data(y.ticks(5)).join('line').attr('x1', ml).attr('x2', W - mr).attr('y1', (t) => y(t)).attr('y2', (t) => y(t)).attr('stroke', 'var(--cds-chart-grid)');
+    svg.append('g').selectAll('text').data(y.ticks(5)).join('text').attr('x', ml - 6).attr('y', (t) => y(t)).attr('dy', '0.32em').attr('text-anchor', 'end').attr('font-size', 11).attr('fill', 'var(--color-fg-muted)').text(tf);
+    const ax = svg.append('g').attr('transform', `translate(0,${H - mb})`).call(d3.axisBottom(x).ticks(Math.max(2, Math.floor((W - ml) / 80))).tickFormat(tf).tickSizeOuter(0)).attr('font-size', null).attr('font-family', null);
+    ax.selectAll('text').attr('font-size', 11).attr('fill', 'var(--color-fg-muted)'); ax.selectAll('line,path').attr('stroke', 'var(--cds-chart-axis)');
+    svg.append('text').attr('x', W - mr).attr('y', H - 4).attr('text-anchor', 'end').attr('font-size', 11).attr('fill', 'var(--color-fg-muted)').text((NM[a] || a) + (lag ? ' (วัน t)' : '') + ' →');
+    svg.append('text').attr('x', ml + 4).attr('y', mt + 10).attr('font-size', 11).attr('fill', 'var(--color-fg-muted)').text('↑ ' + (NM[b] || b) + (lag ? ' (วัน t+' + lag + ')' : ''));
+    svg.append('g').selectAll('circle').data(p.xs.map((v, i) => [v, p.ys[i]])).join('circle').attr('cx', (d) => x(d[0])).attr('cy', (d) => y(d[1])).attr('r', 3.2).attr('fill', dash.colors[0]).attr('fill-opacity', 0.7);
+    const mx = d3.mean(p.xs), my = d3.mean(p.ys), x1 = x.domain()[0], x2 = x.domain()[1];
+    svg.append('line').attr('x1', x(x1)).attr('x2', x(x2)).attr('y1', y(my + p.slope * (x1 - mx))).attr('y2', y(my + p.slope * (x2 - mx))).attr('stroke', dash.colors[1]).attr('stroke-width', 2).attr('stroke-dasharray', '6 4');
+    el.append(lineEl('CALCULATION', rTxt(p) + ' · slope: ' + NM[b] + ' เปลี่ยน ' + d3.format(',.3~g')(p.slope) + ' ต่อ ' + (NM[a] || a) + ' 1 หน่วย'));
+  });
+  for (const sel of document.querySelectorAll('#dash-root .rc-pair')) sel.addEventListener('change', () => dash.setParams({pair: sel.value}));
+  dash.onData(() => { for (const sel of document.querySelectorAll('#dash-root .rc-pair')) { const v = dash.params().pair; if (v && [...sel.options].some((o) => o.value === v)) sel.value = v; } });
+
+  // expert synthesis of relationships
+  dash.draw('relsum', (el) => {
+    el.replaceChildren();
+    const rows = inRange(); if (!rows) return;
+    const cells = [...document.querySelectorAll('#dash-root [data-draw="rel"][data-what="verdict"]')];
+    let ok = 0, bad = 0, unclear = 0; const conflicts = [];
+    for (const c of cells) {
+      const a = c.dataset.a, b = c.dataset.b, sign = Number(c.dataset.sign), maxLag = Number(c.dataset.lag) || 0;
+      let best = null; for (let lag = 0; lag <= maxLag; lag++) { const p = pearson(rows, a, b, lag); if (p.r != null && (!best || Math.abs(p.r) > Math.abs(best.r))) best = p; }
+      if (!best || !best.sig || Math.abs(best.r) < 0.3) unclear++; else if (Math.sign(best.r) === sign) ok++; else { bad++; conflicts.push(NM[a] + ' → ' + NM[b]); }
+    }
+    el.append(lineEl('CALCULATION', 'จากความสัมพันธ์ตามหลักกระบวนการ ' + cells.length + ' คู่: สอดคล้อง ' + ok + ' · ขัดแย้ง ' + bad + ' · ไม่ชัด ' + unclear + ' (ช่วง ' + rows.length + ' วัน)'));
+    if (conflicts.length) el.append(lineEl('HYPOTHESIS', 'คู่ที่ทิศทางขัดกับหลักการ (' + conflicts.join(', ') + ') มักเกิดจากตัวแปรแฝงที่เปลี่ยนพร้อมกัน (เช่น production load, fuel mix, การ shutdown) หรือค่าที่บันทึกผิด ควรเลือกช่วงที่เดินเครื่องปกติแล้วดูใหม่ ก่อนสรุปว่าเป็นพฤติกรรมจริงของโรงงาน'));
+    const drivers = ['lm_ds', 'lm_caco3', 'lime_t', 'f_uo', 'f_coal'].map((d) => ({d, p: pearson(rows, d, 'heat_cao', 0)})).filter((x) => x.p.r != null && x.p.sig).sort((x, y) => Math.abs(y.p.r) - Math.abs(x.p.r));
+    el.append(lineEl('ENGINEERING JUDGMENT', drivers.length ? 'ตัวขับ heat consumption ที่ข้อมูลชี้ชัดที่สุดคือ ' + NM[drivers[0].d] + ' (' + rTxt(drivers[0].p) + ') ควรเริ่มจุดปรับปรุงพลังงานจากตัวนี้' : 'ยังไม่พบตัวขับ heat consumption ที่มีนัยสำคัญในช่วงนี้ ลองขยายช่วงเป็น YTD'));
+    const ceD = ['lm_cao', 'lm_caco3', 'gleq_tta'].map((d) => ({d, p: pearson(rows, d, 'ce', 0)})).filter((x) => x.p.r != null && x.p.sig).sort((x, y) => Math.abs(y.p.r) - Math.abs(x.p.r));
+    if (ceD.length) el.append(lineEl('ENGINEERING JUDGMENT', '%CE สัมพันธ์มากที่สุดกับ ' + NM[ceD[0].d] + ' (' + rTxt(ceD[0].p) + ')'));
+    const trsD = ['lm_tta', 'lm_ds', 'f_uo', 'lime_t'].map((d) => ({d, p: pearson(rows, d, 'trs', 0)})).filter((x) => x.p.r != null && x.p.sig).sort((x, y) => Math.abs(y.p.r) - Math.abs(x.p.r));
+    if (trsD.length) el.append(lineEl('ENGINEERING JUDGMENT', 'TRS emission สัมพันธ์มากที่สุดกับ ' + NM[trsD[0].d] + ' (' + rTxt(trsD[0].p) + ')'));
+    el.append(lineEl('FACT', 'Correlation ไม่ใช่ causation ค่า Lab ส่วนใหญ่สุ่มวันละครั้ง และ lag ระหว่าง causticizing กับ kiln จริงขึ้นกับ inventory ของ mud storage จึงทดสอบ lag ไว้ 0–2 วัน'));
+  });
+})();
+</script>
+</body></html>
