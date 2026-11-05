@@ -56,11 +56,11 @@
 .sidebar .sidebar-brand .mark{background:rgba(255,255,255,.13);color:#DCE9F7}
 .sidebar .sidebar-brand .name{color:#fff}
 .sidebar .sidebar-brand .sub{color:#9FB4CE}
-.sidebar .nav-item,.sidebar .nav-parent{color:#B7C6DA}
-.sidebar .nav-item:hover,.sidebar .nav-parent:hover{background:rgba(255,255,255,.08);color:#fff}
+.sidebar .nav-item{color:#B7C6DA}
+.sidebar .nav-item:hover{background:rgba(255,255,255,.08);color:#fff}
 .sidebar .nav-item.active{background:rgba(255,255,255,.14);color:#fff}
-.sidebar .nav-parent .chev,.sidebar .nav-children .nav-item::before{color:#8098B7}
-.sidebar .nav-group.open>.nav-parent{color:#fff}
+.sidebar .nav-parent{color:#8098B7}
+.sidebar .nav-children .nav-item::before{color:#8098B7}
 .sidebar .nav-children{background:#0A2E55;border-color:rgba(255,255,255,.14)}
 
   .sidebar-brand{display:flex; align-items:center; gap:9px; padding:2px 6px 12px; border-bottom:1px solid var(--border);}
@@ -72,21 +72,22 @@
   .sidebar-brand .sub{font-size:10.5px; color:var(--ink-3); margin-top:1px;}
 
   .side-nav{display:flex; flex-direction:column; gap:2px;}
-  .nav-item, .nav-parent{
+  .nav-item{
     display:flex; align-items:center; justify-content:space-between; width:100%; text-align:left;
     background:none; border:none; font-size:12.8px; font-weight:600; color:var(--ink-2);
     padding:9px 10px; border-radius:8px; cursor:pointer; transition:background .12s,color .12s;
   }
-  .nav-item:hover, .nav-parent:hover{background:var(--surface-2); color:var(--ink);}
+  .nav-item:hover{background:var(--surface-2); color:var(--ink);}
   .nav-item.active{background:var(--accent-soft); color:var(--accent-ink);}
-  .nav-parent .chev{font-size:9px; color:var(--ink-3); transition:transform .15s; flex-shrink:0;}
-  .nav-group.open > .nav-parent .chev{transform:rotate(90deg);}
-  .nav-group.open > .nav-parent{color:var(--ink);}
-  .nav-children{
-    display:flex; flex-direction:column; gap:1px; padding-left:12px; margin-top:1px;
-    max-height:0; overflow:hidden; transition:max-height .18s ease;
+  /* section header — always-static label above its always-visible .nav-children, no toggle */
+  .nav-parent{
+    display:flex; align-items:center; width:100%; text-align:left;
+    font-size:11px; font-weight:700; color:var(--ink-3); text-transform:uppercase; letter-spacing:.04em;
+    padding:10px 10px 5px;
   }
-  .nav-group.open .nav-children{max-height:160px;}
+  .nav-children{
+    display:flex; flex-direction:column; gap:1px; padding-left:12px; margin-top:1px; margin-bottom:6px;
+  }
   .nav-children .nav-item{font-size:12px; font-weight:500; padding:7.5px 10px;}
   .nav-children .nav-item::before{content:"–"; margin-right:6px; color:var(--ink-3);}
 
@@ -304,22 +305,6 @@
   .empty-state h2{font-size:15.5px; font-weight:700; color:var(--ink); margin-bottom:8px;}
   .empty-state p{font-size:12.5px; line-height:1.7; color:var(--ink-3); max-width:440px; margin:0 auto;}
 
-  @media (max-width:860px){
-    .app{flex-direction:column;}
-    .sidebar{
-      width:100%; height:auto; position:relative; flex-direction:row; align-items:flex-start;
-      overflow-x:auto; border-right:none; border-bottom:1px solid var(--border); padding:10px 12px; gap:10px;
-    }
-    .sidebar-brand{border-bottom:none; padding:2px 8px 2px 2px; border-right:1px solid var(--border);}
-    .side-nav{flex-direction:row; gap:4px;}
-    .nav-group{position:relative;}
-    .nav-children{
-      position:absolute; top:100%; left:0; z-index:5; background:var(--surface); border:1px solid var(--border);
-      border-radius:8px; box-shadow:var(--shadow); padding:4px; flex-direction:column; max-height:none;
-      width:max-content; display:none; margin-top:4px;
-    }
-    .nav-group.open .nav-children{display:flex;}
-  }
 
   .nav-ico{display:inline-block; width:18px; text-align:center; flex-shrink:0;}
   .nav-item .nav-label, .nav-parent .nav-label{display:inline-block; margin-left:8px;}
@@ -792,10 +777,7 @@
     </div>
     <nav class="side-nav" id="sideNav">
       <div class="nav-group" data-group="production">
-        <button class="nav-parent" data-toggle="production">
-          <span style="display:flex; align-items:center; min-width:0;"><span class="nav-ico">🏭</span><span class="nav-label" data-i18n-nav="navProduction">Production</span></span>
-          <span class="chev">▸</span>
-        </button>
+        <div class="nav-parent"><span class="nav-ico">🏭</span><span class="nav-label" data-i18n-nav="navProduction">Production</span></div>
         <div class="nav-children">
           <button class="nav-item active" data-page="production-pm1"><span class="nav-label" data-i18n-nav="navProductionPm1">Pulp mill 1</span></button>
           <button class="nav-item" data-page="production-pm2"><span class="nav-label" data-i18n-nav="navProductionPm2">Pulp mill 2</span></button>
@@ -803,20 +785,14 @@
         </div>
       </div>
       <div class="nav-group" data-group="yield">
-        <button class="nav-parent" data-toggle="yield">
-          <span style="display:flex; align-items:center; min-width:0;"><span class="nav-ico">🌲</span><span class="nav-label" data-i18n-nav="navYield">Yield</span></span>
-          <span class="chev">▸</span>
-        </button>
+        <div class="nav-parent"><span class="nav-ico">🌲</span><span class="nav-label" data-i18n-nav="navYield">Yield</span></div>
         <div class="nav-children">
           <button class="nav-item" data-page="yield"><span class="nav-label" data-i18n-nav="navYield">Yield</span></button>
           <button class="nav-item" data-page="yield-weightscale"><span class="nav-label" data-i18n-nav="navYieldWeightScale">Weight scale digester</span></button>
         </div>
       </div>
       <div class="nav-group" data-group="process-area">
-        <button class="nav-parent" data-toggle="process-area">
-          <span style="display:flex; align-items:center; min-width:0;"><span class="nav-ico">🏗</span><span class="nav-label" data-i18n-nav="navProcessArea">Process area</span></span>
-          <span class="chev">▸</span>
-        </button>
+        <div class="nav-parent"><span class="nav-ico">🏗</span><span class="nav-label" data-i18n-nav="navProcessArea">Process area</span></div>
         <div class="nav-children">
           <button class="nav-item" data-page="process-rawmaterial"><span class="nav-label" data-i18n-nav="navProcessRawMaterial">Raw material</span></button>
           <button class="nav-item" data-page="process-cooking"><span class="nav-label" data-i18n-nav="navProcessCooking">Cooking</span></button>
@@ -2545,9 +2521,6 @@ function showPage(pageId){
   document.querySelectorAll('.nav-item[data-page]').forEach(btn=>{
     btn.classList.toggle('active', btn.dataset.page === pageId);
   });
-  const activeBtn = document.querySelector('.nav-item.active');
-  const parentGroup = activeBtn ? activeBtn.closest('.nav-group') : null;
-  document.querySelectorAll('.nav-group').forEach(g=> g.classList.toggle('open', g === parentGroup));
   if(typeof updateToolbarForPage === 'function') updateToolbarForPage(pageId);
   const searchPanelEl = document.getElementById('tbSearchPanel');
   if(searchPanelEl) searchPanelEl.hidden = true;
@@ -2558,11 +2531,6 @@ function showPage(pageId){
 }
 document.querySelectorAll('.nav-item[data-page]').forEach(btn=>{
   btn.addEventListener('click', ()=> showPage(btn.dataset.page));
-});
-document.querySelectorAll('.nav-parent[data-toggle]').forEach(btn=>{
-  btn.addEventListener('click', ()=>{
-    btn.closest('.nav-group').classList.toggle('open');
-  });
 });
 /* initial page render happens at the bottom of this script, after the
    header-toolbar (i18n / search / export) definitions exist */
@@ -12953,11 +12921,6 @@ if(moreNotifBtnEl2) moreNotifBtnEl2.addEventListener('click', ()=>{ const mm = d
 
 applyLang(currentLang);
 showPage('production-pm1');
-// showPage() auto-expands whichever sidebar group holds the active page so navigating there
-// (search, notifications) reveals it — but on first load that means Production's sub-items
-// show by default, which reads as clutter here, so collapse it back right after landing.
-const prodNavGroupEl = document.querySelector('.nav-group[data-group="production"]');
-if(prodNavGroupEl) prodNavGroupEl.classList.remove('open');
 }catch(err){
   console.error('Dashboard data load error', err);
   const overlay = document.getElementById('dashLoadingOverlay');
