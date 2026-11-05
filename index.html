@@ -321,21 +321,8 @@
     .nav-group.open .nav-children{display:flex;}
   }
 
-  /* ---- sidebar collapse ---- */
   .nav-ico{display:inline-block; width:18px; text-align:center; flex-shrink:0;}
   .nav-item .nav-label, .nav-parent .nav-label{display:inline-block; margin-left:8px;}
-  .app.sidebar-collapsed .sidebar{width:60px; padding:18px 8px;}
-  .app.sidebar-collapsed .sidebar-brand{justify-content:center; padding-bottom:12px;}
-  .app.sidebar-collapsed .sidebar-brand .name,
-  .app.sidebar-collapsed .sidebar-brand .sub{display:none;}
-  .app.sidebar-collapsed .nav-item, .app.sidebar-collapsed .nav-parent{justify-content:center; padding:9px 4px;}
-  .app.sidebar-collapsed .nav-label{display:none;}
-  .app.sidebar-collapsed .nav-children{padding-left:0;}
-  @media (max-width:860px){
-    .app.sidebar-collapsed .sidebar{width:100%;}
-    .app.sidebar-collapsed .sidebar-brand .name, .app.sidebar-collapsed .sidebar-brand .sub{display:block;}
-    .app.sidebar-collapsed .nav-label{display:inline-block;}
-  }
 
   /* ---- app toolbar (sticky header, next to sidebar) ---- */
   .app-toolbar{
@@ -466,8 +453,6 @@
   }
 
   /* ---- toolbar refinements ---- */
-  .app.sidebar-collapsed .nav-parent .chev{display:none;}
-  .app.sidebar-collapsed .nav-parent > span{margin:0 auto;}
   .nav-children .nav-item .nav-label{margin-left:0;}
   @media (max-width:1180px){
     .tb-search.force-open{
@@ -850,8 +835,6 @@
 
   <div class="main">
     <header class="app-toolbar" id="appToolbar">
-      <button class="tb-btn" id="sidebarToggleBtn" type="button" aria-label="พับ/ขยายเมนูด้านซ้าย" title="พับ/ขยายเมนูด้านซ้าย">☰</button>
-
       <div class="tb-title">
         <div class="tb-title-main" id="tbPageTitle">Pulp mill 1 — Dashboard</div>
         <div class="tb-title-sub" id="tbPageSub"><span class="dot"></span>ข้อมูลล่าสุด ณ 4 ก.ย. 2026</div>
@@ -5291,7 +5274,7 @@ const I18N = {
     exportDisabledNoCap:'',
     moreLabel:'เพิ่มเติม', moreRefresh:'รีเฟรชข้อมูล', moreExport:'ส่งออกข้อมูล (PDF / CSV)', moreNotif:'การแจ้งเตือน',
     searchEmpty:'ไม่พบ KPI ที่ตรงกับคำค้นหา', searchToggle:'ค้นหา KPI',
-    sidebarToggle:'พับ/ขยายเมนูด้านซ้าย', moreBtn:'เมนูเพิ่มเติม',
+    moreBtn:'เมนูเพิ่มเติม',
     dashLabel:'Dashboard',
     avg7Label:'ค่าเฉลี่ย 7 วันย้อนหลัง (Adt/day)', daysUnit:'วัน',
   },
@@ -5307,7 +5290,7 @@ const I18N = {
     exportDisabledNoCap:'',
     moreLabel:'More', moreRefresh:'Refresh data', moreExport:'Export (PDF / CSV)', moreNotif:'Notifications',
     searchEmpty:'No KPIs match your search', searchToggle:'Search KPI',
-    sidebarToggle:'Collapse/expand sidebar', moreBtn:'More menu',
+    moreBtn:'More menu',
     dashLabel:'Dashboard',
     avg7Label:'Trailing 7-day average (Adt/day)', daysUnit:'days',
   }
@@ -5629,18 +5612,6 @@ function i18nApplyPage(){
 }
 
 
-/* ---- sidebar collapse ---- */
-const appEl = document.querySelector('.app');
-const sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
-function setSidebarCollapsed(collapsed){
-  appEl.classList.toggle('sidebar-collapsed', collapsed);
-  try{ localStorage.setItem('fl1_sidebar_collapsed', collapsed ? '1':'0'); }catch(e){}
-}
-if(sidebarToggleBtn){
-  sidebarToggleBtn.addEventListener('click', ()=> setSidebarCollapsed(!appEl.classList.contains('sidebar-collapsed')));
-  try{ if(localStorage.getItem('fl1_sidebar_collapsed')==='1') setSidebarCollapsed(true); }catch(e){}
-}
-
 /* ---- export: real, working, browser-native — no server, no special capability.
    PDF = the browser's own print dialog (Save as PDF); CSV = a Blob + <a download>,
    which every real browser (not just this one) supports out of the box. ---- */
@@ -5823,7 +5794,6 @@ function applyLang(lang){
   if(kpiInputEl) kpiInputEl.placeholder = t('searchPlaceholder');
   const searchToggleBtn = document.getElementById('tbSearchToggleBtn');
   if(searchToggleBtn) searchToggleBtn.title = t('searchToggle');
-  if(sidebarToggleBtn) sidebarToggleBtn.title = t('sidebarToggle');
   if(tbMoreBtn) tbMoreBtn.title = t('moreBtn');
   if(refreshBtnEl) refreshBtnEl.title = t('refreshTitle');
   const notifBtnEl = document.getElementById('notifBtn');
