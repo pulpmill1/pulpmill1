@@ -515,6 +515,20 @@
   .spark-live::after{content:"";position:absolute;left:50%;top:50%;width:5px;height:5px;margin:-2.5px 0 0 -2.5px;border-radius:50%;border:1.5px solid var(--mon-rail,#7C4DFF);animation:sparkLivePulse 1.5s ease-out infinite;}
   @keyframes sparkLivePulse{0%{opacity:.75;transform:scale(.55);}70%{opacity:0;transform:scale(2.8);}100%{opacity:0;transform:scale(2.8);}}
   @media (prefers-reduced-motion:reduce){.spark-live::after{animation:none;}}
+  .proc-overview-note{font-size:11.5px;color:var(--ink-3);padding:0 2px 16px;max-width:760px;line-height:1.6;}
+  .proc-flow{display:flex;flex-wrap:wrap;align-items:center;gap:4px 1px;padding:4px 2px 18px;}
+  .proc-node{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:4px;
+    width:128px;min-height:116px;padding:10px 7px 9px;border-radius:10px;text-align:center;
+    background:var(--surface);border:1px solid var(--border);box-shadow:var(--shadow);}
+  .proc-node.no-kpi{opacity:.68;box-shadow:none;}
+  .proc-ico-svg{width:38px;height:38px;flex-shrink:0;}
+  .proc-name{font-size:10.3px;font-weight:700;color:var(--ink-2);line-height:1.22;}
+  .proc-val{font-family:"IBM Plex Mono",monospace;font-size:12.5px;font-weight:800;color:var(--ink);
+    display:flex;align-items:baseline;gap:2px;justify-content:center;white-space:nowrap;}
+  .proc-unit{font-size:9px;color:var(--ink-3);font-weight:600;}
+  .proc-sublbl{font-size:8px;font-weight:700;color:var(--ink-3);}
+  .proc-arrow{flex:0 0 auto;margin:0 -1px;color:#7C8CA0;display:flex;align-items:center;}
+  .proc-arrow svg{width:16px;height:10px;display:block;}
   .mon-detail{background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);padding:16px 18px;margin-top:12px;}
   .mon-detail[hidden]{display:none;}
   .md-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:2px;}
@@ -774,6 +788,7 @@
       </div>
     </div>
     <nav class="side-nav" id="sideNav">
+      <button class="nav-item" data-page="process-overview"><span style="display:flex; align-items:center; min-width:0;"><span class="nav-ico">🗺️</span><span class="nav-label" data-i18n-nav="navProcessOverview">Process overview</span></span></button>
       <div class="nav-group" data-group="production">
         <div class="nav-parent"><span class="nav-ico">🏭</span><span class="nav-label" data-i18n-nav="navProduction">Production</span></div>
         <div class="nav-children">
@@ -871,6 +886,82 @@
 
     <div class="shell">
       <div id="pageContainer">
+
+        <section class="page" data-page="process-overview" hidden>
+          <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+            <defs>
+              <linearGradient id="piGradLight" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#E3ECF4"/><stop offset="1" stop-color="#B2C2D4"/>
+              </linearGradient>
+              <linearGradient id="piGradBody" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#C7D4E2"/><stop offset="1" stop-color="#8295AC"/>
+              </linearGradient>
+              <symbol id="pi-silo" viewBox="0 0 48 48">
+                <path d="M6 38 L24 14 L42 38 Z" fill="#C9975E" stroke="#8A6333" stroke-width="1.2"/>
+                <rect x="19" y="18" width="10" height="20" fill="url(#piGradBody)" stroke="#2C4258" stroke-width="1.2"/>
+                <path d="M19 18 L24 12 L29 18 Z" fill="url(#piGradLight)" stroke="#2C4258" stroke-width="1.2"/>
+              </symbol>
+              <symbol id="pi-conveyor" viewBox="0 0 48 48">
+                <path d="M6 38 L42 12" stroke="#8A6333" stroke-width="7" stroke-linecap="round"/>
+                <path d="M6 38 L42 12" stroke="#C9975E" stroke-width="5" stroke-linecap="round" stroke-dasharray="1 6"/>
+                <circle cx="6" cy="38" r="4.5" fill="#6B7F99" stroke="#2C4258" stroke-width="1.2"/>
+                <circle cx="42" cy="12" r="4.5" fill="#6B7F99" stroke="#2C4258" stroke-width="1.2"/>
+              </symbol>
+              <symbol id="pi-tank" viewBox="0 0 48 48">
+                <ellipse cx="24" cy="11" rx="14" ry="4" fill="url(#piGradLight)" stroke="#2C4258" stroke-width="1.2"/>
+                <rect x="10" y="11" width="28" height="24" fill="url(#piGradBody)" stroke="#2C4258" stroke-width="1.2"/>
+                <ellipse cx="24" cy="35" rx="14" ry="4" fill="#8295AC" stroke="#2C4258" stroke-width="1.2"/>
+                <line x1="15" y1="39" x2="15" y2="43" stroke="#2C4258" stroke-width="1.6"/>
+                <line x1="33" y1="39" x2="33" y2="43" stroke="#2C4258" stroke-width="1.6"/>
+              </symbol>
+              <symbol id="pi-digester" viewBox="0 0 48 48">
+                <ellipse cx="24" cy="7" rx="11" ry="3.5" fill="url(#piGradLight)" stroke="#2C4258" stroke-width="1.2"/>
+                <rect x="13" y="7" width="22" height="22" fill="url(#piGradBody)" stroke="#2C4258" stroke-width="1.2"/>
+                <path d="M13 29 L24 41 L35 29 Z" fill="#8295AC" stroke="#2C4258" stroke-width="1.2"/>
+              </symbol>
+              <symbol id="pi-reactor" viewBox="0 0 48 48">
+                <rect x="22" y="3" width="4" height="9" fill="#8C9CB0" stroke="#2C4258" stroke-width="1"/>
+                <path d="M15 14 A9 9 0 0 1 33 14 Z" fill="url(#piGradLight)" stroke="#2C4258" stroke-width="1.2"/>
+                <rect x="15" y="14" width="18" height="18" fill="url(#piGradBody)" stroke="#2C4258" stroke-width="1.2"/>
+                <ellipse cx="24" cy="32" rx="9" ry="3" fill="#8295AC" stroke="#2C4258" stroke-width="1.2"/>
+              </symbol>
+              <symbol id="pi-tower" viewBox="0 0 48 48">
+                <circle cx="24" cy="4" r="2" fill="#B8C4D1" stroke="#2C4258" stroke-width="1"/>
+                <ellipse cx="24" cy="7" rx="10" ry="3" fill="url(#piGradLight)" stroke="#2C4258" stroke-width="1.2"/>
+                <rect x="14" y="7" width="20" height="28" fill="url(#piGradBody)" stroke="#2C4258" stroke-width="1.2"/>
+                <ellipse cx="24" cy="35" rx="10" ry="3" fill="#8295AC" stroke="#2C4258" stroke-width="1.2"/>
+              </symbol>
+              <symbol id="pi-press" viewBox="0 0 48 48">
+                <rect x="4" y="22" width="40" height="4" fill="#2C4258"/>
+                <circle cx="12" cy="24" r="8.5" fill="url(#piGradLight)" stroke="#2C4258" stroke-width="1.2"/>
+                <circle cx="24" cy="24" r="8.5" fill="url(#piGradLight)" stroke="#2C4258" stroke-width="1.2"/>
+                <circle cx="36" cy="24" r="8.5" fill="url(#piGradLight)" stroke="#2C4258" stroke-width="1.2"/>
+              </symbol>
+              <symbol id="pi-screen" viewBox="0 0 48 48">
+                <circle cx="24" cy="23" r="15" fill="url(#piGradBody)" stroke="#2C4258" stroke-width="1.2"/>
+                <circle cx="24" cy="23" r="9" fill="none" stroke="#2C4258" stroke-width="1" stroke-dasharray="2 2"/>
+                <circle cx="24" cy="23" r="3" fill="#2C4258"/>
+              </symbol>
+              <symbol id="pi-mixer" viewBox="0 0 48 48">
+                <circle cx="24" cy="24" r="16" fill="url(#piGradBody)" stroke="#2C4258" stroke-width="1.2"/>
+                <path d="M24 14 L31 31 L17 31 Z" fill="#2C4258"/>
+              </symbol>
+              <symbol id="pi-decker" viewBox="0 0 48 48">
+                <ellipse cx="24" cy="24" rx="18" ry="11" fill="url(#piGradBody)" stroke="#2C4258" stroke-width="1.2"/>
+                <ellipse cx="24" cy="24" rx="9" ry="5.5" fill="none" stroke="#2C4258" stroke-width="1"/>
+              </symbol>
+              <symbol id="pi-bale" viewBox="0 0 48 48">
+                <rect x="7" y="24" width="15" height="15" rx="1.5" fill="#E8DCC0" stroke="#8A7A4F" stroke-width="1.2"/>
+                <rect x="25" y="24" width="15" height="15" rx="1.5" fill="#E8DCC0" stroke="#8A7A4F" stroke-width="1.2"/>
+                <rect x="16" y="8" width="15" height="15" rx="1.5" fill="#F1E8D2" stroke="#8A7A4F" stroke-width="1.2"/>
+              </symbol>
+            </defs>
+          </svg>
+          <div class="card">
+            <p class="proc-overview-note">ผังลำดับกระบวนการผลิตเยื่อกระดาษ (Fiberline) ตั้งแต่คลังไม้สับจนถึง Wetlap — กล่องที่มีตัวเลขดึงข้อมูลสดจาก Google Sheets (จุดล่าสุดที่บันทึกไว้) ส่วนจุดที่แสดงเฉพาะชื่ออุปกรณ์ยังไม่มี Sensor บันทึกข้อมูลลงชีต</p>
+            <div class="proc-flow" id="procOverviewFlow"></div>
+          </div>
+        </section>
 
         <section class="page" data-page="production-pm1">
           <div class="card">
@@ -5215,6 +5306,7 @@ function renderAvg7(){
 }
 
 const PAGE_META = {
+  'process-overview':{th:'Process overview', en:'Process overview', hasData:true},
   'production-pm1':{th:'Pulp mill 1', en:'Pulp mill 1', hasData:true},
   'production-pm2':{th:'Pulp mill 2', en:'Pulp mill 2', hasData:true},
   'production-pm12':{th:'Pulp mill 1+2', en:'Pulp mill 1+2', hasData:true},
@@ -5229,7 +5321,7 @@ const PAGE_META = {
 
 const I18N = {
   th:{
-    navProduction:'Production', navProductionPm1:'Pulp mill 1', navProductionPm2:'Pulp mill 2', navProductionPm12:'Pulp mill 1+2', navYield:'Yield', navYieldWeightScale:'Weight scale digester', navCostSensitivity:'Sensitivity',
+    navProcessOverview:'Process overview', navProduction:'Production', navProductionPm1:'Pulp mill 1', navProductionPm2:'Pulp mill 2', navProductionPm12:'Pulp mill 1+2', navYield:'Yield', navYieldWeightScale:'Weight scale digester', navCostSensitivity:'Sensitivity',
     navProcessArea:'Process area', navProcessRawMaterial:'Raw material', navProcessCooking:'Cooking', navProcessBrownStock:'Brown stock', navProcessBleaching:'Bleaching',
     searchPlaceholder:'ค้นหา KPI (Search metrics)',
     lastDataAt:'ข้อมูลล่าสุด ณ', noDataYet:'ยังไม่เชื่อมต่อแหล่งข้อมูล',
@@ -5245,7 +5337,7 @@ const I18N = {
     avg7Label:'ค่าเฉลี่ย 7 วันย้อนหลัง (Adt/day)', daysUnit:'วัน',
   },
   en:{
-    navProduction:'Production', navProductionPm1:'Pulp mill 1', navProductionPm2:'Pulp mill 2', navProductionPm12:'Pulp mill 1+2', navYield:'Yield', navYieldWeightScale:'Weight scale digester', navCostSensitivity:'Sensitivity',
+    navProcessOverview:'Process overview', navProduction:'Production', navProductionPm1:'Pulp mill 1', navProductionPm2:'Pulp mill 2', navProductionPm12:'Pulp mill 1+2', navYield:'Yield', navYieldWeightScale:'Weight scale digester', navCostSensitivity:'Sensitivity',
     navProcessArea:'Process area', navProcessRawMaterial:'Raw material', navProcessCooking:'Cooking', navProcessBrownStock:'Brown stock', navProcessBleaching:'Bleaching',
     searchPlaceholder:'Search metrics',
     lastDataAt:'Latest data as of', noDataYet:'No data source connected yet',
@@ -11642,6 +11734,81 @@ const WSD_BY_DIG = {};
 WSD_DIGESTERS.forEach(n=> WSD_BY_DIG[n] = WSD_ROWS.filter(r=> r.dig===n));
 
 if(document.getElementById('chipMonHost')) initChipMon();
+
+/* Process overview page — static flow of the 36 fiberline stages the user asked for, in process
+   order. Stages carry a `kpi` list (one or more CHIP_MON_META keys to show live) only where the
+   mill's Google Sheet actually logs a sensor for that exact piece of equipment; the rest render as
+   a bare icon+name node (no fabricated/approximated numbers), per explicit instruction. The digester
+   stage is special-cased to WSD_ROWS (its own per-batch array, not part of CHIP_MON_META/SERIES). */
+const PROC_OVERVIEW_STAGES = [
+  {name:'Chip Storage', icoType:'silo'},
+  {name:'Belt Conveyor', icoType:'conveyor', kpi:[{key:'ckLoadBelt321c021'}]},
+  {name:'Surge bin', icoType:'tank', kpi:[{key:'ckSurgeBinLevelBeforeChipFilling'}]},
+  {name:'Belt Conveyor', icoType:'conveyor'},
+  {name:'Super Batch Digester 5 Batch', icoType:'digester', custom:'wsdLatestBatch'},
+  {name:'Discharge Tank', icoType:'tank', kpi:[{key:'ckDischargeLevelBeforeDischarge'}]},
+  {name:'Primary knottor', icoType:'screen'},
+  {name:'Wash Press#1', icoType:'press', kpi:[{key:'bsbrownStockWP1Consis'}]},
+  {name:'LC Tank', icoType:'tank'},
+  {name:'Primary Screen', icoType:'screen'},
+  {name:'Pre O2 Wash Press', icoType:'press', kpi:[{key:'bspreO2PressOUTConsis'}]},
+  {name:'MC Tank', icoType:'tank'},
+  {name:'O2 Reactor #1', icoType:'reactor', kpi:[{key:'bso2Reactor1Pressure421PZ426'}]},
+  {name:'O2 Reactor #2', icoType:'reactor', kpi:[{key:'bso2Reactor2Pressure421PC478'}]},
+  {name:'Blow Tank', icoType:'tank'},
+  {name:'Post O2 Wash Press', icoType:'press', kpi:[{key:'bspostO2PressOUTConsis'}]},
+  {name:'Unbleach Tank', icoType:'tank', kpi:[{key:'bsunbLevel'}]},
+  {name:'PB Wash Press', icoType:'press'},
+  {name:'D0 Mixer', icoType:'mixer'},
+  {name:'D0 Tower', icoType:'tower'},
+  {name:'D0 Pulp Tank', icoType:'tank'},
+  {name:'D0 Wash Press', icoType:'press'},
+  {name:'EOP Pre Tower', icoType:'tower'},
+  {name:'EOP Tower', icoType:'tower'},
+  {name:'EOP Wash Press', icoType:'press'},
+  {name:'EOP Mixer', icoType:'mixer'},
+  {name:'D1 Pre Tower', icoType:'tower'},
+  {name:'D1 Main Tower', icoType:'tower', kpi:[{key:'blD1StageBright'}]},
+  {name:'D1 Wash Press', icoType:'press', kpi:[{key:'blD1StageCons'}]},
+  {name:'Clean LC Tank', icoType:'tank', kpi:[{key:'blLcTank'}]},
+  {name:'Coarse Cleaner', icoType:'screen'},
+  {name:'5 Stage Cleaner', icoType:'screen', kpi:[{key:'bl5thStageCons'}]},
+  {name:'Pre Decker', icoType:'decker'},
+  {name:'Decker', icoType:'decker'},
+  {name:'HD Tower', icoType:'tower', kpi:[{key:'blBleachHD1', lbl:'HD1'},{key:'blBleachHD2', lbl:'HD2'}]},
+  {name:'Wetlap', icoType:'bale', kpi:[{key:'blPulpToWetLapConsis'}]}
+];
+const PROC_OVERVIEW_ARROW_SVG = '<svg viewBox="0 0 16 10"><path d="M0 5 H12 M8 1 L12 5 L8 9" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+function renderProcessOverview(){
+  const wrap = document.getElementById('procOverviewFlow');
+  if(!wrap) return;
+  wrap.innerHTML = PROC_OVERVIEW_STAGES.map(function(st, i){
+    let valHtml = '';
+    if(st.custom === 'wsdLatestBatch'){
+      const latest = WSD_ROWS.length ? WSD_ROWS[WSD_ROWS.length-1] : null;
+      if(latest && latest.weight!=null){
+        valHtml = `<div class="proc-val"><span class="proc-sublbl">Dig ${latest.dig}</span>${chipMonFmt(latest.weight,1)}<span class="proc-unit">ton</span></div>`;
+      }
+    } else if(st.kpi){
+      valHtml = st.kpi.map(function(k){
+        const meta = CHIP_MON_META.find(function(m){ return m.key===k.key; });
+        if(!meta) return '';
+        const a = chipMonAnalyse(k.key, meta);
+        const v = a ? chipMonFmt(a.anchor.v, meta.dec) : '—';
+        const lbl = k.lbl ? `<span class="proc-sublbl">${k.lbl}</span>` : '';
+        return `<div class="proc-val">${lbl}${v}<span class="proc-unit">${meta.unit}</span></div>`;
+      }).join('');
+    }
+    const hasKpi = st.custom || (st.kpi && st.kpi.length) ? 'has-kpi' : 'no-kpi';
+    const arrow = i < PROC_OVERVIEW_STAGES.length-1 ? `<span class="proc-arrow">${PROC_OVERVIEW_ARROW_SVG}</span>` : '';
+    return `<div class="proc-node ${hasKpi}">
+      <svg class="proc-ico-svg"><use href="#pi-${st.icoType}"></use></svg>
+      <div class="proc-name">${st.name}</div>
+      ${valHtml}
+    </div>${arrow}`;
+  }).join('');
+}
+if(document.getElementById('procOverviewFlow')) renderProcessOverview();
 
 /* แถวของ digester นั้นๆ ที่ metric นี้มีค่าจริง (บางแถวอาจมี Weight after discharge แต่ยังไม่มี
    Weight after DPL 5 m3 หรือกลับกัน) — ทุกจุดที่ใช้ WSD_BY_DIG เพื่อแสดง/กรองต้องกรอง null ออกก่อน */
