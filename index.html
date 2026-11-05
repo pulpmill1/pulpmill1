@@ -840,7 +840,6 @@
         </div>
       </div>
       <button class="nav-item" data-page="cost-sensitivity"><span style="display:flex; align-items:center; min-width:0;"><span class="nav-ico">🎯</span><span class="nav-label" data-i18n-nav="navCostSensitivity">Sensitivity</span></span></button>
-      <button class="nav-item" data-page="loss-production"><span style="display:flex; align-items:center; min-width:0;"><span class="nav-ico">📉</span><span class="nav-label" data-i18n-nav="navLossProduction">Loss production</span></span></button>
     </nav>
     <div class="sidebar-foot">
       <a class="nav-source-link" href="https://docs.google.com/spreadsheets/d/1dStWwliEd6YhSOL3oT8JNyWHZOuII5F-QVeubIrBS50/edit" target="_blank" rel="noopener noreferrer" title="เปิด Google Sheet ต้นทางที่ Dashboard นี้ดึงข้อมูลมา">
@@ -2484,14 +2483,6 @@
           <button type="button" class="foot-toggle" data-target="bleachFoot" aria-expanded="false" aria-controls="bleachFoot">ดูรายละเอียด</button>
           <div class="foot" id="bleachFoot" hidden>
             ที่มา: Google Sheets tab "Bleaching Logsheet" (<code>gid=1596215251</code>) · หนึ่งแถวในชีต = หนึ่งชั่วโมง (คอลัมน์ TIME) · ทุกคอลัมน์ของชีตถูกนำมาแสดง ยกเว้นคอลัมน์ระบุตัวแถว (Month/Date/TIME) และคอลัมน์ข้อความ/หมวดหมู่ (Mode APC/Valmet/OPC, O2 Type, make up, Switch Pulp to HD, pulp grade) ที่ไม่ใช่ตัวเลข · กลุ่มตามหมวดหมู่ที่มีอยู่แล้วในหัวตารางของชีต (รวมกลุ่มย่อยท้ายชีตหลัง "TOTAL" ที่มีคอลัมน์เดียวจำนวนมาก เช่น ClO2/OWL/LC/NaOH/Dirt-Shive/White water/F-factor/จุดวัดอุณหภูมิ เข้าเป็นกลุ่ม Summary / Totals กลุ่มเดียว)<br>กราฟแสดงทุกชั่วโมงเป็นจุดข้อมูลของตัวเอง (ไม่เฉลี่ยรวมรายวัน) โดยแกน x ระบุทั้งวันที่และเวลา (ชั่วโมง:นาที) · ตัวเลขสรุปบนกรอบหลัก (ค่าล่าสุด/ค่าเฉลี่ย 7 วัน) คำนวณจากค่าเฉลี่ยรายวันตามปกติ
-          </div>
-        </section>
-
-        <section class="page" data-page="loss-production" hidden>
-          <div class="empty-state">
-            <div class="icon">📉</div>
-            <h2>Loss Production Dashboard</h2>
-            <p>หน้านี้ยังไม่มีข้อมูล — รอเชื่อมต่อแหล่งข้อมูล Loss Production จาก Google Sheets<br>แจ้งลิงก์ชีทและชื่อแท็บที่ต้องการดึงข้อมูลได้เลยครับ</p>
           </div>
         </section>
 
@@ -5285,14 +5276,12 @@ const PAGE_META = {
   'process-cooking':{th:'Cooking', en:'Cooking', hasData:false},
   'process-brownstock':{th:'Brown stock', en:'Brown stock', hasData:false},
   'process-bleaching':{th:'Bleaching', en:'Bleaching', hasData:false},
-  'loss-production':{th:'Loss production', en:'Loss production', hasData:false},
 };
 
 const I18N = {
   th:{
     navProduction:'Production', navProductionPm1:'Pulp mill 1', navProductionPm2:'Pulp mill 2', navProductionPm12:'Pulp mill 1+2', navYield:'Yield', navYieldWeightScale:'Weight scale digester', navCostSensitivity:'Sensitivity',
     navProcessArea:'Process area', navProcessRawMaterial:'Raw material', navProcessCooking:'Cooking', navProcessBrownStock:'Brown stock', navProcessBleaching:'Bleaching',
-    navLossProduction:'Loss production',
     searchPlaceholder:'ค้นหา KPI (Search metrics)',
     lastDataAt:'ข้อมูลล่าสุด ณ', noDataYet:'ยังไม่เชื่อมต่อแหล่งข้อมูล',
     refreshTitle:'รีเฟรชข้อมูลล่าสุด (โหลดหน้าใหม่ — ดึงข้อมูลสดจาก Google Sheets ทันที)',
@@ -5309,7 +5298,6 @@ const I18N = {
   en:{
     navProduction:'Production', navProductionPm1:'Pulp mill 1', navProductionPm2:'Pulp mill 2', navProductionPm12:'Pulp mill 1+2', navYield:'Yield', navYieldWeightScale:'Weight scale digester', navCostSensitivity:'Sensitivity',
     navProcessArea:'Process area', navProcessRawMaterial:'Raw material', navProcessCooking:'Cooking', navProcessBrownStock:'Brown stock', navProcessBleaching:'Bleaching',
-    navLossProduction:'Loss production',
     searchPlaceholder:'Search metrics',
     lastDataAt:'Latest data as of', noDataYet:'No data source connected yet',
     refreshTitle:'Refresh latest data (reloads the page — fetches live data directly from Google Sheets)',
