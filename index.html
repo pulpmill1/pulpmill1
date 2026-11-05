@@ -839,17 +839,6 @@
           <button class="nav-item" data-page="process-bleaching"><span class="nav-label" data-i18n-nav="navProcessBleaching">Bleaching</span></button>
         </div>
       </div>
-      <div class="nav-group" data-group="cost">
-        <button class="nav-parent" data-toggle="cost">
-          <span style="display:flex; align-items:center; min-width:0;"><span class="nav-ico">💰</span><span class="nav-label" data-i18n-nav="navCost">Cost</span></span>
-          <span class="chev">▸</span>
-        </button>
-        <div class="nav-children">
-          <button class="nav-item" data-page="cost-bu21"><span class="nav-label" data-i18n-nav="navCostBu21">Bu21 cost</span></button>
-          <button class="nav-item" data-page="cost-productive"><span class="nav-label" data-i18n-nav="navCostProductive">Productive cost</span></button>
-          <button class="nav-item" data-page="cost-unitconsumption"><span class="nav-label" data-i18n-nav="navCostUnitConsumption">Unit consumption</span></button>
-        </div>
-      </div>
       <button class="nav-item" data-page="cost-sensitivity"><span style="display:flex; align-items:center; min-width:0;"><span class="nav-ico">🎯</span><span class="nav-label" data-i18n-nav="navCostSensitivity">Sensitivity</span></span></button>
       <button class="nav-item" data-page="loss-production"><span style="display:flex; align-items:center; min-width:0;"><span class="nav-ico">📉</span><span class="nav-label" data-i18n-nav="navLossProduction">Loss production</span></span></button>
     </nav>
@@ -2258,30 +2247,6 @@
             น้ำหนักไม้สับในหน่วย GT เปรียบเทียบค่าเฉลี่ย 5 Digester: ที่มา Google Sheets tab "Weight Scale Dig." (<code>gid=1177773637</code>) คอลัมน์ Digester no. และ ปริมาณไม้สับตาม Weight scale (GT) ของแต่ละ cook รวมเป็นค่าเฉลี่ยรายวันต่อ Digester ก่อนเทียบ — % ของแต่ละ Digester คำนวณเอง = (GT เฉลี่ยของ Digester นั้นวันนั้น − ค่าเฉลี่ย GT เฉลี่ยของอีก 4 Digester ที่เหลือวันนั้น) ÷ ค่าเฉลี่ยของอีก 4 Digester × 100 จุดที่ &gt;5% หรือ &lt;-5% ต่อเนื่องกันตั้งแต่ 3 วันขึ้นไป (ในช่วงที่กำลังดูอยู่) จะกระพริบสีแดงบนกราฟ · สถานะ Normal/Warning ในกรอบสรุปแต่ละ Digester ใช้เกณฑ์เดียวกันนี้<br>
             สรุปข้อมูล Diff น้ำหนักไม้สับใน Digester: รายวัน แยกตาม Digester จากผลรวม Revise weight และ ปริมาณไม้สับตาม Weight scale ของแต่ละวันในชีตเดียวกัน "Weight Scale Dig." · หน่วย GT แสดงค่าดิบ · หน่วย BDT คูณด้วย (100% − Chip moisture (Lab)% ของวันนั้น) ทีละวันก่อนรวม<br>
             ตั้งค่า Target Low/High ได้เองต่อ Digester ต่อกราฟ (เฉพาะสองกราฟแรก) เก็บไว้ในเบราว์เซอร์นี้ · เมื่อเปิดหน้านี้ค่าเริ่มต้นจะแสดงข้อมูลของเดือนปัจจุบัน · เปลี่ยนช่วงเป็นรายวัน/รายเดือน/รายปีได้จากตัวเลือกด้านบนกราฟ · กดปุ่ม "ตาราง" เพื่อดูข้อมูลดิบแทนกราฟ
-          </div>
-        </section>
-
-        <section class="page" data-page="cost-bu21" hidden>
-          <div class="empty-state">
-            <div class="icon">💰</div>
-            <h2>BU21 Cost Dashboard</h2>
-            <p>หน้านี้ยังไม่มีข้อมูล — รอเชื่อมต่อแหล่งข้อมูลต้นทุน BU21 รายวัน/รายเดือนจาก Google Sheets<br>แจ้งลิงก์ชีทและชื่อแท็บที่ต้องการดึงข้อมูลได้เลยครับ</p>
-          </div>
-        </section>
-
-        <section class="page" data-page="cost-productive" hidden>
-          <div class="empty-state">
-            <div class="icon">📉</div>
-            <h2>Productive Cost Dashboard</h2>
-            <p>หน้านี้ยังไม่มีข้อมูล — รอเชื่อมต่อแหล่งข้อมูล Productive Cost จาก Google Sheets<br>แจ้งลิงก์ชีทและชื่อแท็บที่ต้องการดึงข้อมูลได้เลยครับ</p>
-          </div>
-        </section>
-
-        <section class="page" data-page="cost-unitconsumption" hidden>
-          <div class="empty-state">
-            <div class="icon">🔌</div>
-            <h2>Unit Consumption Dashboard</h2>
-            <p>หน้านี้ยังไม่มีข้อมูล — รอเชื่อมต่อแหล่งข้อมูล Unit Consumption จาก Google Sheets<br>แจ้งลิงก์ชีทและชื่อแท็บที่ต้องการดึงข้อมูลได้เลยครับ</p>
           </div>
         </section>
 
@@ -5315,9 +5280,6 @@ const PAGE_META = {
   'production-pm12':{th:'Pulp mill 1+2', en:'Pulp mill 1+2', hasData:true},
   yield:{th:'Yield', en:'Yield', hasData:true},
   'yield-weightscale':{th:'Weight scale digester', en:'Weight scale digester', hasData:false},
-  'cost-bu21':{th:'Bu21 cost', en:'Bu21 cost', hasData:false},
-  'cost-productive':{th:'Productive cost', en:'Productive cost', hasData:false},
-  'cost-unitconsumption':{th:'Unit consumption', en:'Unit consumption', hasData:false},
   'cost-sensitivity':{th:'Sensitivity', en:'Sensitivity', hasData:true},
   'process-rawmaterial':{th:'Raw material', en:'Raw material', hasData:false},
   'process-cooking':{th:'Cooking', en:'Cooking', hasData:false},
@@ -5328,7 +5290,7 @@ const PAGE_META = {
 
 const I18N = {
   th:{
-    navProduction:'Production', navProductionPm1:'Pulp mill 1', navProductionPm2:'Pulp mill 2', navProductionPm12:'Pulp mill 1+2', navYield:'Yield', navYieldWeightScale:'Weight scale digester', navCost:'Cost', navCostBu21:'Bu21 cost', navCostProductive:'Productive cost', navCostUnitConsumption:'Unit consumption', navCostSensitivity:'Sensitivity',
+    navProduction:'Production', navProductionPm1:'Pulp mill 1', navProductionPm2:'Pulp mill 2', navProductionPm12:'Pulp mill 1+2', navYield:'Yield', navYieldWeightScale:'Weight scale digester', navCostSensitivity:'Sensitivity',
     navProcessArea:'Process area', navProcessRawMaterial:'Raw material', navProcessCooking:'Cooking', navProcessBrownStock:'Brown stock', navProcessBleaching:'Bleaching',
     navLossProduction:'Loss production',
     searchPlaceholder:'ค้นหา KPI (Search metrics)',
@@ -5345,7 +5307,7 @@ const I18N = {
     avg7Label:'ค่าเฉลี่ย 7 วันย้อนหลัง (Adt/day)', daysUnit:'วัน',
   },
   en:{
-    navProduction:'Production', navProductionPm1:'Pulp mill 1', navProductionPm2:'Pulp mill 2', navProductionPm12:'Pulp mill 1+2', navYield:'Yield', navYieldWeightScale:'Weight scale digester', navCost:'Cost', navCostBu21:'Bu21 cost', navCostProductive:'Productive cost', navCostUnitConsumption:'Unit consumption', navCostSensitivity:'Sensitivity',
+    navProduction:'Production', navProductionPm1:'Pulp mill 1', navProductionPm2:'Pulp mill 2', navProductionPm12:'Pulp mill 1+2', navYield:'Yield', navYieldWeightScale:'Weight scale digester', navCostSensitivity:'Sensitivity',
     navProcessArea:'Process area', navProcessRawMaterial:'Raw material', navProcessCooking:'Cooking', navProcessBrownStock:'Brown stock', navProcessBleaching:'Bleaching',
     navLossProduction:'Loss production',
     searchPlaceholder:'Search metrics',
