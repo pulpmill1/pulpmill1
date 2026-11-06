@@ -451,19 +451,16 @@
   .mon-group-head .gt{font-size:14.5px;font-weight:800;letter-spacing:.015em;color:var(--ink);}
   .mon-group-head .gs{font-size:11px;color:var(--ink-3);margin-left:auto;}
   .mon-tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(216px,1fr));gap:12px;}
-  /* Shared drag-and-drop layout (chipLayoutInitDnD): a small grip on each group header / KPI
-     card is the only drag source, kept separate from the click-to-open target so dragging
-     never swallows the existing click-to-open-detail behavior. */
-  .mon-grip{cursor:grab;user-select:none;font-size:13px;line-height:1;color:var(--surface);opacity:0;transition:opacity .12s;}
-  .mon-group-head:hover .mon-grip-group,.mon-tile:hover .mt-grip{opacity:.4;}
-  .mon-grip:hover{opacity:.75;}
-  .mon-grip:active{opacity:1;cursor:grabbing;}
-  .mon-grip-group{flex:0 0 auto;}
+  /* Shared drag-and-drop layout (chipLayoutInitDnD): a small invisible grip hotspot on each
+     group header / KPI card is the only drag source, kept separate from the click-to-open
+     target so dragging never swallows the existing click-to-open-detail behavior. No visible
+     glyph or highlight by design (just a fixed-size cursor:grab hotspot) per explicit request. */
+  .mon-grip{cursor:grab;user-select:none;font-size:0;line-height:1;}
+  .mon-grip:active{cursor:grabbing;}
+  .mon-grip-group{flex:0 0 auto;width:16px;height:16px;}
   .mon-grip-bar{display:flex;align-items:center;gap:7px;margin:0 2px 10px;}
-  .mon-grip-bar:hover .mon-grip-group{opacity:.4;}
   .mon-grip-label{font-size:11px;font-weight:700;color:var(--ink-3);}
-  .mt-grip{position:absolute;top:5px;right:6px;padding:1px 4px;border-radius:4px;z-index:1;}
-  .mt-grip:hover{background:rgba(127,151,179,.16);}
+  .mt-grip{position:absolute;top:5px;right:6px;width:16px;height:16px;z-index:1;}
   .mon-group.dragging,.mon-tile.dragging{opacity:.45;}
   .mon-group.drop-before{box-shadow:0 -3px 0 0 var(--accent) inset;}
   .mon-group.drop-after{box-shadow:0 3px 0 0 var(--accent) inset;}
@@ -10401,7 +10398,7 @@ function chipMonRenderTiles(grp){
       pairHtml = `<div class="mt-pair"><span class="mt-tag">Pulp1</span>${val}${m.unit} <span class="mt-tag">Pulp2</span>${pval}${pm ? pm.unit : m.unit}</div>`;
     }
     return `<div class="mon-tile" role="button" tabindex="0" data-grp="${grp.id}" data-key="${m.key}" style="--mon-rail:${grp.rail}">
-      <span class="mt-grip" draggable="true" title="${currentLang==='en'?'Drag to move this card':'ลากเพื่อย้าย KPI Card นี้'}">⠿</span>
+      <span class="mt-grip" draggable="true" title="${currentLang==='en'?'Drag to move this card':'ลากเพื่อย้าย KPI Card นี้'}"></span>
       <div class="mt-top"><span class="mt-ico">${grp.ico}</span><span class="mt-name">${m.th}</span><span class="mt-dot ${dot}"></span></div>
       ${pairHtml || `<div class="mt-val">${val}<span class="mt-unit">${m.unit}</span>${trendHtml}</div>`}
       <div class="mt-row3"><span class="mt-sub">${sub}</span><span class="mt-spark-wrap"><canvas class="mt-spark" id="chipSpark_${m.key}"></canvas><i class="spark-live" id="chipLive_${m.key}" hidden></i></span></div>
@@ -10528,7 +10525,6 @@ function chipLayoutInitDnD(){
         grip.className = 'mon-grip mon-grip-group';
         grip.draggable = true;
         grip.title = currentLang==='en' ? 'Drag to move this whole group' : 'ลากเพื่อย้ายกลุ่มนี้';
-        grip.textContent = '⠿';
         const label = document.createElement('span');
         label.className = 'mon-grip-label';
         label.textContent = currentLang==='en' ? 'Raw material metrics (Wood-chip basics → Wood species comparison)' : 'กลุ่มข้อมูล Raw material (ค่าพื้นฐานชิ้นไม้สับ ถึง เปรียบเทียบชนิดไม้)';
@@ -10545,7 +10541,6 @@ function chipLayoutInitDnD(){
         grip.className = 'mon-grip mon-grip-group';
         grip.draggable = true;
         grip.title = currentLang==='en' ? 'Drag to move this whole group' : 'ลากเพื่อย้ายกลุ่มนี้';
-        grip.textContent = '⠿';
         head.insertBefore(grip, head.firstChild);
       }
     });
