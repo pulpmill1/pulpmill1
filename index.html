@@ -6563,9 +6563,12 @@ const chipMonCeil = (()=>{
 /* ceiling ต่อแหล่งข้อมูล — ชีตหลัก (main) ใช้ chipMonCeil ที่คำนวณจากคอลัมน์ anchor ข้างบน (ไม่โชว์ "วันนี้"
    เพราะวันของโรงงานยังไม่ปิด) ส่วน Cooking/Brown stock/Bleaching เป็น log รายชั่วโมงที่กรอกสดระหว่างวัน
    จึงครอบแค่ "ไม่เกินเวลาปัจจุบัน" แทน (โชว์ข้อมูลล่าสุดที่มีจริง ณ ขณะนี้ รวมถึงของวันนี้ที่กรอกไปแล้ว) —
-   x.v!=null ที่ filter อยู่แล้วตอนใช้ ceiling นี้ (ดูด้านล่าง) กันแถว placeholder ที่ยังไม่มีค่าจริงออกอยู่แล้ว */
+   x.v!=null ที่ filter อยู่แล้วตอนใช้ ceiling นี้ (ดูด้านล่าง) กันแถว placeholder ที่ยังไม่มีค่าจริงออกอยู่แล้ว
+   "Morning" (COD Effluent) is filled in once each morning for the PREVIOUS day, so it gets the
+   same "never show today" ceiling as main (chipMonYesterdayEnd) rather than chipMonNow — showing
+   "today" here would either be blank or (per user request) is simply never wanted for this sheet. */
 const chipMonNow = Date.now();
-const CHIP_MON_CEIL_BY_SRC = { main: chipMonCeil, cooking: chipMonNow, brownStock: chipMonNow, bleaching: chipMonNow, morningLog: chipMonNow };
+const CHIP_MON_CEIL_BY_SRC = { main: chipMonCeil, cooking: chipMonNow, brownStock: chipMonNow, bleaching: chipMonNow, morningLog: chipMonYesterdayEnd };
 const CHIP_MON_SERIES = {};
 CHIP_MON_META.forEach(m=> {
   const srcRows = CHIP_MON_ROWS_BY_SRC[m.src || 'main'];
@@ -11541,7 +11544,12 @@ function initChipMon(){
     if(CHIP_MON_STATE[g] === k){ CHIP_MON_STATE[g] = null; chipMonRenderDetail(g); return; }
     if(CHIP_MON_STATE[g] !== k){
       const grp = CHIP_MON_GROUPS.find(x=> x.id===g);
-      CHIP_MON_RANGE[g] = (grp && CHIP_MON_TODAY_DEFAULT_PAGES.includes(grp.page)) ? { preset:'today', custom:null } : null;
+      // COD Effluent ("Morning" sheet) is only ever filled in up to yesterday — defaulting it to
+      // "today" like its Bleaching page siblings would open on an always-empty view, so it gets
+      // its own default: trailing 14 days anchored on the series' own latest row (yesterday, per
+      // the morningLog ceiling above), not the dashboard-wide implicit default.
+      CHIP_MON_RANGE[g] = grp && grp.id==='blCodEffluent' ? { preset:'14d', custom:null }
+        : (grp && CHIP_MON_TODAY_DEFAULT_PAGES.includes(grp.page)) ? { preset:'today', custom:null } : null;
     }
     CHIP_MON_STATE[g] = k;
     chipMonRenderDetail(g);
