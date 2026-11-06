@@ -42,11 +42,9 @@
 
   /* app shell: sidebar + main */
   .app{display:flex; align-items:stretch; min-height:100vh;}
-  /* Desktop sizing is fully dynamic now — fitAppZoom() (script near the top of body) scales the
-     app proportionally to the real viewport width on load/resize/page-switch, so the dashboard
-     always reads right at the browser's own 100% zoom without anyone having to zoom in/out
-     themselves. Phones (<700px) are left alone. */
-  @media (min-width:700px){ .sidebar{ height:auto; min-height:100vh; } }
+  /* enlarge the whole dashboard ~30% for readability on meeting screens (skip narrow phones) */
+  @media (min-width:700px){ .app{ zoom:1.04; } .sidebar{ height:auto; min-height:100vh; } }
+  @supports not (zoom:1){ @media (min-width:700px){ .app{ transform:scale(1.04); transform-origin:top left; width:96.15%; } } }
 
   .sidebar{
     width:222px; flex-shrink:0; border-right:1px solid var(--border);
@@ -2498,40 +2496,6 @@
    restoration on reload would otherwise leave the very first paint mid-scroll — disable it and
    let showPage() below own the scroll position instead. */
 if('scrollRestoration' in history) history.scrollRestoration = 'manual';
-/* ===================== auto-fit zoom (nobody should need to Ctrl+/Ctrl- this page) =====================
-   The old static zoom:1.04 was tuned for one screen (~1920px wide, where it already looked right)
-   and left every other screen either cramped (needing a manual zoom-out on a narrower laptop) or
-   small with room to spare (needing a manual zoom-in on a wider/4K display). This instead scales
-   the whole app PROPORTIONALLY to the real viewport width against that same 1920px/1.04 baseline,
-   so a smaller screen gets a smaller zoom (fits without overflow) and a larger screen gets a larger
-   one (reads just as comfortably) — the browser's own zoom can stay at 100% on any screen. Re-run
-   on resize and on every page switch (showPage() calls scheduleFitAppZoom()). Phones (<700px) are
-   left unscaled, same as the old static rule. */
-const FIT_APP_ZOOM_REF_WIDTH = 1920, FIT_APP_ZOOM_REF_ZOOM = 1.04;
-const FIT_APP_ZOOM_MIN = 0.75, FIT_APP_ZOOM_MAX = 1.5;
-const fitAppZoomSupportsCssZoom = typeof CSS !== 'undefined' && CSS.supports && CSS.supports('zoom', '1');
-let fitAppZoomRaf = null;
-function fitAppZoom(){
-  const appEl = document.querySelector('.app');
-  if(!appEl) return;
-  const vw = document.documentElement.clientWidth;
-  if(vw < 700){ appEl.style.zoom = ''; appEl.style.transform = ''; appEl.style.width = ''; return; }
-  let z = FIT_APP_ZOOM_REF_ZOOM * (vw / FIT_APP_ZOOM_REF_WIDTH);
-  z = Math.max(FIT_APP_ZOOM_MIN, Math.min(FIT_APP_ZOOM_MAX, z));
-  if(fitAppZoomSupportsCssZoom){
-    appEl.style.zoom = z;
-  } else {
-    appEl.style.transform = `scale(${z})`;
-    appEl.style.transformOrigin = 'top left';
-    appEl.style.width = (100/z) + '%';
-  }
-}
-function scheduleFitAppZoom(){
-  if(fitAppZoomRaf) cancelAnimationFrame(fitAppZoomRaf);
-  fitAppZoomRaf = requestAnimationFrame(()=> { fitAppZoomRaf = null; fitAppZoom(); });
-}
-window.addEventListener('resize', scheduleFitAppZoom);
-scheduleFitAppZoom();
 /* ===================== sidebar navigation (SPA-style page switching) ===================== */
 let currentPageId = 'production-pm1';
 function showPage(pageId){
@@ -2550,8 +2514,6 @@ function showPage(pageId){
     else if(pageId === 'yield' && rmBlock.parentNode !== rmAnchor.parentNode) rmAnchor.parentNode.insertBefore(rmBlock, rmAnchor);
   }
   document.querySelectorAll('.page').forEach(sec=>{ sec.hidden = sec.dataset.page !== pageId; });
-  // different pages can have different natural (unzoomed) widths, so re-fit after switching
-  if(typeof scheduleFitAppZoom === 'function') scheduleFitAppZoom();
   /* Cost > Sensitivity's breakeven chart is built eagerly at boot (like every other chart on this
      dashboard), while its page is still hidden — Chart.js lays the canvas out at 0x0 then and never
      recovers on its own once the page becomes visible. Re-rendering it on every navigation here
