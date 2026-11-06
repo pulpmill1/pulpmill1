@@ -626,6 +626,10 @@
     background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:5px 7px;color:var(--ink);}
   .md-target input:focus-visible{outline:2px solid var(--accent);outline-offset:1px;}
   .md-target .note{font-size:10.5px;color:var(--ink-3);}
+  .md-target .save-btn{font:inherit;font-size:11px;font-weight:800;color:#fff;background:var(--accent);border:1px solid var(--accent);border-radius:7px;padding:5px 13px;cursor:pointer;}
+  .md-target .save-btn:hover{opacity:.88;}
+  .md-target .save-msg{font-size:10.5px;font-weight:700;color:#12a150;}
+  .md-avgsep{color:var(--ink-3);font-size:10.5px;}
   .md-strip{display:grid;grid-template-columns:repeat(7,1fr);border:1px solid var(--box-border);border-radius:9px;overflow:hidden;margin-bottom:14px;}
   /* chipMonRenderDetail's strip has 8 cells (Latest..Est. + Deviation) in this 7-column grid, so
      Deviation alone wraps to its own second row — give that one strip 8 columns so Deviation sits
@@ -2589,6 +2593,16 @@ async function fetchSheetCsv(gid){
   const text = await res.text();
   return parseSheetCSV(text);
 }
+/* Shared KPI Target (Low/High) values, saved by anyone via the Save button on a KPI Card's
+   Target block (/api/targets, a Vercel serverless function backed by Upstash Redis — same
+   pattern as /api/presence.js). Fetched once at boot alongside the sheet data so every
+   detail panel already has it on first render; falls back to {} (which makes every
+   chipMonTarget/wsdTarget call fall through to its own localStorage/default) if the
+   endpoint isn't configured yet or the fetch fails. */
+async function fetchKpiTargets(){
+  try{ const r = await fetch('/api/targets'); return r.ok ? await r.json() : null; }
+  catch(e){ return null; }
+}
 function sheetIsLeapYear(y){ return (y % 4 === 0 && y % 100 !== 0) || (y % 400 === 0); }
 function sheetDaysInMonth(y, mi){ return mi===1 && sheetIsLeapYear(y) ? 29 : DAYS_IN_MONTH[mi]; }
 function parseDailySheet(rows, opts){
@@ -2644,12 +2658,15 @@ function parseMonthlySheet(rows, labelWord){
   return byYear;
 }
 
-const [dailyActRows, dailyBgRows, dailyPlanRows, dailyLossRows, monthlyActRows, monthlyBudgetRows, chipWoodRows, cookingCondRows, weightScaleDigRows, cookingLogRows, brownStockRows, bleachingRows, morningLogRows] = await Promise.all([
+const [dailyActRows, dailyBgRows, dailyPlanRows, dailyLossRows, monthlyActRows, monthlyBudgetRows, chipWoodRows, cookingCondRows, weightScaleDigRows, cookingLogRows, brownStockRows, bleachingRows, morningLogRows, kpiTargetsResp] = await Promise.all([
   fetchSheetCsv(SHEET_GIDS.dailyAct), fetchSheetCsv(SHEET_GIDS.dailyBg), fetchSheetCsv(SHEET_GIDS.dailyPlan), fetchSheetCsv(SHEET_GIDS.dailyLoss),
   fetchSheetCsv(SHEET_GIDS.monthlyAct), fetchSheetCsv(SHEET_GIDS.monthlyBudget), fetchSheetCsv(SHEET_GIDS.chipWood), fetchSheetCsv(SHEET_GIDS.cookingCond),
   fetchSheetCsv(SHEET_GIDS.weightScaleDig), fetchSheetCsv(SHEET_GIDS.cookingLog), fetchSheetCsv(SHEET_GIDS.brownStock), fetchSheetCsv(SHEET_GIDS.bleaching),
-  fetchSheetCsv(SHEET_GIDS.morningLog),
+  fetchSheetCsv(SHEET_GIDS.morningLog), fetchKpiTargets(),
 ]);
+// Shared Target Low/High store — see fetchKpiTargets() above. Mutated in place (not reassigned)
+// by chipMonSetTarget/wsdSetTarget so every closure that already captured it sees new saves.
+const CHIP_TARGETS_REMOTE = (kpiTargetsResp && kpiTargetsResp.targets) || {};
 
 const dailyActParsed = parseDailySheet(dailyActRows, {numeric:true});
 const YEAR = dailyActParsed.year;
@@ -6713,13 +6730,20 @@ function chipMonAnalyse(key, meta){
     curMonRows, prevMonRows, last7Rows, last7PrevRows, yrValsRows };
 }
 
-/* ---- target store (per metric, browser-local) ---- */
+/* ---- target store ----
+   Shared across every viewer via CHIP_TARGETS_REMOTE (loaded at boot from /api/targets);
+   localStorage is kept only as this browser's own fallback for whatever it saved before the
+   shared store existed, or if the save round-trip to the server hasn't landed yet. */
 function chipMonTarget(key){
+  const remote = CHIP_TARGETS_REMOTE[key];
+  if(remote) return {lo:remote.lo??null, hi:remote.hi??null};
   try{ const raw = JSON.parse(localStorage.getItem('fl1_chip_target_'+key) || '{}'); return {lo:raw.lo??null, hi:raw.hi??null}; }
   catch(e){ return {lo:null, hi:null}; }
 }
 function chipMonSetTarget(key, lo, hi){
+  CHIP_TARGETS_REMOTE[key] = {lo, hi};
   try{ localStorage.setItem('fl1_chip_target_'+key, JSON.stringify({lo, hi})); }catch(e){}
+  fetch('/api/targets', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({key, lo, hi}) }).catch(()=>{});
 }
 
 /* ---- Y-axis range override (per metric, browser-local) — distinct from the target lines above:
@@ -10464,6 +10488,21 @@ function chipMonRenderDetail(grpId){
   const stripPrevMon = chipMonMean(a.prevMon);
   const stripYr = chipMonMean(a.yrVals);
 
+  /* Average for whichever date-range preset is currently selected on this chart (the same
+     rpkBar state the chart/table below reads) — shown right next to the existing "ค่าเฉลี่ย
+     [ปี] ..." picker above the chart so both averages sit together. Recomputed from the full,
+     unfiltered CHIP_MON_SERIES every render, so it always reflects the live preset even though
+     chipMonRenderDetail re-renders from scratch on every range change (see rpkWire below). */
+  const rngState = CHIP_MON_RANGE[grpId] || {preset:'14d', custom:null};
+  const fullSeries = CHIP_MON_SERIES[key];
+  const rngWin = fullSeries.length ? rpkResolve(rngState, fullSeries[fullSeries.length-1].ts, fullSeries[0].ts) : null;
+  const rngVals = rngWin ? fullSeries.filter(x=> x.ts>=rngWin[0] && x.ts<=rngWin[1]).map(x=> x.v) : [];
+  const rngAvg = chipMonMean(rngVals);
+  const rngPreset = RPK_PRESETS.find(p=> p && p.id === rngState.preset);
+  const rngLabel = rngState.preset==='custom' && rngState.custom && rngState.custom.start && rngState.custom.end
+    ? rngState.custom.start+' – '+rngState.custom.end
+    : (rngPreset ? (currentLang==='en'?rngPreset.en:rngPreset.th) : (currentLang==='en'?'selected range':'ช่วงที่เลือก'));
+
   panel.innerHTML = `
     <div class="md-head">
       <span class="md-title">${m.th} <span class="u">· ${m.unit}</span></span>
@@ -10482,6 +10521,9 @@ function chipMonRenderDetail(grpId){
           <input type="month" id="chipAvgMonth_${grpId}" hidden>
           <select id="chipAvgYear_${grpId}" hidden></select>
           <span class="md-avgval" id="chipAvgVal_${grpId}"></span>
+          <span class="md-avgsep">·</span>
+          <span class="md-avglbl">${(currentLang==='en'?'Average, selected range':'ค่าเฉลี่ยช่วงที่เลือก')} (${rngLabel})</span>
+          <span class="md-avgval">${rngVals.length ? chipMonFmt(rngAvg, m.dec)+' '+m.unit : '—'}</span>
         </span>
       </span>
     </div>
@@ -10491,7 +10533,9 @@ function chipMonRenderDetail(grpId){
       <span class="lbl">${m.th} target</span>
       <span class="fld">LOW <input type="number" step="any" id="chipTgtLo_${grpId}" value="${tgt.lo??''}" placeholder="—"> ${m.unit}</span>
       <span class="fld">HIGH <input type="number" step="any" id="chipTgtHi_${grpId}" value="${tgt.hi??''}" placeholder="—"> ${m.unit}</span>
-      <span class="note">ตั้ง Low / High เพื่อวางเส้นเป้าบนกราฟ${specTxt !== 'ไม่มีเกณฑ์ในชีต' ? ` · เกณฑ์อ้างอิงในชีต: ${specTxt}` : ''}</span>
+      <button type="button" class="save-btn" id="chipTgtSave_${grpId}">${currentLang==='en'?'Save target':'บันทึก Target'}</button>
+      <span class="save-msg" id="chipTgtMsg_${grpId}" hidden>${currentLang==='en'?'✓ Saved — visible to everyone':'✓ บันทึกแล้ว — ทุกคนเห็นเส้นนี้'}</span>
+      <span class="note">ตั้ง Low / High แล้วกด “บันทึก” เพื่อวางเส้นเป้าบนกราฟให้ทุกคนที่เปิด Dashboard เห็นเหมือนกัน จนกว่าจะมีการบันทึกค่าใหม่${specTxt !== 'ไม่มีเกณฑ์ในชีต' ? ` · เกณฑ์อ้างอิงในชีต: ${specTxt}` : ''}</span>
     </div>
     ${showYScaleCtl ? `
     <div class="md-target">
@@ -10519,17 +10563,21 @@ function chipMonRenderDetail(grpId){
     <div class="md-assess">${chipMonAssess(m, a, tgt)}</div>
   `;
 
-  // wire target inputs
+  // wire target inputs — saved on an explicit button press (not per-keystroke/per-field change),
+  // since saving now pushes to the shared /api/targets store for every viewer, not just this browser.
   const loEl = document.getElementById('chipTgtLo_'+grpId), hiEl = document.getElementById('chipTgtHi_'+grpId);
-  const onTgt = () => {
+  const saveBtn = document.getElementById('chipTgtSave_'+grpId), saveMsg = document.getElementById('chipTgtMsg_'+grpId);
+  let saveMsgTimer = null;
+  saveBtn.addEventListener('click', () => {
     const lo = loEl.value.trim()==='' ? null : +loEl.value;
     const hi = hiEl.value.trim()==='' ? null : +hiEl.value;
     chipMonSetTarget(key, lo, hi);
     chipMonRenderDetailBody(grpId, m, a, {lo, hi});
     panel.querySelector('.md-assess').innerHTML = chipMonAssess(m, a, {lo, hi});
-  };
-  loEl.addEventListener('change', onTgt);
-  hiEl.addEventListener('change', onTgt);
+    saveMsg.hidden = false;
+    clearTimeout(saveMsgTimer);
+    saveMsgTimer = setTimeout(() => { saveMsg.hidden = true; }, 2500);
+  });
   if(showYScaleCtl){
     const yLoEl = document.getElementById('chipYLo_'+grpId), yHiEl = document.getElementById('chipYHi_'+grpId);
     const onYScale = () => {
@@ -11687,12 +11735,22 @@ if(document.getElementById('chipMonHost')) initChipMon();
    Weight after DPL 5 m3 หรือกลับกัน) — ทุกจุดที่ใช้ WSD_BY_DIG เพื่อแสดง/กรองต้องกรอง null ออกก่อน */
 function wsdMetricRows(metric, dig){ return (WSD_BY_DIG[dig] || []).filter(r=> r[metric.valueKey]!=null); }
 
+/* Same shared-store treatment as chipMonTarget/chipMonSetTarget above — CHIP_TARGETS_REMOTE
+   keyed by 'wsd_<metricId>_<digester>' so it can't collide with a chip metric's own plain key. */
 function wsdTarget(metric, dig){
+  const remoteKey = 'wsd_'+metric.id+'_'+dig;
+  const remote = CHIP_TARGETS_REMOTE[remoteKey];
+  if(remote) return { lo: remote.lo!=null ? remote.lo : metric.defaultLo, hi: remote.hi!=null ? remote.hi : metric.defaultHi };
   try{ const raw = JSON.parse(localStorage.getItem('fl1_wsd_target_'+metric.id+'_'+dig) || '{}');
     return { lo: raw.lo!=null ? raw.lo : metric.defaultLo, hi: raw.hi!=null ? raw.hi : metric.defaultHi }; }
   catch(e){ return {lo:metric.defaultLo, hi:metric.defaultHi}; }
 }
-function wsdSetTarget(metric, dig, lo, hi){ try{ localStorage.setItem('fl1_wsd_target_'+metric.id+'_'+dig, JSON.stringify({lo, hi})); }catch(e){} }
+function wsdSetTarget(metric, dig, lo, hi){
+  const remoteKey = 'wsd_'+metric.id+'_'+dig;
+  CHIP_TARGETS_REMOTE[remoteKey] = {lo, hi};
+  try{ localStorage.setItem('fl1_wsd_target_'+metric.id+'_'+dig, JSON.stringify({lo, hi})); }catch(e){}
+  fetch('/api/targets', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({key:remoteKey, lo, hi}) }).catch(()=>{});
+}
 /* จุดกระพริบเฉพาะเมื่อค่าเกินเป้าต่อเนื่องกันตั้งแต่ 3 batch ขึ้นไป — นับต่อเนื่องเฉพาะภายใน "ช่วงข้อมูล
    ที่กำลังดูอยู่" (rows ที่ผ่าน wsdFilterRows แล้ว) ไม่ใช่ทั้งประวัติของ digester เพื่อไม่ให้เห็นจุด
    กระพริบเดี่ยวๆ ที่ดูเหมือนขัดกับเงื่อนไข "≥3 ครั้งติดกัน" เวลาสมาชิกอีก 1-2 ตัวของ run ตกไปอยู่นอก
@@ -11885,6 +11943,8 @@ function wsdRenderDetail(metric){
       <span class="lbl">Target</span>
       <span class="fld">LOW <input type="number" step="any" id="wsdTgtLo_${metric.id}" value="${tgt.lo}"> ${metric.unit}</span>
       <span class="fld">HIGH <input type="number" step="any" id="wsdTgtHi_${metric.id}" value="${tgt.hi}"> ${metric.unit}</span>
+      <button type="button" class="save-btn" id="wsdTgtSave_${metric.id}">บันทึก Target</button>
+      <span class="save-msg" id="wsdTgtMsg_${metric.id}" hidden>✓ บันทึกแล้ว — ทุกคนเห็นเส้นนี้</span>
       <span class="note">${metric.targetNote}</span>
     </div>
     <div class="md-body" id="wsdBody_${metric.id}"></div>
@@ -11893,16 +11953,19 @@ function wsdRenderDetail(metric){
   rpkHost.innerHTML = rpkBarHtml('wsdRpk_'+metric.id+'_'+dig, WSD_RANGE[metric.id][dig]);
   rpkWire('wsdRpk_'+metric.id+'_'+dig, WSD_RANGE[metric.id][dig], (next)=>{ WSD_RANGE[metric.id][dig] = next; wsdRenderDetail(metric); });
   const loEl = document.getElementById('wsdTgtLo_'+metric.id), hiEl = document.getElementById('wsdTgtHi_'+metric.id);
-  const onTgt = ()=> {
+  const saveBtn = document.getElementById('wsdTgtSave_'+metric.id), saveMsg = document.getElementById('wsdTgtMsg_'+metric.id);
+  let saveMsgTimer = null;
+  saveBtn.addEventListener('click', ()=> {
     const lo = loEl.value.trim()==='' ? metric.defaultLo : +loEl.value;
     const hi = hiEl.value.trim()==='' ? metric.defaultHi : +hiEl.value;
     wsdSetTarget(metric, dig, lo, hi);
     wsdRenderBody(metric, dig);
     wsdRenderTiles(metric);
     document.querySelectorAll('#wsdTiles_'+metric.id+' .mon-tile').forEach(t=> t.classList.toggle('sel', +t.dataset.dig===dig));
-  };
-  loEl.addEventListener('change', onTgt);
-  hiEl.addEventListener('change', onTgt);
+    saveMsg.hidden = false;
+    clearTimeout(saveMsgTimer);
+    saveMsgTimer = setTimeout(()=> { saveMsg.hidden = true; }, 2500);
+  });
   panel.querySelectorAll('.md-viewbtn').forEach(b=> b.addEventListener('click', ()=> { WSD_VIEW[metric.id][dig] = b.dataset.view; wsdRenderBody(metric, dig); }));
   wsdRenderBody(metric, dig);
 }
