@@ -451,6 +451,24 @@
   .mon-group-head .gt{font-size:14.5px;font-weight:800;letter-spacing:.015em;color:var(--ink);}
   .mon-group-head .gs{font-size:11px;color:var(--ink-3);margin-left:auto;}
   .mon-tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(216px,1fr));gap:12px;}
+  /* Shared drag-and-drop layout (chipLayoutInitDnD): a small grip on each group header / KPI
+     card is the only drag source, kept separate from the click-to-open target so dragging
+     never swallows the existing click-to-open-detail behavior. */
+  .mon-grip{cursor:grab;user-select:none;font-size:13px;line-height:1;color:var(--ink-3);opacity:0;transition:opacity .12s;}
+  .mon-group-head:hover .mon-grip-group,.mon-tile:hover .mt-grip,.mon-grip:active{opacity:1;}
+  .mon-grip:active{cursor:grabbing;}
+  .mon-grip-group{flex:0 0 auto;}
+  .mon-grip-bar{display:flex;align-items:center;gap:7px;margin:0 2px 10px;}
+  .mon-grip-bar:hover .mon-grip-group{opacity:1;}
+  .mon-grip-label{font-size:11px;font-weight:700;color:var(--ink-3);}
+  .mt-grip{position:absolute;top:5px;right:6px;padding:1px 4px;border-radius:4px;z-index:1;}
+  .mt-grip:hover{background:rgba(127,151,179,.16);}
+  .mon-group.dragging,.mon-tile.dragging{opacity:.45;}
+  .mon-group.drop-before{box-shadow:0 -3px 0 0 var(--accent) inset;}
+  .mon-group.drop-after{box-shadow:0 3px 0 0 var(--accent) inset;}
+  .mon-tile.drop-before{box-shadow:-3px 0 0 0 var(--accent) inset;}
+  .mon-tile.drop-after{box-shadow:3px 0 0 0 var(--accent) inset;}
+  .mon-tiles.drop-empty{outline:2px dashed var(--accent);outline-offset:-2px;border-radius:8px;}
 
   /* Executive KPI panel: one unified dark-navy surface (same recipe as the sidebar /
      .mon-tile.sel accent) instead of separate white card boxes — deliberately fixed
@@ -2603,6 +2621,17 @@ async function fetchKpiTargets(){
   try{ const r = await fetch('/api/targets'); return r.ok ? await r.json() : null; }
   catch(e){ return null; }
 }
+/* Shared KPI Card / group layout (drag-and-drop order), saved via the grip handles added in
+   chipLayoutInitDnD() — /api/layout, a Vercel serverless function backed by the same Upstash
+   Redis project as /api/presence.js and /api/targets.js. The whole arrangement (group order
+   per page, card order within a group, and which group a card has been dragged into) is one
+   coherent structure, so it's stored/fetched as a single JSON blob rather than per-field like
+   targets. Falls back to {} (the code-defined default order, exactly as before this feature
+   existed) if the endpoint isn't configured yet or the fetch fails. */
+async function fetchKpiLayout(){
+  try{ const r = await fetch('/api/layout'); return r.ok ? await r.json() : null; }
+  catch(e){ return null; }
+}
 function sheetIsLeapYear(y){ return (y % 4 === 0 && y % 100 !== 0) || (y % 400 === 0); }
 function sheetDaysInMonth(y, mi){ return mi===1 && sheetIsLeapYear(y) ? 29 : DAYS_IN_MONTH[mi]; }
 function parseDailySheet(rows, opts){
@@ -2658,15 +2687,23 @@ function parseMonthlySheet(rows, labelWord){
   return byYear;
 }
 
-const [dailyActRows, dailyBgRows, dailyPlanRows, dailyLossRows, monthlyActRows, monthlyBudgetRows, chipWoodRows, cookingCondRows, weightScaleDigRows, cookingLogRows, brownStockRows, bleachingRows, morningLogRows, kpiTargetsResp] = await Promise.all([
+const [dailyActRows, dailyBgRows, dailyPlanRows, dailyLossRows, monthlyActRows, monthlyBudgetRows, chipWoodRows, cookingCondRows, weightScaleDigRows, cookingLogRows, brownStockRows, bleachingRows, morningLogRows, kpiTargetsResp, kpiLayoutResp] = await Promise.all([
   fetchSheetCsv(SHEET_GIDS.dailyAct), fetchSheetCsv(SHEET_GIDS.dailyBg), fetchSheetCsv(SHEET_GIDS.dailyPlan), fetchSheetCsv(SHEET_GIDS.dailyLoss),
   fetchSheetCsv(SHEET_GIDS.monthlyAct), fetchSheetCsv(SHEET_GIDS.monthlyBudget), fetchSheetCsv(SHEET_GIDS.chipWood), fetchSheetCsv(SHEET_GIDS.cookingCond),
   fetchSheetCsv(SHEET_GIDS.weightScaleDig), fetchSheetCsv(SHEET_GIDS.cookingLog), fetchSheetCsv(SHEET_GIDS.brownStock), fetchSheetCsv(SHEET_GIDS.bleaching),
-  fetchSheetCsv(SHEET_GIDS.morningLog), fetchKpiTargets(),
+  fetchSheetCsv(SHEET_GIDS.morningLog), fetchKpiTargets(), fetchKpiLayout(),
 ]);
 // Shared Target Low/High store — see fetchKpiTargets() above. Mutated in place (not reassigned)
 // by chipMonSetTarget/wsdSetTarget so every closure that already captured it sees new saves.
 const CHIP_TARGETS_REMOTE = (kpiTargetsResp && kpiTargetsResp.targets) || {};
+// Shared KPI Card/group layout store — see fetchKpiLayout() above. Mutated in place (not
+// reassigned) by chipLayoutMoveTile/chipLayoutMoveGroup so every closure that already captured
+// it sees new drag-and-drop saves. Sub-objects are guaranteed present so call sites never need
+// their own `|| {}` fallback.
+const CHIP_LAYOUT = (kpiLayoutResp && kpiLayoutResp.layout) || {};
+CHIP_LAYOUT.groupOrder = CHIP_LAYOUT.groupOrder || {};
+CHIP_LAYOUT.tileGroup = CHIP_LAYOUT.tileGroup || {};
+CHIP_LAYOUT.tileOrder = CHIP_LAYOUT.tileOrder || {};
 
 const dailyActParsed = parseDailySheet(dailyActRows, {numeric:true});
 const YEAR = dailyActParsed.year;
@@ -10328,7 +10365,7 @@ function chipMonMakeSpark(cv, live, s, railColor){
 }
 function chipMonRenderTiles(grp){
   const wrap = document.getElementById('chipTiles_'+grp.id);
-  const metas = CHIP_MON_META.filter(m=> m.grp===grp.id && !m.hideTile);
+  const metas = chipLayoutOrderMetas(grp.id, CHIP_MON_META.filter(m=> chipLayoutEffGrp(m)===grp.id && !m.hideTile));
   wrap.innerHTML = metas.map(m=> {
     const a = chipMonAnalyse(m.key, m);
     const val = a ? chipMonFmt(a.anchor.v, m.dec) : '—';
@@ -10363,6 +10400,7 @@ function chipMonRenderTiles(grp){
       pairHtml = `<div class="mt-pair"><span class="mt-tag">Pulp1</span>${val}${m.unit} <span class="mt-tag">Pulp2</span>${pval}${pm ? pm.unit : m.unit}</div>`;
     }
     return `<div class="mon-tile" role="button" tabindex="0" data-grp="${grp.id}" data-key="${m.key}" style="--mon-rail:${grp.rail}">
+      <span class="mt-grip" draggable="true" title="${currentLang==='en'?'Drag to move this card':'ลากเพื่อย้าย KPI Card นี้'}">⠿</span>
       <div class="mt-top"><span class="mt-ico">${grp.ico}</span><span class="mt-name">${m.th}</span><span class="mt-dot ${dot}"></span></div>
       ${pairHtml || `<div class="mt-val">${val}<span class="mt-unit">${m.unit}</span>${trendHtml}</div>`}
       <div class="mt-row3"><span class="mt-sub">${sub}</span><span class="mt-spark-wrap"><canvas class="mt-spark" id="chipSpark_${m.key}"></canvas><i class="spark-live" id="chipLive_${m.key}" hidden></i></span></div>
@@ -10378,6 +10416,211 @@ function chipMonRenderTiles(grp){
     const live = document.getElementById('chipLive_'+m.key);
     if(chipMonSparks[m.key]){ try{ chipMonSparks[m.key].destroy(); }catch(e){} }
     chipMonSparks[m.key] = chipMonMakeSpark(cv, live, s, grp.rail);
+  });
+}
+
+/* ==================================================================================
+   Shared KPI Card / group layout (drag-and-drop reordering) — grip handles added by
+   chipLayoutInitDnD() let a viewer (a) reorder cards within one group, (b) drag a card into a
+   different group on the same page, and (c) reorder whole groups on a page. Saved to
+   CHIP_LAYOUT (loaded at boot from /api/layout, same shared-store pattern as CHIP_TARGETS_REMOTE)
+   so every viewer sees the same arrangement until someone drags something again.
+   - CHIP_LAYOUT.tileGroup[key]: overrides which group a card renders under (absent = its
+     CHIP_MON_META-defined default group, m.grp — m.grp itself is never mutated, since other
+     code (m.src assignment, the Notification Centre's rail color) still needs each metric's
+     true/default group).
+   - CHIP_LAYOUT.tileOrder[grpId]: card order within one (effective) group.
+   - CHIP_LAYOUT.groupOrder[hostId]: group order within one page's host container
+     (chipMonHost/chipCookingHost/chipBrownStockHost/chipBleachHost — the Weight Scale Digester
+     page's per-digester tiles and the RM Wood-Yield/Chip-diff tiles are a different, non-
+     CHIP_MON_GROUPS system with no interchangeable "group" concept, so they're out of scope). */
+function chipLayoutEffGrp(m){ return (CHIP_LAYOUT.tileGroup && CHIP_LAYOUT.tileGroup[m.key]) || m.grp; }
+function chipLayoutOrderMetas(grpId, metas){
+  const order = CHIP_LAYOUT.tileOrder && CHIP_LAYOUT.tileOrder[grpId];
+  if(!order || !order.length) return metas;
+  const idx = new Map(order.map((k,i)=> [k,i]));
+  return metas.slice().sort((a,b)=> (idx.has(a.key)?idx.get(a.key):Infinity) - (idx.has(b.key)?idx.get(b.key):Infinity));
+}
+function chipLayoutSave(){
+  fetch('/api/layout', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({layout:CHIP_LAYOUT}) }).catch(()=>{});
+}
+function chipLayoutApplyGroupOrder(hostId){
+  const host = document.getElementById(hostId);
+  const order = CHIP_LAYOUT.groupOrder[hostId];
+  if(!host || !order || !order.length) return;
+  const els = {};
+  host.querySelectorAll(':scope > .mon-group[data-grp]').forEach(el=> { els[el.dataset.grp] = el; });
+  let prev = null;
+  order.forEach(id=> {
+    const el = els[id];
+    if(!el) return;
+    if(prev) prev.insertAdjacentElement('afterend', el);
+    else host.insertBefore(el, host.firstChild);
+    prev = el;
+  });
+}
+function chipLayoutMoveGroup(hostId, movedId, targetId, placeBefore){
+  const host = document.getElementById(hostId);
+  if(!host || movedId===targetId) return;
+  const current = Array.from(host.querySelectorAll(':scope > .mon-group[data-grp]')).map(el=> el.dataset.grp);
+  const saved = CHIP_LAYOUT.groupOrder[hostId];
+  const order = (saved && saved.length ? saved.filter(id=> current.includes(id)) : current.slice());
+  current.forEach(id=> { if(order.indexOf(id)<0) order.push(id); });
+  const filtered = order.filter(id=> id!==movedId);
+  const ti = filtered.indexOf(targetId);
+  filtered.splice(ti<0 ? filtered.length : (placeBefore ? ti : ti+1), 0, movedId);
+  CHIP_LAYOUT.groupOrder[hostId] = filtered;
+  chipLayoutApplyGroupOrder(hostId);
+  chipLayoutSave();
+}
+function chipLayoutMoveTile(key, fromGrpId, targetGrpId, beforeKey, placeBefore){
+  const m = CHIP_MON_META.find(x=> x.key===key);
+  if(!m) return;
+  if(targetGrpId === m.grp) delete CHIP_LAYOUT.tileGroup[key];
+  else CHIP_LAYOUT.tileGroup[key] = targetGrpId;
+  const currentMembers = CHIP_MON_META.filter(x=> !x.hideTile && chipLayoutEffGrp(x)===targetGrpId).map(x=> x.key);
+  const savedOrder = CHIP_LAYOUT.tileOrder[targetGrpId];
+  let order = (savedOrder && savedOrder.length) ? savedOrder.filter(k=> currentMembers.indexOf(k)>=0) : [];
+  currentMembers.forEach(k=> { if(order.indexOf(k)<0) order.push(k); });
+  order = order.filter(k=> k!==key);
+  const bi = beforeKey ? order.indexOf(beforeKey) : -1;
+  if(bi>=0) order.splice(placeBefore ? bi : bi+1, 0, key);
+  else order.push(key);
+  CHIP_LAYOUT.tileOrder[targetGrpId] = order;
+
+  const fromGrp = CHIP_MON_GROUPS.find(g=> g.id===fromGrpId);
+  const toGrp = CHIP_MON_GROUPS.find(g=> g.id===targetGrpId);
+  if(fromGrp) chipMonRenderTiles(fromGrp);
+  if(toGrp && targetGrpId!==fromGrpId) chipMonRenderTiles(toGrp);
+  if(fromGrpId!==targetGrpId && CHIP_MON_STATE[fromGrpId]===key){
+    CHIP_MON_STATE[fromGrpId] = null;
+    chipMonRenderDetail(fromGrpId);
+  }
+  chipLayoutSave();
+}
+let CHIP_DRAG = null;
+function chipLayoutClearDropMarks(){
+  document.querySelectorAll('.drop-before,.drop-after,.drop-empty,.dragging')
+    .forEach(el=> el.classList.remove('drop-before','drop-after','drop-empty','dragging'));
+}
+const CHIP_LAYOUT_HOST_IDS = ['chipMonHost','chipCookingHost','chipBrownStockHost','chipBleachHost'];
+function chipLayoutInitDnD(){
+  // Pass 1: tag + add a grip to every direct-child group, once (this markup is static HTML,
+  // never re-rendered). #rmMirrorBlock (Yield page only) is a special case: "Wood-chip basics"
+  // through "Wood species comparison" live inside it as their own nested .mon-group blocks
+  // because showPage() physically reparents the whole block between here and the Process area >
+  // Raw material page (see the comment at rmBlock above) — decomposing it via normal group drag
+  // would silently break that mirroring, so it's tagged and dragged as ONE opaque unit instead
+  // (its own grip bar, since it has no .mon-group-head of its own); the groups nested inside it
+  // only support tile-level drag (move/reorder cards), not group-level reordering.
+  CHIP_LAYOUT_HOST_IDS.forEach(hostId=> {
+    const host = document.getElementById(hostId);
+    if(!host) return;
+    host.querySelectorAll(':scope > .mon-group, :scope > [id="rmMirrorBlock"]').forEach(groupEl=> {
+      if(groupEl.id === 'rmMirrorBlock'){
+        groupEl.classList.add('mon-group');
+        if(groupEl.dataset.grp) return;
+        groupEl.dataset.grp = 'rmMirrorBlock';
+        const bar = document.createElement('div');
+        bar.className = 'mon-grip-bar';
+        const grip = document.createElement('span');
+        grip.className = 'mon-grip mon-grip-group';
+        grip.draggable = true;
+        grip.title = currentLang==='en' ? 'Drag to move this whole group' : 'ลากเพื่อย้ายกลุ่มนี้';
+        grip.textContent = '⠿';
+        const label = document.createElement('span');
+        label.className = 'mon-grip-label';
+        label.textContent = currentLang==='en' ? 'Raw material metrics (Wood-chip basics → Wood species comparison)' : 'กลุ่มข้อมูล Raw material (ค่าพื้นฐานชิ้นไม้สับ ถึง เปรียบเทียบชนิดไม้)';
+        bar.appendChild(grip); bar.appendChild(label);
+        groupEl.insertBefore(bar, groupEl.firstChild);
+        return;
+      }
+      const tilesEl = groupEl.querySelector('.mon-tiles[id^="chipTiles_"]');
+      if(!tilesEl) return;
+      groupEl.dataset.grp = tilesEl.id.slice('chipTiles_'.length);
+      const head = groupEl.querySelector('.mon-group-head');
+      if(head && !head.querySelector('.mon-grip-group')){
+        const grip = document.createElement('span');
+        grip.className = 'mon-grip mon-grip-group';
+        grip.draggable = true;
+        grip.title = currentLang==='en' ? 'Drag to move this whole group' : 'ลากเพื่อย้ายกลุ่มนี้';
+        grip.textContent = '⠿';
+        head.insertBefore(grip, head.firstChild);
+      }
+    });
+  });
+  // Pass 2: apply any saved group order (needs every group's data-grp already tagged above)
+  CHIP_LAYOUT_HOST_IDS.forEach(hostId=> chipLayoutApplyGroupOrder(hostId));
+  // Pass 3: wire the delegated drag listeners, once per host
+  CHIP_LAYOUT_HOST_IDS.forEach(hostId=> {
+    const host = document.getElementById(hostId);
+    if(!host) return;
+    host.addEventListener('dragstart', e=> {
+      const grip = e.target.closest('.mon-grip-group, .mt-grip');
+      if(!grip) return;
+      if(grip.classList.contains('mon-grip-group')){
+        const groupEl = grip.closest('.mon-group[data-grp]');
+        if(!groupEl) return;
+        CHIP_DRAG = { type:'group', key:groupEl.dataset.grp, hostId };
+        groupEl.classList.add('dragging');
+        try{ e.dataTransfer.setDragImage(groupEl, 16, 16); }catch(_){}
+      } else {
+        const tile = grip.closest('.mon-tile');
+        if(!tile) return;
+        CHIP_DRAG = { type:'tile', key:tile.dataset.key, fromGrp:tile.dataset.grp, hostId };
+        tile.classList.add('dragging');
+        try{ e.dataTransfer.setDragImage(tile, 16, 16); }catch(_){}
+      }
+      e.dataTransfer.effectAllowed = 'move';
+      try{ e.dataTransfer.setData('text/plain', 'chipmon'); }catch(_){}
+    });
+    host.addEventListener('dragend', ()=> { CHIP_DRAG = null; chipLayoutClearDropMarks(); });
+
+    host.addEventListener('dragover', e=> {
+      if(!CHIP_DRAG || CHIP_DRAG.hostId!==hostId) return;
+      if(CHIP_DRAG.type==='group'){
+        const groupEl = e.target.closest('.mon-group[data-grp]');
+        if(!groupEl) return;
+        e.preventDefault();
+        chipLayoutClearDropMarks();
+        const r = groupEl.getBoundingClientRect();
+        groupEl.classList.toggle('drop-before', (e.clientY - r.top) < r.height/2);
+        groupEl.classList.toggle('drop-after', (e.clientY - r.top) >= r.height/2);
+      } else {
+        const tile = e.target.closest('.mon-tile');
+        if(tile){
+          e.preventDefault();
+          chipLayoutClearDropMarks();
+          const r = tile.getBoundingClientRect();
+          tile.classList.toggle('drop-before', (e.clientX - r.left) < r.width/2);
+          tile.classList.toggle('drop-after', (e.clientX - r.left) >= r.width/2);
+          return;
+        }
+        const wrap = e.target.closest('.mon-tiles');
+        if(wrap){ e.preventDefault(); chipLayoutClearDropMarks(); wrap.classList.add('drop-empty'); }
+      }
+    });
+
+    host.addEventListener('drop', e=> {
+      if(!CHIP_DRAG || CHIP_DRAG.hostId!==hostId) return;
+      e.preventDefault();
+      if(CHIP_DRAG.type==='group'){
+        const groupEl = e.target.closest('.mon-group[data-grp]');
+        const placeBefore = groupEl ? groupEl.classList.contains('drop-before') : true;
+        chipLayoutClearDropMarks();
+        if(groupEl && groupEl.dataset.grp!==CHIP_DRAG.key) chipLayoutMoveGroup(hostId, CHIP_DRAG.key, groupEl.dataset.grp, placeBefore);
+      } else {
+        const tile = e.target.closest('.mon-tile');
+        const wrap = tile ? tile.closest('.mon-tiles') : e.target.closest('.mon-tiles');
+        const isBefore = tile ? tile.classList.contains('drop-before') : true;
+        chipLayoutClearDropMarks();
+        if(wrap && !(tile && tile.dataset.key===CHIP_DRAG.key)){
+          const targetGrpId = wrap.id.slice('chipTiles_'.length);
+          chipLayoutMoveTile(CHIP_DRAG.key, CHIP_DRAG.fromGrp, targetGrpId, tile ? tile.dataset.key : null, isBefore);
+        }
+      }
+      CHIP_DRAG = null;
+    });
   });
 }
 
@@ -11593,6 +11836,9 @@ function initYaCardCollapse(){
 }
 function initChipMon(){
   if(!CHIP_MON_ROWS.length) return;
+  // apply any saved group order + wire drag-and-drop grips before the tile render loop below,
+  // so the page paints in the saved order on first load rather than visibly reordering after
+  chipLayoutInitDnD();
   renderExecKpiPanel();
   initYieldAnalysisControls();
   initYieldAnalysisControlsDaily();
@@ -11636,11 +11882,13 @@ function initChipMon(){
     const host = document.getElementById(hostId);
     if(!host) return;
     host.addEventListener('click', (e)=> {
+      if(e.target.closest('.mt-grip, .mon-grip-group')) return;
       const tile = e.target.closest('.mon-tile'); if(!tile) return;
       chipMonToggle(tile.dataset.grp, tile.dataset.key);
     });
     host.addEventListener('keydown', (e)=> {
       if(e.key!=='Enter' && e.key!==' ') return;
+      if(e.target.closest('.mt-grip, .mon-grip-group')) return;
       const tile = e.target.closest('.mon-tile'); if(!tile) return;
       e.preventDefault();
       chipMonToggle(tile.dataset.grp, tile.dataset.key);
