@@ -11205,11 +11205,14 @@ function bchDrawChart(digRows, avgVals){
     return ['Digester '+r.dig, sub];
   }).concat(['Digester 1-5']);
   const allRowsVals = digRows.map(r=> r.vals).concat([avgVals]);
+  // "—" (no row at all for this digester) still shows as "—"/no bar — but once a row has ANY real
+  // segment, a blank individual segment counts as 0 toward Batch timing / Waiting time, rather than
+  // blanking out that whole category — a batch with genuinely zero waiting on a stage is usually
+  // just left blank in the sheet, not written as 0.
   const totals = allRowsVals.map(vals=> vals.some(v=> v!=null) ? vals.reduce((a,b)=> a+(b||0), 0) : null);
-  // split each row's total into Batch timing (active segments) vs. Waiting time (isWait segments)
   const sumSegs = (vals, wantWait)=> {
-    const filtered = BCH_SEGMENTS.map((seg,si)=> !!seg.isWait===wantWait ? vals[si] : null);
-    return filtered.some(v=> v!=null) ? filtered.reduce((a,b)=> a+(b||0), 0) : null;
+    if(!vals.some(v=> v!=null)) return null;
+    return BCH_SEGMENTS.reduce((a,seg,si)=> a + ((!!seg.isWait===wantWait && vals[si]!=null) ? vals[si] : 0), 0);
   };
   const batchTotals = allRowsVals.map(vals=> sumSegs(vals, false));
   const waitTotals = allRowsVals.map(vals=> sumSegs(vals, true));
@@ -11256,10 +11259,12 @@ function bchTableHtml(digRows, avgVals){
     + BCH_SEGMENTS.map(seg=> '<th>'+seg.label+' (min)</th>').join('')
     + '<th>Batch timing (MIN)</th><th>Waiting time (MIN)</th><th>Total Cycle time (MIN)</th>';
   // Batch timing = sum of the active (non-wait) segments; Waiting time = sum of the isWait ones —
-  // same split shown in parentheses next to each bar's total on the chart view (bchDrawTotals).
+  // same split shown in parentheses next to each bar's total on the chart view (bchDrawTotals). A
+  // blank individual segment counts as 0 toward its category (not "unknown") once the row has ANY
+  // real segment — only a row with no data at all (every segment blank) stays "—".
   const sumSegs = (vals, wantWait)=> {
-    const filtered = BCH_SEGMENTS.map((seg,si)=> !!seg.isWait===wantWait ? vals[si] : null);
-    return filtered.some(v=> v!=null) ? filtered.reduce((a,b)=> a+(b||0), 0) : null;
+    if(!vals.some(v=> v!=null)) return null;
+    return BCH_SEGMENTS.reduce((a,seg,si)=> a + ((!!seg.isWait===wantWait && vals[si]!=null) ? vals[si] : 0), 0);
   };
   const rowHtml = (label, sub, vals)=> {
     const total = vals.some(v=> v!=null) ? vals.reduce((a,b)=> a+(b||0), 0) : null;
