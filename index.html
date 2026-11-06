@@ -11168,7 +11168,10 @@ function bchWinLabel(win){
   const sameDay = new Date(win[0]).toDateString() === new Date(win[1]).toDateString();
   return sameDay ? (lbl+': '+f(win[0])) : (lbl+': '+f(win[0])+' – '+f(win[1]));
 }
-function bchDrawTotals(chart, totals, ink){
+/* "378 min (329, 49)" — the bar's own grand total, then its Batch timing (sum of the non-wait
+   segments) and Waiting time (sum of the isWait segments) in parentheses, so the split is visible
+   at a glance without having to read every individual segment label on the bar. */
+function bchDrawTotals(chart, totals, batchTotals, waitTotals, ink){
   const meta0 = chart.getDatasetMeta(0);
   const xScale = chart.scales.x;
   const ctx = chart.ctx;
@@ -11181,7 +11184,9 @@ function bchDrawTotals(chart, totals, ink){
     const bar = meta0.data[i];
     if(!bar) return;
     const x = (t==null ? xScale.left : xScale.getPixelForValue(t)) + 10;
-    ctx.fillText(t==null ? '—' : (Math.round(t)+' min'), x, bar.y);
+    const bt = batchTotals[i], wt = waitTotals[i];
+    const txt = t==null ? '—' : `${Math.round(t)} min (${bt==null?'—':Math.round(bt)}, ${wt==null?'—':Math.round(wt)})`;
+    ctx.fillText(txt, x, bar.y);
   });
   ctx.restore();
 }
@@ -11201,6 +11206,13 @@ function bchDrawChart(digRows, avgVals){
   }).concat(['Digester 1-5']);
   const allRowsVals = digRows.map(r=> r.vals).concat([avgVals]);
   const totals = allRowsVals.map(vals=> vals.some(v=> v!=null) ? vals.reduce((a,b)=> a+(b||0), 0) : null);
+  // split each row's total into Batch timing (active segments) vs. Waiting time (isWait segments)
+  const sumSegs = (vals, wantWait)=> {
+    const filtered = BCH_SEGMENTS.map((seg,si)=> !!seg.isWait===wantWait ? vals[si] : null);
+    return filtered.some(v=> v!=null) ? filtered.reduce((a,b)=> a+(b||0), 0) : null;
+  };
+  const batchTotals = allRowsVals.map(vals=> sumSegs(vals, false));
+  const waitTotals = allRowsVals.map(vals=> sumSegs(vals, true));
   const datasets = BCH_SEGMENTS.map((seg, si)=> ({
     label: seg.label, data: allRowsVals.map(vals=> vals[si]),
     backgroundColor: seg.color, borderColor: c.surface, borderWidth: 1, borderSkipped:false, stack: 'a',
@@ -11216,7 +11228,7 @@ function bchDrawChart(digRows, avgVals){
     data:{ labels, datasets },
     options:{
       indexAxis:'y', responsive:true, maintainAspectRatio:false, animation:false,
-      layout:{ padding:{ right:80 } },
+      layout:{ padding:{ right:130 } },
       scales:{
         x:{ stacked:true, grid:{color:c.grid}, ticks:{color:c.ink2, font:{family:'IBM Plex Mono', size:10.5}},
           title:{display:true, text:(EN?'Elapsed duration (minutes)':'ระยะเวลาสะสม (นาที)'), color:c.ink2, font:{family:'IBM Plex Mono', size:10}} },
@@ -11226,7 +11238,7 @@ function bchDrawChart(digRows, avgVals){
         tooltip:{ position:'cursorOffset', backgroundColor:c.surface, titleColor:c.ink, bodyColor:c.ink2, borderColor:c.border, borderWidth:1, padding:9,
           callbacks:{ label:(x)=> x.dataset.label+': '+(x.parsed.x==null?'—':Math.round(x.parsed.x))+' min' } } }
     },
-    plugins:[{ id:'bchTotalLabels', afterDatasetsDraw:(chart)=> bchDrawTotals(chart, totals, c.ink) }]
+    plugins:[{ id:'bchTotalLabels', afterDatasetsDraw:(chart)=> bchDrawTotals(chart, totals, batchTotals, waitTotals, c.ink) }]
   };
   if(BCH_CHART){ try{ BCH_CHART.destroy(); }catch(e){} }
   BCH_CHART = new Chart(cv.getContext('2d'), cfg);
@@ -11241,10 +11253,19 @@ function bchTableHtml(digRows, avgVals){
   const isLatest = BCH_RANGE.preset === 'latest';
   const f = v=> v==null ? '—' : Math.round(v);
   const theadHtml = '<th class="wcmp-key">'+(EN?'Digester':'หม้อต้ม')+'</th><th class="wcmp-key">'+(EN?'Batch':'Batch')+'</th>'
-    + BCH_SEGMENTS.map(seg=> '<th>'+seg.label+' (min)</th>').join('') + '<th>'+(EN?'Total (min)':'รวม (นาที)')+'</th>';
+    + BCH_SEGMENTS.map(seg=> '<th>'+seg.label+' (min)</th>').join('')
+    + '<th>Batch timing (MIN)</th><th>Waiting time (MIN)</th><th>Total Cycle time (MIN)</th>';
+  // Batch timing = sum of the active (non-wait) segments; Waiting time = sum of the isWait ones —
+  // same split shown in parentheses next to each bar's total on the chart view (bchDrawTotals).
+  const sumSegs = (vals, wantWait)=> {
+    const filtered = BCH_SEGMENTS.map((seg,si)=> !!seg.isWait===wantWait ? vals[si] : null);
+    return filtered.some(v=> v!=null) ? filtered.reduce((a,b)=> a+(b||0), 0) : null;
+  };
   const rowHtml = (label, sub, vals)=> {
     const total = vals.some(v=> v!=null) ? vals.reduce((a,b)=> a+(b||0), 0) : null;
-    return '<tr><td>'+label+'</td><td>'+sub+'</td>'+vals.map(v=> '<td class="num">'+f(v)+'</td>').join('')+'<td class="num">'+f(total)+'</td></tr>';
+    const batchT = sumSegs(vals, false), waitT = sumSegs(vals, true);
+    return '<tr><td>'+label+'</td><td>'+sub+'</td>'+vals.map(v=> '<td class="num">'+f(v)+'</td>').join('')
+      +'<td class="num">'+f(batchT)+'</td><td class="num">'+f(waitT)+'</td><td class="num">'+f(total)+'</td></tr>';
   };
   const bodyHtml = digRows.map(r=> {
     let sub;
