@@ -6876,7 +6876,7 @@ function chipMonMonthLabel(mi, y){ return `${currentLang==='en'?(MONTH_ABBR_EN?M
 /* ---- tiles ---- */
 /* ---- Executive KPI Summary panel (top of the Yield page) ---- */
 const EXEC_KPI = [
-  {key:'yieldBdt',     ico:'📈'},
+  {key:'yieldBalTank', ico:'📈'},
   {key:'chipWeightGT', ico:'🪵'},
   {key:'moisture',     ico:'💧'},
   {key:'endProd',      ico:'📦'},
@@ -11311,15 +11311,20 @@ function chipMonDrawDetailChart(grpId, m, a, tgt){
   const vals = rows.map(x=> x.v);
   const c = { ink2:cssVar('--ink-2'), grid:cssVar('--grid'), surface:cssVar('--surface'), border:cssVar('--border'), ink:cssVar('--ink') };
   const EN = currentLang==='en';
-  const actualLbl = m.key==='yieldBdt' ? 'Yield (Bdt/Adt)' : (m.pairKey ? 'Pulp mill 1' : (EN ? 'Actual' : 'ข้อมูลเกิดจริง'));
-  const balTankLbl = 'Yield Balance Tank (Bdt/Adt)', balTankCol = '#078B33';
+  // Yield (BDt/ADt) and Yield Balance Tank are a pair — whichever one is the currently-selected
+  // metric shows as the primary line, the other overlays as its companion (symmetric either way).
+  const isYieldPair = m.key==='yieldBdt' || m.key==='yieldBalTank';
+  const otherYieldKey = m.key==='yieldBdt' ? 'yieldBalTank' : 'yieldBdt';
+  const otherYieldLbl = m.key==='yieldBdt' ? 'Yield Balance Tank (Bdt/Adt)' : 'Yield (Bdt/Adt)';
+  const actualLbl = isYieldPair ? (m.key==='yieldBdt' ? 'Yield (Bdt/Adt)' : 'Yield Balance Tank (Bdt/Adt)') : (m.pairKey ? 'Pulp mill 1' : (EN ? 'Actual' : 'ข้อมูลเกิดจริง'));
+  const balTankCol = '#078B33';
 
-  // Yield (BDt/ADt) tile overlays its companion Yield Balance Tank series; any tile with a
-  // "pairKey" (e.g. Wood species Pulp mill 1 + Pulp mill 2) overlays its companion metric the
-  // same way — both share this one mechanism instead of two separate special cases.
-  const pairSeriesKey = m.key==='yieldBdt' ? 'yieldBalTank' : m.pairKey;
-  const pairLbl = m.key==='yieldBdt' ? balTankLbl : (m.pairLabel || '');
-  const pairCol = m.key==='yieldBdt' ? balTankCol : (m.pairColor || '#F0932B');
+  // Yield (BDt/ADt) tile overlays its companion Yield Balance Tank series (and vice versa); any
+  // tile with a "pairKey" (e.g. Wood species Pulp mill 1 + Pulp mill 2) overlays its companion
+  // metric the same way — all three share this one mechanism instead of separate special cases.
+  const pairSeriesKey = isYieldPair ? otherYieldKey : m.pairKey;
+  const pairLbl = isYieldPair ? otherYieldLbl : (m.pairLabel || '');
+  const pairCol = isYieldPair ? balTankCol : (m.pairColor || '#F0932B');
   const yieldExtra = pairSeriesKey ? (()=> {
     const byTs = new Map((CHIP_MON_SERIES[pairSeriesKey]||[]).map(x=> [x.ts, x.v]));
     return rows.map(x=> byTs.has(x.ts) ? byTs.get(x.ts) : null);
@@ -11335,7 +11340,7 @@ function chipMonDrawDetailChart(grpId, m, a, tgt){
   const showPointLabels = nBars <= 30;
   // Yield Balance Tank's own values show on the chart (unlike other pairKey overlays, e.g. Wood
   // species' Pulp mill 2 line, which stay label-free to avoid cluttering a 5-series stacked view).
-  const yieldExtraLabels = m.key==='yieldBdt'
+  const yieldExtraLabels = isYieldPair
     ? { display:(x)=> showPointLabels && x.dataset.data[x.dataIndex]!=null, align:'top', anchor:'end', offset:4, color:pairCol,
         font:{family:'IBM Plex Mono', size:10.5, weight:'600'},
         formatter:(v)=> v==null ? '' : v.toLocaleString('en-US', {minimumFractionDigits:m.dec, maximumFractionDigits:m.dec}) }
@@ -11370,11 +11375,11 @@ function chipMonDrawDetailChart(grpId, m, a, tgt){
   // above (via yieldExtraLabels) so the two lines' numbers don't collide when close in value;
   // every other metric (no pair line to avoid) places them above each point instead.
   const primaryLineLabels = { display:(x)=> showPointLabels && x.dataset.data[x.dataIndex]!=null,
-    align: m.key==='yieldBdt' ? 'bottom' : 'top', anchor: m.key==='yieldBdt' ? 'start' : 'end',
+    align: isYieldPair ? 'bottom' : 'top', anchor: isYieldPair ? 'start' : 'end',
     offset:4, color:grp.rail,
     font:{family:'IBM Plex Mono', size:10.5, weight:'600'},
     formatter:(v)=> v==null ? '' : v.toLocaleString('en-US', {minimumFractionDigits:m.dec, maximumFractionDigits:m.dec}) };
-  const primaryDs = (grp.chartType==='line' || m.key==='yieldBdt')
+  const primaryDs = (grp.chartType==='line' || isYieldPair)
     ? { type:'line', label:actualLbl, data:vals, borderColor:grp.rail, backgroundColor:grp.rail,
         borderWidth:1.8, pointRadius: nBars>60 ? 0 : 2.6, pointBackgroundColor:grp.rail, tension:.2,
         spanGaps:true, order:2, datalabels:primaryLineLabels }
@@ -11489,8 +11494,9 @@ function initChipMon(){
   CHIP_MON_GROUPS.forEach(grp=> {
     chipMonRenderTiles(grp);
     // every group starts collapsed (tiles only) — except 'yield', which has no tile of its
-    // own any more and shows its main chart immediately on load
-    CHIP_MON_STATE[grp.id] = grp.id === 'yield' ? 'yieldBdt' : null;
+    // own any more and shows its main chart immediately on load, defaulting to Yield Balance
+    // Tank (its companion Yield (Bdt/Adt) series still overlays on the chart either way)
+    CHIP_MON_STATE[grp.id] = grp.id === 'yield' ? 'yieldBalTank' : null;
     chipMonRenderDetail(grp.id);
   });
   // Batch timing (cookTiming) has 0 CHIP_MON_META entries — its own horizontal-stacked-bar
