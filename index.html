@@ -2436,10 +2436,15 @@
               <div class="mon-tiles" id="chipTiles_blSummary"></div>
               <div class="mon-detail" id="chipDetail_blSummary" hidden></div>
             </div>
+            <div class="mon-group">
+              <div class="mon-group-head"><span class="gi">🧪</span><span class="gt">COD Effluent</span><span class="gs">4 ค่า · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
+              <div class="mon-tiles" id="chipTiles_blCodEffluent"></div>
+              <div class="mon-detail" id="chipDetail_blCodEffluent" hidden></div>
+            </div>
           </div>
           <button type="button" class="foot-toggle" data-target="bleachFoot" aria-expanded="false" aria-controls="bleachFoot">ดูรายละเอียด</button>
           <div class="foot" id="bleachFoot" hidden>
-            ที่มา: Google Sheets tab "Bleaching Logsheet" (<code>gid=1596215251</code>) · หนึ่งแถวในชีต = หนึ่งชั่วโมง (คอลัมน์ TIME) · ทุกคอลัมน์ของชีตถูกนำมาแสดง ยกเว้นคอลัมน์ระบุตัวแถว (Month/Date/TIME) และคอลัมน์ข้อความ/หมวดหมู่ (Mode APC/Valmet/OPC, O2 Type, make up, Switch Pulp to HD, pulp grade) ที่ไม่ใช่ตัวเลข · กลุ่มตามหมวดหมู่ที่มีอยู่แล้วในหัวตารางของชีต (รวมกลุ่มย่อยท้ายชีตหลัง "TOTAL" ที่มีคอลัมน์เดียวจำนวนมาก เช่น ClO2/OWL/LC/NaOH/Dirt-Shive/White water/F-factor/จุดวัดอุณหภูมิ เข้าเป็นกลุ่ม Summary / Totals กลุ่มเดียว)<br>กราฟแสดงทุกชั่วโมงเป็นจุดข้อมูลของตัวเอง (ไม่เฉลี่ยรวมรายวัน) โดยแกน x ระบุทั้งวันที่และเวลา (ชั่วโมง:นาที) · ตัวเลขสรุปบนกรอบหลัก (ค่าล่าสุด/ค่าเฉลี่ย 7 วัน) คำนวณจากค่าเฉลี่ยรายวันตามปกติ
+            ที่มา: Google Sheets tab "Bleaching Logsheet" (<code>gid=1596215251</code>) · หนึ่งแถวในชีต = หนึ่งชั่วโมง (คอลัมน์ TIME) · ทุกคอลัมน์ของชีตถูกนำมาแสดง ยกเว้นคอลัมน์ระบุตัวแถว (Month/Date/TIME) และคอลัมน์ข้อความ/หมวดหมู่ (Mode APC/Valmet/OPC, O2 Type, make up, Switch Pulp to HD, pulp grade) ที่ไม่ใช่ตัวเลข · กลุ่มตามหมวดหมู่ที่มีอยู่แล้วในหัวตารางของชีต (รวมกลุ่มย่อยท้ายชีตหลัง "TOTAL" ที่มีคอลัมน์เดียวจำนวนมาก เช่น ClO2/OWL/LC/NaOH/Dirt-Shive/White water/F-factor/จุดวัดอุณหภูมิ เข้าเป็นกลุ่ม Summary / Totals กลุ่มเดียว)<br>กราฟแสดงทุกชั่วโมงเป็นจุดข้อมูลของตัวเอง (ไม่เฉลี่ยรวมรายวัน) โดยแกน x ระบุทั้งวันที่และเวลา (ชั่วโมง:นาที) · ตัวเลขสรุปบนกรอบหลัก (ค่าล่าสุด/ค่าเฉลี่ย 7 วัน) คำนวณจากค่าเฉลี่ยรายวันตามปกติ<br>COD Effluent: ที่มา Google Sheets tab "Morning" (<code>gid=1162647187</code>) · หนึ่งแถวในชีต = หนึ่งวัน (คอลัมน์ A) · ตัวเลขสรุปบนกรอบหลักคำนวณจากค่าเฉลี่ยรายวันตามปกติ
           </div>
         </section>
 
@@ -2545,7 +2550,7 @@ const DAYS_IN_MONTH = [31,28,31,30,31,30,31,31,30,31,30,31];
    Daily (Act) gid=0, Daily (BG) gid=1682718600, Daily (Plan) gid=3664159, Daily (Loss) gid=786133815
    Monthly (Act) gid=1448795576, Monthly (Budget) gid=1872828527 */
 const SHEET_ID = '1dStWwliEd6YhSOL3oT8JNyWHZOuII5F-QVeubIrBS50';
-const SHEET_GIDS = { dailyAct:0, dailyBg:1682718600, dailyPlan:3664159, dailyLoss:786133815, monthlyAct:1448795576, monthlyBudget:1872828527, chipWood:632351488, cookingCond:1561629878, weightScaleDig:1177773637, cookingLog:937055806, brownStock:1668226684, bleaching:1596215251 };
+const SHEET_GIDS = { dailyAct:0, dailyBg:1682718600, dailyPlan:3664159, dailyLoss:786133815, monthlyAct:1448795576, monthlyBudget:1872828527, chipWood:632351488, cookingCond:1561629878, weightScaleDig:1177773637, cookingLog:937055806, brownStock:1668226684, bleaching:1596215251, morningLog:1162647187 };
 function sheetCsvUrl(gid){ return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${gid}`; }
 
 // robust CSV parser: handles quoted fields, embedded commas, embedded newlines, doubled-quote escaping
@@ -2639,10 +2644,11 @@ function parseMonthlySheet(rows, labelWord){
   return byYear;
 }
 
-const [dailyActRows, dailyBgRows, dailyPlanRows, dailyLossRows, monthlyActRows, monthlyBudgetRows, chipWoodRows, cookingCondRows, weightScaleDigRows, cookingLogRows, brownStockRows, bleachingRows] = await Promise.all([
+const [dailyActRows, dailyBgRows, dailyPlanRows, dailyLossRows, monthlyActRows, monthlyBudgetRows, chipWoodRows, cookingCondRows, weightScaleDigRows, cookingLogRows, brownStockRows, bleachingRows, morningLogRows] = await Promise.all([
   fetchSheetCsv(SHEET_GIDS.dailyAct), fetchSheetCsv(SHEET_GIDS.dailyBg), fetchSheetCsv(SHEET_GIDS.dailyPlan), fetchSheetCsv(SHEET_GIDS.dailyLoss),
   fetchSheetCsv(SHEET_GIDS.monthlyAct), fetchSheetCsv(SHEET_GIDS.monthlyBudget), fetchSheetCsv(SHEET_GIDS.chipWood), fetchSheetCsv(SHEET_GIDS.cookingCond),
   fetchSheetCsv(SHEET_GIDS.weightScaleDig), fetchSheetCsv(SHEET_GIDS.cookingLog), fetchSheetCsv(SHEET_GIDS.brownStock), fetchSheetCsv(SHEET_GIDS.bleaching),
+  fetchSheetCsv(SHEET_GIDS.morningLog),
 ]);
 
 const dailyActParsed = parseDailySheet(dailyActRows, {numeric:true});
@@ -5934,6 +5940,19 @@ function resolveChipCol(label, fallback){
   const idx = headerRow.findIndex(function(h){ return chipColNorm(h) === target; });
   return idx >= 0 ? idx : fallback;
 }
+/* "Morning" tab (gid 1162647187) — a separate day-level sheet (one row per day, date in column A)
+   from COD Effluent (Bleaching > COD Effluent KPI cards) onward, resolved by exact header text the
+   same way as resolveChipCol above, just against this sheet's own header row instead of chipWood's. */
+function resolveMorningCol(label, fallback){
+  const headerRow = (typeof morningLogRows !== 'undefined' && morningLogRows[1]) || [];
+  const target = chipColNorm(label);
+  const idx = headerRow.findIndex(function(h){ return chipColNorm(h) === target; });
+  return idx >= 0 ? idx : fallback;
+}
+const COL_COD_PULP1 = resolveMorningCol('COD Pulp1', 9999);
+const COL_TSS_PULP1 = resolveMorningCol('TSS Pulp1', 9999);
+const COL_COD_LOADING_PULP1 = resolveMorningCol('COD Loading Pulp1', 9999);
+const COL_COD_SECONDARY1 = resolveMorningCol('COD secondary1', 9999);
 /* The mill has renamed nearly every "Actual" column in this tab with a "Pulp 1 "/"Pulp 2 " prefix
    (confirmed directly against header-row screenshots) to keep every metric name unique across the
    sheet's several similarly-structured blocks (Budget, Production, Pulp 1, Pulp 2) — every label
@@ -6140,6 +6159,7 @@ const CHIP_MON_GROUPS = [
   {id:'blEop',         ico:'🔵', th:'EOP Stage', rail:'#5B6B8C', chartType:'line', page:'process-bleaching'},
   {id:'blD1',          ico:'⚪', th:'D1 Stage', rail:'#2A8C6E', chartType:'line', page:'process-bleaching'},
   {id:'blSummary',     ico:'📊', th:'Summary / Totals', rail:'#455A64', chartType:'line', page:'process-bleaching'},
+  {id:'blCodEffluent', ico:'🧪', th:'COD Effluent', rail:'#8E24AA', chartType:'line', page:'process-bleaching'},
 ];
 /* Cooking/Brown stock/Bleaching charts default to the latest single day, not the dashboard-wide
    14d default — a one-off for this round's instruction, scoped to these 3 pages only; any group
@@ -6157,6 +6177,15 @@ for(let cmi=0; cmi<chipWoodRows.length; cmi++){
   const cm = chipMonDre.exec(String((cr && cr[1]) || '').trim());
   if(!cm) continue;
   CHIP_MON_ROWS.push({ y:+cm[3], mi:(+cm[2])-1, d:+cm[1], ts:new Date(+cm[3],(+cm[2])-1,+cm[1]).getTime(), r:cr });
+}
+/* "Morning" tab (gid 1162647187) — date lives in column A here (index 0), unlike chipWoodRows'
+   column B, so it gets its own day-level row array rather than reusing CHIP_MON_ROWS. */
+const MORNING_ROWS = [];
+for(let mli=0; mli<morningLogRows.length; mli++){
+  const mr = morningLogRows[mli];
+  const mm = chipMonDre.exec(String((mr && mr[0]) || '').trim());
+  if(!mm) continue;
+  MORNING_ROWS.push({ y:+mm[3], mi:(+mm[2])-1, d:+mm[1], ts:new Date(+mm[3],(+mm[2])-1,+mm[1]).getTime(), r:mr });
 }
 // Merge in "No of cooks" from the separate "Cooking Condition" tab (gid 1561629878), keyed by date —
 // that sheet has its own row layout, unrelated to chip-wood's, so it can't share chipWoodRows' indices.
@@ -6482,10 +6511,16 @@ CHIP_MON_META.push(
   {key:'blD0Temp431TI112', col:88, th:'D0 Temp. (431TI112)', unit:'C', dec:2, grp:'blSummary', scored:false},
   {key:'blEopDilutionTemp431TC345', col:89, th:'EOP Dilution Temp. (431TC345)', unit:'C', dec:2, grp:'blSummary', scored:false},
   {key:'blD1Temp431TC409', col:90, th:'D1 Temp. (431TC409)', unit:'C', dec:2, grp:'blSummary', scored:false},
+  /* COD Effluent — "Morning" tab (gid 1162647187), a separate day-level sheet from everything else
+     on this page, hence its own src here instead of PLS_BLEACHING_GROUP_IDS/'bleaching' below. */
+  {key:'codPulp1',        col:COL_COD_PULP1,        th:'COD Pulp1',         unit:'ppm',       dec:0, grp:'blCodEffluent', scored:false, src:'morningLog'},
+  {key:'tssPulp1',        col:COL_TSS_PULP1,        th:'TSS Pulp1',         unit:'mg/l',      dec:0, grp:'blCodEffluent', scored:false, src:'morningLog'},
+  {key:'codLoadingPulp1', col:COL_COD_LOADING_PULP1,th:'COD Loading Pulp1', unit:'kgCOD/day', dec:0, grp:'blCodEffluent', scored:false, src:'morningLog'},
+  {key:'codSecondary1',   col:COL_COD_SECONDARY1,   th:'COD secondary1',    unit:'mg/l',      dec:0, grp:'blCodEffluent', scored:false, src:'morningLog'},
 );
 const PLS_BLEACHING_GROUP_IDS = ['blBleach','blPreBleach','blD0','blEop','blD1','blSummary'];
 CHIP_MON_META.forEach(function(m){ if(PLS_BLEACHING_GROUP_IDS.indexOf(m.grp) >= 0) m.src = 'bleaching'; });
-const CHIP_MON_ROWS_BY_SRC = { main: CHIP_MON_ROWS, cooking: PLS_COOKING_ROWS, brownStock: PLS_BROWNSTOCK_ROWS, bleaching: PLS_BLEACHING_ROWS };
+const CHIP_MON_ROWS_BY_SRC = { main: CHIP_MON_ROWS, cooking: PLS_COOKING_ROWS, brownStock: PLS_BROWNSTOCK_ROWS, bleaching: PLS_BLEACHING_ROWS, morningLog: MORNING_ROWS };
 
 /* daily Pulp mill-1 production (ADt/day) by date, from the Daily (Act) sheet — for per-ADt ratios */
 const PROD_BY_DATE = {};
@@ -6530,7 +6565,7 @@ const chipMonCeil = (()=>{
    จึงครอบแค่ "ไม่เกินเวลาปัจจุบัน" แทน (โชว์ข้อมูลล่าสุดที่มีจริง ณ ขณะนี้ รวมถึงของวันนี้ที่กรอกไปแล้ว) —
    x.v!=null ที่ filter อยู่แล้วตอนใช้ ceiling นี้ (ดูด้านล่าง) กันแถว placeholder ที่ยังไม่มีค่าจริงออกอยู่แล้ว */
 const chipMonNow = Date.now();
-const CHIP_MON_CEIL_BY_SRC = { main: chipMonCeil, cooking: chipMonNow, brownStock: chipMonNow, bleaching: chipMonNow };
+const CHIP_MON_CEIL_BY_SRC = { main: chipMonCeil, cooking: chipMonNow, brownStock: chipMonNow, bleaching: chipMonNow, morningLog: chipMonNow };
 const CHIP_MON_SERIES = {};
 CHIP_MON_META.forEach(m=> {
   const srcRows = CHIP_MON_ROWS_BY_SRC[m.src || 'main'];
