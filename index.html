@@ -6094,7 +6094,7 @@ const COL_BUDGET_VOL_ETP = resolveChipCol('Budget Volume to ETP', 9999);
 const COL_BUDGET_TSS_ETP = resolveChipCol('Budget TSS to ETP', 9999);
 const CHIP_MON_META = [
   {key:'yieldBdt',     col:COL_YIELD, th:'Yield',               unit:'BDt/ADt', dec:3, grp:'yield', scored:false, hideTile:true},
-  {key:'yieldBalTank', col:COL_YIELD_BALTANK, th:'Yield Balance Tank',   unit:'BDt/ADt', dec:3, grp:'yield', scored:false, hideTile:true},
+  {key:'yieldBalTank', col:COL_YIELD_BALTANK, yieldRatio:true, th:'Yield',   unit:'BDt/ADt', dec:3, grp:'yield', scored:false, hideTile:true},
   {key:'moistureLab',    col:COL_MOIST_LAB, th:'Chip Moisture (Lab)',    unit:'%', dec:2, grp:'yield', scored:false, hideTile:true},
   {key:'moistureOnline', col:COL_MOIST_ONLINE, th:'Chip Moisture (Online)', unit:'%', dec:2, grp:'yield', scored:false, hideTile:true},
   {key:'sulphidity',     col:COL_SULPHIDITY, th:'Sulphidity',              unit:'%', dec:2, grp:'yield', scored:false, hideTile:true},
@@ -6579,6 +6579,19 @@ const PROD_BY_DATE = {};
 try{ (dailyActParsed.entries||[]).forEach(e=>{ if(e.val!=null) PROD_BY_DATE[e.y+'-'+e.mi+'-'+e.d] = e.val; }); }catch(e){}
 function chipMonVal(rec, meta){
   if(meta.derived){ const dry = chipMonPct(rec.r[COL_DRYNESS]); return dry==null ? null : Math.round((100-dry)*100)/100; }
+  /* "Yield Balance Tank" card (now labelled plain "Yield") no longer reads the sheet's own
+     "Pulp 1 Yield Balane Tank" column — per explicit request it's computed the same way the
+     Yield Analysis page's "Yield Actual" row already computes it (see yaYieldActualValue):
+     Chip (Weight scale หักลบเฉ่งกอง) ÷ End Prod. Balance, per day. Month/year rollups in
+     chipMonRenderDetail/renderExecKpiPanel recompute as a ratio of PERIOD SUMS (not an average
+     of these daily ratios) to match yaYieldActualValue's own month/year behavior exactly — see
+     chipMonYieldRatioSum below. */
+  if(meta.yieldRatio){
+    const w = chipMonRaw(rec.r[COL_CHIP_WEIGHT_SCALE_NET]);
+    const p = chipMonRaw(rec.r[COL_END_PROD_BAL]);
+    if(w==null || p==null || p<=0) return null;
+    return Math.round((w/p)*1000)/1000;
+  }
   if(meta.perAdt){
     const src = chipMonRaw(rec.r[meta.col]);
     const p = chipMonRaw(rec.r[COL_END_PROD]);
@@ -6763,6 +6776,25 @@ function chipMonAnalyse(key, meta){
   return { anchor, prev, median, mad, sigma, bandLo, bandHi, dev, r2, slope, baseN:base.length,
     curMon, prevMon:prevMonRows.map(x=> x.v), last7, last7Prev, yrVals, est, remaining, dim, pmi, py, health,
     curMonRows, prevMonRows, last7Rows, last7PrevRows, yrValsRows };
+}
+
+/* "Yield" (yieldBalTank, formula-based since the change described at chipMonVal's yieldRatio
+   branch) ratio-of-period-sums helper — given an array of {ts} rows (any of chipMonAnalyse's own
+   *Rows outputs: last7Rows, curMonRows, yrValsRows, ... or a custom rpkBar-filtered window), sums
+   that same date set's chipWeightScaleNet and endProd values and returns their ratio. This matches
+   yaYieldActualValue's month/year behavior (ratio of period TOTALS) instead of chipMonMean(), which
+   every other metric's strip uses and which would instead average the daily ratios — a different,
+   unweighted number whenever daily production volume varies day to day. Returns null if no date in
+   the window has both inputs. */
+const CHIP_MON_WEIGHTNET_BY_TS = new Map((CHIP_MON_SERIES.chipWeightScaleNet||[]).map(x=> [x.ts, x.v]));
+const CHIP_MON_ENDPROD_BY_TS = new Map((CHIP_MON_SERIES.endProd||[]).map(x=> [x.ts, x.v]));
+function chipMonYieldRatioSum(rows){
+  let w = 0, p = 0, any = false;
+  (rows||[]).forEach(r=> {
+    const wv = CHIP_MON_WEIGHTNET_BY_TS.get(r.ts), pv = CHIP_MON_ENDPROD_BY_TS.get(r.ts);
+    if(wv!=null && pv!=null){ w += wv; p += pv; any = true; }
+  });
+  return (any && p>0) ? w/p : null;
 }
 
 /* ---- target store ----
@@ -6997,7 +7029,10 @@ function renderExecKpiPanel(){
     const anchor = s[s.length-1];
     // 7-day average INCLUDING the shown day as 1 of the 7 (same convention the monitor tiles use)
     const window7 = s.slice(Math.max(0, s.length-7));
-    const avg7 = window7.length ? window7.reduce(function(p,c){ return p+c.v; }, 0)/window7.length : null;
+    // "Yield" (yieldBalTank, formula-based) is a ratio of period sums here too, matching the
+    // detail panel's own strip (chipMonYieldRatioSum) instead of averaging the daily ratios.
+    const avg7 = k.key==='yieldBalTank' ? chipMonYieldRatioSum(window7)
+      : window7.length ? window7.reduce(function(p,c){ return p+c.v; }, 0)/window7.length : null;
     const d = avg7==null ? null : anchor.v - avg7;
     const flat = d==null ? true : Math.abs(d) < 0.005;
     const dcls = d==null ? 'flat' : flat ? 'flat' : d>0 ? 'up' : 'down';
@@ -10717,15 +10752,34 @@ function chipMonRenderDetail(grpId){
   const devTrackPct = a.dev==null ? 50 : Math.max(2, Math.min(98, 50 + (a.dev/3)*50));
   const devOut = a.dev!=null && Math.abs(a.dev) > 3;
 
-  /* Yield · BDt/ADt: the summary strip below (Latest / 7 วัน / current+previous month / year) reads
-     straight from the sheet's own "Pulp 1 Yield" column (yieldBdt), same as every other metric —
-     chipMonMean() over its raw values, no ratio-of-sums recomputation. */
+  /* Yield · BDt/ADt: the summary strip below (Latest / 7 วัน / current+previous month / year)
+     reads straight from the sheet's own "Pulp 1 Yield" column (yieldBdt), same as every other
+     metric — chipMonMean() over its raw values, no ratio-of-sums recomputation. "Yield" (the
+     formula-based card, key 'yieldBalTank' — see chipMonVal's yieldRatio branch) is the one
+     exception: every rollup field below is a ratio of PERIOD SUMS (chipMonYieldRatioSum), matching
+     yaYieldActualValue's own month/year behavior, instead of averaging the daily ratio series —
+     "Latest" alone stays as-is since a single day has no sum to take. */
+  const isYieldRatioCard = key === 'yieldBalTank';
   const stripLatest = a.anchor.v;
-  const strip7d = chipMonMean(a.last7);
-  const strip7dPrev = chipMonMean(a.last7Prev);
-  const stripCurMon = chipMonMean(a.curMon);
-  const stripPrevMon = chipMonMean(a.prevMon);
-  const stripYr = chipMonMean(a.yrVals);
+  const strip7d = isYieldRatioCard ? chipMonYieldRatioSum(a.last7Rows) : chipMonMean(a.last7);
+  const strip7dPrev = isYieldRatioCard ? chipMonYieldRatioSum(a.last7PrevRows) : chipMonMean(a.last7Prev);
+  const stripCurMon = isYieldRatioCard ? chipMonYieldRatioSum(a.curMonRows) : chipMonMean(a.curMon);
+  const stripPrevMon = isYieldRatioCard ? chipMonYieldRatioSum(a.prevMonRows) : chipMonMean(a.prevMon);
+  const stripYr = isYieldRatioCard ? chipMonYieldRatioSum(a.yrValsRows) : chipMonMean(a.yrVals);
+  /* Est. month-end: same "logged-so-far + remaining days × recent rate" shape as chipMonAnalyse's
+     generic a.est, but keeps the weight/prod sums separate instead of blending the ratio directly,
+     so the extrapolation itself stays a ratio-of-sums at every step. */
+  const stripEst = (()=> {
+    if(!isYieldRatioCard) return a.est;
+    if(a.curMonRows.length < 3 || !a.last7Rows.length) return null;
+    let w7 = 0, p7 = 0;
+    a.last7Rows.forEach(r=> { const wv = CHIP_MON_WEIGHTNET_BY_TS.get(r.ts), pv = CHIP_MON_ENDPROD_BY_TS.get(r.ts); if(wv!=null) w7 += wv; if(pv!=null) p7 += pv; });
+    const wRate = w7/a.last7Rows.length, pRate = p7/a.last7Rows.length;
+    let wCur = 0, pCur = 0;
+    a.curMonRows.forEach(r=> { const wv = CHIP_MON_WEIGHTNET_BY_TS.get(r.ts), pv = CHIP_MON_ENDPROD_BY_TS.get(r.ts); if(wv!=null) wCur += wv; if(pv!=null) pCur += pv; });
+    const pTot = pCur + a.remaining*pRate;
+    return pTot>0 ? (wCur + a.remaining*wRate)/pTot : null;
+  })();
 
   /* Average for whichever date-range preset is currently selected on this chart (the same
      rpkBar state the chart/table below reads) — shown right next to the existing "ค่าเฉลี่ย
@@ -10735,8 +10789,10 @@ function chipMonRenderDetail(grpId){
   const rngState = CHIP_MON_RANGE[grpId] || {preset:'14d', custom:null};
   const fullSeries = CHIP_MON_SERIES[key];
   const rngWin = fullSeries.length ? rpkResolve(rngState, fullSeries[fullSeries.length-1].ts, fullSeries[0].ts) : null;
-  const rngVals = rngWin ? fullSeries.filter(x=> x.ts>=rngWin[0] && x.ts<=rngWin[1]).map(x=> x.v) : [];
-  const rngAvg = chipMonMean(rngVals);
+  const rngRows = rngWin ? fullSeries.filter(x=> x.ts>=rngWin[0] && x.ts<=rngWin[1]) : [];
+  const rngVals = rngRows.map(x=> x.v);
+  // "Yield" card: same ratio-of-sums treatment as the strip above, so both averages stay consistent.
+  const rngAvg = isYieldRatioCard ? chipMonYieldRatioSum(rngRows) : chipMonMean(rngVals);
   const rngPreset = RPK_PRESETS.find(p=> p && p.id === rngState.preset);
   const rngLabel = rngState.preset==='custom' && rngState.custom && rngState.custom.start && rngState.custom.end
     ? rngState.custom.start+' – '+rngState.custom.end
@@ -10791,7 +10847,7 @@ function chipMonRenderDetail(grpId){
       <div class="md-cell"><div class="ck">${curLbl}</div><div class="cv">${chipMonFmt(stripCurMon, m.dec)}</div><div class="cs">เฉลี่ย ${a.curMon.length} วันที่บันทึก</div></div>
       <div class="md-cell"><div class="ck">${prevLbl}</div><div class="cv">${chipMonFmt(stripPrevMon, m.dec)}</div><div class="cs">เฉลี่ย ${a.prevMon.length} วันที่บันทึก</div></div>
       <div class="md-cell"><div class="ck">${a.anchor.y}</div><div class="cv">${chipMonFmt(stripYr, m.dec)}</div><div class="cs">เฉลี่ย ${a.yrVals.length} วันที่บันทึก</div></div>
-      <div class="md-cell"><div class="ck">Est. ${MONTH_ABBR_TH[a.anchor.mi]} สิ้นเดือน</div><div class="cv">${a.est==null ? '—' : chipMonFmt(a.est, m.dec)}</div><div class="cs">${a.est==null ? 'ต้องมี ≥ 3 วัน' : `${a.curMon.length} วันจริง + ${a.remaining} วันที่อัตรา 7 วัน`}</div></div>
+      <div class="md-cell"><div class="ck">Est. ${MONTH_ABBR_TH[a.anchor.mi]} สิ้นเดือน</div><div class="cv">${stripEst==null ? '—' : chipMonFmt(stripEst, m.dec)}</div><div class="cs">${stripEst==null ? 'ต้องมี ≥ 3 วัน' : `${a.curMon.length} วันจริง + ${a.remaining} วันที่อัตรา 7 วัน`}</div></div>
       <div class="md-cell"><div class="ck">Deviation</div><div class="cv ${a.dev==null?'':a.dev<0?'neg':'pos'}">${a.dev==null?'—':(a.dev>=0?'+':'')+a.dev.toFixed(1)+'σ'}</div>
         <div class="md-track"><span class="z"></span><span class="m ${devOut?'out':''}" style="left:${devTrackPct}%"></span></div></div>
     </div>
