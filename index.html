@@ -6115,7 +6115,7 @@ const CHIP_MON_META = [
   {key:'ovwMoistureLab', col:COL_MOIST_LAB, th:'Chip Moisture (Lab)', unit:'%', dec:2, grp:'overview', scored:false},
   {key:'ovwChipWeightBdt', col:COL_CHIP_WEIGHT_SCALE, th:'Chip weight', unit:'BDt/day', dec:2, grp:'overview', scored:false},
   {key:'ovwEndProd',     col:COL_END_PROD, th:'End Prod.', unit:'Adt/day', dec:0, grp:'overview', scored:false, zeroIsMissing:true},
-  {key:'ovwYield',       col:COL_YIELD, th:'Yield', unit:'BDt/ADt', dec:3, grp:'overview', scored:false},
+  {key:'ovwYield',       col:COL_YIELD, yieldRatio:true, th:'Yield', unit:'BDt/ADt', dec:3, grp:'overview', scored:false},
   {key:'bulkDensity',    col:COL_BULK_DENSITY, th:'Bulk density',              unit:'kg/m³', dec:1, grp:'bulk',   scored:false, spec:[300,350]},
   {key:'bulkDensityDry', col:COL_BULK_DENSITY_DRY, th:'Bulk density × Dryness',    unit:'kg/m³', dec:1, grp:'bulk',   scored:false},
   {key:'dryness',        col:COL_DRYNESS, th:'Chip Dryness',              unit:'%',     dec:2, pct01:true, grp:'bulk',   scored:true,  dir:'lower',  specHi:54},
@@ -6796,6 +6796,12 @@ function chipMonYieldRatioSum(rows){
   });
   return (any && p>0) ? w/p : null;
 }
+/* Every formula-based "Yield" card (see chipMonVal's yieldRatio branch) — shared by the main Yield
+   panel (yieldBalTank) and the ภาพรวม (Overview) group's own Yield tile (ovwYield) so both read
+   identically everywhere a rollup (not a single day) is shown: the tile preview's own "7 วันเฉลี่ย"
+   sub-line (chipMonRenderTiles), the full detail panel's strip (chipMonRenderDetail), and the
+   Exec KPI panel's 7-day comparison (renderExecKpiPanel) all check this same set. */
+const CHIP_MON_YIELD_RATIO_KEYS = new Set(['yieldBalTank','ovwYield']);
 
 /* ---- target store ----
    Shared across every viewer via CHIP_TARGETS_REMOTE (loaded at boot from /api/targets);
@@ -7031,7 +7037,7 @@ function renderExecKpiPanel(){
     const window7 = s.slice(Math.max(0, s.length-7));
     // "Yield" (yieldBalTank, formula-based) is a ratio of period sums here too, matching the
     // detail panel's own strip (chipMonYieldRatioSum) instead of averaging the daily ratios.
-    const avg7 = k.key==='yieldBalTank' ? chipMonYieldRatioSum(window7)
+    const avg7 = CHIP_MON_YIELD_RATIO_KEYS.has(k.key) ? chipMonYieldRatioSum(window7)
       : window7.length ? window7.reduce(function(p,c){ return p+c.v; }, 0)/window7.length : null;
     const d = avg7==null ? null : anchor.v - avg7;
     const flat = d==null ? true : Math.abs(d) < 0.005;
@@ -10409,7 +10415,7 @@ function chipMonRenderTiles(grp){
       // two 7-day windows against each other) — skipped entirely for "combined" tiles (m.pairKey,
       // e.g. Wood species Pulp mill 1 + Pulp mill 2) since those already show two values side by
       // side and don't get a trend indicator.
-      const strip7d = chipMonMean(a.last7);
+      const strip7d = CHIP_MON_YIELD_RATIO_KEYS.has(m.key) ? chipMonYieldRatioSum(a.last7Rows) : chipMonMean(a.last7);
       if(!m.pairKey && a.anchor.v!=null && strip7d!=null){
         const diff = a.anchor.v - strip7d;
         const flat = Math.abs(diff) < 0.005;
@@ -10755,11 +10761,12 @@ function chipMonRenderDetail(grpId){
   /* Yield · BDt/ADt: the summary strip below (Latest / 7 วัน / current+previous month / year)
      reads straight from the sheet's own "Pulp 1 Yield" column (yieldBdt), same as every other
      metric — chipMonMean() over its raw values, no ratio-of-sums recomputation. "Yield" (the
-     formula-based card, key 'yieldBalTank' — see chipMonVal's yieldRatio branch) is the one
-     exception: every rollup field below is a ratio of PERIOD SUMS (chipMonYieldRatioSum), matching
-     yaYieldActualValue's own month/year behavior, instead of averaging the daily ratio series —
-     "Latest" alone stays as-is since a single day has no sum to take. */
-  const isYieldRatioCard = key === 'yieldBalTank';
+     formula-based cards, keys 'yieldBalTank' and 'ovwYield' — see chipMonVal's yieldRatio branch,
+     shared by both so the Overview group's own Yield tile always matches the main Yield panel) are
+     the exception: every rollup field below is a ratio of PERIOD SUMS (chipMonYieldRatioSum),
+     matching yaYieldActualValue's own month/year behavior, instead of averaging the daily ratio
+     series — "Latest" alone stays as-is since a single day has no sum to take. */
+  const isYieldRatioCard = CHIP_MON_YIELD_RATIO_KEYS.has(key);
   const stripLatest = a.anchor.v;
   const strip7d = isYieldRatioCard ? chipMonYieldRatioSum(a.last7Rows) : chipMonMean(a.last7);
   const strip7dPrev = isYieldRatioCard ? chipMonYieldRatioSum(a.last7PrevRows) : chipMonMean(a.last7Prev);
