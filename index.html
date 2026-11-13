@@ -1552,19 +1552,21 @@
               <div class="ya-controls">
                 <div class="ya-picker">
                   <span class="yp-lbl">ช่วงที่ 1</span>
-                  <select id="yaDModePrev"><option value="date" selected>วัน</option><option value="week">สัปดาห์</option><option value="month">เดือน</option><option value="year">ปี</option><option value="budgetMonth">Budget เดือน</option><option value="budgetYear">Budget ปี</option></select>
+                  <select id="yaDModePrev"><option value="date" selected>วัน</option><option value="week">สัปดาห์</option><option value="month">เดือน</option><option value="year">ปี</option><option value="quarter">ไตรมาส</option><option value="budgetMonth">Budget เดือน</option><option value="budgetYear">Budget ปี</option></select>
                   <input type="date" id="yaDDatePrev">
                   <input type="week" id="yaDWeekPrev" hidden>
                   <input type="month" id="yaDMonthPrev" hidden>
                   <select id="yaDYearPrev" hidden></select>
+                  <select id="yaDQuarterPrev" hidden><option value="1">ไตรมาส 1 (ม.ค.-มี.ค.)</option><option value="2">ไตรมาส 2 (เม.ย.-มิ.ย.)</option><option value="3">ไตรมาส 3 (ก.ค.-ก.ย.)</option><option value="4">ไตรมาส 4 (ต.ค.-ธ.ค.)</option></select>
                 </div>
                 <div class="ya-picker">
                   <span class="yp-lbl">ช่วงที่ 2</span>
-                  <select id="yaDModeCur"><option value="date" selected>วัน</option><option value="week">สัปดาห์</option><option value="month">เดือน</option><option value="year">ปี</option><option value="budgetMonth">Budget เดือน</option><option value="budgetYear">Budget ปี</option></select>
+                  <select id="yaDModeCur"><option value="date" selected>วัน</option><option value="week">สัปดาห์</option><option value="month">เดือน</option><option value="year">ปี</option><option value="quarter">ไตรมาส</option><option value="budgetMonth">Budget เดือน</option><option value="budgetYear">Budget ปี</option></select>
                   <input type="date" id="yaDDateCur">
                   <input type="week" id="yaDWeekCur" hidden>
                   <input type="month" id="yaDMonthCur" hidden>
                   <select id="yaDYearCur" hidden></select>
+                  <select id="yaDQuarterCur" hidden><option value="1">ไตรมาส 1 (ม.ค.-มี.ค.)</option><option value="2">ไตรมาส 2 (เม.ย.-มิ.ย.)</option><option value="3">ไตรมาส 3 (ก.ค.-ก.ย.)</option><option value="4">ไตรมาส 4 (ต.ค.-ธ.ค.)</option></select>
                 </div>
               </div>
               <div class="ya-summary" id="yaDSummary" hidden>
@@ -1641,19 +1643,21 @@
               <div class="ya-controls">
                 <div class="ya-picker">
                   <span class="yp-lbl">ช่วงที่ 1</span>
-                  <select id="yaWModePrev"><option value="date">วัน</option><option value="week" selected>สัปดาห์</option><option value="month">เดือน</option><option value="year">ปี</option><option value="budgetMonth">Budget เดือน</option><option value="budgetYear">Budget ปี</option></select>
+                  <select id="yaWModePrev"><option value="date">วัน</option><option value="week" selected>สัปดาห์</option><option value="month">เดือน</option><option value="year">ปี</option><option value="quarter">ไตรมาส</option><option value="budgetMonth">Budget เดือน</option><option value="budgetYear">Budget ปี</option></select>
                   <input type="date" id="yaWDatePrev" hidden>
                   <input type="week" id="yaWWeekPrev">
                   <input type="month" id="yaWMonthPrev" hidden>
                   <select id="yaWYearPrev" hidden></select>
+                  <select id="yaWQuarterPrev" hidden><option value="1">ไตรมาส 1 (ม.ค.-มี.ค.)</option><option value="2">ไตรมาส 2 (เม.ย.-มิ.ย.)</option><option value="3">ไตรมาส 3 (ก.ค.-ก.ย.)</option><option value="4">ไตรมาส 4 (ต.ค.-ธ.ค.)</option></select>
                 </div>
                 <div class="ya-picker">
                   <span class="yp-lbl">ช่วงที่ 2</span>
-                  <select id="yaWModeCur"><option value="date" selected>วัน</option><option value="week">สัปดาห์</option><option value="month">เดือน</option><option value="year">ปี</option><option value="budgetMonth">Budget เดือน</option><option value="budgetYear">Budget ปี</option></select>
+                  <select id="yaWModeCur"><option value="date" selected>วัน</option><option value="week">สัปดาห์</option><option value="month">เดือน</option><option value="year">ปี</option><option value="quarter">ไตรมาส</option><option value="budgetMonth">Budget เดือน</option><option value="budgetYear">Budget ปี</option></select>
                   <input type="date" id="yaWDateCur">
                   <input type="week" id="yaWWeekCur" hidden>
                   <input type="month" id="yaWMonthCur" hidden>
                   <select id="yaWYearCur" hidden></select>
+                  <select id="yaWQuarterCur" hidden><option value="1">ไตรมาส 1 (ม.ค.-มี.ค.)</option><option value="2">ไตรมาส 2 (เม.ย.-มิ.ย.)</option><option value="3">ไตรมาส 3 (ก.ค.-ก.ย.)</option><option value="4">ไตรมาส 4 (ต.ค.-ธ.ค.)</option></select>
                 </div>
               </div>
               <div class="ya-summary" id="yaWSummary" hidden>
@@ -1730,19 +1734,21 @@
               <div class="ya-controls">
                 <div class="ya-picker">
                   <span class="yp-lbl">ช่วงที่ 1</span>
-                  <select id="yaModePrev"><option value="date">วัน</option><option value="week">สัปดาห์</option><option value="month" selected>เดือน</option><option value="year">ปี</option><option value="budgetMonth">Budget เดือน</option><option value="budgetYear">Budget ปี</option></select>
+                  <select id="yaModePrev"><option value="date">วัน</option><option value="week">สัปดาห์</option><option value="month" selected>เดือน</option><option value="year">ปี</option><option value="quarter">ไตรมาส</option><option value="budgetMonth">Budget เดือน</option><option value="budgetYear">Budget ปี</option></select>
                   <input type="date" id="yaDatePrev" hidden>
                   <input type="week" id="yaWeekPrev" hidden>
                   <input type="month" id="yaMonthPrev">
                   <select id="yaYearPrev" hidden></select>
+                  <select id="yaQuarterPrev" hidden><option value="1">ไตรมาส 1 (ม.ค.-มี.ค.)</option><option value="2">ไตรมาส 2 (เม.ย.-มิ.ย.)</option><option value="3">ไตรมาส 3 (ก.ค.-ก.ย.)</option><option value="4">ไตรมาส 4 (ต.ค.-ธ.ค.)</option></select>
                 </div>
                 <div class="ya-picker">
                   <span class="yp-lbl">ช่วงที่ 2</span>
-                  <select id="yaModeCur"><option value="date">วัน</option><option value="week">สัปดาห์</option><option value="month" selected>เดือน</option><option value="year">ปี</option><option value="budgetMonth">Budget เดือน</option><option value="budgetYear">Budget ปี</option></select>
+                  <select id="yaModeCur"><option value="date">วัน</option><option value="week">สัปดาห์</option><option value="month" selected>เดือน</option><option value="year">ปี</option><option value="quarter">ไตรมาส</option><option value="budgetMonth">Budget เดือน</option><option value="budgetYear">Budget ปี</option></select>
                   <input type="date" id="yaDateCur" hidden>
                   <input type="week" id="yaWeekCur" hidden>
                   <input type="month" id="yaMonthCur">
                   <select id="yaYearCur" hidden></select>
+                  <select id="yaQuarterCur" hidden><option value="1">ไตรมาส 1 (ม.ค.-มี.ค.)</option><option value="2">ไตรมาส 2 (เม.ย.-มิ.ย.)</option><option value="3">ไตรมาส 3 (ก.ค.-ก.ย.)</option><option value="4">ไตรมาส 4 (ต.ค.-ธ.ค.)</option></select>
                 </div>
               </div>
               <div class="ya-summary" id="yaSummary" hidden>
@@ -1819,19 +1825,21 @@
               <div class="ya-controls">
                 <div class="ya-picker">
                   <span class="yp-lbl">ช่วงที่ 1</span>
-                  <select id="yaWWModePrev"><option value="date">วัน</option><option value="week" selected>สัปดาห์</option><option value="month">เดือน</option><option value="year">ปี</option><option value="budgetMonth">Budget เดือน</option><option value="budgetYear">Budget ปี</option></select>
+                  <select id="yaWWModePrev"><option value="date">วัน</option><option value="week" selected>สัปดาห์</option><option value="month">เดือน</option><option value="year">ปี</option><option value="quarter">ไตรมาส</option><option value="budgetMonth">Budget เดือน</option><option value="budgetYear">Budget ปี</option></select>
                   <input type="date" id="yaWWDatePrev" hidden>
                   <input type="week" id="yaWWWeekPrev">
                   <input type="month" id="yaWWMonthPrev" hidden>
                   <select id="yaWWYearPrev" hidden></select>
+                  <select id="yaWWQuarterPrev" hidden><option value="1">ไตรมาส 1 (ม.ค.-มี.ค.)</option><option value="2">ไตรมาส 2 (เม.ย.-มิ.ย.)</option><option value="3">ไตรมาส 3 (ก.ค.-ก.ย.)</option><option value="4">ไตรมาส 4 (ต.ค.-ธ.ค.)</option></select>
                 </div>
                 <div class="ya-picker">
                   <span class="yp-lbl">ช่วงที่ 2</span>
-                  <select id="yaWWModeCur"><option value="date">วัน</option><option value="week" selected>สัปดาห์</option><option value="month">เดือน</option><option value="year">ปี</option><option value="budgetMonth">Budget เดือน</option><option value="budgetYear">Budget ปี</option></select>
+                  <select id="yaWWModeCur"><option value="date">วัน</option><option value="week" selected>สัปดาห์</option><option value="month">เดือน</option><option value="year">ปี</option><option value="quarter">ไตรมาส</option><option value="budgetMonth">Budget เดือน</option><option value="budgetYear">Budget ปี</option></select>
                   <input type="date" id="yaWWDateCur" hidden>
                   <input type="week" id="yaWWWeekCur">
                   <input type="month" id="yaWWMonthCur" hidden>
                   <select id="yaWWYearCur" hidden></select>
+                  <select id="yaWWQuarterCur" hidden><option value="1">ไตรมาส 1 (ม.ค.-มี.ค.)</option><option value="2">ไตรมาส 2 (เม.ย.-มิ.ย.)</option><option value="3">ไตรมาส 3 (ก.ค.-ก.ย.)</option><option value="4">ไตรมาส 4 (ต.ค.-ธ.ค.)</option></select>
                 </div>
               </div>
               <div class="ya-summary" id="yaWWSummary" hidden>
@@ -1908,19 +1916,21 @@
               <div class="ya-controls">
                 <div class="ya-picker">
                   <span class="yp-lbl">ช่วงที่ 1</span>
-                  <select id="yaYBModePrev"><option value="date">วัน</option><option value="week">สัปดาห์</option><option value="month">เดือน</option><option value="year">ปี</option><option value="budgetMonth" selected>Budget เดือน</option><option value="budgetYear">Budget ปี</option></select>
+                  <select id="yaYBModePrev"><option value="date">วัน</option><option value="week">สัปดาห์</option><option value="month">เดือน</option><option value="year">ปี</option><option value="quarter">ไตรมาส</option><option value="budgetMonth" selected>Budget เดือน</option><option value="budgetYear">Budget ปี</option></select>
                   <input type="date" id="yaYBDatePrev" hidden>
                   <input type="week" id="yaYBWeekPrev" hidden>
                   <input type="month" id="yaYBMonthPrev">
                   <select id="yaYBYearPrev" hidden></select>
+                  <select id="yaYBQuarterPrev" hidden><option value="1">ไตรมาส 1 (ม.ค.-มี.ค.)</option><option value="2">ไตรมาส 2 (เม.ย.-มิ.ย.)</option><option value="3">ไตรมาส 3 (ก.ค.-ก.ย.)</option><option value="4">ไตรมาส 4 (ต.ค.-ธ.ค.)</option></select>
                 </div>
                 <div class="ya-picker">
                   <span class="yp-lbl">ช่วงที่ 2</span>
-                  <select id="yaYBModeCur"><option value="date" selected>วัน</option><option value="week">สัปดาห์</option><option value="month">เดือน</option><option value="year">ปี</option><option value="budgetMonth">Budget เดือน</option><option value="budgetYear">Budget ปี</option></select>
+                  <select id="yaYBModeCur"><option value="date" selected>วัน</option><option value="week">สัปดาห์</option><option value="month">เดือน</option><option value="year">ปี</option><option value="quarter">ไตรมาส</option><option value="budgetMonth">Budget เดือน</option><option value="budgetYear">Budget ปี</option></select>
                   <input type="date" id="yaYBDateCur">
                   <input type="week" id="yaYBWeekCur" hidden>
                   <input type="month" id="yaYBMonthCur" hidden>
                   <select id="yaYBYearCur" hidden></select>
+                  <select id="yaYBQuarterCur" hidden><option value="1">ไตรมาส 1 (ม.ค.-มี.ค.)</option><option value="2">ไตรมาส 2 (เม.ย.-มิ.ย.)</option><option value="3">ไตรมาส 3 (ก.ค.-ก.ย.)</option><option value="4">ไตรมาส 4 (ต.ค.-ธ.ค.)</option></select>
                 </div>
               </div>
               <div class="ya-summary" id="yaYBSummary" hidden>
@@ -1997,19 +2007,21 @@
               <div class="ya-controls">
                 <div class="ya-picker">
                   <span class="yp-lbl">ช่วงที่ 1</span>
-                  <select id="yaMBModePrev"><option value="date">วัน</option><option value="week">สัปดาห์</option><option value="month">เดือน</option><option value="year">ปี</option><option value="budgetMonth" selected>Budget เดือน</option><option value="budgetYear">Budget ปี</option></select>
+                  <select id="yaMBModePrev"><option value="date">วัน</option><option value="week">สัปดาห์</option><option value="month">เดือน</option><option value="year">ปี</option><option value="quarter">ไตรมาส</option><option value="budgetMonth" selected>Budget เดือน</option><option value="budgetYear">Budget ปี</option></select>
                   <input type="date" id="yaMBDatePrev" hidden>
                   <input type="week" id="yaMBWeekPrev" hidden>
                   <input type="month" id="yaMBMonthPrev">
                   <select id="yaMBYearPrev" hidden></select>
+                  <select id="yaMBQuarterPrev" hidden><option value="1">ไตรมาส 1 (ม.ค.-มี.ค.)</option><option value="2">ไตรมาส 2 (เม.ย.-มิ.ย.)</option><option value="3">ไตรมาส 3 (ก.ค.-ก.ย.)</option><option value="4">ไตรมาส 4 (ต.ค.-ธ.ค.)</option></select>
                 </div>
                 <div class="ya-picker">
                   <span class="yp-lbl">ช่วงที่ 2</span>
-                  <select id="yaMBModeCur"><option value="date">วัน</option><option value="week">สัปดาห์</option><option value="month" selected>เดือน</option><option value="year">ปี</option><option value="budgetMonth">Budget เดือน</option><option value="budgetYear">Budget ปี</option></select>
+                  <select id="yaMBModeCur"><option value="date">วัน</option><option value="week">สัปดาห์</option><option value="month" selected>เดือน</option><option value="year">ปี</option><option value="quarter">ไตรมาส</option><option value="budgetMonth">Budget เดือน</option><option value="budgetYear">Budget ปี</option></select>
                   <input type="date" id="yaMBDateCur" hidden>
                   <input type="week" id="yaMBWeekCur" hidden>
                   <input type="month" id="yaMBMonthCur">
                   <select id="yaMBYearCur" hidden></select>
+                  <select id="yaMBQuarterCur" hidden><option value="1">ไตรมาส 1 (ม.ค.-มี.ค.)</option><option value="2">ไตรมาส 2 (เม.ย.-มิ.ย.)</option><option value="3">ไตรมาส 3 (ก.ค.-ก.ย.)</option><option value="4">ไตรมาส 4 (ต.ค.-ธ.ค.)</option></select>
                 </div>
               </div>
               <div class="ya-summary" id="yaMBSummary" hidden>
@@ -7181,6 +7193,17 @@ function yaWeekRange(value){
   const end = new Date(start.getFullYear(), start.getMonth(), start.getDate()+6);
   return { start, end };
 }
+/* Calendar quarter: value is "YYYY-Qn" (n = 1-4), e.g. "2026-Q2" = Apr-Jun 2026 — mirrors
+   yaWeekRange's own value-format convention above. end = last day of the quarter's last month,
+   via the "day 0 of next month" trick. */
+function yaQuarterRange(value){
+  const m = /^(\d{4})-Q([1-4])$/.exec(value||'');
+  if(!m) return null;
+  const year = +m[1], q = +m[2];
+  const start = new Date(year, (q-1)*3, 1);
+  const end = new Date(year, (q-1)*3+3, 0);
+  return { start, end };
+}
 function yaPickValue(key, mode, value){
   if(key === 'yieldBdt') return yaYieldActualValue(mode, value);
   /* "budgetMonth"/"budgetYear" reuse the exact same value-format and sum-vs-average rules as
@@ -7197,6 +7220,15 @@ function yaPickValue(key, mode, value){
   }
   if(mode==='week'){
     const range = yaWeekRange(value);
+    if(!range) return null;
+    const startTs = range.start.getTime(), endTs = range.end.getTime();
+    const rows = s.filter(function(x){ return x.ts >= startTs && x.ts <= endTs; });
+    if(!rows.length) return null;
+    const sum = rows.reduce(function(a,b){ return a+b.v; }, 0);
+    return YA_SUM_KEYS.has(key) ? sum : sum/rows.length;
+  }
+  if(mode==='quarter'){
+    const range = yaQuarterRange(value);
     if(!range) return null;
     const startTs = range.start.getTime(), endTs = range.end.getTime();
     const rows = s.filter(function(x){ return x.ts >= startTs && x.ts <= endTs; });
@@ -7238,6 +7270,10 @@ function yaHeaderLabel(st){
     return (EN ? MONTH_ABBR_EN[p[1]-1] : MONTH_ABBR_TH[p[1]-1]) + ' ' + p[0];
   }
   if(st.mode==='year') return st.value;
+  if(st.mode==='quarter'){
+    const p = st.value.split('-Q');
+    return (EN ? 'Q'+p[1] : 'ไตรมาส '+p[1]) + '/' + p[0];
+  }
   if(st.mode==='budgetMonth'){
     const p = st.value.split('-').map(Number);
     return 'Budget ' + (EN ? MONTH_ABBR_EN[p[1]-1] : MONTH_ABBR_TH[p[1]-1]) + ' ' + p[0];
@@ -7768,13 +7804,15 @@ function yaApplyMode(which){
   const weekInp = document.getElementById('yaWeek'+Suffix);
   const monthInp = document.getElementById('yaMonth'+Suffix);
   const yearSel = document.getElementById('yaYear'+Suffix);
+  const quarterSel = document.getElementById('yaQuarter'+Suffix);
   if(!modeSel) return;
   const mode = modeSel.value;
   dateInp.hidden = mode!=='date';
   weekInp.hidden = mode!=='week';
   monthInp.hidden = !(mode==='month' || mode==='budgetMonth');
-  yearSel.hidden = !(mode==='year' || mode==='budgetYear');
-  const value = mode==='date' ? dateInp.value : mode==='week' ? weekInp.value : (mode==='month' || mode==='budgetMonth') ? monthInp.value : yearSel.value;
+  yearSel.hidden = !(mode==='year' || mode==='budgetYear' || mode==='quarter');
+  quarterSel.hidden = mode!=='quarter';
+  const value = mode==='date' ? dateInp.value : mode==='week' ? weekInp.value : (mode==='month' || mode==='budgetMonth') ? monthInp.value : mode==='quarter' ? (yearSel.value+'-Q'+quarterSel.value) : yearSel.value;
   YA_STATE[which] = { mode:mode, value:value || null };
   renderYieldAnalysisColumn(which);
   renderYaDiffChipWeight();
@@ -7800,7 +7838,7 @@ function initYieldAnalysisControls(){
   ['Prev','Cur'].forEach(function(Suffix){
     const yearSel = document.getElementById('yaYear'+Suffix);
     if(yearSel) yearSel.innerHTML = years.map(function(y){ return '<option value="'+y+'">'+y+'</option>'; }).join('');
-    ['yaMode'+Suffix, 'yaDate'+Suffix, 'yaWeek'+Suffix, 'yaMonth'+Suffix, 'yaYear'+Suffix].forEach(function(id){
+    ['yaMode'+Suffix, 'yaDate'+Suffix, 'yaWeek'+Suffix, 'yaMonth'+Suffix, 'yaYear'+Suffix, 'yaQuarter'+Suffix].forEach(function(id){
       const el = document.getElementById(id);
       if(!el) return;
       // both events: native date/month pickers don't reliably fire "change" the same
@@ -8288,13 +8326,15 @@ function yaApplyModeDaily(which){
   const weekInp = document.getElementById('yaDWeek'+Suffix);
   const monthInp = document.getElementById('yaDMonth'+Suffix);
   const yearSel = document.getElementById('yaDYear'+Suffix);
+  const quarterSel = document.getElementById('yaDQuarter'+Suffix);
   if(!modeSel) return;
   const mode = modeSel.value;
   dateInp.hidden = mode!=='date';
   weekInp.hidden = mode!=='week';
   monthInp.hidden = !(mode==='month' || mode==='budgetMonth');
-  yearSel.hidden = !(mode==='year' || mode==='budgetYear');
-  const value = mode==='date' ? dateInp.value : mode==='week' ? weekInp.value : (mode==='month' || mode==='budgetMonth') ? monthInp.value : yearSel.value;
+  yearSel.hidden = !(mode==='year' || mode==='budgetYear' || mode==='quarter');
+  quarterSel.hidden = mode!=='quarter';
+  const value = mode==='date' ? dateInp.value : mode==='week' ? weekInp.value : (mode==='month' || mode==='budgetMonth') ? monthInp.value : mode==='quarter' ? (yearSel.value+'-Q'+quarterSel.value) : yearSel.value;
   YAD_STATE[which] = { mode:mode, value:value || null };
   renderYieldAnalysisTableDaily();
 }
@@ -8316,7 +8356,7 @@ function initYieldAnalysisControlsDaily(){
   ['Prev','Cur'].forEach(function(Suffix){
     const yearSel = document.getElementById('yaDYear'+Suffix);
     if(yearSel) yearSel.innerHTML = years.map(function(y){ return '<option value="'+y+'">'+y+'</option>'; }).join('');
-    ['yaDMode'+Suffix, 'yaDDate'+Suffix, 'yaDWeek'+Suffix, 'yaDMonth'+Suffix, 'yaDYear'+Suffix].forEach(function(id){
+    ['yaDMode'+Suffix, 'yaDDate'+Suffix, 'yaDWeek'+Suffix, 'yaDMonth'+Suffix, 'yaDYear'+Suffix, 'yaDQuarter'+Suffix].forEach(function(id){
       const el = document.getElementById(id);
       if(!el) return;
       el.addEventListener('change', function(){ yaApplyModeDaily(Suffix.toLowerCase()); });
@@ -8782,13 +8822,15 @@ function yaApplyModeWeekly(which){
   const weekInp = document.getElementById('yaWWeek'+Suffix);
   const monthInp = document.getElementById('yaWMonth'+Suffix);
   const yearSel = document.getElementById('yaWYear'+Suffix);
+  const quarterSel = document.getElementById('yaWQuarter'+Suffix);
   if(!modeSel) return;
   const mode = modeSel.value;
   dateInp.hidden = mode!=='date';
   weekInp.hidden = mode!=='week';
   monthInp.hidden = !(mode==='month' || mode==='budgetMonth');
-  yearSel.hidden = !(mode==='year' || mode==='budgetYear');
-  const value = mode==='date' ? dateInp.value : mode==='week' ? weekInp.value : (mode==='month' || mode==='budgetMonth') ? monthInp.value : yearSel.value;
+  yearSel.hidden = !(mode==='year' || mode==='budgetYear' || mode==='quarter');
+  quarterSel.hidden = mode!=='quarter';
+  const value = mode==='date' ? dateInp.value : mode==='week' ? weekInp.value : (mode==='month' || mode==='budgetMonth') ? monthInp.value : mode==='quarter' ? (yearSel.value+'-Q'+quarterSel.value) : yearSel.value;
   YAW_STATE[which] = { mode:mode, value:value || null };
   renderYieldAnalysisTableWeekly();
 }
@@ -8811,7 +8853,7 @@ function initYieldAnalysisControlsWeekly(){
   ['Prev','Cur'].forEach(function(Suffix){
     const yearSel = document.getElementById('yaWYear'+Suffix);
     if(yearSel) yearSel.innerHTML = years.map(function(y){ return '<option value="'+y+'">'+y+'</option>'; }).join('');
-    ['yaWMode'+Suffix, 'yaWDate'+Suffix, 'yaWWeek'+Suffix, 'yaWMonth'+Suffix, 'yaWYear'+Suffix].forEach(function(id){
+    ['yaWMode'+Suffix, 'yaWDate'+Suffix, 'yaWWeek'+Suffix, 'yaWMonth'+Suffix, 'yaWYear'+Suffix, 'yaWQuarter'+Suffix].forEach(function(id){
       const el = document.getElementById(id);
       if(!el) return;
       el.addEventListener('change', function(){ yaApplyModeWeekly(Suffix.toLowerCase()); });
@@ -9282,13 +9324,15 @@ function yaApplyModeWW(which){
   const weekInp = document.getElementById('yaWWWeek'+Suffix);
   const monthInp = document.getElementById('yaWWMonth'+Suffix);
   const yearSel = document.getElementById('yaWWYear'+Suffix);
+  const quarterSel = document.getElementById('yaWWQuarter'+Suffix);
   if(!modeSel) return;
   const mode = modeSel.value;
   dateInp.hidden = mode!=='date';
   weekInp.hidden = mode!=='week';
   monthInp.hidden = !(mode==='month' || mode==='budgetMonth');
-  yearSel.hidden = !(mode==='year' || mode==='budgetYear');
-  const value = mode==='date' ? dateInp.value : mode==='week' ? weekInp.value : (mode==='month' || mode==='budgetMonth') ? monthInp.value : yearSel.value;
+  yearSel.hidden = !(mode==='year' || mode==='budgetYear' || mode==='quarter');
+  quarterSel.hidden = mode!=='quarter';
+  const value = mode==='date' ? dateInp.value : mode==='week' ? weekInp.value : (mode==='month' || mode==='budgetMonth') ? monthInp.value : mode==='quarter' ? (yearSel.value+'-Q'+quarterSel.value) : yearSel.value;
   YAWW_STATE[which] = { mode:mode, value:value || null };
   renderYieldAnalysisTableWW();
 }
@@ -9311,7 +9355,7 @@ function initYieldAnalysisControlsWW(){
   ['Prev','Cur'].forEach(function(Suffix){
     const yearSel = document.getElementById('yaWWYear'+Suffix);
     if(yearSel) yearSel.innerHTML = years.map(function(y){ return '<option value="'+y+'">'+y+'</option>'; }).join('');
-    ['yaWWMode'+Suffix, 'yaWWDate'+Suffix, 'yaWWWeek'+Suffix, 'yaWWMonth'+Suffix, 'yaWWYear'+Suffix].forEach(function(id){
+    ['yaWWMode'+Suffix, 'yaWWDate'+Suffix, 'yaWWWeek'+Suffix, 'yaWWMonth'+Suffix, 'yaWWYear'+Suffix, 'yaWWQuarter'+Suffix].forEach(function(id){
       const el = document.getElementById(id);
       if(!el) return;
       el.addEventListener('change', function(){ yaApplyModeWW(Suffix.toLowerCase()); });
@@ -9781,13 +9825,15 @@ function yaApplyModeYB(which){
   const weekInp = document.getElementById('yaYBWeek'+Suffix);
   const monthInp = document.getElementById('yaYBMonth'+Suffix);
   const yearSel = document.getElementById('yaYBYear'+Suffix);
+  const quarterSel = document.getElementById('yaYBQuarter'+Suffix);
   if(!modeSel) return;
   const mode = modeSel.value;
   dateInp.hidden = mode!=='date';
   weekInp.hidden = mode!=='week';
   monthInp.hidden = !(mode==='month' || mode==='budgetMonth');
-  yearSel.hidden = !(mode==='year' || mode==='budgetYear');
-  const value = mode==='date' ? dateInp.value : mode==='week' ? weekInp.value : (mode==='month' || mode==='budgetMonth') ? monthInp.value : yearSel.value;
+  yearSel.hidden = !(mode==='year' || mode==='budgetYear' || mode==='quarter');
+  quarterSel.hidden = mode!=='quarter';
+  const value = mode==='date' ? dateInp.value : mode==='week' ? weekInp.value : (mode==='month' || mode==='budgetMonth') ? monthInp.value : mode==='quarter' ? (yearSel.value+'-Q'+quarterSel.value) : yearSel.value;
   YAYB_STATE[which] = { mode:mode, value:value || null };
   renderYieldAnalysisTableYB();
 }
@@ -9810,7 +9856,7 @@ function initYieldAnalysisControlsYB(){
   ['Prev','Cur'].forEach(function(Suffix){
     const yearSel = document.getElementById('yaYBYear'+Suffix);
     if(yearSel) yearSel.innerHTML = years.map(function(y){ return '<option value="'+y+'">'+y+'</option>'; }).join('');
-    ['yaYBMode'+Suffix, 'yaYBDate'+Suffix, 'yaYBWeek'+Suffix, 'yaYBMonth'+Suffix, 'yaYBYear'+Suffix].forEach(function(id){
+    ['yaYBMode'+Suffix, 'yaYBDate'+Suffix, 'yaYBWeek'+Suffix, 'yaYBMonth'+Suffix, 'yaYBYear'+Suffix, 'yaYBQuarter'+Suffix].forEach(function(id){
       const el = document.getElementById(id);
       if(!el) return;
       el.addEventListener('change', function(){ yaApplyModeYB(Suffix.toLowerCase()); });
@@ -10280,13 +10326,15 @@ function yaApplyModeMB(which){
   const weekInp = document.getElementById('yaMBWeek'+Suffix);
   const monthInp = document.getElementById('yaMBMonth'+Suffix);
   const yearSel = document.getElementById('yaMBYear'+Suffix);
+  const quarterSel = document.getElementById('yaMBQuarter'+Suffix);
   if(!modeSel) return;
   const mode = modeSel.value;
   dateInp.hidden = mode!=='date';
   weekInp.hidden = mode!=='week';
   monthInp.hidden = !(mode==='month' || mode==='budgetMonth');
-  yearSel.hidden = !(mode==='year' || mode==='budgetYear');
-  const value = mode==='date' ? dateInp.value : mode==='week' ? weekInp.value : (mode==='month' || mode==='budgetMonth') ? monthInp.value : yearSel.value;
+  yearSel.hidden = !(mode==='year' || mode==='budgetYear' || mode==='quarter');
+  quarterSel.hidden = mode!=='quarter';
+  const value = mode==='date' ? dateInp.value : mode==='week' ? weekInp.value : (mode==='month' || mode==='budgetMonth') ? monthInp.value : mode==='quarter' ? (yearSel.value+'-Q'+quarterSel.value) : yearSel.value;
   YAMB_STATE[which] = { mode:mode, value:value || null };
   renderYieldAnalysisTableMB();
 }
@@ -10309,7 +10357,7 @@ function initYieldAnalysisControlsMB(){
   ['Prev','Cur'].forEach(function(Suffix){
     const yearSel = document.getElementById('yaMBYear'+Suffix);
     if(yearSel) yearSel.innerHTML = years.map(function(y){ return '<option value="'+y+'">'+y+'</option>'; }).join('');
-    ['yaMBMode'+Suffix, 'yaMBDate'+Suffix, 'yaMBWeek'+Suffix, 'yaMBMonth'+Suffix, 'yaMBYear'+Suffix].forEach(function(id){
+    ['yaMBMode'+Suffix, 'yaMBDate'+Suffix, 'yaMBWeek'+Suffix, 'yaMBMonth'+Suffix, 'yaMBYear'+Suffix, 'yaMBQuarter'+Suffix].forEach(function(id){
       const el = document.getElementById(id);
       if(!el) return;
       el.addEventListener('change', function(){ yaApplyModeMB(Suffix.toLowerCase()); });
