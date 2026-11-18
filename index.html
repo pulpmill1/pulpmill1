@@ -658,6 +658,13 @@
      rather than inventing a new status-badge style from scratch. */
   .hft-current-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(0,169,39,.14);color:#0a8a26;font-family:"IBM Plex Mono",monospace;font-size:10px;font-weight:700;letter-spacing:.04em;padding:3px 10px;border-radius:20px;}
   .hft-current-badge::before{content:"";width:6px;height:6px;border-radius:50%;background:#00a927;display:inline-block;flex:0 0 auto;}
+  /* "N" (days-per-bucket count) on the historical table starts hidden on every fresh dashboard load --
+     it's secondary context, not a number anyone needs up front -- and this button reveals it on demand.
+     Toggles a modifier class on that one <table> (see renderHFactorTuningModel), not a global .hft-n
+     rule, so the Current Condition table's own col2 (the date/period, not a count) is never affected. */
+  .hft-n-toggle{display:inline-flex;align-items:center;gap:4px;background:var(--surface-2);color:var(--ink-2);border:1px solid var(--border);font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;cursor:pointer;font-family:inherit;}
+  .hft-n-toggle:hover{color:var(--ink);}
+  table.hft-table.hft-n-collapsed th.hft-n,table.hft-table.hft-n-collapsed td.hft-n{display:none;}
   .hft-reco-box p{margin:0 0 10px;}
   table.hft-reco-compare{width:100%;max-width:560px;border-collapse:collapse;font-size:11.5px;}
   table.hft-reco-compare th,table.hft-reco-compare td{padding:5px 9px;border:1px solid var(--border);text-align:right;}
@@ -2406,7 +2413,7 @@
           <div class="hft-section-head"><h3>คำแนะนำ Set Point H-factor</h3></div>
           <div class="hft-note hft-reco-box" id="hftRecoBox"></div>
 
-          <div class="hft-section-head"><h3>ประวัติแยกตามช่วง Set Point H-factor (APC)</h3></div>
+          <div class="hft-section-head"><h3>ประวัติแยกตามช่วง Set Point H-factor (APC)</h3><button type="button" id="hftNToggleBtn" class="hft-n-toggle"></button></div>
           <div class="hft-wrap" id="hftTableWrap"></div>
         </section>
         <section class="page" data-page="cost-sensitivity" hidden>
@@ -7102,12 +7109,12 @@ function hftRefRange(days){
    up for a direct visual comparison. `rows` is an array of {col1, col2, ref, ...HFT_FIELDS keys};
    col1Header/col2Header let the two tables use different first-two-column labels (bin/n vs. exact
    value/period); `ref` is each row's own real contributing-date-range string (see hftRefRange). */
-function hftBuildTableHtml(rows, col1Header, col2Header){
+function hftBuildTableHtml(rows, col1Header, col2Header, extraClass){
   const cookFields = HFT_FIELDS.filter(function(f){ return f.grp==='cook'; });
   const woodFields = HFT_FIELDS.filter(function(f){ return f.grp==='wood'; });
   const chemFields = HFT_FIELDS.filter(function(f){ return f.grp==='chem'; });
   function headCell(f){ return '<th class="hft-col">'+f.label+(f.unit?'<br>('+f.unit+')':'')+'</th>'; }
-  let html = '<table class="hft-table"><thead><tr>'
+  let html = '<table class="hft-table'+(extraClass ? ' '+extraClass : '')+'"><thead><tr>'
     + '<th rowspan="2" class="hft-bin">'+col1Header+'</th>'
     + '<th rowspan="2" class="hft-n">'+col2Header+'</th>'
     + '<th class="hft-grp" colspan="'+cookFields.length+'">Cooking Logsheet</th>'
@@ -7130,8 +7137,15 @@ function hftBuildTableHtml(rows, col1Header, col2Header){
   html += '</tbody></table>';
   return html;
 }
+/* Hidden on every fresh dashboard load (n is secondary context, not something anyone needs up front) --
+   toggled on demand via #hftNToggleBtn (see initHftNToggle). Lives at module scope, not inside
+   renderHFactorTuningModel, so it survives repeated re-renders (data refresh, dark-mode repaint,
+   language switch) within the same page load instead of resetting on every one of them. */
+let HFT_HIST_N_COLLAPSED = true;
 function renderHFactorTuningModel(){
   const wrap = document.getElementById('hftTableWrap');
+  const toggleBtn = document.getElementById('hftNToggleBtn');
+  if(toggleBtn) toggleBtn.textContent = HFT_HIST_N_COLLAPSED ? 'แสดงคอลัมภ์ N' : 'ซ่อนคอลัมภ์ N';
   if(!wrap) return;
   const buckets = computeHFactorTuningBuckets();
   if(!buckets.length){
@@ -7142,7 +7156,15 @@ function renderHFactorTuningModel(){
     const row = Object.assign({}, b, { col1:String(b.bin), col2:String(b.n) });
     return row;
   });
-  wrap.innerHTML = hftBuildTableHtml(rows, 'Set Point<br>H-factor (APC)', 'n');
+  wrap.innerHTML = hftBuildTableHtml(rows, 'Set Point<br>H-factor (APC)', 'n', HFT_HIST_N_COLLAPSED ? 'hft-n-collapsed' : '');
+}
+function initHftNToggle(){
+  const btn = document.getElementById('hftNToggleBtn');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    HFT_HIST_N_COLLAPSED = !HFT_HIST_N_COLLAPSED;
+    renderHFactorTuningModel();
+  });
 }
 /* One record per cook day (PLS_COOKING_ROWS is already day-aggregated) that has a real Set point
    H-factor(APC) value, each pre-computed with its own setPoint + all 15 HFT_FIELDS values -- shared
@@ -13153,6 +13175,7 @@ function initChipMon(){
   initYieldAnalysisControlsMB();
   renderYieldAnalysisTableLast7();
   renderHFactorTuningModel();
+  initHftNToggle();
   initHFactorConditionControls();
   initYaCardCollapse();
   initWoodCmp();
