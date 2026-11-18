@@ -611,6 +611,24 @@
   table.ya-table tr.ya-sub td.ya-remark,table.ya-table tr.ya-sub2 td.ya-remark,table.ya-table tr.ya-sub3 td.ya-remark{font-weight:300;color:var(--ink-3);}
   table.ya-table .tr-bad{color:#d4342c;}
   table.ya-table .tr-good{color:#12a150;}
+  /* H-Factor Tuning Model page — one flat row per Set Point H-factor(APC) bin, columns grouped by
+     source sheet, reusing the same tokens/visual language as .ya-table but without the collapsible
+     major/sub row nesting (there's no sub-breakdown here, just one averaged row per bin). */
+  .hft-head{margin-bottom:4px;}
+  .hft-head h2{margin:0 0 4px;font-size:18px;color:var(--ink);}
+  .hft-head p{margin:0;color:var(--ink-2);font-size:12.5px;max-width:72ch;}
+  .hft-note{background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin:14px 0 18px;font-size:12px;color:var(--ink-2);line-height:1.7;}
+  .hft-note b{color:var(--ink);font-weight:700;}
+  .hft-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:10px;}
+  table.hft-table{width:100%;min-width:1180px;border-collapse:collapse;font-size:12px;}
+  table.hft-table th{background:var(--accent-soft);color:var(--accent-ink);font-size:10.5px;font-weight:700;padding:7px 6px;border:1px solid var(--border);text-align:center;white-space:nowrap;}
+  table.hft-table th.hft-grp{font-size:10px;}
+  table.hft-table td{padding:7px 8px;border:1px solid var(--border);text-align:right;font-family:"IBM Plex Mono",monospace;color:var(--ink-3);white-space:nowrap;}
+  table.hft-table td.hft-bin{font-family:inherit;font-weight:800;color:var(--ink);text-align:left;font-size:13px;}
+  table.hft-table td.hft-n{font-family:inherit;color:var(--ink-3);text-align:left;font-size:11px;}
+  table.hft-table td.hft-sep{border-left:2px solid var(--border);}
+  table.hft-table tbody tr:hover td{background:var(--surface-2);}
+  .hft-empty{padding:18px;color:var(--ink-2);font-size:13px;}
   .ya-summary{margin-bottom:14px;font-size:12px;color:var(--ink-2);}
   .ya-summary .rn-head{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border);}
   .ya-summary .ys-body,.ya-overview-col .ys-body{font-weight:300;line-height:1.9;}
@@ -818,6 +836,7 @@
           <button class="nav-item" data-page="process-bleaching"><span class="nav-label" data-i18n-nav="navProcessBleaching">Bleaching</span></button>
         </div>
       </div>
+      <button class="nav-item" data-page="h-factor-tuning"><span style="display:flex; align-items:center; min-width:0;"><span class="nav-ico">🧪</span><span class="nav-label" data-i18n-nav="navHFactorTuning">H-Factor Tuning Model</span></span></button>
       <button class="nav-item" data-page="cost-sensitivity"><span style="display:flex; align-items:center; min-width:0;"><span class="nav-ico">🎯</span><span class="nav-label" data-i18n-nav="navCostSensitivity">Sensitivity</span></span></button>
     </nav>
     <div class="sidebar-foot">
@@ -2324,6 +2343,16 @@
           </div>
         </section>
 
+        <section class="page" data-page="h-factor-tuning" hidden>
+          <div class="hft-head">
+            <h2>H-Factor Tuning Model</h2>
+            <p>สรุปผลการเดินเครื่องจริงในแต่ละช่วง Set Point H-factor (APC) เพื่อใช้เป็นแนวทางเลือกค่า Set Point ที่เหมาะสม</p>
+          </div>
+          <div class="hft-note">
+            <b>วิธีจัดกลุ่มข้อมูล:</b> แต่ละวันในปี 2026 จะถูกจัดเข้ากลุ่มตามค่าเฉลี่ย "Set point H-factor(APC)" ของวันนั้น (เฉลี่ยทุกครั้งต้มในวันเดียวกันก่อน เนื่องจาก Cooking Logsheet บันทึกรายครั้งต้ม) แล้วปัดเข้ากลุ่มที่ใกล้ที่สุด ห่างกันทีละ 20 — ช่วงที่แสดงมาจากข้อมูลจริงที่เคยเดินเท่านั้น ไม่ได้กำหนดตายตัว ข้อมูลไม้สับ/ความชื้น (RM Wood-Yield) และ Residual alkali WBL→Evaporator (QC Lab FL1) จับคู่ด้วยวันที่เดียวกัน แล้วหาค่าเฉลี่ยรวมในแต่ละกลุ่ม — <b>n</b> คือจำนวนวันที่มีข้อมูลในกลุ่มนั้น
+          </div>
+          <div class="hft-wrap" id="hftTableWrap"></div>
+        </section>
         <section class="page" data-page="cost-sensitivity" hidden>
           <div class="sens-dash">
             <div class="sens-dash-header">
@@ -2668,7 +2697,7 @@ const DAYS_IN_MONTH = [31,28,31,30,31,30,31,31,30,31,30,31];
    Daily (Act) gid=0, Daily (BG) gid=1682718600, Daily (Plan) gid=3664159, Daily (Loss) gid=786133815
    Monthly (Act) gid=1448795576, Monthly (Budget) gid=1872828527 */
 const SHEET_ID = '1dStWwliEd6YhSOL3oT8JNyWHZOuII5F-QVeubIrBS50';
-const SHEET_GIDS = { dailyAct:0, dailyBg:1682718600, dailyPlan:3664159, dailyLoss:786133815, monthlyAct:1448795576, monthlyBudget:1872828527, chipWood:632351488, cookingCond:1561629878, weightScaleDig:1177773637, cookingLog:937055806, brownStock:1668226684, bleaching:1596215251, morningLog:1162647187 };
+const SHEET_GIDS = { dailyAct:0, dailyBg:1682718600, dailyPlan:3664159, dailyLoss:786133815, monthlyAct:1448795576, monthlyBudget:1872828527, chipWood:632351488, cookingCond:1561629878, weightScaleDig:1177773637, cookingLog:937055806, brownStock:1668226684, bleaching:1596215251, morningLog:1162647187, qcLabFl1:1353468044 };
 function sheetCsvUrl(gid){ return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${gid}`; }
 
 // robust CSV parser: handles quoted fields, embedded commas, embedded newlines, doubled-quote escaping
@@ -2783,11 +2812,11 @@ function parseMonthlySheet(rows, labelWord){
   return byYear;
 }
 
-const [dailyActRows, dailyBgRows, dailyPlanRows, dailyLossRows, monthlyActRows, monthlyBudgetRows, chipWoodRows, cookingCondRows, weightScaleDigRows, cookingLogRows, brownStockRows, bleachingRows, morningLogRows, kpiTargetsResp, kpiLayoutResp] = await Promise.all([
+const [dailyActRows, dailyBgRows, dailyPlanRows, dailyLossRows, monthlyActRows, monthlyBudgetRows, chipWoodRows, cookingCondRows, weightScaleDigRows, cookingLogRows, brownStockRows, bleachingRows, morningLogRows, qcLabFl1Rows, kpiTargetsResp, kpiLayoutResp] = await Promise.all([
   fetchSheetCsv(SHEET_GIDS.dailyAct), fetchSheetCsv(SHEET_GIDS.dailyBg), fetchSheetCsv(SHEET_GIDS.dailyPlan), fetchSheetCsv(SHEET_GIDS.dailyLoss),
   fetchSheetCsv(SHEET_GIDS.monthlyAct), fetchSheetCsv(SHEET_GIDS.monthlyBudget), fetchSheetCsv(SHEET_GIDS.chipWood), fetchSheetCsv(SHEET_GIDS.cookingCond),
   fetchSheetCsv(SHEET_GIDS.weightScaleDig), fetchSheetCsv(SHEET_GIDS.cookingLog), fetchSheetCsv(SHEET_GIDS.brownStock), fetchSheetCsv(SHEET_GIDS.bleaching),
-  fetchSheetCsv(SHEET_GIDS.morningLog), fetchKpiTargets(), fetchKpiLayout(),
+  fetchSheetCsv(SHEET_GIDS.morningLog), fetchSheetCsv(SHEET_GIDS.qcLabFl1), fetchKpiTargets(), fetchKpiLayout(),
 ]);
 // Shared Target Low/High store — see fetchKpiTargets() above. Mutated in place (not reassigned)
 // by chipMonSetTarget/wsdSetTarget so every closure that already captured it sees new saves.
@@ -5376,6 +5405,7 @@ const PAGE_META = {
   'production-pm12':{th:'Pulp mill 1+2', en:'Pulp mill 1+2', hasData:true},
   yield:{th:'Yield', en:'Yield', hasData:true},
   'yield-weightscale':{th:'Weight scale digester', en:'Weight scale digester', hasData:false},
+  'h-factor-tuning':{th:'H-Factor Tuning Model', en:'H-Factor Tuning Model', hasData:true},
   'cost-sensitivity':{th:'Sensitivity', en:'Sensitivity', hasData:true},
   'process-rawmaterial':{th:'Raw material', en:'Raw material', hasData:false},
   'process-cooking':{th:'Cooking', en:'Cooking', hasData:false},
@@ -5385,7 +5415,7 @@ const PAGE_META = {
 
 const I18N = {
   th:{
-    navProduction:'Production', navProductionPm1:'Pulp mill 1', navProductionPm2:'Pulp mill 2', navProductionPm12:'Pulp mill 1+2', navYield:'Yield', navYieldWeightScale:'Weight scale digester', navCostSensitivity:'Sensitivity',
+    navProduction:'Production', navProductionPm1:'Pulp mill 1', navProductionPm2:'Pulp mill 2', navProductionPm12:'Pulp mill 1+2', navYield:'Yield', navYieldWeightScale:'Weight scale digester', navCostSensitivity:'Sensitivity', navHFactorTuning:'H-Factor Tuning Model',
     navProcessArea:'Process area', navProcessRawMaterial:'Raw material', navProcessCooking:'Cooking', navProcessBrownStock:'Brown stock', navProcessBleaching:'Bleaching',
     searchPlaceholder:'ค้นหา KPI (Search metrics)',
     lastDataAt:'ข้อมูลล่าสุด ณ', noDataYet:'ยังไม่เชื่อมต่อแหล่งข้อมูล',
@@ -5401,7 +5431,7 @@ const I18N = {
     avg7Label:'ค่าเฉลี่ย 7 วันย้อนหลัง (Adt/day)', daysUnit:'วัน',
   },
   en:{
-    navProduction:'Production', navProductionPm1:'Pulp mill 1', navProductionPm2:'Pulp mill 2', navProductionPm12:'Pulp mill 1+2', navYield:'Yield', navYieldWeightScale:'Weight scale digester', navCostSensitivity:'Sensitivity',
+    navProduction:'Production', navProductionPm1:'Pulp mill 1', navProductionPm2:'Pulp mill 2', navProductionPm12:'Pulp mill 1+2', navYield:'Yield', navYieldWeightScale:'Weight scale digester', navCostSensitivity:'Sensitivity', navHFactorTuning:'H-Factor Tuning Model',
     navProcessArea:'Process area', navProcessRawMaterial:'Raw material', navProcessCooking:'Cooking', navProcessBrownStock:'Brown stock', navProcessBleaching:'Bleaching',
     searchPlaceholder:'Search metrics',
     lastDataAt:'Latest data as of', noDataYet:'No data source connected yet',
@@ -5945,6 +5975,7 @@ function applyLang(lang){
     if(typeof renderYieldAnalysisTableYB === 'function') renderYieldAnalysisTableYB();
     if(typeof renderYieldAnalysisTableMB === 'function') renderYieldAnalysisTableMB();
     if(typeof renderYieldAnalysisTableLast7 === 'function') renderYieldAnalysisTableLast7();
+    if(typeof renderHFactorTuningModel === 'function') renderHFactorTuningModel();
     if(typeof woodCmpRenderBody === 'function' && document.getElementById('woodCmpBody')) woodCmpRenderBody();
     if(typeof woodStackRenderBodyFor === 'function') ['woodStack1','woodStack2','woodStackTot'].forEach(p=> { if(document.getElementById(p+'Body')) woodStackRenderBodyFor(p); });
     if(typeof woodStackRenderStrips === 'function') ['woodStack1','woodStack2','woodStackTot'].forEach(p=> { if(document.getElementById(p+'Strips')) woodStackRenderStrips(p); });
@@ -6429,6 +6460,14 @@ const PLS_BROWNSTOCK_ROWS_RAW = plsBuildRawRows(brownStockRows, 'TIME', 2, {h:3}
 const PLS_BROWNSTOCK_ROWS = plsAggregateByDay(PLS_BROWNSTOCK_ROWS_RAW);
 const PLS_BLEACHING_ROWS_RAW = plsBuildRawRows(bleachingRows, 'TIME', 2, {h:3});
 const PLS_BLEACHING_ROWS = plsAggregateByDay(PLS_BLEACHING_ROWS_RAW);
+/* "QC Lab FL1" — logged roughly hourly (not daily), header row anchored on the literal cell text
+   "Date" (col idx1; "Month" idx0, "Time" idx2). Residual alkali of WBL heading to the Evaporator
+   sits at col idx14 (sheet column O) under the merged "WBL to Evaporator" group header — a
+   DIFFERENT "Residual alkali" column exists at idx9 under "Accumulated BL", not this one. Sparse
+   within a day (not every hourly row has a value); plsAggregateByDay already averages only the
+   non-null rows per day, same as every other *_ROWS pair above. */
+const QC_LAB_FL1_ROWS_RAW = plsBuildRawRows(qcLabFl1Rows, 'Date', 1, null);
+const QC_LAB_FL1_ROWS = plsAggregateByDay(QC_LAB_FL1_ROWS_RAW);
 /* คอลัมน์ (ตำแหน่ง, 0-indexed) ของทุก metric ในชีต Cooking Logsheet — รวมทั้งหมด ยกเว้นคอลัมน์ระบุ
    ตัวแถว (Month/Date/Cooking No./Cooking Batch ACC./Digester no.) คอลัมน์ว่างที่ยังไม่มีการบันทึก
    ข้อมูลจริง (เช่น H-factor, Target cook temp., Bulk density) ก็ยังประกาศไว้เช่นกัน เพียงแต่จะแสดง
@@ -6893,6 +6932,113 @@ function chipMonYieldRatioSum(rows){
    sub-line (chipMonRenderTiles), the full detail panel's strip (chipMonRenderDetail), and the
    Exec KPI panel's 7-day comparison (renderExecKpiPanel) all check this same set. */
 const CHIP_MON_YIELD_RATIO_KEYS = new Set(['yieldBalTank','ovwYield']);
+
+/* ==================================================================================
+   H-Factor Tuning Model — groups every 2026 day by its own day-averaged "Set point
+   H-factor(APC)" (Cooking Logsheet), rounded to the nearest 20 (a Set Point is a value
+   the operator dials in, not a continuous measurement needing statistical bin edges —
+   so round-to-nearest rather than range bins), then averages every other requested
+   field across the days that land in that bucket. Cooking Logsheet is per-cook-batch;
+   PLS_COOKING_ROWS already day-averages it (see plsAggregateByDay above). RM Wood-Yield
+   and QC Lab FL1 are joined to that same calendar day via their own .ts — every one of
+   these three sources builds its day timestamp the same way (new Date(y,mi,d) local
+   midnight: see CHIP_MON_ROWS.push and plsAggregateByDay above), so they line up exactly
+   with no further normalization. A bucket's per-field average only counts the days that
+   actually have that one field (independent null-skipping per field, same pattern
+   plsAggregateByDay itself already uses) — it never drops a whole day just because one
+   field is missing that day. */
+const HFT_WOOD_SERIES_BY_TS = {
+  woodK7: new Map((CHIP_MON_SERIES.woodK7||[]).map(x=> [x.ts, x.v])),
+  woodK58: new Map((CHIP_MON_SERIES.woodK58||[]).map(x=> [x.ts, x.v])),
+  woodSeed: new Map((CHIP_MON_SERIES.woodSeed||[]).map(x=> [x.ts, x.v])),
+  woodOther: new Map((CHIP_MON_SERIES.woodOther||[]).map(x=> [x.ts, x.v])),
+  woodSt1m: new Map((CHIP_MON_SERIES.woodSt1m||[]).map(x=> [x.ts, x.v])),
+  moistureLab: new Map((CHIP_MON_SERIES.moistureLab||[]).map(x=> [x.ts, x.v])),
+};
+/* Residual alkali of WBL to the Evaporator = raw column idx14 (sheet column O) in QC Lab FL1 —
+   a DIFFERENT "Residual alkali" column (idx9, under "Accumulated BL") also exists on that sheet
+   and must not be confused with this one. */
+const QC_LAB_FL1_RESID_BY_TS = new Map(QC_LAB_FL1_ROWS.map(x=> [x.ts, x.r[14]]));
+/* The 15 averaged columns, table display order. `get(cookDay, ts)` returns that day's own value
+   for the field (or null); cookDay is PLS_COOKING_ROWS' per-day record (r[] indexed by raw
+   Cooking Logsheet column, see the column-index comment above PLS_COOKING_ROWS_RAW), ts is that
+   same day's timestamp (used to look up the wood/moisture/QC maps, which are keyed separately
+   since they come from different sheets). */
+const HFT_FIELDS = [
+  {key:'targetHFactor', label:'Target H-factor', unit:'', dec:1, grp:'cook', get:function(c){ return c.r[76]; }},
+  {key:'realHFactor', label:'Real H-factor', unit:'', dec:1, grp:'cook', get:function(c){ return c.r[77]; }},
+  {key:'kappaOnline', label:'Kappa No. (Online)', unit:'', dec:2, grp:'cook', get:function(c){ return c.r[109]; }},
+  {key:'woodK7', label:'Pulp 1 K7', unit:'%', dec:2, grp:'wood', get:function(c,ts){ return HFT_WOOD_SERIES_BY_TS.woodK7.get(ts); }},
+  {key:'woodK58', label:'Pulp 1 K58', unit:'%', dec:2, grp:'wood', get:function(c,ts){ return HFT_WOOD_SERIES_BY_TS.woodK58.get(ts); }},
+  {key:'woodSeed', label:'Pulp 1 Seed', unit:'%', dec:2, grp:'wood', get:function(c,ts){ return HFT_WOOD_SERIES_BY_TS.woodSeed.get(ts); }},
+  {key:'woodOther', label:'Pulp 1 Other', unit:'%', dec:2, grp:'wood', get:function(c,ts){ return HFT_WOOD_SERIES_BY_TS.woodOther.get(ts); }},
+  {key:'woodSt1m', label:'Pulp 1 St>1m', unit:'%', dec:2, grp:'wood', get:function(c,ts){ return HFT_WOOD_SERIES_BY_TS.woodSt1m.get(ts); }},
+  {key:'moistureLab', label:'Chip Moist. (Lab)', unit:'%', dec:2, grp:'wood', get:function(c,ts){ return HFT_WOOD_SERIES_BY_TS.moistureLab.get(ts); }},
+  {key:'eaLab', label:'EA(lab)', unit:'g/l', dec:1, grp:'chem', get:function(c){ return c.r[46]; }},
+  {key:'eaChargeSetPoint', label:'EA Charge Set Point', unit:'ton EA', dec:2, grp:'chem', get:function(c){ return c.r[43]; }},
+  {key:'wlChargeTonEa', label:'WL Charge', unit:'ton EA', dec:1, grp:'chem', get:function(c){ return c.r[66]; }},
+  {key:'eaChargeActual', label:'EA Charge Actual', unit:'%', dec:1, grp:'chem', get:function(c){ return c.r[44]; }},
+  {key:'wlChargeM3', label:'WL Charge', unit:'m³', dec:1, grp:'chem', get:function(c){ return c.r[65]; }},
+  {key:'resAlkalineAcc855', label:'Res.Alkaline Acc 855', unit:'g/l', dec:1, grp:'chem', get:function(c){ return c.r[63]; }},
+  {key:'residAlkaliWbl', label:'Resid. Alkali WBL→Evap', unit:'g/l', dec:1, grp:'chem', get:function(c,ts){ return QC_LAB_FL1_RESID_BY_TS.get(ts); }},
+];
+function computeHFactorTuningBuckets(){
+  const buckets = new Map(); // bin value -> { bin, n, sums:{key:sum}, counts:{key:count} }
+  PLS_COOKING_ROWS.forEach(function(day){
+    if(day.y !== 2026) return;
+    const setPoint = day.r[75];
+    if(setPoint == null) return;
+    const bin = Math.round(setPoint/20)*20;
+    let b = buckets.get(bin);
+    if(!b){ b = { bin:bin, n:0, sums:{}, counts:{} }; buckets.set(bin, b); }
+    b.n++;
+    HFT_FIELDS.forEach(function(f){
+      const v = f.get(day, day.ts);
+      if(v==null) return;
+      b.sums[f.key] = (b.sums[f.key]||0) + v;
+      b.counts[f.key] = (b.counts[f.key]||0) + 1;
+    });
+  });
+  return Array.from(buckets.values()).sort(function(a,b){ return a.bin-b.bin; }).map(function(b){
+    const row = { bin:b.bin, n:b.n };
+    HFT_FIELDS.forEach(function(f){ row[f.key] = b.counts[f.key] ? b.sums[f.key]/b.counts[f.key] : null; });
+    return row;
+  });
+}
+function renderHFactorTuningModel(){
+  const wrap = document.getElementById('hftTableWrap');
+  if(!wrap) return;
+  const rows = computeHFactorTuningBuckets();
+  if(!rows.length){
+    wrap.innerHTML = '<div class="hft-empty">ยังไม่มีข้อมูล Set point H-factor(APC) ในปี 2026 ที่สามารถสรุปได้</div>';
+    return;
+  }
+  const cookFields = HFT_FIELDS.filter(function(f){ return f.grp==='cook'; });
+  const woodFields = HFT_FIELDS.filter(function(f){ return f.grp==='wood'; });
+  const chemFields = HFT_FIELDS.filter(function(f){ return f.grp==='chem'; });
+  function fmt(v, dec){ return v==null ? '—' : v.toLocaleString('en-US', {minimumFractionDigits:dec, maximumFractionDigits:dec}); }
+  function headCell(f){ return '<th>'+f.label+(f.unit?'<br>('+f.unit+')':'')+'</th>'; }
+  let html = '<table class="hft-table"><thead><tr>'
+    + '<th rowspan="2" style="text-align:left;">Set Point<br>H-factor (APC)</th>'
+    + '<th rowspan="2" style="text-align:left;">n</th>'
+    + '<th class="hft-grp" colspan="'+cookFields.length+'">Cooking Logsheet</th>'
+    + '<th class="hft-grp" colspan="'+woodFields.length+'">RM Wood-Yield</th>'
+    + '<th class="hft-grp" colspan="'+chemFields.length+'">Cooking Logsheet &amp; QC Lab FL1</th>'
+    + '</tr><tr>'
+    + cookFields.map(headCell).join('')
+    + woodFields.map(headCell).join('')
+    + chemFields.map(headCell).join('')
+    + '</tr></thead><tbody>';
+  rows.forEach(function(row){
+    html += '<tr><td class="hft-bin">'+row.bin+'</td><td class="hft-n">'+row.n+'</td>';
+    cookFields.forEach(function(f){ html += '<td>'+fmt(row[f.key], f.dec)+'</td>'; });
+    woodFields.forEach(function(f,i){ html += '<td'+(i===0?' class="hft-sep"':'')+'>'+fmt(row[f.key], f.dec)+'</td>'; });
+    chemFields.forEach(function(f,i){ html += '<td'+(i===0?' class="hft-sep"':'')+'>'+fmt(row[f.key], f.dec)+'</td>'; });
+    html += '</tr>';
+  });
+  html += '</tbody></table>';
+  wrap.innerHTML = html;
+}
 
 /* ---- target store ----
    Shared across every viewer via CHIP_TARGETS_REMOTE (loaded at boot from /api/targets);
@@ -12721,6 +12867,7 @@ function initChipMon(){
   initYieldAnalysisControlsYB();
   initYieldAnalysisControlsMB();
   renderYieldAnalysisTableLast7();
+  renderHFactorTuningModel();
   initYaCardCollapse();
   initWoodCmp();
   initWoodStackAll();
@@ -12778,6 +12925,7 @@ function initChipMon(){
     renderYieldAnalysisTableYB();
     renderYieldAnalysisTableMB();
     renderYieldAnalysisTableLast7();
+    renderHFactorTuningModel();
     woodCmpRenderBody();
     CHIP_MON_GROUPS.forEach(grp=> { chipMonRenderTiles(grp); chipMonRenderDetail(grp.id); });
     initBatchTiming();
