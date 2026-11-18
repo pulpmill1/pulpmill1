@@ -7337,7 +7337,13 @@ function yaPickValue(key, mode, value){
      slicing, which could drift by metric if one has different missing days than another). */
   if(mode==='last7' || mode==='last7prev'){
     const endTs = mode==='last7' ? chipMonCeil : (chipMonCeil - 7*86400000);
-    const startTs = endTs - 6*86400000;
+    // chipMonCeil (and endTs derived from it) is an END-of-day timestamp (23:59:59.999), but every
+    // row's own .ts is START-of-day (00:00:00.000) -- subtracting whole days from endTs directly
+    // would land startTs at 23:59:59.999 of the 7th day back, one tick AFTER that day's own row ts
+    // of 00:00:00.000, silently excluding it (window becomes 6 real days, not 7). Floor to midnight
+    // first so startTs lands at 00:00:00.000 of the correct day, matching how row timestamps compare.
+    const endDayStart = new Date(endTs); endDayStart.setHours(0,0,0,0);
+    const startTs = endDayStart.getTime() - 6*86400000;
     const rows = s.filter(function(x){ return x.ts >= startTs && x.ts <= endTs; });
     if(!rows.length) return null;
     const sum = rows.reduce(function(a,b){ return a+b.v; }, 0);
@@ -7374,7 +7380,8 @@ function yaHeaderLabel(st){
   if(st.mode==='budgetYear') return 'Budget ' + st.value;
   if(st.mode==='last7' || st.mode==='last7prev'){
     const endTs = st.mode==='last7' ? chipMonCeil : (chipMonCeil - 7*86400000);
-    const startTs = endTs - 6*86400000;
+    const endDayStart = new Date(endTs); endDayStart.setHours(0,0,0,0);
+    const startTs = endDayStart.getTime() - 6*86400000;
     const fmtD = function(ts){ const d = new Date(ts); return d.getDate()+'/'+(d.getMonth()+1); };
     const label = st.mode==='last7' ? '7 วันล่าสุด' : '7 วันก่อนหน้า';
     return label+' ('+fmtD(startTs)+'–'+fmtD(endTs)+')';
