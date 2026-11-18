@@ -634,11 +634,11 @@
   table.hft-table th.hft-n,table.hft-table td.hft-n{position:sticky;left:110px;width:96px;min-width:96px;max-width:96px;}
   table.hft-table td.hft-bin,table.hft-table td.hft-n{background:var(--surface);z-index:2;}
   table.hft-table th.hft-bin,table.hft-table th.hft-n{z-index:4;}
-  table.hft-table td.hft-bin{font-family:inherit;font-weight:800;color:var(--ink);text-align:left;font-size:13px;}
+  table.hft-table td.hft-bin{font-family:inherit;font-weight:800;color:var(--ink);text-align:center;font-size:13px;}
   /* col2 holds a short count ("n") on the historical table but a full period label (e.g. "ม.ค. 2026
      (3 วัน)") on the Current Condition table -- nowrap (the table's default) made that label overflow
      its fixed-width sticky column and bleed into the next cell, so this column wraps instead. */
-  table.hft-table td.hft-n{font-family:inherit;color:var(--ink-3);text-align:left;font-size:11px;white-space:normal;overflow-wrap:break-word;word-break:break-word;line-height:1.3;}
+  table.hft-table td.hft-n{font-family:inherit;color:var(--ink-3);text-align:center;font-size:11px;white-space:normal;overflow-wrap:break-word;word-break:break-word;line-height:1.3;}
   table.hft-table td.hft-sep{border-left:2px solid var(--border);}
   table.hft-table td.hft-ref{text-align:left;font-family:inherit;color:var(--ink-3);font-size:10.5px;white-space:normal;max-width:240px;}
   table.hft-table tbody tr:hover td{background:var(--surface-2);}
@@ -6997,13 +6997,33 @@ const CHIP_MON_YIELD_RATIO_KEYS = new Set(['yieldBalTank','ovwYield']);
    actually have that one field (independent null-skipping per field, same pattern
    plsAggregateByDay itself already uses) — it never drops a whole day just because one
    field is missing that day. */
+/* Built directly from CHIP_MON_ROWS (the "main"/RM Wood-Yield day rows), NOT from CHIP_MON_SERIES --
+   CHIP_MON_SERIES caps every "main"-sourced key at chipMonYesterdayEnd ("never show today", since
+   the mill's own day isn't closed out yet -- correct for the Yield page's trend charts). That
+   ceiling doesn't belong here: this feature joins to whatever exact calendar day the Cooking
+   Logsheet side already shows (Cooking Logsheet fields are NOT ceiling-capped in this feature either,
+   see HFT_ALL_DAYS above), so a day whose wood/moisture row is already filled in -- today included --
+   must show it instead of silently appearing blank. chipMonVal still returns null for a genuinely
+   unfilled cell, so this doesn't surface placeholder/blank rows, only real ones the ceiling was
+   hiding. */
+const HFT_WOOD_META_BY_KEY = new Map(CHIP_MON_META.map(function(m){ return [m.key, m]; }));
+function hftUncappedSeries(key){
+  const meta = HFT_WOOD_META_BY_KEY.get(key);
+  const map = new Map();
+  if(!meta) return map;
+  CHIP_MON_ROWS.forEach(function(rc){
+    const v = chipMonVal(rc, meta);
+    if(v!=null) map.set(rc.ts, v);
+  });
+  return map;
+}
 const HFT_WOOD_SERIES_BY_TS = {
-  woodK7: new Map((CHIP_MON_SERIES.woodK7||[]).map(x=> [x.ts, x.v])),
-  woodK58: new Map((CHIP_MON_SERIES.woodK58||[]).map(x=> [x.ts, x.v])),
-  woodSeed: new Map((CHIP_MON_SERIES.woodSeed||[]).map(x=> [x.ts, x.v])),
-  woodOther: new Map((CHIP_MON_SERIES.woodOther||[]).map(x=> [x.ts, x.v])),
-  woodSt1m: new Map((CHIP_MON_SERIES.woodSt1m||[]).map(x=> [x.ts, x.v])),
-  moistureLab: new Map((CHIP_MON_SERIES.moistureLab||[]).map(x=> [x.ts, x.v])),
+  woodK7: hftUncappedSeries('woodK7'),
+  woodK58: hftUncappedSeries('woodK58'),
+  woodSeed: hftUncappedSeries('woodSeed'),
+  woodOther: hftUncappedSeries('woodOther'),
+  woodSt1m: hftUncappedSeries('woodSt1m'),
+  moistureLab: hftUncappedSeries('moistureLab'),
 };
 /* Residual alkali of WBL to the Evaporator = raw column idx14 (sheet column O) in QC Lab FL1 —
    a DIFFERENT "Residual alkali" column (idx9, under "Accumulated BL") also exists on that sheet
@@ -7080,8 +7100,8 @@ function hftBuildTableHtml(rows, col1Header, col2Header){
   const chemFields = HFT_FIELDS.filter(function(f){ return f.grp==='chem'; });
   function headCell(f){ return '<th>'+f.label+(f.unit?'<br>('+f.unit+')':'')+'</th>'; }
   let html = '<table class="hft-table"><thead><tr>'
-    + '<th rowspan="2" class="hft-bin" style="text-align:left;">'+col1Header+'</th>'
-    + '<th rowspan="2" class="hft-n" style="text-align:left;">'+col2Header+'</th>'
+    + '<th rowspan="2" class="hft-bin">'+col1Header+'</th>'
+    + '<th rowspan="2" class="hft-n">'+col2Header+'</th>'
     + '<th class="hft-grp" colspan="'+cookFields.length+'">Cooking Logsheet</th>'
     + '<th class="hft-grp" colspan="'+woodFields.length+'">RM Wood-Yield</th>'
     + '<th class="hft-grp" colspan="'+chemFields.length+'">Cooking Logsheet &amp; QC Lab FL1</th>'
@@ -7223,7 +7243,7 @@ function renderHFactorCurrentCondition(){
   if(badge) badge.textContent = (isDateMode ? 'CURRENT · ' : 'ช่วงที่เลือก · ') + cur.label;
   const col2Label = cur.n > 1 ? (cur.label + ' (' + cur.n + ' วัน)') : cur.label;
   const row = Object.assign({}, cur, { col1: hftFmt(cur.setPoint, 1), col2: col2Label });
-  const col1Header = isDateMode ? 'Set Point<br>H-factor (APC) จริง' : 'Set Point<br>H-factor (APC) เฉลี่ย';
+  const col1Header = isDateMode ? 'Set Point<br>H-factor (APC)' : 'Set Point<br>H-factor (APC) เฉลี่ย';
   wrap.innerHTML = hftBuildTableHtml([row], col1Header, 'วันที่ / ช่วง');
 }
 /* Set Point recommendation: which historical bucket's own average wood-species + chip-moisture
