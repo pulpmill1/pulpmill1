@@ -7338,18 +7338,25 @@ const HFT_CONDITION_LABELS = [
    the operator doesn't actually want. This lets them say what Kappa they're aiming for; defaults to
    14.00 on every fresh load (reset via initHftTargetKappaInput, not persisted across reloads). */
 let HFT_TARGET_KAPPA = 14.00;
-/* Set Point <-> Kappa No. (Online) relationship, read directly off ALL historical buckets that have
+/* Set Point <-> Kappa No. (Online) SENSITIVITY, read directly off ALL historical buckets that have
    both a bin and an average Kappa (computeHFactorTuningBuckets() -- not filtered by wood/moisture
-   like the main recommendation match above, since here the trend itself is what's being read off,
-   not used as a similarity criterion). A simple least-squares line (kappaOnline = m*bin + c) is fit
-   across every such bucket, then inverted to solve for the Set Point expected to land on
-   targetKappa. If targetKappa falls outside every bucket's own observed Kappa range, the same line
-   is still used (it's the best straight-line read of the trend we have) but the result is flagged
-   'extrapolated' so the UI can warn it reaches beyond anything actually observed. A flat/near-zero
-   slope (Kappa barely moves across Set Points in this data) can't be inverted to a single Set Point,
-   so that's reported separately rather than dividing by ~0. */
-function computeHFactorKappaTarget(targetKappa){
+   like the main recommendation match above, since here only the RATE of change is being read off
+   history, not used as a similarity criterion). A simple least-squares line through those buckets
+   gives its slope (Kappa change per unit Set Point) -- but the recommendation is NOT read off that
+   line's own absolute intercept, because the line is fit across buckets whose wood/moisture mix
+   likely differs from today's; only the slope (how much Kappa moves when Set Point moves, which is
+   far less sensitive to wood mix than the absolute Kappa level is) is trusted from history. The
+   actual recommendation is anchored on TODAY's own real operating point -- the current condition's
+   actual Set Point and actual Kappa No. (Online) -- and simply asks "using history's own rate of
+   change, how far do we need to move Set Point from here to reach targetKappa":
+     newSetPoint = currentSetPoint + (targetKappa - currentKappa) / slope
+   If the resulting Set Point falls outside every bin actually observed in history, the result is
+   flagged 'extrapolated' so the UI can warn this exact Set Point has never been tried. A flat/
+   near-zero slope (Kappa barely moves across Set Points in this data) can't be used to size a
+   move, so that's reported separately rather than dividing by ~0. */
+function computeHFactorKappaTarget(targetKappa, currentSetPoint, currentKappa){
   if(targetKappa==null || !isFinite(targetKappa)) return { status:'invalid-target' };
+  if(currentSetPoint==null || currentKappa==null) return { status:'no-current-kappa' };
   const pts = computeHFactorTuningBuckets()
     .filter(function(b){ return b.kappaOnline!=null; })
     .map(function(b){ return { bin:b.bin, kappaOnline:b.kappaOnline, n:b.n }; });
@@ -7361,12 +7368,12 @@ function computeHFactorKappaTarget(targetKappa){
   let num=0, den=0;
   pts.forEach(function(p){ num += (p.bin-meanX)*(p.kappaOnline-meanY); den += (p.bin-meanX)*(p.bin-meanX); });
   if(den===0 || Math.abs(num/den) < 1e-9) return { status:'flat-trend', points:pts };
-  const m = num/den, c = meanY - m*meanX;
-  const setPoint = (targetKappa - c) / m;
-  const kappas = pts.map(function(p){ return p.kappaOnline; });
-  const kMin = Math.min.apply(null, kappas), kMax = Math.max.apply(null, kappas);
-  const extrapolated = targetKappa < kMin || targetKappa > kMax;
-  return { status: extrapolated ? 'extrapolated' : 'ok', setPoint: Math.round(setPoint), slope:m, intercept:c, points:pts, kMin:kMin, kMax:kMax, targetKappa:targetKappa };
+  const slope = num/den;
+  const setPoint = currentSetPoint + (targetKappa-currentKappa)/slope;
+  const bins = pts.map(function(p){ return p.bin; });
+  const binMin = Math.min.apply(null, bins), binMax = Math.max.apply(null, bins);
+  const extrapolated = setPoint < binMin || setPoint > binMax;
+  return { status: extrapolated ? 'extrapolated' : 'ok', setPoint: Math.round(setPoint), slope:slope, points:pts, binMin:binMin, binMax:binMax, currentSetPoint:currentSetPoint, currentKappa:currentKappa, targetKappa:targetKappa };
 }
 function initHftTargetKappaInput(){
   const input = document.getElementById('hftTargetKappaInput');
@@ -7407,27 +7414,28 @@ function renderHFactorRecommendation(){
   if(HFT_TARGET_KAPPA == null){
     html += '<p class="hft-kappa-note">กรุณาระบุค่า Target Kappa Cooking ที่ถูกต้อง (ตัวเลขมากกว่า 0) เพื่อวิเคราะห์เพิ่มเติม</p>';
   } else {
-    const kappaDiff = b.kappaOnline==null ? null : (b.kappaOnline - HFT_TARGET_KAPPA);
+    const curKappa = cur.kappaOnline, curSetPoint = cur.setPoint;
+    const kappaDiff = curKappa==null ? null : (curKappa - HFT_TARGET_KAPPA);
     if(kappaDiff==null){
-      html += '<p class="hft-kappa-note">ช่วง Set Point ที่แนะนำข้างต้นยังไม่มีค่า Kappa No. (Online) เฉลี่ย จึงยังไม่สามารถเทียบกับ Target Kappa Cooking ได้</p>';
+      html += '<p class="hft-kappa-note">ยังไม่มีค่า Kappa No. (Online) จริงของ Condition ปัจจุบัน (ช่วง '+cur.label+') จึงยังไม่สามารถเทียบกับ Target Kappa Cooking ได้</p>';
     } else if(Math.abs(kappaDiff) < 0.005){
-      html += '<p class="hft-kappa-note">Kappa No. (Online) ที่คาดจากคำแนะนำข้างต้น (<b>'+hftFmt(b.kappaOnline,2)+'</b>) ใกล้เคียงกับ Target Kappa Cooking ที่ตั้งไว้ (<b>'+hftFmt(HFT_TARGET_KAPPA,2)+'</b>) อยู่แล้ว จึงไม่จำเป็นต้องปรับ Set Point H-factor เพิ่มเติมจากคำแนะนำข้างต้น</p>';
+      html += '<p class="hft-kappa-note">Condition ปัจจุบันเดินอยู่ที่ Set Point H-factor = <b>'+hftFmt(curSetPoint,0)+'</b> ได้ Kappa No. (Online) จริง = <b>'+hftFmt(curKappa,2)+'</b> ซึ่งใกล้เคียงกับ Target Kappa Cooking ที่ตั้งไว้ (<b>'+hftFmt(HFT_TARGET_KAPPA,2)+'</b>) อยู่แล้ว จึงไม่จำเป็นต้องปรับ Set Point H-factor เพิ่มเติม</p>';
     } else {
-      const kt = computeHFactorKappaTarget(HFT_TARGET_KAPPA);
+      const kt = computeHFactorKappaTarget(HFT_TARGET_KAPPA, curSetPoint, curKappa);
       const higherOrLower = kappaDiff > 0 ? 'สูงกว่า' : 'ต่ำกว่า';
       if(kt.status === 'insufficient-history'){
-        html += '<p class="hft-kappa-note">Kappa No. (Online) ที่คาดจากคำแนะนำข้างต้น (<b>'+hftFmt(b.kappaOnline,2)+'</b>) '+higherOrLower+' Target Kappa Cooking ที่ตั้งไว้ (<b>'+hftFmt(HFT_TARGET_KAPPA,2)+'</b>) แต่ข้อมูลประวัติยังไม่พอสำหรับวิเคราะห์ความสัมพันธ์ Set Point H-factor กับ Kappa No. (ต้องมีอย่างน้อย 2 ช่วง Set Point ที่มีค่า Kappa)</p>';
+        html += '<p class="hft-kappa-note">Condition ปัจจุบันเดินอยู่ที่ Set Point H-factor = <b>'+hftFmt(curSetPoint,0)+'</b> ได้ Kappa No. (Online) จริง = <b>'+hftFmt(curKappa,2)+'</b> ซึ่ง'+higherOrLower+' Target Kappa Cooking ที่ตั้งไว้ (<b>'+hftFmt(HFT_TARGET_KAPPA,2)+'</b>) แต่ข้อมูลประวัติยังไม่พอสำหรับวิเคราะห์ความสัมพันธ์ Set Point H-factor กับ Kappa No. (ต้องมีอย่างน้อย 2 ช่วง Set Point ที่มีค่า Kappa)</p>';
       } else if(kt.status === 'flat-trend'){
-        html += '<p class="hft-kappa-note">Kappa No. (Online) ที่คาดจากคำแนะนำข้างต้น (<b>'+hftFmt(b.kappaOnline,2)+'</b>) '+higherOrLower+' Target Kappa Cooking ที่ตั้งไว้ (<b>'+hftFmt(HFT_TARGET_KAPPA,2)+'</b>) แต่ข้อมูลประวัติยังไม่แสดงความสัมพันธ์ที่ชัดเจนระหว่าง Set Point H-factor กับ Kappa No. จึงยังไม่สามารถแนะนำปรับตาม Target Kappa ได้</p>';
+        html += '<p class="hft-kappa-note">Condition ปัจจุบันเดินอยู่ที่ Set Point H-factor = <b>'+hftFmt(curSetPoint,0)+'</b> ได้ Kappa No. (Online) จริง = <b>'+hftFmt(curKappa,2)+'</b> ซึ่ง'+higherOrLower+' Target Kappa Cooking ที่ตั้งไว้ (<b>'+hftFmt(HFT_TARGET_KAPPA,2)+'</b>) แต่ข้อมูลประวัติยังไม่แสดงความสัมพันธ์ที่ชัดเจนระหว่าง Set Point H-factor กับ Kappa No. จึงยังไม่สามารถแนะนำปรับตาม Target Kappa ได้</p>';
       } else {
-        html += '<p class="hft-kappa-note">Kappa No. (Online) ที่คาดจากคำแนะนำข้างต้น (<b>'+hftFmt(b.kappaOnline,2)+'</b>) '+higherOrLower+' Target Kappa Cooking ที่ตั้งไว้ (<b>'+hftFmt(HFT_TARGET_KAPPA,2)+'</b>) จากความสัมพันธ์ระหว่าง Set Point H-factor กับ Kappa No. (Online) ที่เคยเกิดขึ้นจริงในประวัติ แนะนำปรับ Set Point H-factor เป็น <b>'+kt.setPoint+'</b> เพื่อให้ Kappa No. ใกล้เคียง Target Kappa Cooking ที่ตั้งไว้มากขึ้น</p>';
+        html += '<p class="hft-kappa-note">Condition ปัจจุบันเดินอยู่ที่ Set Point H-factor = <b>'+hftFmt(curSetPoint,0)+'</b> ได้ Kappa No. (Online) จริง = <b>'+hftFmt(curKappa,2)+'</b> ซึ่ง'+higherOrLower+' Target Kappa Cooking ที่ตั้งไว้ (<b>'+hftFmt(HFT_TARGET_KAPPA,2)+'</b>) จากความสัมพันธ์ (ความไว) ระหว่าง Set Point H-factor กับ Kappa No. ที่เคยเกิดขึ้นจริงในประวัติ (Set Point เปลี่ยนทุก 1 หน่วย Kappa เปลี่ยนประมาณ <b>'+hftFmt(Math.abs(kt.slope),3)+'</b>) แนะนำปรับ Set Point H-factor จาก <b>'+hftFmt(curSetPoint,0)+'</b> เป็น <b>'+kt.setPoint+'</b> เพื่อให้ Kappa No. เข้าใกล้ Target Kappa Cooking ที่ตั้งไว้มากขึ้น</p>';
         html += '<table class="hft-reco-compare hft-kappa-trend-table"><thead><tr><th>Set Point H-factor (APC)</th><th>Kappa No. (Online) เฉลี่ย</th><th>จำนวนวัน (n)</th></tr></thead><tbody>';
         kt.points.slice().sort(function(a,b2){ return a.bin-b2.bin; }).forEach(function(p){
           html += '<tr><td>'+p.bin+'</td><td>'+hftFmt(p.kappaOnline,2)+'</td><td>'+p.n+'</td></tr>';
         });
         html += '</tbody></table>';
         if(kt.status === 'extrapolated'){
-          html += '<p class="hft-kappa-warn">⚠ Target Kappa Cooking ที่ตั้งไว้ ('+hftFmt(HFT_TARGET_KAPPA,2)+') อยู่นอกช่วง Kappa No. ที่เคยเกิดขึ้นจริงในประวัติ (เคยอยู่ระหว่าง <b>'+hftFmt(kt.kMin,2)+'</b>–<b>'+hftFmt(kt.kMax,2)+'</b>) ตัวเลข Set Point ที่แนะนำนี้เป็นการประมาณนอกช่วงข้อมูลจริง ควรใช้ด้วยความระมัดระวังและติดตามผลจริงหลังปรับ Set Point</p>';
+          html += '<p class="hft-kappa-warn">⚠ Set Point H-factor ที่แนะนำ (<b>'+kt.setPoint+'</b>) อยู่นอกช่วง Set Point ที่เคยเดินจริงในประวัติ (เคยอยู่ระหว่าง <b>'+kt.binMin+'</b>–<b>'+kt.binMax+'</b>) จึงเป็นการประมาณนอกช่วงข้อมูลจริง ควรใช้ด้วยความระมัดระวังและติดตามผลจริงหลังปรับ Set Point</p>';
         }
       }
     }
