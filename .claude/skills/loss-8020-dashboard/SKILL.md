@@ -114,6 +114,115 @@ exists for genuinely blank `Type` cells, which are now rare (the "TYPE" dropdown
 almost every row already has one) — it builds its reference vocabulary live from whatever rows
 in the current fetch already have a Type, no hardcoded year.
 
+## RCA & CM/PM Tracking (added 2026-11-18, extended 2026-11-19)
+
+A card below Loss Events Pareto tracks Root Cause Analysis status for every Loss event
+≥ `LP_RCA_THRESHOLD` (40) ADT, using 6 columns added to the `2026` tab (not backfilled to
+2022-2025): `Department`, `RCA`, `Pre Meeting`, `Closing RCA`, `นำเข้าระบบ` (checkboxes — Google
+Sheets checkbox cells read as `TRUE`/`FALSE` text via gviz, or Python `bool` via openpyxl, or
+*blank* if the sheet owner never touched the box — blank and `FALSE` both mean "not done", see
+`lpParseBool`), and `Link RCA` (one or more `docs.google.com/spreadsheets/...` URLs, newline-
+separated in one cell, `lpParseLinks` splits them). Status is a 5-stage funnel
+(`lpRcaStatusOf`/`LP_RCA_STAGES`): ยังไม่เริ่ม RCA → มี RCA/Link แล้ว → Pre Meeting แล้ว →
+Closing RCA แล้ว → นำเข้าระบบแล้ว (the only "complete" stage).
+
+**Itemized CM/PM with per-item done/pending status, pulled from each Link RCA document**
+(explicit user request, 2026-11-18, delivered 2026-11-19 after an initial cut that only showed a
+blunt "sheet text present?" checkmark wasn't enough — the user asked specifically for itemized
+status *pulled from each Link*). Every Link RCA doc is a copy of the same "ROOT CAUSE ANALYSIS
+REPORT" template with numbered sections; the two that matter here are **"6. CORRECTIVE ACTION"**
+(→ CM items) and **"7. PREVENTIVE MAINTENANCE"** (→ PM items, usually has no status column at
+all — PM here tends to be standing procedures, not one-time completable tasks). Parsing is three
+pure functions, shared between production's live fetch and the Node snapshot-build step so both
+behave identically:
+
+- `lpFindSectionRow(rows, regex, fromIdx)` — scans for a row with a cell matching `regex`.
+- `lpParseActionItems(rows, titleIdx, boundaryIdx)` — the section title row is always followed by
+  **exactly 2 header rows** (column names, then a units/continuation row — e.g. "Target" +
+  "Completion" on separate lines for one template variant), then data starts at `titleIdx+3`.
+  The two header rows are merged by **concatenating** same-position cells (not picking one), so a
+  column label split across both lines (like "Target" + "Completion" → "target completion") is
+  still found. Column lookup is by *content*, not position: `no` (exact match), a column
+  containing `description`, and a column containing `complet` — **not** `complete`, because
+  `"completion".includes("complete")` is `false` (they diverge at the 8th character: `complet`**e**
+  vs `complet`**i**on) — this was a real bug caught by testing against a real doc, don't
+  reintroduce it. A row is a new item when its `no` column parses as `/^\d+$/`; a row with no `no`
+  but a description continues the previous item's description (handles wrapped/multi-line cells).
+- `lpParseRcaDetailRows(rows)` — finds both section titles (title regex is
+  `/corrective (action|maintenance)/i` — **one real document used "6. CORRECTIVE MAINTENANCE"
+  instead of "ACTION"**, same for `/preventive (maintenance|action)/i`), parses each with the
+  item-row boundary at the next section, returns `{ cmItems, pmItems }`. Always fails soft:
+  section not found, header row malformed, or no `no`/`description` column → empty array, never
+  throws. One real document literally merged the section title into the header row itself
+  (sloppy manual edit, no `No` column left at all) — that section legitimately yields `[]`, which
+  is correct behavior, not a bug to chase.
+
+**Known limitation**: a second template variant (seen on two "421P005 Overhead"-titled docs, same
+author) splits completion into a *`Target` Completion* date (planned) and a separate `Actual`
+date (confirmed) column, with no plain "Complete" column at all. `lpParseActionItems`'s `complet`
+match hits the *Target* completion column first, so a handful of items on those two docs may show
+"done" when only a target date was set, not a confirmed actual completion. This is a minor,
+documented inaccuracy affecting ~2 of 19 docs as of 2026-11-19 — not worth chasing further given
+the fail-soft design; revisit only if it becomes a recurring complaint.
+
+**Live vs. snapshot, architecturally**: production (`index.html`, real browser, not CSP-sandboxed)
+fetches each distinct Link RCA document's CSV **live**, client-side, via the same gviz-CSV trick
+as the main sheet (`lpFetchRcaDetail(url)`: extract `docId`/`gid` from the URL with
+`lpRcaLinkKey`, `fetch` `gviz/tq?tqx=out:csv&gid={gid}`, parse, cache in
+`LP_RCA_DETAIL_CACHE` keyed by `` `${docId}|${gid}` ``), kicked off in the background by
+`lpRenderRcaTracking` and re-rendering once `Promise.allSettled` resolves
+(`lpEnrichRcaDetailsFor`). **The Artifact's CSP blocks this entirely** (same restriction as the
+main sheet), so for the Artifact the *same* `LP_RCA_DETAIL_CACHE` must be pre-seeded from the
+snapshot instead: `lpLoadSnapshot()` sets `LP_IS_SNAPSHOT = true` and copies
+`payload.rcaDetail` (an object keyed the same way, `docId|gid` → `{cmItems, pmItems}`) into the
+cache before the first render, and `lpFetchRcaDetail`/`lpEnrichRcaDetailsFor` both no-op
+immediately when `LP_IS_SNAPSHOT` is true — they must never attempt a live fetch from the
+Artifact (CSP violation, wasted/noisy, and pointless since the answer is already cached).
+
+**Building `rcaDetail` for the snapshot** (extra recipe step, see "Refreshing the Artifact
+preview" below for where this fits): the Node snapshot-builder (`gen_data.js`) cannot fetch
+`docs.google.com` itself (blocked, same as the main sheet), so *you* (the session doing the
+refresh) must gather it with tool calls first and save it to `harness/rca_detail.json` before
+running `gen_data.js`, which then merges it into the snapshot payload automatically if the file
+exists (silently proceeds with `rcaDetail: {}` if it doesn't — never block a refresh on this).
+Steps:
+1. From the freshly-rebuilt `lp_snapshot.json` (or by re-parsing the fetched CSVs), collect every
+   distinct `Link RCA` URL among rows with `lossAdt >= 40`. Extract `docId` (the `/d/{id}/` path
+   segment) and `gid` (the `gid=` query/fragment param, `''` if absent) from each URL — this is
+   the same `docId|gid` key `lpRcaLinkKey` computes client-side, so keep them in sync.
+2. **Only re-fetch rows not yet at the terminal stage** (`enteredSystem` / นำเข้าระบบ ≠ true) —
+   a closed-out RCA's action items are assumed stable and don't need re-checking every day. This
+   is what keeps the daily cost bounded as the case count grows; it naturally shrinks over time as
+   more RCAs close. (If the *not-yet-complete* count itself grows very large — say beyond ~100 —
+   reconsider this strategy, e.g. skip docs whose underlying Loss event is more than N months old.)
+3. For each key to fetch: `mcp__Google_Sheets__get_spreadsheet` (fields
+   `["sheets.properties.sheetId","sheets.properties.title"]`) to resolve `gid` → sheet title
+   (gviz needs a name; the Sheets API's `get_values` range does too), then
+   `mcp__Google_Sheets__get_values` with a generous range (`A1:K900` has been enough so far) on
+   that sheet. A `Link RCA` URL with no `gid` is ambiguous (which tab opens by default is not
+   documented) — guessing a tab named like `" RCA"`/`"RCA"` and checking the fetched content for
+   a `CORRECTIVE ACTION`/`CORRECTIVE MAINTENANCE` section has worked so far; if it comes back
+   empty, don't assume the doc truly has no action plan without trying another tab first.
+4. Run the fetched row-arrays through `lpParseRcaDetailRows` (exported from `logic_testable.js` —
+   add it to the `module.exports` line if a fresh harness rebuild drops it) in a small Node
+   script, collect `{ [key]: {cmItems, pmItems} }`, write to `harness/rca_detail.json`. (A row
+   with **two** Link RCA URLs that resolve to the *same* `docId|gid` in two different forms — one
+   with `gid=`, one without — is the same document; alias both keys to the same parsed result
+   rather than fetching twice.)
+5. Proceed to `gen_data.js` as normal; it picks up `harness/rca_detail.json` automatically.
+
+**Smoke-testing this feature**: beyond the usual KPI-grid check, verify `#lpRcaHint`,
+`#lpRcaKpiGrid .lp-kpi-card` (expect 7 tiles, including "CM Action Items (เสร็จ/ทั้งหมด)" and "PM
+Action Items (ทั้งหมด)"), `#lpRcaStatusTable tbody tr` (5 stage rows, counts must sum to the
+"ต้องทำ RCA" tile), and at least one `#lpRcaPendingTable tbody tr .lp-rca-items` cell's computed
+`max-height` (expect `160px`, `overflow-y: auto`) — **this CSS rule lives in `full_style.css`,
+which is a *separate* extraction step from `logic.js`/`logic_testable.js`; a CSS-only edit to
+`index.html` (new class, no JS change) is easy to make and then forget to re-extract before
+reassembling the Artifact HTML, producing a page that works but silently ignores the new style.**
+This exact mistake happened once while building this feature — re-extract `full_style.css` (the
+block between `<style>` and `</style>` near the top of `index.html`) every time *any* CSS changes,
+not just when JS changes.
+
 ## Live-fetch pattern (production, `index.html`)
 
 Same shape as the sibling `pulp-mill-1-dashboard` skill's pattern: `fetch()` against

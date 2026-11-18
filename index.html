@@ -741,6 +741,11 @@
   .lp-dq-sub summary{cursor:pointer; font-size:12.5px; color:var(--ink);}
   .lp-dq-list{margin-top:8px; max-height:220px; overflow-y:auto; font-size:11.5px; color:var(--ink-2); line-height:1.7;}
   .lp-vf-text{white-space:normal; word-break:break-word; line-height:1.55; font-size:12px; color:var(--ink);}
+  .lp-rca-items{max-height:160px; overflow-y:auto;}
+  .lp-rca-done{color:#00721F; font-weight:700;}
+  .lp-rca-pending{color:#B00000; font-weight:700;}
+  .lp-rca-na{color:var(--ink-3);}
+  .lp-rca-muted{color:var(--ink-3); font-style:italic;}
   #lpVitalFewTable td, #lpVitalFewTable th{vertical-align:top;}
   .lp-vf-toolbar{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-top:12px;}
   .lp-vf-toolbar label{font-size:12.5px; color:var(--ink-2); display:flex; align-items:center; gap:6px; cursor:pointer;}
@@ -9400,6 +9405,10 @@ const LP_STATE = {
 };
 let LP_DATA = null; // { rows, monthTotals, footer, dq, engine, fetchedAt }
 let LP_CHARTS = {};
+/* true when running off a baked snapshot (standalone Artifact) — docs.google.com is CSP-blocked
+   there, so RCA detail must come pre-seeded from the snapshot, never a live fetch */
+let LP_IS_SNAPSHOT = false;
+const LP_RCA_DETAIL_CACHE = new Map(); // key: `${docId}|${gid}` -> {cmItems, pmItems} | null (failed)
 
 function lpMonthLabel(year, mi, lang){
   const abbrEn = LP_MONTH_ORDER[mi];
@@ -10009,6 +10018,116 @@ function lpRenderEventPareto(filtered){
   else { LP_CHARTS.eventPareto = new Chart(canvas.getContext('2d'), cfg); }
 }
 
+/* ---- RCA detail: ดึงรายการ Action Item (CM = "6. CORRECTIVE ACTION", PM = "7. PREVENTIVE
+   MAINTENANCE") พร้อมสถานะเสร็จ/ไม่เสร็จ จากเอกสาร RCA ที่ผูกไว้ใน Link RCA ของแต่ละ Loss event.
+   เอกสาร RCA ใช้ template เดียวกัน (หัวข้อ "6. CORRECTIVE ACTION" / "7. PREVENTIVE MAINTENANCE"
+   คงที่) แต่ความยาว/ความครบถ้วนต่างกันไปตามแต่ละเคส ฟังก์ชันนี้ต้อง fail-soft เสมอ — เอกสารที่กรอก
+   ไม่ครบ (ไม่มีหัวข้อ, คอลัมน์ไม่ตรง) ให้คืนรายการว่าง ไม่ throw ---- */
+function lpFindSectionRow(rows, regex, fromIdx){
+  for(let i=fromIdx; i<rows.length; i++){
+    if((rows[i]||[]).some(c=>regex.test(lpNorm(c)))) return i;
+  }
+  return -1;
+}
+function lpParseActionItems(rows, titleIdx, boundaryIdx){
+  // หัวข้อย่อยปกติตามด้วย 2 แถวหัวตาราง (ชื่อคอลัมน์ + หน่วย/ชื่อคอลัมน์ต่อ เช่น "Target"/"Completion"
+  // คนละแถว) แล้วค่อยเป็นข้อมูลจริง — รวม 2 แถวหัวเข้าด้วยกันแบบ concat (ไม่ใช่เลือกแถวใดแถวหนึ่ง)
+  // เพราะบางเทมเพลตแยกคำว่า "Complete" ไปอยู่คนละแถวกับ "Target"
+  const h1Idx = titleIdx+1, h2Idx = titleIdx+2, dataStart = titleIdx+3;
+  if(h1Idx>=boundaryIdx || h1Idx>=rows.length) return [];
+  const a = (rows[h1Idx]||[]).map(c=>lpNorm(c).toLowerCase());
+  const b = (rows[h2Idx]||[]).map(c=>lpNorm(c).toLowerCase());
+  const len = Math.max(a.length, b.length);
+  const header = [];
+  for(let i=0;i<len;i++){ header[i] = ((a[i]||'')+' '+(b[i]||'')).trim(); }
+  const noCol = header.findIndex(h=>h==='no');
+  const descCol = header.findIndex(h=>h.includes('description'));
+  const completeCol = header.findIndex(h=>h.includes('complet')); // matches "Complete" and "Completion" (no trailing e: "completion".includes("complete") is false)
+  if(noCol===-1 || descCol===-1) return [];
+  const items = [];
+  let cur = null;
+  for(let i=dataStart; i<boundaryIdx; i++){
+    const r = rows[i] || [];
+    const noVal = lpNorm(r[noCol]);
+    const descVal = lpNorm(r[descCol]);
+    if(/^\d+$/.test(noVal)){
+      const doneVal = completeCol>=0 ? lpNorm(r[completeCol]) : '';
+      cur = { no:noVal, desc:descVal, hasStatus: completeCol>=0, done: !!doneVal };
+      items.push(cur);
+    } else if(cur && descVal){
+      cur.desc += (cur.desc ? ' ' : '') + descVal;
+    }
+  }
+  return items;
+}
+function lpParseRcaDetailRows(rows){
+  // เทมเพลตส่วนใหญ่ใช้ "CORRECTIVE ACTION" แต่พบบางเอกสารใช้ "CORRECTIVE MAINTENANCE" แทน (คนละผู้กรอก)
+  const cmTitleIdx = lpFindSectionRow(rows, /corrective (action|maintenance)/i, 0);
+  const pmTitleIdx = lpFindSectionRow(rows, /preventive (maintenance|action)/i, cmTitleIdx>=0 ? cmTitleIdx+1 : 0);
+  const nextIdx = lpFindSectionRow(rows, /^\d+\.\s*(job plan|predictive maintenance)/i, pmTitleIdx>=0 ? pmTitleIdx+1 : 0);
+  const cmItems = cmTitleIdx>=0 ? lpParseActionItems(rows, cmTitleIdx, pmTitleIdx>=0 ? pmTitleIdx : rows.length) : [];
+  const pmItems = pmTitleIdx>=0 ? lpParseActionItems(rows, pmTitleIdx, nextIdx>=0 ? nextIdx : rows.length) : [];
+  return { cmItems, pmItems };
+}
+function lpRcaLinkKey(url){
+  const m = String(url||'').match(/\/d\/([a-zA-Z0-9_-]+)/);
+  if(!m) return null;
+  const gm = String(url).match(/[?&#]gid=(\d+)/);
+  return m[1]+'|'+(gm?gm[1]:'');
+}
+async function lpFetchRcaDetail(url){
+  const key = lpRcaLinkKey(url);
+  if(!key) return null;
+  if(LP_RCA_DETAIL_CACHE.has(key)) return LP_RCA_DETAIL_CACHE.get(key);
+  if(LP_IS_SNAPSHOT) return null; // never fetch live from the standalone Artifact (CSP-blocked)
+  const [docId, gid] = key.split('|');
+  try{
+    const csvUrl = `https://docs.google.com/spreadsheets/d/${docId}/gviz/tq?tqx=out:csv${gid?('&gid='+gid):''}`;
+    const res = await fetch(csvUrl);
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const text = await res.text();
+    const rows = parseSheetCSV(text);
+    const detail = lpParseRcaDetailRows(rows);
+    LP_RCA_DETAIL_CACHE.set(key, detail);
+    return detail;
+  }catch(err){
+    console.warn('ไม่สามารถดึงรายละเอียด RCA จาก', url, err);
+    LP_RCA_DETAIL_CACHE.set(key, null);
+    return null;
+  }
+}
+async function lpEnrichRcaDetailsFor(rows){
+  if(LP_IS_SNAPSHOT) return;
+  const tasks = [];
+  rows.forEach(r=>{
+    (r.linkRca||[]).forEach(u=>{
+      const key = lpRcaLinkKey(u);
+      if(key && !LP_RCA_DETAIL_CACHE.has(key)) tasks.push(lpFetchRcaDetail(u));
+    });
+  });
+  if(tasks.length) await Promise.allSettled(tasks);
+}
+function lpRowRcaDetail(r){
+  const cmItems = [], pmItems = [];
+  let allLoaded = true;
+  (r.linkRca||[]).forEach(u=>{
+    const key = lpRcaLinkKey(u);
+    if(!key){ return; }
+    if(!LP_RCA_DETAIL_CACHE.has(key)){ allLoaded = false; return; }
+    const d = LP_RCA_DETAIL_CACHE.get(key);
+    if(d){ cmItems.push(...d.cmItems); pmItems.push(...d.pmItems); }
+  });
+  return { cmItems, pmItems, loaded: allLoaded };
+}
+function lpActionItemsCell(items, loaded){
+  if(!loaded) return `<div class="lp-vf-text lp-rca-muted">กำลังโหลด…</div>`;
+  if(!items.length) return `<div class="lp-vf-text lp-rca-muted">—</div>`;
+  const lines = items.map(it=>{
+    const mark = it.hasStatus ? (it.done ? '<span class="lp-rca-done">✓</span>' : '<span class="lp-rca-pending">○</span>') : '<span class="lp-rca-na">·</span>';
+    return `${mark} ${it.no}) ${lpEsc(it.desc)}`;
+  }).join('<br>');
+  return `<div class="lp-vf-text lp-rca-items">${lines}</div>`;
+}
 /* ---- RCA & CM/PM Tracking: รายการ Loss >= LP_RCA_THRESHOLD ADT ต้องทำ RCA ตาม workflow
    RCA -> Pre Meeting -> Closing RCA -> นำเข้าระบบ (คอลัมน์เหล่านี้มีเฉพาะในชีทปี 2026 เป็นต้นไป) ---- */
 function lpRcaStatusOf(r){
@@ -10038,16 +10157,28 @@ function lpRenderRcaTracking(filtered){
   const notStartedCount = withStatus.filter(x => x.s.stage===0).length;
   const missingCmPm = need.filter(r => !r.cm || !r.pm).length;
 
+  // สรุปรวม CM/PM Action Items จากเอกสาร RCA ที่ดึงได้ (เฉพาะรายการที่ cache มีข้อมูลแล้ว)
+  let cmTotal=0, cmDone=0, pmTotal=0, linksLoaded=true;
+  need.forEach(r=>{
+    const { cmItems, pmItems, loaded } = lpRowRcaDetail(r);
+    if(!loaded && (r.linkRca||[]).length) linksLoaded = false;
+    cmTotal += cmItems.length; cmDone += cmItems.filter(it=>it.hasStatus && it.done).length;
+    pmTotal += pmItems.length;
+  });
+
   hintEl.textContent = need.length===0
     ? `ไม่มีรายการ Loss ≥ ${LP_RCA_THRESHOLD} ADT ในช่วงเวลาที่เลือก (ข้อมูล RCA มีเฉพาะชีทปี 2026 เป็นต้นไป)`
-    : `พบ ${lpFmtNum(need.length)} รายการ Loss ≥ ${LP_RCA_THRESHOLD} ADT ที่ต้องทำ RCA ตามเกณฑ์`;
+    : `พบ ${lpFmtNum(need.length)} รายการ Loss ≥ ${LP_RCA_THRESHOLD} ADT ที่ต้องทำ RCA ตามเกณฑ์`
+      + (linksLoaded ? '' : ' · กำลังดึงรายละเอียด Action Item จาก Link RCA…');
 
   const tiles = [
     { label:`รายการที่ต้องทำ RCA (≥ ${LP_RCA_THRESHOLD} ADT)`, value: lpFmtNum(need.length) },
     { label:'นำเข้าระบบแล้ว (เสร็จสมบูรณ์)', value: lpFmtNum(doneCount) },
     { label:'ยังขาด RCA (ยังไม่เสร็จ)', value: lpFmtNum(need.length - doneCount) },
     { label:'ยังไม่เริ่ม RCA เลย', value: lpFmtNum(notStartedCount) },
-    { label:'CM/PM ยังไม่ระบุ', value: lpFmtNum(missingCmPm) },
+    { label:'CM/PM ยังไม่ระบุในชีท', value: lpFmtNum(missingCmPm) },
+    { label:'CM Action Items (เสร็จ/ทั้งหมด)', value: `${lpFmtNum(cmDone)} / ${lpFmtNum(cmTotal)}` },
+    { label:'PM Action Items (ทั้งหมด)', value: lpFmtNum(pmTotal) },
   ];
   kpiGrid.innerHTML = tiles.map(t=>`<div class="lp-kpi-card"><div class="lp-kpi-label">${t.label}</div><div class="lp-kpi-value">${t.value}</div></div>`).join('');
 
@@ -10067,23 +10198,33 @@ function lpRenderRcaTracking(filtered){
   if(pending.length===0){
     pendingTbl.innerHTML = `<tr><td class="loss-empty">${need.length===0 ? 'ไม่มีข้อมูล' : 'ไม่มีรายการค้าง — นำเข้าระบบครบทุกรายการแล้ว'}</td></tr>`;
   } else {
-    const head = `<thead><tr><th>วันที่</th><th>EQ Type</th><th>Type</th><th>Loss ADT</th><th>Department</th><th>CM</th><th>PM</th><th>สถานะ RCA</th><th>Link RCA</th></tr></thead>`;
+    const head = `<thead><tr><th>วันที่</th><th>EQ Type</th><th>Type</th><th>Loss ADT</th><th>Department</th><th class="c-loss">CM (จาก RCA Link)</th><th class="c-loss">PM (จาก RCA Link)</th><th>สถานะ RCA</th><th>Link RCA</th></tr></thead>`;
     const body = pending.map(({r,s})=>{
       const dateStr = r.dateStart ? `${r.dateStart.getDate()}/${r.dateStart.getMonth()+1}/${r.dateStart.getFullYear()}` : (r.month||'');
       const links = (r.linkRca||[]).map((u,idx)=>`<a href="${lpEsc(u)}" target="_blank" rel="noopener">Link ${idx+1}</a>`).join(' ');
+      const { cmItems, pmItems, loaded } = lpRowRcaDetail(r);
       return `<tr>`
         + `<td>${lpEsc(dateStr)}</td>`
         + `<td style="text-align:left;">${lpEsc(lpEqLabel(r))}</td>`
         + `<td style="text-align:left;">${lpEsc(r.classifiedType||r.originalType||'')}</td>`
         + `<td>${lpFmtNum(r.lossAdt)}</td>`
         + `<td style="text-align:left;">${lpEsc(r.department||'—')}</td>`
-        + `<td>${r.cm ? '✓' : '—'}</td>`
-        + `<td>${r.pm ? '✓' : '—'}</td>`
+        + `<td style="text-align:left;">${lpActionItemsCell(cmItems, loaded)}</td>`
+        + `<td style="text-align:left;">${lpActionItemsCell(pmItems, loaded)}</td>`
         + `<td><span class="chip ${s.chipClass}">${lpEsc(s.label)}</span></td>`
         + `<td style="text-align:left;">${links || '—'}</td>`
         + `</tr>`;
     }).join('');
     pendingTbl.innerHTML = head + `<tbody>${body}</tbody>`;
+  }
+
+  // ดึงรายละเอียด Action Item จาก Link RCA แบบ background (เฉพาะ production ที่ live-fetch ได้ —
+  // ใน Artifact แบบ snapshot ข้อมูลถูกฝังไว้ล่วงหน้าแล้ว lpEnrichRcaDetailsFor จะ no-op ทันที)
+  if(!LP_IS_SNAPSHOT){
+    const missingLinks = need.some(r => (r.linkRca||[]).some(u=>{ const k=lpRcaLinkKey(u); return k && !LP_RCA_DETAIL_CACHE.has(k); }));
+    if(missingLinks){
+      lpEnrichRcaDetailsFor(need).then(()=>{ lpRenderRcaTracking(lpApplyFilters(LP_DATA.rows, LP_STATE)); });
+    }
   }
 }
 
