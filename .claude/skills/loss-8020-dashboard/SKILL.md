@@ -17,7 +17,8 @@ the `Loss Category` column — see Source of truth below), **Loss Events Pareto*
 `EQ Type : Type` — the `eqNameType` key in `lpBuildPareto`, not per-row; an earlier per-event
 version produced 50+ overlapping bars and was replaced on 2026-10-16 — Top-N vs "Others" bucket
 at ~80% cumulative, excludes the `Uncook` category, hint/tooltips report both group count and the
-underlying event count), Vital Few table, Monthly Trend, Equipment Matrix, Loss Detail,
+underlying event count), **RCA & CM/PM Tracking** (added 2026-11-18, see RCA tracking section
+below), Vital Few table, Monthly Trend, Equipment Matrix, Loss Detail,
 Classification Review, Data Quality. There is also a standalone **Claude Artifact preview** of
 just this page, published at:
 
@@ -55,8 +56,25 @@ one, so the link people already have keeps working.
 - Row layout per year tab (identical across 2022-2026): row 2 = title, row 4 = header, data from
   row 5. Header (meaning-based matching in the code, not column position — tabs do drift):
   `Month | Date | EQ num | EQ Type | Loss Category | Type | Loss Production (ADT desc + value,
-  two sub-columns) | CM | PM | Remark`. No Duration/Time Start/Time End/Compensate loss/Sub Type
-  columns anymore (2021 had those; 2022-2026 don't).
+  two sub-columns) | CM | PM | Department | RCA | Pre Meeting | Closing RCA | นำเข้าระบบ | Link RCA`.
+  No Duration/Time Start/Time End/Compensate loss/Sub Type columns anymore (2021 had those;
+  2022-2026 don't).
+- **RCA tracking columns** (`Department`, `RCA`, `Pre Meeting`, `Closing RCA`, `นำเข้าระบบ`,
+  `Link RCA` — added to the `2026` tab on 2026-11-18, not backfilled to 2022-2025) drive the new
+  **RCA & CM/PM Tracking** card. `RCA`/`Pre Meeting`/`Closing RCA`/`นำเข้าระบบ` are Google Sheets
+  checkbox cells — openpyxl reads them as Python `bool` (export_csv.py's `fmt_cell` must emit
+  `TRUE`/`FALSE` uppercase, matching what the live gviz CSV endpoint serves, not Python's
+  `True`/`False` — get this wrong and the Artifact snapshot silently disagrees with production).
+  An untouched checkbox cell reads as blank/`None` (not `FALSE`) until someone clicks it, so
+  `lpParseBool` treats both blank and `FALSE` as not-done — that's correct, not a bug. `Link RCA`
+  can hold multiple URLs in one cell separated by newlines (`lpParseLinks` splits on `\n+`). The
+  business rule (explicit user request, 2026-11-18): **Loss ≥ 40 ADT requires an RCA**
+  (`LP_RCA_THRESHOLD`). Status is a 5-stage funnel computed by `lpRcaStatusOf`: ยังไม่เริ่ม RCA →
+  มี RCA/Link แล้ว (`rca` true or any link present) → Pre Meeting แล้ว → Closing RCA แล้ว →
+  นำเข้าระบบแล้ว (เสร็จสมบูรณ์, the terminal/complete stage). `lpRenderRcaTracking` renders KPI
+  tiles, a status-breakdown table, and a "pending" table (rows not yet at the terminal stage,
+  sorted by Loss ADT descending) with clickable Link RCA cells — reuses the existing `.chip`
+  badge classes (`good`/`bad`) plus a new `.chip.prog` (blue) added for the in-progress stages.
 - **`Loss Category`** (added to the `2026` tab on 2026-10-16, not yet backfilled to 2022-2025) is
   a higher-level grouping than `Type` — observed values so far: `Machine breakdown`, `Force
   breakdown`, `Slow production`. A 4th category, `Uncook` (process/digester loss, not tied to a
@@ -122,7 +140,10 @@ fetching it live, and needs to be explicitly refreshed and republished. Recipe, 
 2. **Export each in-scope tab (`2022`-`2026`) to CSV text** with `openpyxl` (`data_only=True`),
    formatting dates as `D/M/YYYY` and times as `H:MM` to match what the live gviz endpoint would
    actually serve (see the date-format note above — get this wrong and the snapshot silently
-   disagrees with production). One `sheet_{year}.csv` file per tab.
+   disagrees with production). **Also format checkbox cells (bool) as `TRUE`/`FALSE` uppercase**,
+   not Python's `True`/`False` — `isinstance(v, bool)` must be checked before the generic
+   `str(v)` fallback (bool is a subclass of int in Python, so it's easy to let it fall through
+   unhandled). One `sheet_{year}.csv` file per tab.
 3. **Re-extract the current production parsing logic from `index.html`** rather than trusting a
    stale copy: pull the block from `const LP_SHEET_ID` through the trailing
    `initLoss8020Dashboard();` call, and the inner markup from

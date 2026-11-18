@@ -214,6 +214,7 @@
   .chip.mid{color:#8A5300; background:#FFEBCC;}
   .chip.bad{color:#B00000; background:#FFDEDE;}
   .chip.na{color:var(--ink-3); background:var(--surface-2);}
+  .chip.prog{color:#0B5FA5; background:#DCEBFA;}
 
   .section-divider{display:flex; align-items:center; gap:12px; margin:28px 0 16px;}
   .section-divider h2{font-size:15px; font-weight:700; color:var(--ink); white-space:nowrap;}
@@ -2053,6 +2054,16 @@
               <span class="item"><span class="box" style="background:var(--ink-3);"></span>Others</span>
               <span class="item"><span class="sw" style="border-color:#1f7a3d;"></span>Cumulative Loss %</span>
             </div>
+          </div>
+
+          <div class="card">
+            <div class="chart-head"><div class="chart-title">RCA &amp; CM/PM Tracking (Loss ≥ 40 ADT)</div></div>
+            <div class="hint" id="lpRcaHint"></div>
+            <div class="lp-kpi-grid" id="lpRcaKpiGrid"></div>
+            <div class="hint" style="margin-top:4px;">สรุปสถานะ RCA ตามขั้นตอน: ยังไม่เริ่ม → มี RCA/Link แล้ว → Pre Meeting แล้ว → Closing RCA แล้ว → นำเข้าระบบแล้ว (ข้อมูล RCA มีเฉพาะชีทปี 2026 เป็นต้นไป)</div>
+            <div class="tbl-wrap"><table id="lpRcaStatusTable"></table></div>
+            <div class="hint" style="margin-top:14px;">รายการที่ยังไม่นำเข้าระบบ (เรียงตาม Loss ADT มากไปน้อย)</div>
+            <div class="tbl-wrap"><table id="lpRcaPendingTable"></table></div>
           </div>
 
           <details class="dtable" id="lpVitalFewDetails" open>
@@ -9182,6 +9193,9 @@ const LP_YEARS = ['2022','2023','2024','2025','2026'];
 const LP_MONTH_ORDER = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 const LP_MONTH_MARKERS = new Set(['Total Loss','Recovery','Total Loss - Recovery pulp']);
 const LP_FOOTER_MARKERS = new Set(['Production Budget','Production Actual']);
+/* Loss ≥ 40 ADT ต้องทำ RCA ตามเกณฑ์ที่ผู้ใช้กำหนด (คอลัมน์ RCA/Pre Meeting/Closing RCA/นำเข้าระบบ/
+   Link RCA มีเฉพาะในชีทปี 2026 ขึ้นไป — ปีก่อนหน้ายังไม่มีข้อมูลนี้) */
+const LP_RCA_THRESHOLD = 40;
 function lpSheetCsvUrl(sheetName){
   return `https://docs.google.com/spreadsheets/d/${LP_SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}`;
 }
@@ -9207,6 +9221,8 @@ function lpParseLoss(raw){
   const n = Number(t);
   return Number.isFinite(n) ? Math.abs(n) : null;
 }
+function lpParseBool(s){ return lpNorm(s).toUpperCase()==='TRUE'; }
+function lpParseLinks(s){ if(s==null) return []; return String(s).split(/\n+/).map(x=>lpNorm(x)).filter(Boolean); }
 function lpParseYearSheet(year, csvRows){
   let headerRowIdx = -1;
   for(let i=0;i<Math.min(csvRows.length,10);i++){
@@ -9230,10 +9246,18 @@ function lpParseYearSheet(year, csvRows){
     else if(hl==='type') col.type=i;
     else if(hl==='cm') col.cm=i;
     else if(hl==='pm') col.pm=i;
+    else if(hl==='department') col.department=i;
+    else if(hl==='rca') col.rca=i;
+    else if(hl==='pre meeting') col.preMeeting=i;
+    else if(hl==='closing rca') col.closingRca=i;
+    else if(hl==='นำเข้าระบบ') col.enteredSystem=i;
+    else if(hl==='link rca') col.linkRca=i;
     else if(hl.startsWith('loss production') && hl.includes('adt')) col.lossAdt=i;
     else if(hl.startsWith('loss production')) col.desc=i;
   });
   const get = (arr,key)=> key in col ? lpNorm(arr[col[key]]) : '';
+  const getBool = (arr,key)=> key in col ? lpParseBool(arr[col[key]]) : false;
+  const getLinks = (arr,key)=> key in col ? lpParseLinks(arr[col[key]]) : [];
   const rows = [];
   const monthTotals = {};
   const annualFooter = {};
@@ -9266,6 +9290,9 @@ function lpParseYearSheet(year, csvRows){
       eqNum, eqName, originalType:typ, originalSubType:sub, desc,
       lossCategory: get(arr,'lossCategory'),
       cm: get(arr,'cm'), pm: get(arr,'pm'),
+      department: get(arr,'department'),
+      rca: getBool(arr,'rca'), preMeeting: getBool(arr,'preMeeting'), closingRca: getBool(arr,'closingRca'),
+      enteredSystem: getBool(arr,'enteredSystem'), linkRca: getLinks(arr,'linkRca'),
       lossAdt: lpParseLoss(lossRawCell),
       sourceRowId: year+'-'+String(seq).padStart(4,'0'),
       dateAccuracy: (('dateStart' in col) && lpParseDate(arr[col.dateStart])) ? 'Exact' : 'Month Only',
@@ -9747,6 +9774,7 @@ function lpRenderAll(){
   lpRenderPareto(filtered);
   lpRenderLossCategoryChart(filtered);
   lpRenderEventPareto(filtered);
+  lpRenderRcaTracking(filtered);
   lpRenderVitalFewTable(filtered);
   lpRenderTrend(filtered);
   lpRenderMatrix();
@@ -9979,6 +10007,84 @@ function lpRenderEventPareto(filtered){
   };
   if(LP_CHARTS.eventPareto){ LP_CHARTS.eventPareto.data = cfg.data; LP_CHARTS.eventPareto.options = cfg.options; LP_CHARTS.eventPareto.update(); }
   else { LP_CHARTS.eventPareto = new Chart(canvas.getContext('2d'), cfg); }
+}
+
+/* ---- RCA & CM/PM Tracking: รายการ Loss >= LP_RCA_THRESHOLD ADT ต้องทำ RCA ตาม workflow
+   RCA -> Pre Meeting -> Closing RCA -> นำเข้าระบบ (คอลัมน์เหล่านี้มีเฉพาะในชีทปี 2026 เป็นต้นไป) ---- */
+function lpRcaStatusOf(r){
+  if(r.enteredSystem) return { stage:4, label:'นำเข้าระบบแล้ว (เสร็จสมบูรณ์)', chipClass:'good' };
+  if(r.closingRca) return { stage:3, label:'Closing RCA แล้ว', chipClass:'prog' };
+  if(r.preMeeting) return { stage:2, label:'Pre Meeting แล้ว', chipClass:'prog' };
+  if(r.rca || (r.linkRca && r.linkRca.length)) return { stage:1, label:'มี RCA / Link แล้ว', chipClass:'prog' };
+  return { stage:0, label:'ยังไม่เริ่ม RCA', chipClass:'bad' };
+}
+const LP_RCA_STAGES = [
+  { stage:0, label:'ยังไม่เริ่ม RCA', chipClass:'bad' },
+  { stage:1, label:'มี RCA / Link แล้ว', chipClass:'prog' },
+  { stage:2, label:'Pre Meeting แล้ว', chipClass:'prog' },
+  { stage:3, label:'Closing RCA แล้ว', chipClass:'prog' },
+  { stage:4, label:'นำเข้าระบบแล้ว (เสร็จสมบูรณ์)', chipClass:'good' },
+];
+function lpRenderRcaTracking(filtered){
+  const hintEl = document.getElementById('lpRcaHint');
+  const kpiGrid = document.getElementById('lpRcaKpiGrid');
+  const statusTbl = document.getElementById('lpRcaStatusTable');
+  const pendingTbl = document.getElementById('lpRcaPendingTable');
+  if(!hintEl || !kpiGrid || !statusTbl || !pendingTbl) return;
+
+  const need = filtered.filter(r => r.lossAdt!=null && r.lossAdt >= LP_RCA_THRESHOLD);
+  const withStatus = need.map(r => ({ r, s: lpRcaStatusOf(r) }));
+  const doneCount = withStatus.filter(x => x.s.stage===4).length;
+  const notStartedCount = withStatus.filter(x => x.s.stage===0).length;
+  const missingCmPm = need.filter(r => !r.cm || !r.pm).length;
+
+  hintEl.textContent = need.length===0
+    ? `ไม่มีรายการ Loss ≥ ${LP_RCA_THRESHOLD} ADT ในช่วงเวลาที่เลือก (ข้อมูล RCA มีเฉพาะชีทปี 2026 เป็นต้นไป)`
+    : `พบ ${lpFmtNum(need.length)} รายการ Loss ≥ ${LP_RCA_THRESHOLD} ADT ที่ต้องทำ RCA ตามเกณฑ์`;
+
+  const tiles = [
+    { label:`รายการที่ต้องทำ RCA (≥ ${LP_RCA_THRESHOLD} ADT)`, value: lpFmtNum(need.length) },
+    { label:'นำเข้าระบบแล้ว (เสร็จสมบูรณ์)', value: lpFmtNum(doneCount) },
+    { label:'ยังขาด RCA (ยังไม่เสร็จ)', value: lpFmtNum(need.length - doneCount) },
+    { label:'ยังไม่เริ่ม RCA เลย', value: lpFmtNum(notStartedCount) },
+    { label:'CM/PM ยังไม่ระบุ', value: lpFmtNum(missingCmPm) },
+  ];
+  kpiGrid.innerHTML = tiles.map(t=>`<div class="lp-kpi-card"><div class="lp-kpi-label">${t.label}</div><div class="lp-kpi-value">${t.value}</div></div>`).join('');
+
+  if(need.length===0){
+    statusTbl.innerHTML = '';
+  } else {
+    const head = `<thead><tr><th style="text-align:left;">สถานะ RCA</th><th>จำนวนรายการ</th><th>Loss ADT รวม</th></tr></thead>`;
+    const body = LP_RCA_STAGES.map(st=>{
+      const items = withStatus.filter(x=>x.s.stage===st.stage);
+      const loss = items.reduce((a,x)=>a+(x.r.lossAdt||0),0);
+      return `<tr><td style="text-align:left;"><span class="chip ${st.chipClass}">${lpEsc(st.label)}</span></td><td>${lpFmtNum(items.length)}</td><td>${lpFmtNum(loss)}</td></tr>`;
+    }).join('');
+    statusTbl.innerHTML = head + `<tbody>${body}</tbody>`;
+  }
+
+  const pending = withStatus.filter(x=>x.s.stage<4).sort((a,b)=>(b.r.lossAdt||0)-(a.r.lossAdt||0));
+  if(pending.length===0){
+    pendingTbl.innerHTML = `<tr><td class="loss-empty">${need.length===0 ? 'ไม่มีข้อมูล' : 'ไม่มีรายการค้าง — นำเข้าระบบครบทุกรายการแล้ว'}</td></tr>`;
+  } else {
+    const head = `<thead><tr><th>วันที่</th><th>EQ Type</th><th>Type</th><th>Loss ADT</th><th>Department</th><th>CM</th><th>PM</th><th>สถานะ RCA</th><th>Link RCA</th></tr></thead>`;
+    const body = pending.map(({r,s})=>{
+      const dateStr = r.dateStart ? `${r.dateStart.getDate()}/${r.dateStart.getMonth()+1}/${r.dateStart.getFullYear()}` : (r.month||'');
+      const links = (r.linkRca||[]).map((u,idx)=>`<a href="${lpEsc(u)}" target="_blank" rel="noopener">Link ${idx+1}</a>`).join(' ');
+      return `<tr>`
+        + `<td>${lpEsc(dateStr)}</td>`
+        + `<td style="text-align:left;">${lpEsc(lpEqLabel(r))}</td>`
+        + `<td style="text-align:left;">${lpEsc(r.classifiedType||r.originalType||'')}</td>`
+        + `<td>${lpFmtNum(r.lossAdt)}</td>`
+        + `<td style="text-align:left;">${lpEsc(r.department||'—')}</td>`
+        + `<td>${r.cm ? '✓' : '—'}</td>`
+        + `<td>${r.pm ? '✓' : '—'}</td>`
+        + `<td><span class="chip ${s.chipClass}">${lpEsc(s.label)}</span></td>`
+        + `<td style="text-align:left;">${links || '—'}</td>`
+        + `</tr>`;
+    }).join('');
+    pendingTbl.innerHTML = head + `<tbody>${body}</tbody>`;
+  }
 }
 
 function lpVfActionCell(textSet){
