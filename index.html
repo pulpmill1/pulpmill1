@@ -619,16 +619,39 @@
   .hft-head p{margin:0;color:var(--ink-2);font-size:12.5px;max-width:72ch;}
   .hft-note{background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin:14px 0 18px;font-size:12px;color:var(--ink-2);line-height:1.7;}
   .hft-note b{color:var(--ink);font-weight:700;}
-  .hft-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:10px;}
+  .hft-wrap{overflow-x:auto;overflow-y:auto;border:1px solid var(--border);border-radius:10px;max-height:70vh;}
   table.hft-table{width:100%;min-width:1180px;border-collapse:collapse;font-size:12px;}
+  table.hft-table thead{position:sticky;top:0;z-index:3;}
   table.hft-table th{background:var(--accent-soft);color:var(--accent-ink);font-size:10.5px;font-weight:700;padding:7px 6px;border:1px solid var(--border);text-align:center;white-space:normal;line-height:1.35;min-width:92px;overflow-wrap:break-word;word-break:break-word;}
   table.hft-table th.hft-grp{font-size:10px;}
   table.hft-table td{padding:7px 8px;border:1px solid var(--border);text-align:right;font-family:"IBM Plex Mono",monospace;color:var(--ink-3);white-space:nowrap;}
+  /* First 2 columns (Set Point / n, or exact Set Point / Date on the Current Condition table) stay
+     pinned while the wide table scrolls horizontally — col1 gets a fixed width so col2's left offset
+     is a known constant rather than something measured at runtime. The 4 cells that are both the
+     sticky header row AND a sticky column (top-left corner) need the highest z-index so they render
+     above the plain sticky-header cells and the plain sticky-column cells alike. */
+  table.hft-table th.hft-bin,table.hft-table td.hft-bin{position:sticky;left:0;width:110px;min-width:110px;max-width:110px;}
+  table.hft-table th.hft-n,table.hft-table td.hft-n{position:sticky;left:110px;width:70px;min-width:70px;max-width:70px;}
+  table.hft-table td.hft-bin,table.hft-table td.hft-n{background:var(--surface);z-index:2;}
+  table.hft-table th.hft-bin,table.hft-table th.hft-n{z-index:4;}
   table.hft-table td.hft-bin{font-family:inherit;font-weight:800;color:var(--ink);text-align:left;font-size:13px;}
   table.hft-table td.hft-n{font-family:inherit;color:var(--ink-3);text-align:left;font-size:11px;}
   table.hft-table td.hft-sep{border-left:2px solid var(--border);}
+  table.hft-table td.hft-ref{text-align:left;font-family:inherit;color:var(--ink-3);font-size:10.5px;white-space:normal;max-width:240px;}
   table.hft-table tbody tr:hover td{background:var(--surface-2);}
+  table.hft-table tbody tr:hover td.hft-bin,table.hft-table tbody tr:hover td.hft-n{background:var(--surface-2);}
   .hft-empty{padding:18px;color:var(--ink-2);font-size:13px;}
+  .hft-section-head{display:flex;align-items:center;gap:10px;margin:22px 0 10px;}
+  .hft-section-head h3{margin:0;font-size:14px;color:var(--ink);}
+  /* Reuses the header toolbar's own LIVE-badge color language (green pulse dot) for visual consistency
+     rather than inventing a new status-badge style from scratch. */
+  .hft-current-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(0,169,39,.14);color:#0a8a26;font-family:"IBM Plex Mono",monospace;font-size:10px;font-weight:700;letter-spacing:.04em;padding:3px 10px;border-radius:20px;}
+  .hft-current-badge::before{content:"";width:6px;height:6px;border-radius:50%;background:#00a927;display:inline-block;flex:0 0 auto;}
+  .hft-reco-box p{margin:0 0 10px;}
+  table.hft-reco-compare{width:100%;max-width:560px;border-collapse:collapse;font-size:11.5px;}
+  table.hft-reco-compare th,table.hft-reco-compare td{padding:5px 9px;border:1px solid var(--border);text-align:right;}
+  table.hft-reco-compare th{background:var(--surface);font-weight:700;color:var(--ink);}
+  table.hft-reco-compare th:first-child,table.hft-reco-compare td:first-child{text-align:left;color:var(--ink);}
   .ya-summary{margin-bottom:14px;font-size:12px;color:var(--ink-2);}
   .ya-summary .rn-head{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border);}
   .ya-summary .ys-body,.ya-overview-col .ys-body{font-weight:300;line-height:1.9;}
@@ -2351,6 +2374,17 @@
           <div class="hft-note">
             <b>วิธีจัดกลุ่มข้อมูล:</b> แต่ละวันในปี 2026 จะถูกจัดเข้ากลุ่มตามค่าเฉลี่ย "Set point H-factor(APC)" ของวันนั้น (เฉลี่ยทุกครั้งต้มในวันเดียวกันก่อน เนื่องจาก Cooking Logsheet บันทึกรายครั้งต้ม) แล้วปัดเข้ากลุ่มที่ใกล้ที่สุด ห่างกันทีละ 20 — ช่วงที่แสดงมาจากข้อมูลจริงที่เคยเดินเท่านั้น ไม่ได้กำหนดตายตัว ข้อมูลไม้สับ/ความชื้น (RM Wood-Yield) และ Residual alkali WBL→Evaporator (QC Lab FL1) จับคู่ด้วยวันที่เดียวกัน แล้วหาค่าเฉลี่ยรวมในแต่ละกลุ่ม — <b>n</b> คือจำนวนวันที่มีข้อมูลในกลุ่มนั้น
           </div>
+
+          <div class="hft-section-head">
+            <h3>Condition ปัจจุบัน</h3>
+            <span class="hft-current-badge" id="hftCurrentBadge">CURRENT</span>
+          </div>
+          <div class="hft-wrap" id="hftCurrentTableWrap"></div>
+
+          <div class="hft-section-head"><h3>คำแนะนำ Set Point H-factor</h3></div>
+          <div class="hft-note hft-reco-box" id="hftRecoBox"></div>
+
+          <div class="hft-section-head"><h3>ประวัติแยกตามช่วง Set Point H-factor (APC)</h3></div>
           <div class="hft-wrap" id="hftTableWrap"></div>
         </section>
         <section class="page" data-page="cost-sensitivity" hidden>
@@ -5976,6 +6010,8 @@ function applyLang(lang){
     if(typeof renderYieldAnalysisTableMB === 'function') renderYieldAnalysisTableMB();
     if(typeof renderYieldAnalysisTableLast7 === 'function') renderYieldAnalysisTableLast7();
     if(typeof renderHFactorTuningModel === 'function') renderHFactorTuningModel();
+    if(typeof renderHFactorCurrentCondition === 'function') renderHFactorCurrentCondition();
+    if(typeof renderHFactorRecommendation === 'function') renderHFactorRecommendation();
     if(typeof woodCmpRenderBody === 'function' && document.getElementById('woodCmpBody')) woodCmpRenderBody();
     if(typeof woodStackRenderBodyFor === 'function') ['woodStack1','woodStack2','woodStackTot'].forEach(p=> { if(document.getElementById(p+'Body')) woodStackRenderBodyFor(p); });
     if(typeof woodStackRenderStrips === 'function') ['woodStack1','woodStack2','woodStackTot'].forEach(p=> { if(document.getElementById(p+'Strips')) woodStackRenderStrips(p); });
@@ -7005,39 +7041,154 @@ function computeHFactorTuningBuckets(){
     return row;
   });
 }
-function renderHFactorTuningModel(){
-  const wrap = document.getElementById('hftTableWrap');
-  if(!wrap) return;
-  const rows = computeHFactorTuningBuckets();
-  if(!rows.length){
-    wrap.innerHTML = '<div class="hft-empty">ยังไม่มีข้อมูล Set point H-factor(APC) ในปี 2026 ที่สามารถสรุปได้</div>';
-    return;
-  }
+/* Every sheet this page draws from, repeated as plain text in a "Reference" column (not part of
+   HFT_FIELDS' per-bucket averaging -- it's static, same text on every row) so an operator looking
+   at any one row can see where its numbers came from without reading the methodology note above. */
+function hftReferenceText(){ return 'Cooking Logsheet, RM Wood-Yield, QC Lab FL1'; }
+function hftFmt(v, dec){ return v==null ? '—' : v.toLocaleString('en-US', {minimumFractionDigits:dec, maximumFractionDigits:dec}); }
+/* Shared table-HTML builder for both the historical bucket table and the one-row Current Condition
+   table below -- same 15 HFT_FIELDS columns (+ Reference) in the same order, so the two tables line
+   up for a direct visual comparison. `rows` is an array of {col1, col2, ...HFT_FIELDS keys}; col1Header/
+   col2Header let the two tables use different first-two-column labels (bin/n vs. exact value/date). */
+function hftBuildTableHtml(rows, col1Header, col2Header){
   const cookFields = HFT_FIELDS.filter(function(f){ return f.grp==='cook'; });
   const woodFields = HFT_FIELDS.filter(function(f){ return f.grp==='wood'; });
   const chemFields = HFT_FIELDS.filter(function(f){ return f.grp==='chem'; });
-  function fmt(v, dec){ return v==null ? '—' : v.toLocaleString('en-US', {minimumFractionDigits:dec, maximumFractionDigits:dec}); }
   function headCell(f){ return '<th>'+f.label+(f.unit?'<br>('+f.unit+')':'')+'</th>'; }
   let html = '<table class="hft-table"><thead><tr>'
-    + '<th rowspan="2" style="text-align:left;">Set Point<br>H-factor (APC)</th>'
-    + '<th rowspan="2" style="text-align:left;">n</th>'
+    + '<th rowspan="2" class="hft-bin" style="text-align:left;">'+col1Header+'</th>'
+    + '<th rowspan="2" class="hft-n" style="text-align:left;">'+col2Header+'</th>'
     + '<th class="hft-grp" colspan="'+cookFields.length+'">Cooking Logsheet</th>'
     + '<th class="hft-grp" colspan="'+woodFields.length+'">RM Wood-Yield</th>'
     + '<th class="hft-grp" colspan="'+chemFields.length+'">Cooking Logsheet &amp; QC Lab FL1</th>'
+    + '<th rowspan="2">Reference</th>'
     + '</tr><tr>'
     + cookFields.map(headCell).join('')
     + woodFields.map(headCell).join('')
     + chemFields.map(headCell).join('')
     + '</tr></thead><tbody>';
   rows.forEach(function(row){
-    html += '<tr><td class="hft-bin">'+row.bin+'</td><td class="hft-n">'+row.n+'</td>';
-    cookFields.forEach(function(f){ html += '<td>'+fmt(row[f.key], f.dec)+'</td>'; });
-    woodFields.forEach(function(f,i){ html += '<td'+(i===0?' class="hft-sep"':'')+'>'+fmt(row[f.key], f.dec)+'</td>'; });
-    chemFields.forEach(function(f,i){ html += '<td'+(i===0?' class="hft-sep"':'')+'>'+fmt(row[f.key], f.dec)+'</td>'; });
+    html += '<tr><td class="hft-bin">'+row.col1+'</td><td class="hft-n">'+row.col2+'</td>';
+    cookFields.forEach(function(f){ html += '<td>'+hftFmt(row[f.key], f.dec)+'</td>'; });
+    woodFields.forEach(function(f,i){ html += '<td'+(i===0?' class="hft-sep"':'')+'>'+hftFmt(row[f.key], f.dec)+'</td>'; });
+    chemFields.forEach(function(f,i){ html += '<td'+(i===0?' class="hft-sep"':'')+'>'+hftFmt(row[f.key], f.dec)+'</td>'; });
+    html += '<td class="hft-ref hft-sep">'+hftReferenceText()+'</td>';
     html += '</tr>';
   });
   html += '</tbody></table>';
-  wrap.innerHTML = html;
+  return html;
+}
+function renderHFactorTuningModel(){
+  const wrap = document.getElementById('hftTableWrap');
+  if(!wrap) return;
+  const buckets = computeHFactorTuningBuckets();
+  if(!buckets.length){
+    wrap.innerHTML = '<div class="hft-empty">ยังไม่มีข้อมูล Set point H-factor(APC) ในปี 2026 ที่สามารถสรุปได้</div>';
+    return;
+  }
+  const rows = buckets.map(function(b){
+    const row = Object.assign({}, b, { col1:String(b.bin), col2:String(b.n) });
+    return row;
+  });
+  wrap.innerHTML = hftBuildTableHtml(rows, 'Set Point<br>H-factor (APC)', 'n');
+}
+/* "Current condition" = the single most recently-logged cook day with a real Set point H-factor(APC)
+   value -- scanned from the end of PLS_COOKING_ROWS (already ascending by ts) backward, not just the
+   literal last array element, in case the very latest logged day hasn't had that field entered yet.
+   Not restricted to year 2026 here (unlike the historical buckets) since "latest real day" should
+   never silently fall back to an earlier year's data being hidden by a year filter it doesn't need. */
+function computeHFactorCurrentCondition(){
+  let day = null;
+  for(let i=PLS_COOKING_ROWS.length-1; i>=0; i--){
+    if(PLS_COOKING_ROWS[i].r[75] != null){ day = PLS_COOKING_ROWS[i]; break; }
+  }
+  if(!day) return null;
+  const row = { setPoint: day.r[75], dateStr: day.d+'/'+(day.mi+1)+'/'+day.y, ts: day.ts };
+  HFT_FIELDS.forEach(function(f){ row[f.key] = f.get(day, day.ts); });
+  return row;
+}
+function renderHFactorCurrentCondition(){
+  const wrap = document.getElementById('hftCurrentTableWrap');
+  const badge = document.getElementById('hftCurrentBadge');
+  if(!wrap) return;
+  const cur = computeHFactorCurrentCondition();
+  if(!cur){
+    wrap.innerHTML = '<div class="hft-empty">ยังไม่มีข้อมูล Condition ปัจจุบัน</div>';
+    if(badge) badge.textContent = '';
+    return;
+  }
+  if(badge) badge.textContent = 'CURRENT · ' + cur.dateStr;
+  const row = Object.assign({}, cur, { col1: hftFmt(cur.setPoint, 1), col2: cur.dateStr });
+  wrap.innerHTML = hftBuildTableHtml([row], 'Set Point<br>H-factor (APC) จริง', 'Date');
+}
+/* Set Point recommendation: which historical bucket's own average wood-species + chip-moisture
+   profile (the 6 RM Wood-Yield fields -- genuine external/input conditions, independent of whatever
+   Set Point the operator chose that day) most closely resembles TODAY's own wood/moisture profile.
+   Deliberately excludes Target/Real H-factor and Kappa (those are OUTCOMES of the Set Point choice,
+   not inputs -- comparing on them would be circular) and the chemical-charge fields (EA/WL charges
+   are themselves operator decisions often adjusted in response to wood conditions, so folding them
+   in would muddy "what wood showed up" with "what the operator already chose to do about it").
+   Distance is a simple Euclidean distance after range-normalizing each of the 6 fields across the
+   buckets being compared (so a field like St>1m, naturally a few percent, doesn't get swamped by a
+   field like K7, naturally tens of percent, purely from scale rather than actual relevance). */
+const HFT_CONDITION_KEYS = ['woodK7','woodK58','woodSeed','woodOther','woodSt1m','moistureLab'];
+function computeHFactorRecommendation(){
+  const cur = computeHFactorCurrentCondition();
+  if(!cur) return { status:'no-current' };
+  if(HFT_CONDITION_KEYS.some(function(k){ return cur[k]==null; })) return { status:'incomplete-current' };
+  const buckets = computeHFactorTuningBuckets();
+  const validBuckets = buckets.filter(function(b){ return HFT_CONDITION_KEYS.every(function(k){ return b[k]!=null; }); });
+  if(validBuckets.length < 2) return { status:'insufficient-history' };
+  const ranges = {};
+  HFT_CONDITION_KEYS.forEach(function(k){
+    const vals = validBuckets.map(function(b){ return b[k]; });
+    const mn = Math.min.apply(null, vals), mx = Math.max.apply(null, vals);
+    ranges[k] = { mn:mn, span:(mx-mn) || 1 };
+  });
+  let best = null, bestDist = Infinity;
+  validBuckets.forEach(function(b){
+    let distSq = 0;
+    HFT_CONDITION_KEYS.forEach(function(k){
+      const nc = (cur[k]-ranges[k].mn)/ranges[k].span;
+      const nb = (b[k]-ranges[k].mn)/ranges[k].span;
+      distSq += (nc-nb)*(nc-nb);
+    });
+    const dist = Math.sqrt(distSq);
+    if(dist < bestDist){ bestDist = dist; best = b; }
+  });
+  return { status:'ok', bucket:best, distance:bestDist, current:cur };
+}
+const HFT_CONDITION_LABELS = [
+  ['woodK7','Pulp 1 K7 (%)'], ['woodK58','Pulp 1 K58 (%)'], ['woodSeed','Pulp 1 Seed (%)'],
+  ['woodOther','Pulp 1 Other (%)'], ['woodSt1m','Pulp 1 St>1 m (%)'], ['moistureLab','Pulp 1 Chip Moisture (Lab) (%)'],
+];
+function renderHFactorRecommendation(){
+  const el = document.getElementById('hftRecoBox');
+  if(!el) return;
+  const r = computeHFactorRecommendation();
+  if(r.status === 'no-current'){
+    el.innerHTML = '<p>ยังไม่มีข้อมูล Condition ปัจจุบันสำหรับวิเคราะห์</p>';
+    return;
+  }
+  if(r.status === 'incomplete-current'){
+    el.innerHTML = '<p>ข้อมูลไม้สับ/ความชื้นของวันล่าสุดยังไม่ครบ ไม่สามารถแนะนำ Set Point H-factor ได้</p>';
+    return;
+  }
+  if(r.status === 'insufficient-history'){
+    el.innerHTML = '<p>ข้อมูลประวัติยังไม่พอ (ต้องมีอย่างน้อย 2 ช่วง Set Point ที่มีข้อมูลไม้สับ/ความชื้นครบ) สำหรับการแนะนำ</p>';
+    return;
+  }
+  const b = r.bucket, cur = r.current;
+  let html = '<p><b>คำแนะนำ:</b> จากสภาวะไม้สับและความชื้นของวันที่ ' + cur.dateStr + ' เทียบกับค่าเฉลี่ยไม้สับ/ความชื้นในแต่ละช่วง Set Point ที่เคยเดินจริง '
+    + 'พบว่าใกล้เคียงกับช่วง Set Point H-factor = <b>' + b.bin + '</b> มากที่สุด '
+    + '(ช่วงนั้นมี Kappa No. (Online) เฉลี่ย ' + hftFmt(b.kappaOnline,2) + ' และ Real H-factor เฉลี่ย ' + hftFmt(b.realHFactor,1) + ' จากข้อมูล ' + b.n + ' วัน) '
+    + 'จึงอาจพิจารณาปรับ Set Point H-factor เป็น <b>' + b.bin + '</b> เพื่อให้สภาวะการเดินเครื่องใกล้เคียงกับช่วงที่เคยได้ผลลัพธ์นี้มากที่สุด</p>';
+  html += '<table class="hft-reco-compare"><thead><tr><th>ค่าเปรียบเทียบ</th><th>วันล่าสุด</th><th>เฉลี่ย Set Point '+b.bin+'</th></tr></thead><tbody>';
+  HFT_CONDITION_LABELS.forEach(function(pair){
+    html += '<tr><td>'+pair[1]+'</td><td>'+hftFmt(cur[pair[0]],2)+'</td><td>'+hftFmt(b[pair[0]],2)+'</td></tr>';
+  });
+  html += '</tbody></table>';
+  el.innerHTML = html;
 }
 
 /* ---- target store ----
@@ -12868,6 +13019,8 @@ function initChipMon(){
   initYieldAnalysisControlsMB();
   renderYieldAnalysisTableLast7();
   renderHFactorTuningModel();
+  renderHFactorCurrentCondition();
+  renderHFactorRecommendation();
   initYaCardCollapse();
   initWoodCmp();
   initWoodStackAll();
@@ -12926,6 +13079,8 @@ function initChipMon(){
     renderYieldAnalysisTableMB();
     renderYieldAnalysisTableLast7();
     renderHFactorTuningModel();
+    renderHFactorCurrentCondition();
+    renderHFactorRecommendation();
     woodCmpRenderBody();
     CHIP_MON_GROUPS.forEach(grp=> { chipMonRenderTiles(grp); chipMonRenderDetail(grp.id); });
     initBatchTiming();
