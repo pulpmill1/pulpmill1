@@ -621,7 +621,7 @@
   .hft-note b{color:var(--ink);font-weight:700;}
   .hft-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:10px;}
   table.hft-table{width:100%;min-width:1180px;border-collapse:collapse;font-size:12px;}
-  table.hft-table th{background:var(--accent-soft);color:var(--accent-ink);font-size:10.5px;font-weight:700;padding:7px 6px;border:1px solid var(--border);text-align:center;white-space:nowrap;}
+  table.hft-table th{background:var(--accent-soft);color:var(--accent-ink);font-size:10.5px;font-weight:700;padding:7px 6px;border:1px solid var(--border);text-align:center;white-space:normal;line-height:1.35;min-width:92px;overflow-wrap:break-word;word-break:break-word;}
   table.hft-table th.hft-grp{font-size:10px;}
   table.hft-table td{padding:7px 8px;border:1px solid var(--border);text-align:right;font-family:"IBM Plex Mono",monospace;color:var(--ink-3);white-space:nowrap;}
   table.hft-table td.hft-bin{font-family:inherit;font-weight:800;color:var(--ink);text-align:left;font-size:13px;}
@@ -6972,15 +6972,15 @@ const HFT_FIELDS = [
   {key:'woodK58', label:'Pulp 1 K58', unit:'%', dec:2, grp:'wood', get:function(c,ts){ return HFT_WOOD_SERIES_BY_TS.woodK58.get(ts); }},
   {key:'woodSeed', label:'Pulp 1 Seed', unit:'%', dec:2, grp:'wood', get:function(c,ts){ return HFT_WOOD_SERIES_BY_TS.woodSeed.get(ts); }},
   {key:'woodOther', label:'Pulp 1 Other', unit:'%', dec:2, grp:'wood', get:function(c,ts){ return HFT_WOOD_SERIES_BY_TS.woodOther.get(ts); }},
-  {key:'woodSt1m', label:'Pulp 1 St>1m', unit:'%', dec:2, grp:'wood', get:function(c,ts){ return HFT_WOOD_SERIES_BY_TS.woodSt1m.get(ts); }},
-  {key:'moistureLab', label:'Chip Moist. (Lab)', unit:'%', dec:2, grp:'wood', get:function(c,ts){ return HFT_WOOD_SERIES_BY_TS.moistureLab.get(ts); }},
+  {key:'woodSt1m', label:'Pulp 1 St>1 m', unit:'%', dec:2, grp:'wood', get:function(c,ts){ return HFT_WOOD_SERIES_BY_TS.woodSt1m.get(ts); }},
+  {key:'moistureLab', label:'Pulp 1 Chip Moisture (Lab)', unit:'%', dec:2, grp:'wood', get:function(c,ts){ return HFT_WOOD_SERIES_BY_TS.moistureLab.get(ts); }},
   {key:'eaLab', label:'EA(lab)', unit:'g/l', dec:1, grp:'chem', get:function(c){ return c.r[46]; }},
-  {key:'eaChargeSetPoint', label:'EA Charge Set Point', unit:'ton EA', dec:2, grp:'chem', get:function(c){ return c.r[43]; }},
-  {key:'wlChargeTonEa', label:'WL Charge', unit:'ton EA', dec:1, grp:'chem', get:function(c){ return c.r[66]; }},
-  {key:'eaChargeActual', label:'EA Charge Actual', unit:'%', dec:1, grp:'chem', get:function(c){ return c.r[44]; }},
-  {key:'wlChargeM3', label:'WL Charge', unit:'m³', dec:1, grp:'chem', get:function(c){ return c.r[65]; }},
+  {key:'eaChargeSetPoint', label:'EA charge Set point', unit:'ton EA', dec:2, grp:'chem', get:function(c){ return c.r[43]; }},
+  {key:'wlChargeTonEa', label:'WL Charge to digester', unit:'ton EA', dec:1, grp:'chem', get:function(c){ return c.r[66]; }},
+  {key:'eaChargeActual', label:'EA charge Actual', unit:'%', dec:1, grp:'chem', get:function(c){ return c.r[44]; }},
+  {key:'wlChargeM3', label:'WL Charge to digester', unit:'m³', dec:1, grp:'chem', get:function(c){ return c.r[65]; }},
   {key:'resAlkalineAcc855', label:'Res.Alkaline Acc 855', unit:'g/l', dec:1, grp:'chem', get:function(c){ return c.r[63]; }},
-  {key:'residAlkaliWbl', label:'Resid. Alkali WBL→Evap', unit:'g/l', dec:1, grp:'chem', get:function(c,ts){ return QC_LAB_FL1_RESID_BY_TS.get(ts); }},
+  {key:'residAlkaliWbl', label:'Residual alkali WBL to Evaporator', unit:'g/l', dec:1, grp:'chem', get:function(c,ts){ return QC_LAB_FL1_RESID_BY_TS.get(ts); }},
 ];
 function computeHFactorTuningBuckets(){
   const buckets = new Map(); // bin value -> { bin, n, sums:{key:sum}, counts:{key:count} }
