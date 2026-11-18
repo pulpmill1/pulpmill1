@@ -7338,36 +7338,98 @@ const HFT_CONDITION_LABELS = [
    the operator doesn't actually want. This lets them say what Kappa they're aiming for; defaults to
    14.00 on every fresh load (reset via initHftTargetKappaInput, not persisted across reloads). */
 let HFT_TARGET_KAPPA = 14.00;
+/* Least-squares fit of kappaOnline ~ bin + eaChargeActual (centered, so the 3-unknown normal-
+   equation system collapses to solving just the two slopes from a well-conditioned 2x2 system,
+   rather than inverting a raw 3x3 matrix whose entries span very different scales/magnitudes).
+   Returns null when degenerate: either predictor has ~no spread across pts (Sxx or Szz ~0), or the
+   two predictors are themselves too collinear across these buckets to separate their effects
+   (det near zero relative to Sxx*Szz) -- e.g. if every bucket that ran a higher Set Point also
+   happened to run a higher EA charge, there's no way to tell the two effects apart from this data,
+   and pretending otherwise would produce unstable, meaningless coefficients. */
+function hftFitBivariate(pts){
+  const n = pts.length;
+  const meanSP = pts.reduce(function(a,p){ return a+p.bin; }, 0)/n;
+  const meanEA = pts.reduce(function(a,p){ return a+p.eaChargeActual; }, 0)/n;
+  const meanK  = pts.reduce(function(a,p){ return a+p.kappaOnline; }, 0)/n;
+  let Sxx=0, Szz=0, Sxz=0, Sxy=0, Szy=0;
+  pts.forEach(function(p){
+    const x=p.bin-meanSP, z=p.eaChargeActual-meanEA, y=p.kappaOnline-meanK;
+    Sxx+=x*x; Szz+=z*z; Sxz+=x*z; Sxy+=x*y; Szy+=z*y;
+  });
+  if(Sxx < 1e-9 || Szz < 1e-9) return null;
+  const det = Sxx*Szz - Sxz*Sxz;
+  if(Math.abs(det) < (Sxx*Szz)*1e-4) return null;
+  const b1 = (Sxy*Szz - Szy*Sxz)/det;
+  const b2 = (Szy*Sxx - Sxy*Sxz)/det;
+  const b0 = meanK - b1*meanSP - b2*meanEA;
+  return { b0:b0, b1:b1, b2:b2 };
+}
+/* Below this many historical bucket-points, a 3-parameter (intercept + 2 slopes) fit is refused even
+   when it would technically solve -- with only a handful more points than parameters, the fit passes
+   near-perfectly through whatever noise is in the data rather than reflecting a real relationship
+   (the overfitting risk this feature's design explicitly trades off against). 6 gives at least 3
+   spare points beyond the 3 parameters; still thin for a statistics textbook, but a reasonable floor
+   for a practical engineering tool that should get SMARTER as more cooks accumulate, not pretend to
+   be precise on 3-4 points. */
+const HFT_KAPPA_MULTI_MIN_POINTS = 6;
 /* Set Point <-> Kappa No. (Online) relationship, read off historical buckets that have both a bin
-   and an average Kappa (computeHFactorTuningBuckets()). Two refinements over a plain Set-Point-only
-   fit, both aimed at the same failure mode (a wildly implausible suggested Set Point from a noisy
-   small-sample trend):
+   and an average Kappa (computeHFactorTuningBuckets()). Picks the most reliable method the data
+   actually supports, in order, each aimed at the same failure mode (a wildly implausible suggested
+   Set Point from a noisy or confounded small-sample trend):
 
-   1. EA charge Actual (%) -- the operator-controlled chemical dose, a major co-driver of Kappa
-      alongside Set Point/H-factor -- confounds a Set-Point-only fit when different Set Point buckets
-      happened to run at different chemical doses (a bucket's lower Kappa might be from more chemical,
-      not a higher Set Point). Buckets whose own EA charge Actual is close to the CURRENT condition's
-      are preferred for the fit; buckets cooked at a very different dose are left out of the trend
-      itself (not of the recommendation generally). Falls back to every bucket with a Kappa value
-      (the simpler, EA-agnostic fit) whenever narrowing by EA charge would leave fewer than 2 points,
-      or EA charge data isn't available -- this keeps the feature usable on sparse real data instead
-      of going silent.
-   2. The solved Set Point is never allowed outside one bucket-width (20) beyond the observed bin
-      range -- a noisy or near-flat slope, divided into a sizeable Kappa gap, can otherwise swing the
-      answer to a Set Point nobody has ever run and that isn't physically plausible for this process.
-      Past that margin the result is clamped to the boundary and flagged 'clamped' (distinct from the
-      milder 'extrapolated' flag, which just means targetKappa itself is outside the observed Kappa
-      range but the resulting Set Point still landed in a plausible margin) so the UI can tell an
-      operator plainly that this large a jump isn't well-supported by the available data. */
+   1. MULTIVARIATE (preferred): fit Kappa ~ Set Point + EA charge Actual together (hftFitBivariate)
+      across every bucket that has both, then solve for the Set Point that reaches targetKappa AT
+      TODAY'S OWN EA charge Actual (holding the chemical-dose term at its current value rather than
+      whatever mix of doses happened to appear across history) -- this is the most direct answer to
+      "what Set Point, chemistry held as it is today, gets us to this Kappa". Only attempted with
+      >= HFT_KAPPA_MULTI_MIN_POINTS buckets (see its own comment) and a non-degenerate fit; otherwise
+      falls through to (2).
+   2. SINGLE-VARIABLE, EA-filtered: Set Point alone, but only across buckets whose own EA charge
+      Actual is close to today's -- avoids reading a Kappa swing that was really caused by a very
+      different chemical dose as if it were a Set Point effect, without needing enough data for a
+      full 2-variable fit. Falls back further to every bucket with a Kappa value (no EA filtering at
+      all) whenever narrowing would leave fewer than 2 points, or EA charge data isn't available --
+      every step here exists so the feature stays usable on sparse real data instead of going silent.
+
+   Whichever method answers, the solved Set Point is never allowed outside one bucket-width (20)
+   beyond the observed bin range -- a noisy fit, divided into a sizeable Kappa gap, can otherwise
+   swing the answer to a Set Point nobody has ever run and that isn't physically plausible for this
+   process. Past that margin the result is clamped to the boundary and flagged 'clamped' (distinct
+   from the milder 'extrapolated' flag, which just means targetKappa itself is outside the observed
+   Kappa range but the resulting Set Point still landed in a plausible margin). */
 function computeHFactorKappaTarget(targetKappa, cur){
   if(targetKappa==null || !isFinite(targetKappa)) return { status:'invalid-target' };
   const allPts = computeHFactorTuningBuckets()
     .filter(function(b){ return b.kappaOnline!=null; })
     .map(function(b){ return { bin:b.bin, kappaOnline:b.kappaOnline, n:b.n, eaChargeActual:b.eaChargeActual }; });
   if(allPts.length < 2) return { status:'insufficient-history' };
-  let pts = allPts, eaFiltered = false;
   const curEa = (cur && cur.eaChargeActual!=null) ? cur.eaChargeActual : null;
   const withEa = allPts.filter(function(p){ return p.eaChargeActual!=null; });
+
+  function clampAndFinish(setPointRaw, pts, method, extra){
+    const bins = pts.map(function(p){ return p.bin; });
+    const binMin = Math.min.apply(null, bins), binMax = Math.max.apply(null, bins);
+    const margin = 20;
+    let setPoint = setPointRaw, clamped = false;
+    if(setPoint < binMin-margin){ setPoint = binMin-margin; clamped = true; }
+    else if(setPoint > binMax+margin){ setPoint = binMax+margin; clamped = true; }
+    const kappas = pts.map(function(p){ return p.kappaOnline; });
+    const kMin = Math.min.apply(null, kappas), kMax = Math.max.apply(null, kappas);
+    const extrapolated = targetKappa < kMin || targetKappa > kMax;
+    return Object.assign({ status: clamped ? 'clamped' : (extrapolated ? 'extrapolated' : 'ok'),
+      setPoint: Math.round(setPoint), points:pts, kMin:kMin, kMax:kMax, binMin:binMin, binMax:binMax,
+      targetKappa:targetKappa, method:method }, extra||{});
+  }
+
+  if(curEa!=null && withEa.length >= HFT_KAPPA_MULTI_MIN_POINTS){
+    const fit = hftFitBivariate(withEa);
+    if(fit && Math.abs(fit.b1) > 1e-6){
+      const setPoint = (targetKappa - fit.b0 - fit.b2*curEa) / fit.b1;
+      if(isFinite(setPoint)) return clampAndFinish(setPoint, withEa, 'multivariate', { fit:fit, curEa:curEa });
+    }
+  }
+
+  let pts = allPts, eaFiltered = false;
   if(curEa!=null && withEa.length >= 2){
     const eaVals = withEa.map(function(p){ return p.eaChargeActual; });
     const eaSpan = (Math.max.apply(null, eaVals) - Math.min.apply(null, eaVals)) || 1;
@@ -7382,17 +7444,8 @@ function computeHFactorKappaTarget(targetKappa, cur){
   pts.forEach(function(p){ num += (p.bin-meanX)*(p.kappaOnline-meanY); den += (p.bin-meanX)*(p.bin-meanX); });
   if(den===0 || Math.abs(num/den) < 1e-9) return { status:'flat-trend', points:pts, eaFiltered:eaFiltered };
   const m = num/den, c = meanY - m*meanX;
-  let setPoint = (targetKappa - c) / m;
-  const bins = pts.map(function(p){ return p.bin; });
-  const binMin = Math.min.apply(null, bins), binMax = Math.max.apply(null, bins);
-  const margin = 20;
-  let clamped = false;
-  if(setPoint < binMin-margin){ setPoint = binMin-margin; clamped = true; }
-  else if(setPoint > binMax+margin){ setPoint = binMax+margin; clamped = true; }
-  const kappas = pts.map(function(p){ return p.kappaOnline; });
-  const kMin = Math.min.apply(null, kappas), kMax = Math.max.apply(null, kappas);
-  const extrapolated = targetKappa < kMin || targetKappa > kMax;
-  return { status: clamped ? 'clamped' : (extrapolated ? 'extrapolated' : 'ok'), setPoint: Math.round(setPoint), slope:m, intercept:c, points:pts, kMin:kMin, kMax:kMax, binMin:binMin, binMax:binMax, targetKappa:targetKappa, eaFiltered:eaFiltered };
+  const setPoint = (targetKappa - c) / m;
+  return clampAndFinish(setPoint, pts, eaFiltered ? 'single-variable-ea-filtered' : 'single-variable', { slope:m, intercept:c, eaFiltered:eaFiltered });
 }
 function initHftTargetKappaInput(){
   const input = document.getElementById('hftTargetKappaInput');
@@ -7446,7 +7499,10 @@ function renderHFactorRecommendation(){
       } else if(kt.status === 'flat-trend'){
         html += '<p class="hft-kappa-note">Kappa No. (Online) ที่คาดจากคำแนะนำข้างต้น (<b>'+hftFmt(b.kappaOnline,2)+'</b>) '+higherOrLower+' Target Kappa Cooking ที่ตั้งไว้ (<b>'+hftFmt(HFT_TARGET_KAPPA,2)+'</b>) แต่ข้อมูลประวัติยังไม่แสดงความสัมพันธ์ที่ชัดเจนระหว่าง Set Point H-factor กับ Kappa No. จึงยังไม่สามารถแนะนำปรับตาม Target Kappa ได้</p>';
       } else {
-        html += '<p class="hft-kappa-note">Kappa No. (Online) ที่คาดจากคำแนะนำข้างต้น (<b>'+hftFmt(b.kappaOnline,2)+'</b>) '+higherOrLower+' Target Kappa Cooking ที่ตั้งไว้ (<b>'+hftFmt(HFT_TARGET_KAPPA,2)+'</b>) จากความสัมพันธ์ระหว่าง Set Point H-factor กับ Kappa No. (Online) ที่เคยเกิดขึ้นจริงในประวัติ'+(kt.eaFiltered ? ' (เฉพาะช่วงที่มี EA charge Actual ใกล้เคียงกับปัจจุบัน เพื่อลดผลกระทบจากปริมาณสารเคมีที่ต่างกัน)' : '')+' แนะนำปรับ Set Point H-factor เป็น <b>'+kt.setPoint+'</b> เพื่อให้ Kappa No. ใกล้เคียง Target Kappa Cooking ที่ตั้งไว้มากขึ้น</p>';
+        const methodNote = kt.method==='multivariate'
+          ? ' (วิเคราะห์จาก Set Point H-factor ร่วมกับ EA charge Actual พร้อมกัน โดยคิดที่ระดับ EA charge Actual ปัจจุบัน จากข้อมูล '+kt.points.length+' ช่วง)'
+          : (kt.eaFiltered ? ' (เฉพาะช่วงที่มี EA charge Actual ใกล้เคียงกับปัจจุบัน เพื่อลดผลกระทบจากปริมาณสารเคมีที่ต่างกัน)' : '');
+        html += '<p class="hft-kappa-note">Kappa No. (Online) ที่คาดจากคำแนะนำข้างต้น (<b>'+hftFmt(b.kappaOnline,2)+'</b>) '+higherOrLower+' Target Kappa Cooking ที่ตั้งไว้ (<b>'+hftFmt(HFT_TARGET_KAPPA,2)+'</b>) จากความสัมพันธ์ระหว่าง Set Point H-factor กับ Kappa No. (Online) ที่เคยเกิดขึ้นจริงในประวัติ'+methodNote+' แนะนำปรับ Set Point H-factor เป็น <b>'+kt.setPoint+'</b> เพื่อให้ Kappa No. ใกล้เคียง Target Kappa Cooking ที่ตั้งไว้มากขึ้น</p>';
         html += '<table class="hft-reco-compare hft-kappa-trend-table"><thead><tr><th>Set Point H-factor (APC)</th><th>Kappa No. (Online) เฉลี่ย</th><th>จำนวนวัน (n)</th></tr></thead><tbody>';
         kt.points.slice().sort(function(a,b2){ return a.bin-b2.bin; }).forEach(function(p){
           html += '<tr><td>'+p.bin+'</td><td>'+hftFmt(p.kappaOnline,2)+'</td><td>'+p.n+'</td></tr>';
