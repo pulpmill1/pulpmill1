@@ -2379,6 +2379,17 @@
             <h3>Condition ปัจจุบัน</h3>
             <span class="hft-current-badge" id="hftCurrentBadge">CURRENT</span>
           </div>
+          <div class="ya-controls">
+            <div class="ya-picker">
+              <span class="yp-lbl">ช่วง</span>
+              <select id="hftCondMode"><option value="date" selected>วัน</option><option value="week">สัปดาห์</option><option value="month">เดือน</option><option value="quarter">ไตรมาส</option><option value="year">ปี</option></select>
+              <input type="date" id="hftCondDate">
+              <input type="week" id="hftCondWeek" hidden>
+              <input type="month" id="hftCondMonth" hidden>
+              <select id="hftCondQuarter" hidden><option value="1">ไตรมาส 1 (ม.ค.-มี.ค.)</option><option value="2">ไตรมาส 2 (เม.ย.-มิ.ย.)</option><option value="3">ไตรมาส 3 (ก.ค.-ก.ย.)</option><option value="4">ไตรมาส 4 (ต.ค.-ธ.ค.)</option></select>
+              <select id="hftCondYear" hidden></select>
+            </div>
+          </div>
           <div class="hft-wrap" id="hftCurrentTableWrap"></div>
 
           <div class="hft-section-head"><h3>คำแนะนำ Set Point H-factor</h3></div>
@@ -7019,15 +7030,16 @@ const HFT_FIELDS = [
   {key:'residAlkaliWbl', label:'Residual alkali WBL to Evaporator', unit:'g/l', dec:1, grp:'chem', get:function(c,ts){ return QC_LAB_FL1_RESID_BY_TS.get(ts); }},
 ];
 function computeHFactorTuningBuckets(){
-  const buckets = new Map(); // bin value -> { bin, n, sums:{key:sum}, counts:{key:count} }
+  const buckets = new Map(); // bin value -> { bin, n, sums:{key:sum}, counts:{key:count}, days:[...] }
   PLS_COOKING_ROWS.forEach(function(day){
     if(day.y !== 2026) return;
     const setPoint = day.r[75];
     if(setPoint == null) return;
     const bin = Math.round(setPoint/20)*20;
     let b = buckets.get(bin);
-    if(!b){ b = { bin:bin, n:0, sums:{}, counts:{} }; buckets.set(bin, b); }
+    if(!b){ b = { bin:bin, n:0, sums:{}, counts:{}, days:[] }; buckets.set(bin, b); }
     b.n++;
+    b.days.push(day);
     HFT_FIELDS.forEach(function(f){
       const v = f.get(day, day.ts);
       if(v==null) return;
@@ -7036,20 +7048,29 @@ function computeHFactorTuningBuckets(){
     });
   });
   return Array.from(buckets.values()).sort(function(a,b){ return a.bin-b.bin; }).map(function(b){
-    const row = { bin:b.bin, n:b.n };
+    const row = { bin:b.bin, n:b.n, ref:hftRefRange(b.days) };
     HFT_FIELDS.forEach(function(f){ row[f.key] = b.counts[f.key] ? b.sums[f.key]/b.counts[f.key] : null; });
     return row;
   });
 }
-/* Every sheet this page draws from, repeated as plain text in a "Reference" column (not part of
-   HFT_FIELDS' per-bucket averaging -- it's static, same text on every row) so an operator looking
-   at any one row can see where its numbers came from without reading the methodology note above. */
-function hftReferenceText(){ return 'Cooking Logsheet, RM Wood-Yield, QC Lab FL1'; }
 function hftFmt(v, dec){ return v==null ? '—' : v.toLocaleString('en-US', {minimumFractionDigits:dec, maximumFractionDigits:dec}); }
+function hftDateStr(day){ return day.d+'/'+(day.mi+1)+'/'+day.y; }
+/* "Reference" column = the actual date range of the days whose data was averaged into that row --
+   NOT a data-source/sheet-name label (that was this feature's first draft and was corrected). A
+   single contributing day shows just that one date; 2+ days show "earliest - latest" even when
+   those days aren't contiguous (e.g. a historical bucket's days are matched by rounded Set point,
+   not by calendar adjacency). `days` is any array of {ts,d,mi,y} records. */
+function hftRefRange(days){
+  if(!days || !days.length) return '—';
+  const sorted = days.slice().sort(function(a,b){ return a.ts-b.ts; });
+  const first = sorted[0], last = sorted[sorted.length-1];
+  return first.ts===last.ts ? hftDateStr(first) : hftDateStr(first)+' - '+hftDateStr(last);
+}
 /* Shared table-HTML builder for both the historical bucket table and the one-row Current Condition
    table below -- same 15 HFT_FIELDS columns (+ Reference) in the same order, so the two tables line
-   up for a direct visual comparison. `rows` is an array of {col1, col2, ...HFT_FIELDS keys}; col1Header/
-   col2Header let the two tables use different first-two-column labels (bin/n vs. exact value/date). */
+   up for a direct visual comparison. `rows` is an array of {col1, col2, ref, ...HFT_FIELDS keys};
+   col1Header/col2Header let the two tables use different first-two-column labels (bin/n vs. exact
+   value/period); `ref` is each row's own real contributing-date-range string (see hftRefRange). */
 function hftBuildTableHtml(rows, col1Header, col2Header){
   const cookFields = HFT_FIELDS.filter(function(f){ return f.grp==='cook'; });
   const woodFields = HFT_FIELDS.filter(function(f){ return f.grp==='wood'; });
@@ -7072,7 +7093,7 @@ function hftBuildTableHtml(rows, col1Header, col2Header){
     cookFields.forEach(function(f){ html += '<td>'+hftFmt(row[f.key], f.dec)+'</td>'; });
     woodFields.forEach(function(f,i){ html += '<td'+(i===0?' class="hft-sep"':'')+'>'+hftFmt(row[f.key], f.dec)+'</td>'; });
     chemFields.forEach(function(f,i){ html += '<td'+(i===0?' class="hft-sep"':'')+'>'+hftFmt(row[f.key], f.dec)+'</td>'; });
-    html += '<td class="hft-ref hft-sep">'+hftReferenceText()+'</td>';
+    html += '<td class="hft-ref hft-sep">'+(row.ref || '—')+'</td>';
     html += '</tr>';
   });
   html += '</tbody></table>';
@@ -7092,38 +7113,120 @@ function renderHFactorTuningModel(){
   });
   wrap.innerHTML = hftBuildTableHtml(rows, 'Set Point<br>H-factor (APC)', 'n');
 }
-/* "Current condition" = the single most recently-logged cook day with a real Set point H-factor(APC)
-   value -- scanned from the end of PLS_COOKING_ROWS (already ascending by ts) backward, not just the
-   literal last array element, in case the very latest logged day hasn't had that field entered yet.
-   Not restricted to year 2026 here (unlike the historical buckets) since "latest real day" should
-   never silently fall back to an earlier year's data being hidden by a year filter it doesn't need. */
-function computeHFactorCurrentCondition(){
-  let day = null;
-  for(let i=PLS_COOKING_ROWS.length-1; i>=0; i--){
-    if(PLS_COOKING_ROWS[i].r[75] != null){ day = PLS_COOKING_ROWS[i]; break; }
+/* One record per cook day (PLS_COOKING_ROWS is already day-aggregated) that has a real Set point
+   H-factor(APC) value, each pre-computed with its own setPoint + all 15 HFT_FIELDS values -- shared
+   by the "Condition ปัจจุบัน" period picker below. NOT restricted to year 2026 (unlike
+   computeHFactorTuningBuckets) since a user picking an earlier year/week/month here should never be
+   silently blocked by a filter this list doesn't need. Stays in PLS_COOKING_ROWS' own ts-ascending
+   order (filter/map don't reorder), so HFT_ALL_DAYS[HFT_ALL_DAYS.length-1] is always the latest
+   real day -- used as this picker's default. */
+const HFT_ALL_DAYS = PLS_COOKING_ROWS.filter(function(day){ return day.r[75] != null; }).map(function(day){
+  const rec = { ts:day.ts, y:day.y, mi:day.mi, d:day.d, setPoint:day.r[75] };
+  HFT_FIELDS.forEach(function(f){ rec[f.key] = f.get(day, day.ts); });
+  return rec;
+});
+/* { mode:'date'|'week'|'month'|'quarter'|'year', value:string } -- the "Condition ปัจจุบัน" picker's
+   selection, mirroring YAD_STATE's own shape. Defaults are set once the real latest day is known, by
+   initHFactorConditionControls(). */
+let HFT_COND_STATE = { mode:'date', value:null };
+/* Period-aware "condition": single-day mode returns that exact day's own raw values (n=1, ref = that
+   one date); week/month/quarter/year average every HFT_FIELDS key across the days that actually fall
+   in the selected period (same independent-per-field null-skipping convention used throughout this
+   feature -- a day missing one field just doesn't count toward that field's average, it is never
+   dropped from the period entirely). `ref` reports the real min-max date range of the days that
+   actually matched and had data -- which can be narrower than the nominal picker range if the sheet
+   has gaps. Returns null when nothing matches (no day for that exact date, or zero days in the
+   period) rather than silently falling back to a different day/period. */
+function computeHFactorCondition(){
+  const state = HFT_COND_STATE;
+  if(!state || !state.value) return null;
+  let rows = [];
+  if(state.mode === 'date'){
+    const p = state.value.split('-').map(Number);
+    const hit = HFT_ALL_DAYS.find(function(d){ return d.y===p[0] && d.mi===(p[1]-1) && d.d===p[2]; });
+    rows = hit ? [hit] : [];
+  } else if(state.mode === 'week'){
+    const range = yaWeekRange(state.value);
+    if(range){ const s=range.start.getTime(), e=range.end.getTime(); rows = HFT_ALL_DAYS.filter(function(d){ return d.ts>=s && d.ts<=e; }); }
+  } else if(state.mode === 'quarter'){
+    const range = yaQuarterRange(state.value);
+    if(range){ const s=range.start.getTime(), e=range.end.getTime(); rows = HFT_ALL_DAYS.filter(function(d){ return d.ts>=s && d.ts<=e; }); }
+  } else if(state.mode === 'month'){
+    const p = state.value.split('-').map(Number);
+    rows = HFT_ALL_DAYS.filter(function(d){ return d.y===p[0] && d.mi===(p[1]-1); });
+  } else if(state.mode === 'year'){
+    const y = Number(state.value);
+    rows = HFT_ALL_DAYS.filter(function(d){ return d.y===y; });
   }
-  if(!day) return null;
-  const row = { setPoint: day.r[75], dateStr: day.d+'/'+(day.mi+1)+'/'+day.y, ts: day.ts };
-  HFT_FIELDS.forEach(function(f){ row[f.key] = f.get(day, day.ts); });
+  if(!rows.length) return null;
+  const row = { n:rows.length, label:yaHeaderLabel(state), ref:hftRefRange(rows) };
+  ['setPoint'].concat(HFT_FIELDS.map(function(f){ return f.key; })).forEach(function(k){
+    let sum=0, cnt=0;
+    rows.forEach(function(d){ const v=d[k]; if(v!=null){ sum+=v; cnt++; } });
+    row[k] = cnt ? sum/cnt : null;
+  });
   return row;
+}
+function hftCondDateStr(day){ return day.y+'-'+String(day.mi+1).padStart(2,'0')+'-'+String(day.d).padStart(2,'0'); }
+function hftApplyCondMode(){
+  const modeSel = document.getElementById('hftCondMode');
+  const dateInp = document.getElementById('hftCondDate');
+  const weekInp = document.getElementById('hftCondWeek');
+  const monthInp = document.getElementById('hftCondMonth');
+  const quarterSel = document.getElementById('hftCondQuarter');
+  const yearSel = document.getElementById('hftCondYear');
+  if(!modeSel) return;
+  const mode = modeSel.value;
+  dateInp.hidden = mode!=='date';
+  weekInp.hidden = mode!=='week';
+  monthInp.hidden = mode!=='month';
+  quarterSel.hidden = mode!=='quarter';
+  yearSel.hidden = !(mode==='year' || mode==='quarter');
+  const value = mode==='date' ? dateInp.value : mode==='week' ? weekInp.value : mode==='month' ? monthInp.value : mode==='quarter' ? (yearSel.value+'-Q'+quarterSel.value) : yearSel.value;
+  HFT_COND_STATE = { mode:mode, value:value || null };
+  renderHFactorCurrentCondition();
+  renderHFactorRecommendation();
+}
+function initHFactorConditionControls(){
+  const modeSel = document.getElementById('hftCondMode');
+  if(!modeSel) return;
+  const years = Array.from(new Set(HFT_ALL_DAYS.map(function(d){ return d.y; }))).sort();
+  const yearSel = document.getElementById('hftCondYear');
+  if(yearSel) yearSel.innerHTML = years.map(function(y){ return '<option value="'+y+'">'+y+'</option>'; }).join('');
+  ['hftCondMode','hftCondDate','hftCondWeek','hftCondMonth','hftCondQuarter','hftCondYear'].forEach(function(id){
+    const el = document.getElementById(id);
+    if(!el) return;
+    el.addEventListener('change', hftApplyCondMode);
+    el.addEventListener('input', hftApplyCondMode);
+  });
+  const latest = HFT_ALL_DAYS.length ? HFT_ALL_DAYS[HFT_ALL_DAYS.length-1] : null;
+  if(latest){
+    document.getElementById('hftCondDate').value = hftCondDateStr(latest);
+    if(yearSel) yearSel.value = String(latest.y);
+  }
+  hftApplyCondMode();
 }
 function renderHFactorCurrentCondition(){
   const wrap = document.getElementById('hftCurrentTableWrap');
   const badge = document.getElementById('hftCurrentBadge');
   if(!wrap) return;
-  const cur = computeHFactorCurrentCondition();
+  const cur = computeHFactorCondition();
   if(!cur){
-    wrap.innerHTML = '<div class="hft-empty">ยังไม่มีข้อมูล Condition ปัจจุบัน</div>';
+    wrap.innerHTML = '<div class="hft-empty">ไม่มีข้อมูลในช่วงที่เลือก</div>';
     if(badge) badge.textContent = '';
     return;
   }
-  if(badge) badge.textContent = 'CURRENT · ' + cur.dateStr;
-  const row = Object.assign({}, cur, { col1: hftFmt(cur.setPoint, 1), col2: cur.dateStr });
-  wrap.innerHTML = hftBuildTableHtml([row], 'Set Point<br>H-factor (APC) จริง', 'Date');
+  const isDateMode = HFT_COND_STATE.mode === 'date';
+  if(badge) badge.textContent = (isDateMode ? 'CURRENT · ' : 'ช่วงที่เลือก · ') + cur.label;
+  const col2Label = cur.n > 1 ? (cur.label + ' (' + cur.n + ' วัน)') : cur.label;
+  const row = Object.assign({}, cur, { col1: hftFmt(cur.setPoint, 1), col2: col2Label });
+  const col1Header = isDateMode ? 'Set Point<br>H-factor (APC) จริง' : 'Set Point<br>H-factor (APC) เฉลี่ย';
+  wrap.innerHTML = hftBuildTableHtml([row], col1Header, 'วันที่ / ช่วง');
 }
 /* Set Point recommendation: which historical bucket's own average wood-species + chip-moisture
    profile (the 6 RM Wood-Yield fields -- genuine external/input conditions, independent of whatever
-   Set Point the operator chose that day) most closely resembles TODAY's own wood/moisture profile.
+   Set Point the operator chose that day) most closely resembles the SELECTED condition's own
+   wood/moisture profile (whatever period the "Condition ปัจจุบัน" picker above is currently set to).
    Deliberately excludes Target/Real H-factor and Kappa (those are OUTCOMES of the Set Point choice,
    not inputs -- comparing on them would be circular) and the chemical-charge fields (EA/WL charges
    are themselves operator decisions often adjusted in response to wood conditions, so folding them
@@ -7133,7 +7236,7 @@ function renderHFactorCurrentCondition(){
    field like K7, naturally tens of percent, purely from scale rather than actual relevance). */
 const HFT_CONDITION_KEYS = ['woodK7','woodK58','woodSeed','woodOther','woodSt1m','moistureLab'];
 function computeHFactorRecommendation(){
-  const cur = computeHFactorCurrentCondition();
+  const cur = computeHFactorCondition();
   if(!cur) return { status:'no-current' };
   if(HFT_CONDITION_KEYS.some(function(k){ return cur[k]==null; })) return { status:'incomplete-current' };
   const buckets = computeHFactorTuningBuckets();
@@ -7167,11 +7270,11 @@ function renderHFactorRecommendation(){
   if(!el) return;
   const r = computeHFactorRecommendation();
   if(r.status === 'no-current'){
-    el.innerHTML = '<p>ยังไม่มีข้อมูล Condition ปัจจุบันสำหรับวิเคราะห์</p>';
+    el.innerHTML = '<p>ยังไม่มีข้อมูล Condition สำหรับช่วงที่เลือกเพื่อวิเคราะห์</p>';
     return;
   }
   if(r.status === 'incomplete-current'){
-    el.innerHTML = '<p>ข้อมูลไม้สับ/ความชื้นของวันล่าสุดยังไม่ครบ ไม่สามารถแนะนำ Set Point H-factor ได้</p>';
+    el.innerHTML = '<p>ข้อมูลไม้สับ/ความชื้นของช่วงที่เลือกยังไม่ครบ ไม่สามารถแนะนำ Set Point H-factor ได้</p>';
     return;
   }
   if(r.status === 'insufficient-history'){
@@ -7179,11 +7282,11 @@ function renderHFactorRecommendation(){
     return;
   }
   const b = r.bucket, cur = r.current;
-  let html = '<p><b>คำแนะนำ:</b> จากสภาวะไม้สับและความชื้นของวันที่ ' + cur.dateStr + ' เทียบกับค่าเฉลี่ยไม้สับ/ความชื้นในแต่ละช่วง Set Point ที่เคยเดินจริง '
+  let html = '<p><b>คำแนะนำ:</b> จากสภาวะไม้สับและความชื้นของช่วง ' + cur.label + ' เทียบกับค่าเฉลี่ยไม้สับ/ความชื้นในแต่ละช่วง Set Point ที่เคยเดินจริง '
     + 'พบว่าใกล้เคียงกับช่วง Set Point H-factor = <b>' + b.bin + '</b> มากที่สุด '
     + '(ช่วงนั้นมี Kappa No. (Online) เฉลี่ย ' + hftFmt(b.kappaOnline,2) + ' และ Real H-factor เฉลี่ย ' + hftFmt(b.realHFactor,1) + ' จากข้อมูล ' + b.n + ' วัน) '
     + 'จึงอาจพิจารณาปรับ Set Point H-factor เป็น <b>' + b.bin + '</b> เพื่อให้สภาวะการเดินเครื่องใกล้เคียงกับช่วงที่เคยได้ผลลัพธ์นี้มากที่สุด</p>';
-  html += '<table class="hft-reco-compare"><thead><tr><th>ค่าเปรียบเทียบ</th><th>วันล่าสุด</th><th>เฉลี่ย Set Point '+b.bin+'</th></tr></thead><tbody>';
+  html += '<table class="hft-reco-compare"><thead><tr><th>ค่าเปรียบเทียบ</th><th>ช่วงที่เลือก</th><th>เฉลี่ย Set Point '+b.bin+'</th></tr></thead><tbody>';
   HFT_CONDITION_LABELS.forEach(function(pair){
     html += '<tr><td>'+pair[1]+'</td><td>'+hftFmt(cur[pair[0]],2)+'</td><td>'+hftFmt(b[pair[0]],2)+'</td></tr>';
   });
@@ -13019,8 +13122,7 @@ function initChipMon(){
   initYieldAnalysisControlsMB();
   renderYieldAnalysisTableLast7();
   renderHFactorTuningModel();
-  renderHFactorCurrentCondition();
-  renderHFactorRecommendation();
+  initHFactorConditionControls();
   initYaCardCollapse();
   initWoodCmp();
   initWoodStackAll();
