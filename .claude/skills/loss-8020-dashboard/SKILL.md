@@ -193,6 +193,14 @@ rebuilding the snapshot, the same way you would for the daily refresh's normal "
 not yet at the terminal stage" step — a parsing-logic fix additionally needs the previously-cached
 entries for any doc the fix actually changes re-fetched too, regardless of that doc's RCA stage.
 
+**`Department` can be a literal `"-"`**, same "not filled in" placeholder convention used
+elsewhere in this sheet — the department-grouping in the pending list treats both blank and `"-"`
+as `ไม่ระบุแผนก` (`x.r.department && x.r.department!=='-' ? x.r.department : 'ไม่ระบุแผนก'`), not
+two separate one-off groups. The sheet owner did a large retroactive `Department` backfill across
+nearly the whole `2026` tab on 2026-11-19 ("Department update") — after a backfill like that,
+re-check which department now carries the most pending-RCA Loss ADT (it changes which department
+block sorts first) rather than assuming the ranking from the last refresh still holds.
+
 **Live vs. snapshot, architecturally**: production (`index.html`, real browser, not CSP-sandboxed)
 fetches each distinct Link RCA document's CSV **live**, client-side, via the same gviz-CSV trick
 as the main sheet (`lpFetchRcaDetail(url)`: extract `docId`/`gid` from the URL with

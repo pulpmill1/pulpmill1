@@ -10228,7 +10228,7 @@ function lpRenderRcaTracking(filtered){
   } else {
     const groups = new Map(); // department -> array of {r,s}
     pending.forEach(x=>{
-      const dept = x.r.department || 'ไม่ระบุแผนก';
+      const dept = (x.r.department && x.r.department!=='-') ? x.r.department : 'ไม่ระบุแผนก';
       if(!groups.has(dept)) groups.set(dept, []);
       groups.get(dept).push(x);
     });
