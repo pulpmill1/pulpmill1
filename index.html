@@ -7204,6 +7204,23 @@ function initHftNToggle(){
    silently blocked by a filter this list doesn't need. Stays in PLS_COOKING_ROWS' own ts-ascending
    order (filter/map don't reorder), so HFT_ALL_DAYS[HFT_ALL_DAYS.length-1] is always the latest
    real day -- used as this picker's default. */
+/* Chip Moisture (Lab) is a lab result that can lag a day or more behind the Cooking Logsheet's own
+   same-day entry (Set Point/Kappa get logged live, the lab reading comes back later) -- so the most
+   recent cook day can easily have no moisture value yet even though cooking already happened. Rather
+   than show a blank dash for "today" until the lab catches up, this carries forward the most recent
+   EARLIER day's own real moisture reading. Scoped to computeHFactorCondition() only (the Current
+   Condition display and whatever recommendation reads from it) -- HFT_WOOD_SERIES_BY_TS.moistureLab
+   itself, and so the historical bucket table's own moisture averages, are left untouched: those
+   should keep reflecting only real lab readings, not values borrowed from a different day. */
+function hftMoistureCarryForward(ts){
+  const direct = HFT_WOOD_SERIES_BY_TS.moistureLab.get(ts);
+  if(direct != null) return direct;
+  let best = null, bestTs = -Infinity;
+  HFT_WOOD_SERIES_BY_TS.moistureLab.forEach(function(v, t){
+    if(t <= ts && t > bestTs){ bestTs = t; best = v; }
+  });
+  return best;
+}
 const HFT_ALL_DAYS = PLS_COOKING_ROWS.filter(function(day){ return day.r[75] != null; }).map(function(day){
   const rec = { ts:day.ts, y:day.y, mi:day.mi, d:day.d, setPoint:day.r[75] };
   HFT_FIELDS.forEach(function(f){ rec[f.key] = f.get(day, day.ts); });
@@ -7249,6 +7266,10 @@ function computeHFactorCondition(){
     rows.forEach(function(d){ const v=d[k]; if(v!=null){ sum+=v; cnt++; } });
     row[k] = cnt ? sum/cnt : null;
   });
+  if(row.moistureLab == null){
+    const anchorTs = Math.max.apply(null, rows.map(function(d){ return d.ts; }));
+    row.moistureLab = hftMoistureCarryForward(anchorTs);
+  }
   return row;
 }
 function hftCondDateStr(day){ return day.y+'-'+String(day.mi+1).padStart(2,'0')+'-'+String(day.d).padStart(2,'0'); }
