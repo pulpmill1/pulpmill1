@@ -211,10 +211,29 @@ Steps:
    rather than fetching twice.)
 5. Proceed to `gen_data.js` as normal; it picks up `harness/rca_detail.json` automatically.
 
+Each item line shows explicit status **wording**, not just a glyph (explicit user request,
+2026-11-19 — "ระบุ Wording ชัดว่าทำเสร็จแล้วหรือยังอยู่ระหว่างดำเนินการ"): `lpActionItemsCell`
+renders `{no}) {desc} — ✓ ทำเสร็จแล้ว` / `○ อยู่ระหว่างดำเนินการ` / `ไม่ระบุสถานะ` (no status
+column on that item's section, e.g. most PM sections) per item, not just a colored symbol.
+
+**Grouped by Department with an explicit per-department priority rank** (explicit user request,
+2026-11-19 — "ในแต่ละ department จะต้องรู้ว่า RCA ที่รับผิดชอบอะไรคืออันดับ 1 และลำดับถัดไป": each
+department must know which RCA is their #1 priority and what's next). The pending-items list
+(`#lpRcaPendingByDept`, a `<div>` — **not** a single `<table>`, since it holds one mini-table per
+department) groups the not-yet-`นำเข้าระบบ` rows by `r.department` (blank → `ไม่ระบุแผนก`),
+departments themselves ordered by their total pending Loss ADT descending (heaviest workload
+first), and *within* each department by Loss ADT descending with an explicit `#1`, `#2`, ... rank
+badge (`.lp-rca-rank`, `#1` visually distinguished in red via `.r1`) — that rank number *is* the
+answer to "which RCA is this department's top priority." Replaced the earlier flat
+cross-department table entirely; if a flat all-departments view is ever wanted again, add it back
+as a second view rather than reverting this one, since the per-department ranking is the thing
+that was explicitly asked for.
+
 **Smoke-testing this feature**: beyond the usual KPI-grid check, verify `#lpRcaHint`,
 `#lpRcaKpiGrid .lp-kpi-card` (expect 7 tiles, including "CM Action Items (เสร็จ/ทั้งหมด)" and "PM
 Action Items (ทั้งหมด)"), `#lpRcaStatusTable tbody tr` (5 stage rows, counts must sum to the
-"ต้องทำ RCA" tile), and at least one `#lpRcaPendingTable tbody tr .lp-rca-items` cell's computed
+"ต้องทำ RCA" tile), `#lpRcaPendingByDept .lp-rca-dept-group` (one per department, each with its
+own `.lp-rca-rank` sequence starting at `#1`), and at least one `.lp-rca-items` cell's computed
 `max-height` (expect `160px`, `overflow-y: auto`) — **this CSS rule lives in `full_style.css`,
 which is a *separate* extraction step from `logic.js`/`logic_testable.js`; a CSS-only edit to
 `index.html` (new class, no JS change) is easy to make and then forget to re-extract before

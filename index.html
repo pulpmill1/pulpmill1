@@ -746,6 +746,13 @@
   .lp-rca-pending{color:#B00000; font-weight:700;}
   .lp-rca-na{color:var(--ink-3);}
   .lp-rca-muted{color:var(--ink-3); font-style:italic;}
+  .lp-rca-dept-group{margin-top:18px;}
+  .lp-rca-dept-head{display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; margin-bottom:8px;}
+  .lp-rca-dept-name{font-size:14px; font-weight:700; color:var(--ink);}
+  .lp-rca-dept-meta{font-size:12px; color:var(--ink-2);}
+  .lp-rca-rank{display:inline-flex; align-items:center; justify-content:center; min-width:26px; height:22px;
+    padding:0 6px; border-radius:11px; background:var(--accent); color:#fff; font-weight:700; font-size:12px;}
+  .lp-rca-rank.r1{background:#B00000;}
   #lpVitalFewTable td, #lpVitalFewTable th{vertical-align:top;}
   .lp-vf-toolbar{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-top:12px;}
   .lp-vf-toolbar label{font-size:12.5px; color:var(--ink-2); display:flex; align-items:center; gap:6px; cursor:pointer;}
@@ -2067,8 +2074,8 @@
             <div class="lp-kpi-grid" id="lpRcaKpiGrid"></div>
             <div class="hint" style="margin-top:4px;">สรุปสถานะ RCA ตามขั้นตอน: ยังไม่เริ่ม → มี RCA/Link แล้ว → Pre Meeting แล้ว → Closing RCA แล้ว → นำเข้าระบบแล้ว (ข้อมูล RCA มีเฉพาะชีทปี 2026 เป็นต้นไป)</div>
             <div class="tbl-wrap"><table id="lpRcaStatusTable"></table></div>
-            <div class="hint" style="margin-top:14px;">รายการที่ยังไม่นำเข้าระบบ (เรียงตาม Loss ADT มากไปน้อย)</div>
-            <div class="tbl-wrap"><table id="lpRcaPendingTable"></table></div>
+            <div class="hint" style="margin-top:14px;">ลำดับความสำคัญ RCA ที่ยังไม่นำเข้าระบบ แยกตาม Department — แต่ละแผนกเรียงลำดับ #1, #2, ... ตาม Loss ADT มากไปน้อย (รับผิดชอบเรื่องไหนก่อน-หลัง)</div>
+            <div id="lpRcaPendingByDept"></div>
           </div>
 
           <details class="dtable" id="lpVitalFewDetails" open>
@@ -10120,11 +10127,13 @@ function lpRowRcaDetail(r){
   return { cmItems, pmItems, loaded: allLoaded };
 }
 function lpActionItemsCell(items, loaded){
-  if(!loaded) return `<div class="lp-vf-text lp-rca-muted">กำลังโหลด…</div>`;
-  if(!items.length) return `<div class="lp-vf-text lp-rca-muted">—</div>`;
+  if(!loaded) return `<div class="lp-vf-text lp-rca-muted">กำลังโหลดข้อมูลจาก Link RCA…</div>`;
+  if(!items.length) return `<div class="lp-vf-text lp-rca-muted">ไม่มีข้อมูลจาก Link RCA</div>`;
   const lines = items.map(it=>{
-    const mark = it.hasStatus ? (it.done ? '<span class="lp-rca-done">✓</span>' : '<span class="lp-rca-pending">○</span>') : '<span class="lp-rca-na">·</span>';
-    return `${mark} ${it.no}) ${lpEsc(it.desc)}`;
+    const statusText = it.hasStatus
+      ? (it.done ? '<span class="lp-rca-done">✓ ทำเสร็จแล้ว</span>' : '<span class="lp-rca-pending">○ อยู่ระหว่างดำเนินการ</span>')
+      : '<span class="lp-rca-na">ไม่ระบุสถานะ</span>';
+    return `${it.no}) ${lpEsc(it.desc)} — ${statusText}`;
   }).join('<br>');
   return `<div class="lp-vf-text lp-rca-items">${lines}</div>`;
 }
@@ -10148,8 +10157,8 @@ function lpRenderRcaTracking(filtered){
   const hintEl = document.getElementById('lpRcaHint');
   const kpiGrid = document.getElementById('lpRcaKpiGrid');
   const statusTbl = document.getElementById('lpRcaStatusTable');
-  const pendingTbl = document.getElementById('lpRcaPendingTable');
-  if(!hintEl || !kpiGrid || !statusTbl || !pendingTbl) return;
+  const byDeptEl = document.getElementById('lpRcaPendingByDept');
+  if(!hintEl || !kpiGrid || !statusTbl || !byDeptEl) return;
 
   const need = filtered.filter(r => r.lossAdt!=null && r.lossAdt >= LP_RCA_THRESHOLD);
   const withStatus = need.map(r => ({ r, s: lpRcaStatusOf(r) }));
@@ -10194,28 +10203,47 @@ function lpRenderRcaTracking(filtered){
     statusTbl.innerHTML = head + `<tbody>${body}</tbody>`;
   }
 
-  const pending = withStatus.filter(x=>x.s.stage<4).sort((a,b)=>(b.r.lossAdt||0)-(a.r.lossAdt||0));
+  const pending = withStatus.filter(x=>x.s.stage<4);
   if(pending.length===0){
-    pendingTbl.innerHTML = `<tr><td class="loss-empty">${need.length===0 ? 'ไม่มีข้อมูล' : 'ไม่มีรายการค้าง — นำเข้าระบบครบทุกรายการแล้ว'}</td></tr>`;
+    byDeptEl.innerHTML = `<p class="loss-empty">${need.length===0 ? 'ไม่มีข้อมูล' : 'ไม่มีรายการค้าง — นำเข้าระบบครบทุกรายการแล้ว'}</p>`;
   } else {
-    const head = `<thead><tr><th>วันที่</th><th>EQ Type</th><th>Type</th><th>Loss ADT</th><th>Department</th><th class="c-loss">CM (จาก RCA Link)</th><th class="c-loss">PM (จาก RCA Link)</th><th>สถานะ RCA</th><th>Link RCA</th></tr></thead>`;
-    const body = pending.map(({r,s})=>{
-      const dateStr = r.dateStart ? `${r.dateStart.getDate()}/${r.dateStart.getMonth()+1}/${r.dateStart.getFullYear()}` : (r.month||'');
-      const links = (r.linkRca||[]).map((u,idx)=>`<a href="${lpEsc(u)}" target="_blank" rel="noopener">Link ${idx+1}</a>`).join(' ');
-      const { cmItems, pmItems, loaded } = lpRowRcaDetail(r);
-      return `<tr>`
-        + `<td>${lpEsc(dateStr)}</td>`
-        + `<td style="text-align:left;">${lpEsc(lpEqLabel(r))}</td>`
-        + `<td style="text-align:left;">${lpEsc(r.classifiedType||r.originalType||'')}</td>`
-        + `<td>${lpFmtNum(r.lossAdt)}</td>`
-        + `<td style="text-align:left;">${lpEsc(r.department||'—')}</td>`
-        + `<td style="text-align:left;">${lpActionItemsCell(cmItems, loaded)}</td>`
-        + `<td style="text-align:left;">${lpActionItemsCell(pmItems, loaded)}</td>`
-        + `<td><span class="chip ${s.chipClass}">${lpEsc(s.label)}</span></td>`
-        + `<td style="text-align:left;">${links || '—'}</td>`
-        + `</tr>`;
+    const groups = new Map(); // department -> array of {r,s}
+    pending.forEach(x=>{
+      const dept = x.r.department || 'ไม่ระบุแผนก';
+      if(!groups.has(dept)) groups.set(dept, []);
+      groups.get(dept).push(x);
+    });
+    const deptList = [...groups.entries()].map(([dept, items])=>{
+      items.sort((a,b)=>(b.r.lossAdt||0)-(a.r.lossAdt||0));
+      const totalLoss = items.reduce((a,x)=>a+(x.r.lossAdt||0),0);
+      return { dept, items, totalLoss };
+    }).sort((a,b)=>b.totalLoss-a.totalLoss);
+
+    byDeptEl.innerHTML = deptList.map(({dept, items, totalLoss})=>{
+      const head = `<thead><tr><th>ลำดับ</th><th>วันที่</th><th>EQ Type</th><th>Type</th><th>Loss ADT</th><th class="c-loss">CM (จาก RCA Link)</th><th class="c-loss">PM (จาก RCA Link)</th><th>สถานะ RCA</th><th>Link RCA</th></tr></thead>`;
+      const body = items.map(({r,s}, idx)=>{
+        const rank = idx+1;
+        const dateStr = r.dateStart ? `${r.dateStart.getDate()}/${r.dateStart.getMonth()+1}/${r.dateStart.getFullYear()}` : (r.month||'');
+        const links = (r.linkRca||[]).map((u,i)=>`<a href="${lpEsc(u)}" target="_blank" rel="noopener">Link ${i+1}</a>`).join(' ');
+        const { cmItems, pmItems, loaded } = lpRowRcaDetail(r);
+        return `<tr>`
+          + `<td><span class="lp-rca-rank${rank===1?' r1':''}">#${rank}</span></td>`
+          + `<td>${lpEsc(dateStr)}</td>`
+          + `<td style="text-align:left;">${lpEsc(lpEqLabel(r))}</td>`
+          + `<td style="text-align:left;">${lpEsc(r.classifiedType||r.originalType||'')}</td>`
+          + `<td>${lpFmtNum(r.lossAdt)}</td>`
+          + `<td style="text-align:left;">${lpActionItemsCell(cmItems, loaded)}</td>`
+          + `<td style="text-align:left;">${lpActionItemsCell(pmItems, loaded)}</td>`
+          + `<td><span class="chip ${s.chipClass}">${lpEsc(s.label)}</span></td>`
+          + `<td style="text-align:left;">${links || '—'}</td>`
+          + `</tr>`;
+      }).join('');
+      return `<div class="lp-rca-dept-group">`
+        + `<div class="lp-rca-dept-head"><span class="lp-rca-dept-name">${lpEsc(dept)}</span>`
+        + `<span class="lp-rca-dept-meta">${lpFmtNum(items.length)} รายการค้าง · Loss ADT รวม ${lpFmtNum(totalLoss)}</span></div>`
+        + `<div class="tbl-wrap"><table>${head}<tbody>${body}</tbody></table></div>`
+        + `</div>`;
     }).join('');
-    pendingTbl.innerHTML = head + `<tbody>${body}</tbody>`;
   }
 
   // ดึงรายละเอียด Action Item จาก Link RCA แบบ background (เฉพาะ production ที่ live-fetch ได้ —
