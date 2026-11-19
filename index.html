@@ -2399,7 +2399,7 @@
             <p>สรุปผลการเดินเครื่องจริงในแต่ละช่วง Set Point H-factor (APC) เพื่อใช้เป็นแนวทางเลือกค่า Set Point ที่เหมาะสม</p>
           </div>
           <div class="hft-note">
-            <b>วิธีจัดกลุ่มข้อมูล:</b> แต่ละวันในปี 2026 จะถูกจัดเข้ากลุ่มตามค่าเฉลี่ย "Set point H-factor(APC)" ของวันนั้น (เฉลี่ยทุกครั้งต้มในวันเดียวกันก่อน เนื่องจาก Cooking Logsheet บันทึกรายครั้งต้ม) แล้วปัดเข้ากลุ่มที่ใกล้ที่สุด ห่างกันทีละ 20 — ช่วงที่แสดงมาจากข้อมูลจริงที่เคยเดินเท่านั้น ไม่ได้กำหนดตายตัว ข้อมูลไม้สับ/ความชื้น (RM Wood-Yield) และ Residual alkali WBL→Evaporator (QC Lab FL1) จับคู่ด้วยวันที่เดียวกัน แล้วหาค่าเฉลี่ยรวมในแต่ละกลุ่ม — <b>n</b> คือจำนวนวันที่มีข้อมูลในกลุ่มนั้น
+            <b>วิธีจัดกลุ่มข้อมูล:</b> แต่ละวัน<span id="hftHistoryRangeNote"></span>จะถูกจัดเข้ากลุ่มตามค่าเฉลี่ย "Set point H-factor(APC)" ของวันนั้น (เฉลี่ยทุกครั้งต้มในวันเดียวกันก่อน เนื่องจาก Cooking Logsheet บันทึกรายครั้งต้ม) แล้วปัดเข้ากลุ่มที่ใกล้ที่สุด ห่างกันทีละ 20 — ช่วงที่แสดงมาจากข้อมูลจริงที่เคยเดินเท่านั้น ไม่ได้กำหนดตายตัว ข้อมูลไม้สับ/ความชื้น (RM Wood-Yield) และ Residual alkali WBL→Evaporator (QC Lab FL1) จับคู่ด้วยวันที่เดียวกัน แล้วหาค่าเฉลี่ยรวมในแต่ละกลุ่ม — <b>n</b> คือจำนวนวันที่มีข้อมูลในกลุ่มนั้น
           </div>
 
           <div class="hft-section-head">
@@ -7082,10 +7082,24 @@ const HFT_FIELDS = [
   {key:'resAlkalineAcc855', label:'Res.Alkaline Acc 855', unit:'g/l', dec:1, grp:'chem', get:function(c){ return c.r[63]; }},
   {key:'residAlkaliWbl', label:'Residual alkali WBL to Evaporator', unit:'g/l', dec:1, grp:'chem', get:function(c,ts){ return QC_LAB_FL1_RESID_BY_TS.get(ts); }},
 ];
+/* H-Factor Tuning Model's historical window: fixed start at 1 Jan 2026 (this feature's own baseline
+   -- unchanged regardless of what year it is now), rolling end at the start of the CURRENT real
+   calendar month. The ongoing month's own data is still being written day by day and isn't a
+   "closed" month yet, so it's excluded from the history until the month turns over -- at which
+   point it joins automatically with no code change needed (HFT_HISTORY_END is read fresh from
+   `new Date()` once per page load, same pattern as chipMonYesterdayEnd/chipMonNow above). Both
+   bounds are local-midnight timestamps (new Date(y,mi,1)), matching PLS_COOKING_ROWS' own day.ts
+   convention, so a plain half-open [start, end) comparison is correct with no off-by-one risk. */
+const HFT_HISTORY_START = new Date(2026,0,1).getTime();
+const HFT_HISTORY_END = (function(){ const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), 1).getTime(); })();
+function hftHistoryRangeLabel(){
+  const lastIncluded = new Date(HFT_HISTORY_END - 1);
+  return 'ตั้งแต่เดือน ม.ค. 2026 ถึงเดือน ' + MONTH_ABBR_TH[lastIncluded.getMonth()] + ' ' + lastIncluded.getFullYear() + ' (ไม่รวมเดือนปัจจุบันที่ยังไม่ปิดข้อมูล) ';
+}
 function computeHFactorTuningBuckets(){
   const buckets = new Map(); // bin value -> { bin, n, sums:{key:sum}, counts:{key:count}, days:[...] }
   PLS_COOKING_ROWS.forEach(function(day){
-    if(day.y !== 2026) return;
+    if(day.ts < HFT_HISTORY_START || day.ts >= HFT_HISTORY_END) return;
     const setPoint = day.r[75];
     if(setPoint == null) return;
     const bin = Math.round(setPoint/20)*20;
@@ -7161,10 +7175,12 @@ function renderHFactorTuningModel(){
   const wrap = document.getElementById('hftTableWrap');
   const toggleBtn = document.getElementById('hftNToggleBtn');
   if(toggleBtn) toggleBtn.textContent = HFT_HIST_N_COLLAPSED ? 'แสดงคอลัมภ์ N' : 'ซ่อนคอลัมภ์ N';
+  const rangeNoteEl = document.getElementById('hftHistoryRangeNote');
+  if(rangeNoteEl) rangeNoteEl.textContent = hftHistoryRangeLabel();
   if(!wrap) return;
   const buckets = computeHFactorTuningBuckets();
   if(!buckets.length){
-    wrap.innerHTML = '<div class="hft-empty">ยังไม่มีข้อมูล Set point H-factor(APC) ในปี 2026 ที่สามารถสรุปได้</div>';
+    wrap.innerHTML = '<div class="hft-empty">ยังไม่มีข้อมูล Set point H-factor(APC) '+hftHistoryRangeLabel()+'ที่สามารถสรุปได้</div>';
     return;
   }
   const rows = buckets.map(function(b){
