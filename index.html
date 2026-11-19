@@ -666,6 +666,13 @@
   .hft-n-toggle:hover{color:var(--ink);}
   table.hft-table.hft-n-collapsed th.hft-n,table.hft-table.hft-n-collapsed td.hft-n{display:none;}
   .hft-reco-box p{margin:0 0 10px;}
+  /* Highlight card for the main recommendation sentence in both reco boxes -- reuses the
+     dashboard's own accent color language (var(--accent-soft)/--accent/--accent-ink, the same
+     triple used for nav highlights and table headers elsewhere) so it reads as "the answer" at a
+     glance instead of blending into the surrounding note text. */
+  .hft-reco-highlight{background:var(--accent-soft);border:1px solid var(--accent);border-left:4px solid var(--accent);border-radius:10px;padding:14px 16px;margin:0 0 12px;color:var(--ink);font-size:13px;line-height:1.75;}
+  .hft-reco-highlight b{color:var(--accent-ink);}
+  .hft-reco-value{display:inline-block;background:var(--accent);color:#fff;font-weight:800;padding:2px 11px;border-radius:6px;font-family:"IBM Plex Mono",monospace;font-size:13px;}
   table.hft-reco-compare{width:100%;max-width:560px;border-collapse:collapse;font-size:11.5px;}
   table.hft-reco-compare th,table.hft-reco-compare td{padding:5px 9px;border:1px solid var(--border);text-align:right;}
   table.hft-reco-compare th{background:var(--surface);font-weight:700;color:var(--ink);}
@@ -7458,10 +7465,10 @@ function renderHFactorRecommendation(){
     return;
   }
   const b = r.bucket, cur = r.current;
-  let html = '<p><b>คำแนะนำ:</b> จากสภาวะไม้สับ ความชื้น และ Temp.after circulation (Temp เริ่มต้น) ของช่วง ' + cur.label + ' เทียบกับค่าเฉลี่ยไม้สับ/ความชื้น/Temp.after circulation (Temp เริ่มต้น) ในแต่ละช่วง Set Point ที่เคยเดินจริง '
+  let html = '<p class="hft-reco-highlight"><b>คำแนะนำ:</b> จากสภาวะไม้สับ ความชื้น และ Temp.after circulation (Temp เริ่มต้น) ของช่วง ' + cur.label + ' เทียบกับค่าเฉลี่ยไม้สับ/ความชื้น/Temp.after circulation (Temp เริ่มต้น) ในแต่ละช่วง Set Point ที่เคยเดินจริง '
     + 'พบว่าใกล้เคียงกับช่วง Set Point H-factor = <b>' + b.bin + '</b> มากที่สุด '
     + '(ช่วงนั้นมี Kappa No. (Online) เฉลี่ย ' + hftFmt(b.kappaOnline,2) + ' และ Real H-factor เฉลี่ย ' + hftFmt(b.realHFactor,1) + ' จากข้อมูล ' + b.n + ' วัน) '
-    + 'จึงอาจพิจารณาปรับ Set Point H-factor เป็น <b>' + b.bin + '</b> เพื่อให้สภาวะการเดินเครื่องใกล้เคียงกับช่วงที่เคยได้ผลลัพธ์นี้มากที่สุด</p>';
+    + 'จึงอาจพิจารณาปรับ Set Point H-factor เป็น <span class="hft-reco-value">' + b.bin + '</span> เพื่อให้สภาวะการเดินเครื่องใกล้เคียงกับช่วงที่เคยได้ผลลัพธ์นี้มากที่สุด</p>';
   html += '<table class="hft-reco-compare"><thead><tr><th>ค่าเปรียบเทียบ</th><th>ช่วงที่เลือก</th><th>เฉลี่ย Set Point '+b.bin+'</th></tr></thead><tbody>';
   HFT_CONDITION_LABELS.forEach(function(pair){
     html += '<tr><td>'+pair[1]+'</td><td>'+hftFmt(cur[pair[0]],2)+'</td><td>'+hftFmt(b[pair[0]],2)+'</td></tr>';
@@ -7495,10 +7502,10 @@ function renderHFactorMonthlyRecommendation(){
   const b = r.bucket, cur = r.current;
   const monthLabel = hftMonthLabel(b.y, b.mi);
   const recoSetPoint = hftFmt(b.setPoint, 0);
-  let html = '<p><b>คำแนะนำ (จากข้อมูลรายเดือน):</b> จากสภาวะไม้สับ ความชื้น และ Temp.after circulation (Temp เริ่มต้น) ของช่วง ' + cur.label + ' เทียบกับค่าเฉลี่ยไม้สับ/ความชื้น/Temp.after circulation (Temp เริ่มต้น) ในแต่ละเดือนที่เคยเดินจริง '
+  let html = '<p class="hft-reco-highlight"><b>คำแนะนำ (จากข้อมูลรายเดือน):</b> จากสภาวะไม้สับ ความชื้น และ Temp.after circulation (Temp เริ่มต้น) ของช่วง ' + cur.label + ' เทียบกับค่าเฉลี่ยไม้สับ/ความชื้น/Temp.after circulation (Temp เริ่มต้น) ในแต่ละเดือนที่เคยเดินจริง '
     + 'พบว่าใกล้เคียงกับเดือน <b>' + monthLabel + '</b> มากที่สุด '
     + '(เดือนนั้นมี Set Point H-factor เฉลี่ย ' + hftFmt(b.setPoint,1) + ', Kappa No. (Online) เฉลี่ย ' + hftFmt(b.kappaOnline,2) + ' และ Real H-factor เฉลี่ย ' + hftFmt(b.realHFactor,1) + ' จากข้อมูล ' + b.n + ' วัน) '
-    + 'จึงอาจพิจารณาปรับ Set Point H-factor เป็น <b>' + recoSetPoint + '</b> เพื่อให้สภาวะการเดินเครื่องใกล้เคียงกับเดือนที่เคยได้ผลลัพธ์นี้มากที่สุด</p>';
+    + 'จึงอาจพิจารณาปรับ Set Point H-factor เป็น <span class="hft-reco-value">' + recoSetPoint + '</span> เพื่อให้สภาวะการเดินเครื่องใกล้เคียงกับเดือนที่เคยได้ผลลัพธ์นี้มากที่สุด</p>';
   html += '<table class="hft-reco-compare"><thead><tr><th>ค่าเปรียบเทียบ</th><th>ช่วงที่เลือก</th><th>เฉลี่ยเดือน '+monthLabel+'</th></tr></thead><tbody>';
   HFT_CONDITION_LABELS.forEach(function(pair){
     html += '<tr><td>'+pair[1]+'</td><td>'+hftFmt(cur[pair[0]],2)+'</td><td>'+hftFmt(b[pair[0]],2)+'</td></tr>';
