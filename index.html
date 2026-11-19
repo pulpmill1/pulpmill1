@@ -7084,18 +7084,21 @@ const HFT_FIELDS = [
   {key:'residAlkaliWbl', label:'Residual alkali WBL to Evaporator', unit:'g/l', dec:1, grp:'chem', get:function(c,ts){ return QC_LAB_FL1_RESID_BY_TS.get(ts); }},
 ];
 /* H-Factor Tuning Model's historical window: fixed start at 1 Jan 2026 (this feature's own baseline
-   -- unchanged regardless of what year it is now), rolling end at the start of the CURRENT real
-   calendar month. The ongoing month's own data is still being written day by day and isn't a
-   "closed" month yet, so it's excluded from the history until the month turns over -- at which
-   point it joins automatically with no code change needed (HFT_HISTORY_END is read fresh from
-   `new Date()` once per page load, same pattern as chipMonYesterdayEnd/chipMonNow above). Both
-   bounds are local-midnight timestamps (new Date(y,mi,1)), matching PLS_COOKING_ROWS' own day.ts
-   convention, so a plain half-open [start, end) comparison is correct with no off-by-one risk. */
+   -- unchanged regardless of what year it is now), rolling end at the start of TOMORROW -- so every
+   day up to and including today is included, updating automatically day by day (and across month/
+   year turnovers) with no code change needed, since HFT_HISTORY_END is read fresh from `new Date()`
+   once per page load (same pattern as chipMonYesterdayEnd/chipMonNow above). An earlier version of
+   this window stopped at the start of the CURRENT month, deliberately excluding whatever had been
+   logged so far this month on the reasoning that an in-progress month isn't "closed" data yet; that
+   exclusion is no longer wanted -- the table should keep growing with this month's days as they
+   come in rather than always lagging a full month behind. Both bounds are local-midnight timestamps
+   (new Date(y,mi,d)), matching PLS_COOKING_ROWS' own day.ts convention, so a plain half-open
+   [start, end) comparison is correct with no off-by-one risk. */
 const HFT_HISTORY_START = new Date(2026,0,1).getTime();
-const HFT_HISTORY_END = (function(){ const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), 1).getTime(); })();
+const HFT_HISTORY_END = (function(){ const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), d.getDate()+1).getTime(); })();
 function hftHistoryRangeLabel(){
   const lastIncluded = new Date(HFT_HISTORY_END - 1);
-  return 'ตั้งแต่เดือน ม.ค. 2026 ถึงเดือน ' + MONTH_ABBR_TH[lastIncluded.getMonth()] + ' ' + lastIncluded.getFullYear() + ' (ไม่รวมเดือนปัจจุบันที่ยังไม่ปิดข้อมูล) ';
+  return 'ตั้งแต่เดือน ม.ค. 2026 ถึงวันที่ ' + lastIncluded.getDate() + ' ' + MONTH_ABBR_TH[lastIncluded.getMonth()] + ' ' + lastIncluded.getFullYear() + ' ';
 }
 function computeHFactorTuningBuckets(){
   const buckets = new Map(); // bin value -> { bin, n, sums:{key:sum}, counts:{key:count}, days:[...] }
