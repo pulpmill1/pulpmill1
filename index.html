@@ -670,15 +670,6 @@
   table.hft-reco-compare th,table.hft-reco-compare td{padding:5px 9px;border:1px solid var(--border);text-align:right;}
   table.hft-reco-compare th{background:var(--surface);font-weight:700;color:var(--ink);}
   table.hft-reco-compare th:first-child,table.hft-reco-compare td:first-child{text-align:left;color:var(--ink);}
-  /* Lets an operator ask "what Set Point would hit THIS Kappa" instead of only "what Set Point
-     matches today's wood" -- see computeHFactorKappaTarget. Pill styling matches .hft-n-toggle's
-     visual language above for consistency within the same section-head row. */
-  .hft-kappa-target{display:inline-flex;align-items:center;gap:6px;background:var(--surface-2);border:1px solid var(--border);border-radius:20px;padding:4px 10px 4px 12px;font-size:11px;}
-  .hft-kappa-target label{color:var(--ink-2);font-weight:600;white-space:nowrap;}
-  .hft-kappa-target input{width:64px;border:1px solid var(--border);border-radius:6px;padding:3px 6px;font-size:12px;font-family:"IBM Plex Mono",monospace;background:var(--surface);color:var(--ink);}
-  .hft-kappa-note{margin-top:10px;}
-  .hft-kappa-warn{display:block;margin-top:8px;color:#a15c00;background:rgba(255,166,0,.12);border:1px solid rgba(255,166,0,.35);border-radius:8px;padding:8px 10px;font-size:11.5px;}
-  .hft-kappa-trend-table{margin-top:4px;}
   .ya-summary{margin-bottom:14px;font-size:12px;color:var(--ink-2);}
   .ya-summary .rn-head{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border);}
   .ya-summary .ys-body,.ya-overview-col .ys-body{font-weight:300;line-height:1.9;}
@@ -2421,10 +2412,6 @@
 
           <div class="hft-section-head">
             <h3>คำแนะนำ Set Point H-factor</h3>
-            <div class="hft-kappa-target">
-              <label for="hftTargetKappaInput">Target Kappa Cooking</label>
-              <input type="number" id="hftTargetKappaInput" step="0.01" min="0" value="14.00">
-            </div>
           </div>
           <div class="hft-note hft-reco-box" id="hftRecoBox"></div>
 
@@ -7095,21 +7082,18 @@ const HFT_FIELDS = [
   {key:'residAlkaliWbl', label:'Residual alkali WBL to Evaporator', unit:'g/l', dec:1, grp:'chem', get:function(c,ts){ return QC_LAB_FL1_RESID_BY_TS.get(ts); }},
 ];
 /* H-Factor Tuning Model's historical window: fixed start at 1 Jan 2026 (this feature's own baseline
-   -- unchanged regardless of what year it is now), rolling end at the start of TOMORROW -- so every
-   day up to and including today is included, updating automatically day by day (and across month/
-   year turnovers) with no code change needed, since HFT_HISTORY_END is read fresh from `new Date()`
-   once per page load (same pattern as chipMonYesterdayEnd/chipMonNow above). An earlier version of
-   this window stopped at the start of the CURRENT month, deliberately excluding whatever had been
-   logged so far this month on the reasoning that an in-progress month isn't "closed" data yet; that
-   exclusion is no longer wanted -- the table should keep growing with this month's days as they
-   come in rather than always lagging a full month behind. Both bounds are local-midnight timestamps
-   (new Date(y,mi,d)), matching PLS_COOKING_ROWS' own day.ts convention, so a plain half-open
-   [start, end) comparison is correct with no off-by-one risk. */
+   -- unchanged regardless of what year it is now), rolling end at the start of the CURRENT real
+   calendar month. The ongoing month's own data is still being written day by day and isn't a
+   "closed" month yet, so it's excluded from the history until the month turns over -- at which
+   point it joins automatically with no code change needed (HFT_HISTORY_END is read fresh from
+   `new Date()` once per page load, same pattern as chipMonYesterdayEnd/chipMonNow above). Both
+   bounds are local-midnight timestamps (new Date(y,mi,1)), matching PLS_COOKING_ROWS' own day.ts
+   convention, so a plain half-open [start, end) comparison is correct with no off-by-one risk. */
 const HFT_HISTORY_START = new Date(2026,0,1).getTime();
-const HFT_HISTORY_END = (function(){ const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), d.getDate()+1).getTime(); })();
+const HFT_HISTORY_END = (function(){ const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), 1).getTime(); })();
 function hftHistoryRangeLabel(){
   const lastIncluded = new Date(HFT_HISTORY_END - 1);
-  return 'ตั้งแต่เดือน ม.ค. 2026 ถึงวันที่ ' + lastIncluded.getDate() + ' ' + MONTH_ABBR_TH[lastIncluded.getMonth()] + ' ' + lastIncluded.getFullYear() + ' ';
+  return 'ตั้งแต่เดือน ม.ค. 2026 ถึงเดือน ' + MONTH_ABBR_TH[lastIncluded.getMonth()] + ' ' + lastIncluded.getFullYear() + ' (ไม่รวมเดือนปัจจุบันที่ยังไม่ปิดข้อมูล) ';
 }
 function computeHFactorTuningBuckets(){
   const buckets = new Map(); // bin value -> { bin, n, sums:{key:sum}, counts:{key:count}, days:[...] }
@@ -7457,239 +7441,6 @@ const HFT_CONDITION_LABELS = [
   ['woodOther','Pulp 1 Other (%)'], ['woodSt1m','Pulp 1 St>1 m (%)'], ['moistureLab','Pulp 1 Chip Moisture (Lab) (%)'],
   ['tempAfterCirc','Temp.after circulation. (Temp เริ่มต้น) (C)'],
 ];
-/* Target Kappa Cooking -- the Set Point the wood/moisture match above recommends is independent of
-   Kappa (deliberately so, see computeHFactorRecommendation's own comment), so it can land on a Kappa
-   the operator doesn't actually want. This lets them say what Kappa they're aiming for; defaults to
-   14.00 on every fresh load (reset via initHftTargetKappaInput, not persisted across reloads). */
-let HFT_TARGET_KAPPA = 14.00;
-/* Least-squares fit of kappaOnline ~ bin + eaChargeActual (centered, so the 3-unknown normal-
-   equation system collapses to solving just the two slopes from a well-conditioned 2x2 system,
-   rather than inverting a raw 3x3 matrix whose entries span very different scales/magnitudes).
-   Returns null when degenerate: either predictor has ~no spread across pts (Sxx or Szz ~0), or the
-   two predictors are themselves too collinear across these buckets to separate their effects
-   (det near zero relative to Sxx*Szz) -- e.g. if every bucket that ran a higher Set Point also
-   happened to run a higher EA charge, there's no way to tell the two effects apart from this data,
-   and pretending otherwise would produce unstable, meaningless coefficients. */
-function hftFitBivariate(pts){
-  const n = pts.length;
-  const meanSP = pts.reduce(function(a,p){ return a+p.bin; }, 0)/n;
-  const meanEA = pts.reduce(function(a,p){ return a+p.eaChargeActual; }, 0)/n;
-  const meanK  = pts.reduce(function(a,p){ return a+p.kappaOnline; }, 0)/n;
-  let Sxx=0, Szz=0, Sxz=0, Sxy=0, Szy=0;
-  pts.forEach(function(p){
-    const x=p.bin-meanSP, z=p.eaChargeActual-meanEA, y=p.kappaOnline-meanK;
-    Sxx+=x*x; Szz+=z*z; Sxz+=x*z; Sxy+=x*y; Szy+=z*y;
-  });
-  if(Sxx < 1e-9 || Szz < 1e-9) return null;
-  const det = Sxx*Szz - Sxz*Sxz;
-  if(Math.abs(det) < (Sxx*Szz)*1e-4) return null;
-  const b1 = (Sxy*Szz - Szy*Sxz)/det;
-  const b2 = (Szy*Sxx - Sxy*Sxz)/det;
-  const b0 = meanK - b1*meanSP - b2*meanEA;
-  return { b0:b0, b1:b1, b2:b2 };
-}
-/* Same idea as hftFitBivariate, extended to a third predictor: kappaOnline ~ bin + eaChargeActual +
-   tempAfterCirc (Temp.after circulation, Temp เริ่มต้น). Centered normal equations reduce to a 3x3
-   system solved directly by Cramer's rule (det3 below). Returns null when degenerate: any predictor
-   with ~no spread (Sxx/Szz/Sww ~0), or the three predictors too collinear to separate (det of the
-   3x3 coefficient matrix near zero relative to the product of the diagonal) -- same reasoning as the
-   two-predictor case, just one dimension further. */
-function det3(m){
-  return m[0][0]*(m[1][1]*m[2][2]-m[1][2]*m[2][1])
-       - m[0][1]*(m[1][0]*m[2][2]-m[1][2]*m[2][0])
-       + m[0][2]*(m[1][0]*m[2][1]-m[1][1]*m[2][0]);
-}
-function hftFitTrivariate(pts){
-  const n = pts.length;
-  const meanSP = pts.reduce(function(a,p){ return a+p.bin; }, 0)/n;
-  const meanEA = pts.reduce(function(a,p){ return a+p.eaChargeActual; }, 0)/n;
-  const meanTemp = pts.reduce(function(a,p){ return a+p.tempAfterCirc; }, 0)/n;
-  const meanK = pts.reduce(function(a,p){ return a+p.kappaOnline; }, 0)/n;
-  let Sxx=0, Szz=0, Sww=0, Sxz=0, Sxw=0, Szw=0, Sxy=0, Szy=0, Swy=0;
-  pts.forEach(function(p){
-    const x=p.bin-meanSP, z=p.eaChargeActual-meanEA, w=p.tempAfterCirc-meanTemp, y=p.kappaOnline-meanK;
-    Sxx+=x*x; Szz+=z*z; Sww+=w*w; Sxz+=x*z; Sxw+=x*w; Szw+=z*w; Sxy+=x*y; Szy+=z*y; Swy+=w*y;
-  });
-  if(Sxx < 1e-9 || Szz < 1e-9 || Sww < 1e-9) return null;
-  const M = [[Sxx,Sxz,Sxw],[Sxz,Szz,Szw],[Sxw,Szw,Sww]];
-  const detM = det3(M);
-  if(Math.abs(detM) < (Sxx*Szz*Sww)*1e-4) return null;
-  const b1 = det3([[Sxy,Sxz,Sxw],[Szy,Szz,Szw],[Swy,Szw,Sww]])/detM;
-  const b2 = det3([[Sxx,Sxy,Sxw],[Sxz,Szy,Szw],[Sxw,Swy,Sww]])/detM;
-  const b3 = det3([[Sxx,Sxz,Sxy],[Sxz,Szz,Szy],[Sxw,Szw,Swy]])/detM;
-  const b0 = meanK - b1*meanSP - b2*meanEA - b3*meanTemp;
-  return { b0:b0, b1:b1, b2:b2, b3:b3 };
-}
-/* Proximity-narrows a point set by whichever of EA charge Actual / Temp.after circulation the
-   current condition actually has a value for, trying the most specific match first and relaxing
-   only when that leaves too few points to regress on (same 0.35-of-span "close enough" threshold
-   used throughout this feature, and the same reasoning as the old EA-only filter this generalizes):
-   1. both EA and Temp close to today's, 2. EA alone, 3. Temp alone, 4. no filtering at all. */
-function hftNarrowPts(allPts, curEa, curTemp){
-  function filterBy(keys){
-    const base = allPts.filter(function(p){ return keys.every(function(k){ return p[k.key]!=null; }); });
-    if(base.length < 2) return null;
-    const spans = {};
-    keys.forEach(function(k){
-      const vals = base.map(function(p){ return p[k.key]; });
-      spans[k.key] = (Math.max.apply(null, vals) - Math.min.apply(null, vals)) || 1;
-    });
-    const narrowed = base.filter(function(p){
-      return keys.every(function(k){ return Math.abs(p[k.key]-k.curVal) <= spans[k.key]*0.35; });
-    });
-    return narrowed.length >= 2 ? narrowed : null;
-  }
-  if(curEa!=null && curTemp!=null){
-    const both = filterBy([{key:'eaChargeActual',curVal:curEa},{key:'tempAfterCirc',curVal:curTemp}]);
-    if(both) return { pts:both, eaFiltered:true, tempFiltered:true };
-  }
-  if(curEa!=null){
-    const ea = filterBy([{key:'eaChargeActual',curVal:curEa}]);
-    if(ea) return { pts:ea, eaFiltered:true, tempFiltered:false };
-  }
-  if(curTemp!=null){
-    const temp = filterBy([{key:'tempAfterCirc',curVal:curTemp}]);
-    if(temp) return { pts:temp, eaFiltered:false, tempFiltered:true };
-  }
-  return { pts:allPts, eaFiltered:false, tempFiltered:false };
-}
-/* Below this many historical bucket-points, a 4-parameter (intercept + 3 slopes) fit is refused --
-   same 2x-the-parameter-count floor as HFT_KAPPA_MULTI_MIN_POINTS, just for the extra predictor. */
-const HFT_KAPPA_TRI_MIN_POINTS = 8;
-/* Below this many historical bucket-points, a 3-parameter (intercept + 2 slopes) fit is refused even
-   when it would technically solve -- with only a handful more points than parameters, the fit passes
-   near-perfectly through whatever noise is in the data rather than reflecting a real relationship
-   (the overfitting risk this feature's design explicitly trades off against). 6 gives at least 3
-   spare points beyond the 3 parameters; still thin for a statistics textbook, but a reasonable floor
-   for a practical engineering tool that should get SMARTER as more cooks accumulate, not pretend to
-   be precise on 3-4 points. */
-const HFT_KAPPA_MULTI_MIN_POINTS = 6;
-/* Set Point <-> Kappa No. (Online) relationship, read off historical buckets that have both a bin
-   and an average Kappa (computeHFactorTuningBuckets()). Picks the most reliable method the data
-   actually supports, in order, each aimed at the same failure mode (a wildly implausible suggested
-   Set Point from a noisy or confounded small-sample trend):
-
-   1. TRIVARIATE (most preferred): fit Kappa ~ Set Point + EA charge Actual + Temp.after circulation
-      (Temp เริ่มต้น) together (hftFitTrivariate), then solve for the Set Point that reaches
-      targetKappa AT TODAY'S OWN EA charge Actual and Temp.after circulation (holding both other
-      process conditions at their current value rather than whatever mix happened to appear across
-      history). Only attempted with >= HFT_KAPPA_TRI_MIN_POINTS buckets that have all three values
-      and a non-degenerate fit; otherwise falls through to (2).
-   2. BIVARIATE: fit Kappa ~ Set Point + EA charge Actual together (hftFitBivariate), same idea as
-      (1) without Temp.after circulation -- used when there isn't enough data for the 3-variable fit
-      but there is for the 2-variable one. Only attempted with >= HFT_KAPPA_MULTI_MIN_POINTS buckets
-      and a non-degenerate fit; otherwise falls through to (3).
-   3. SINGLE-VARIABLE, proximity-filtered: Set Point alone, but narrowed to buckets whose own EA
-      charge Actual and/or Temp.after circulation are close to today's (hftNarrowPts, trying both
-      together, then either alone, then no filtering) -- avoids reading a Kappa swing that was really
-      caused by a different chemical dose or circulation temperature as if it were a Set Point
-      effect, without needing enough data for a multi-variable fit. Every narrowing step falls back
-      further whenever it would leave fewer than 2 points, or that data isn't available -- so the
-      feature stays usable on sparse real data instead of going silent.
-
-   Methods (1) and (2) both reject a fitted Set Point slope that comes out non-negative (see the
-   kraft-chemistry comment just above the bivariate attempt below) and fall through to the next
-   method instead of acting on it; the sign check never applies to the EA charge / Temp coefficients,
-   only to the Set Point one, since those two are control/nuisance variables with no single mandated
-   direction, not the lever being solved for.
-
-   Whichever method answers, the solved Set Point is never allowed outside one bucket-width (20)
-   beyond the observed bin range -- a noisy fit, divided into a sizeable Kappa gap, can otherwise
-   swing the answer to a Set Point nobody has ever run and that isn't physically plausible for this
-   process. Past that margin the result is clamped to the boundary and flagged 'clamped' (distinct
-   from the milder 'extrapolated' flag, which just means targetKappa itself is outside the observed
-   Kappa range but the resulting Set Point still landed in a plausible margin).
-
-   `buckets` defaults to the Set-Point-bin history and `xKey` to 'bin' (that table's own rounded
-   Set Point value); passing computeHFactorMonthlyBuckets() and 'setPoint' instead runs the exact
-   same fits/guards/clamping against the monthly history's own (continuous, unrounded) average Set
-   Point per month -- everything past the `allPts` line below works purely off each point's generic
-   `.bin` property, so it never needs to know which source or x-variable it came from. */
-function computeHFactorKappaTarget(targetKappa, cur, buckets, xKey){
-  buckets = buckets || computeHFactorTuningBuckets();
-  xKey = xKey || 'bin';
-  if(targetKappa==null || !isFinite(targetKappa)) return { status:'invalid-target' };
-  const allPts = buckets
-    .filter(function(b){ return b.kappaOnline!=null && b[xKey]!=null; })
-    .map(function(b){ return { bin:b[xKey], kappaOnline:b.kappaOnline, n:b.n, eaChargeActual:b.eaChargeActual, tempAfterCirc:b.tempAfterCirc,
-      label: (b.y!=null && b.mi!=null) ? hftMonthLabel(b.y, b.mi) : null }; });
-  if(allPts.length < 2) return { status:'insufficient-history' };
-  const curEa = (cur && cur.eaChargeActual!=null) ? cur.eaChargeActual : null;
-  const curTemp = (cur && cur.tempAfterCirc!=null) ? cur.tempAfterCirc : null;
-  const withEa = allPts.filter(function(p){ return p.eaChargeActual!=null; });
-  const withEaTemp = allPts.filter(function(p){ return p.eaChargeActual!=null && p.tempAfterCirc!=null; });
-
-  function clampAndFinish(setPointRaw, pts, method, extra){
-    const bins = pts.map(function(p){ return p.bin; });
-    const binMin = Math.min.apply(null, bins), binMax = Math.max.apply(null, bins);
-    const margin = 20;
-    let setPoint = setPointRaw, clamped = false;
-    if(setPoint < binMin-margin){ setPoint = binMin-margin; clamped = true; }
-    else if(setPoint > binMax+margin){ setPoint = binMax+margin; clamped = true; }
-    const kappas = pts.map(function(p){ return p.kappaOnline; });
-    const kMin = Math.min.apply(null, kappas), kMax = Math.max.apply(null, kappas);
-    const extrapolated = targetKappa < kMin || targetKappa > kMax;
-    return Object.assign({ status: clamped ? 'clamped' : (extrapolated ? 'extrapolated' : 'ok'),
-      setPoint: Math.round(setPoint), points:pts, kMin:kMin, kMax:kMax, binMin:binMin, binMax:binMax,
-      targetKappa:targetKappa, method:method }, extra||{});
-  }
-
-  /* Kraft cooking chemistry: a higher Set Point H-factor means more cooking severity, which means
-     MORE delignification, which means a LOWER Kappa No. -- the slope of Kappa against Set Point
-     should always come out negative (or at worst ~flat) in real data. A fitted slope that comes out
-     positive doesn't reflect a real physical relationship; with as few historical buckets as this
-     feature typically has, it means the sample is too small/confounded (e.g. by wood/species
-     variation not controlled for) to trust, not that H-factor genuinely raises Kappa. Trusting it
-     anyway would invert the recommendation's direction -- telling an operator to raise Set Point
-     when they should lower it, or vice versa. So a positive slope is rejected the same way a
-     too-small one already is, falling through to the next, simpler method rather than acting on it.
-     This guard applies at every level (trivariate, bivariate, single-variable) since it's a property
-     of the Set Point coefficient specifically, not of which other variables came along with it. */
-  if(curEa!=null && curTemp!=null && withEaTemp.length >= HFT_KAPPA_TRI_MIN_POINTS){
-    const fit = hftFitTrivariate(withEaTemp);
-    if(fit && fit.b1 < -1e-6){
-      const setPoint = (targetKappa - fit.b0 - fit.b2*curEa - fit.b3*curTemp) / fit.b1;
-      if(isFinite(setPoint)) return clampAndFinish(setPoint, withEaTemp, 'trivariate', { fit:fit, curEa:curEa, curTemp:curTemp });
-    }
-  }
-
-  if(curEa!=null && withEa.length >= HFT_KAPPA_MULTI_MIN_POINTS){
-    const fit = hftFitBivariate(withEa);
-    if(fit && fit.b1 < -1e-6){
-      const setPoint = (targetKappa - fit.b0 - fit.b2*curEa) / fit.b1;
-      if(isFinite(setPoint)) return clampAndFinish(setPoint, withEa, 'multivariate', { fit:fit, curEa:curEa });
-    }
-  }
-
-  const narrow = hftNarrowPts(allPts, curEa, curTemp);
-  const pts = narrow.pts, eaFiltered = narrow.eaFiltered, tempFiltered = narrow.tempFiltered;
-  const n = pts.length;
-  const sumX = pts.reduce(function(a,p){ return a+p.bin; }, 0);
-  const sumY = pts.reduce(function(a,p){ return a+p.kappaOnline; }, 0);
-  const meanX = sumX/n, meanY = sumY/n;
-  let num=0, den=0;
-  pts.forEach(function(p){ num += (p.bin-meanX)*(p.kappaOnline-meanY); den += (p.bin-meanX)*(p.bin-meanX); });
-  if(den===0 || Math.abs(num/den) < 1e-9) return { status:'flat-trend', points:pts, eaFiltered:eaFiltered, tempFiltered:tempFiltered };
-  const m = num/den, c = meanY - m*meanX;
-  if(m >= -1e-6) return { status:'reversed-trend', points:pts, eaFiltered:eaFiltered, tempFiltered:tempFiltered, slope:m };
-  const setPoint = (targetKappa - c) / m;
-  const method = eaFiltered && tempFiltered ? 'single-variable-ea-temp-filtered'
-    : eaFiltered ? 'single-variable-ea-filtered'
-    : tempFiltered ? 'single-variable-temp-filtered'
-    : 'single-variable';
-  return clampAndFinish(setPoint, pts, method, { slope:m, intercept:c, eaFiltered:eaFiltered, tempFiltered:tempFiltered });
-}
-function initHftTargetKappaInput(){
-  const input = document.getElementById('hftTargetKappaInput');
-  if(!input) return;
-  HFT_TARGET_KAPPA = Number(input.value) || 14.00;
-  input.addEventListener('input', function(){
-    const v = Number(input.value);
-    HFT_TARGET_KAPPA = (isFinite(v) && v > 0) ? v : null;
-    renderHFactorRecommendation();
-    renderHFactorMonthlyRecommendation();
-  });
-}
 function renderHFactorRecommendation(){
   const el = document.getElementById('hftRecoBox');
   if(!el) return;
@@ -7716,56 +7467,14 @@ function renderHFactorRecommendation(){
     html += '<tr><td>'+pair[1]+'</td><td>'+hftFmt(cur[pair[0]],2)+'</td><td>'+hftFmt(b[pair[0]],2)+'</td></tr>';
   });
   html += '</tbody></table>';
-  if(HFT_TARGET_KAPPA == null){
-    html += '<p class="hft-kappa-note">กรุณาระบุค่า Target Kappa Cooking ที่ถูกต้อง (ตัวเลขมากกว่า 0) เพื่อวิเคราะห์เพิ่มเติม</p>';
-  } else {
-    const kappaDiff = b.kappaOnline==null ? null : (b.kappaOnline - HFT_TARGET_KAPPA);
-    if(kappaDiff==null){
-      html += '<p class="hft-kappa-note">ช่วง Set Point ที่แนะนำข้างต้นยังไม่มีค่า Kappa No. (Online) เฉลี่ย จึงยังไม่สามารถเทียบกับ Target Kappa Cooking ได้</p>';
-    } else if(Math.abs(kappaDiff) < 0.005){
-      html += '<p class="hft-kappa-note">Kappa No. (Online) ที่คาดจากคำแนะนำข้างต้น (<b>'+hftFmt(b.kappaOnline,2)+'</b>) ใกล้เคียงกับ Target Kappa Cooking ที่ตั้งไว้ (<b>'+hftFmt(HFT_TARGET_KAPPA,2)+'</b>) อยู่แล้ว จึงไม่จำเป็นต้องปรับ Set Point H-factor เพิ่มเติมจากคำแนะนำข้างต้น</p>';
-    } else {
-      const kt = computeHFactorKappaTarget(HFT_TARGET_KAPPA, cur);
-      const higherOrLower = kappaDiff > 0 ? 'สูงกว่า' : 'ต่ำกว่า';
-      if(kt.status === 'insufficient-history'){
-        html += '<p class="hft-kappa-note">Kappa No. (Online) ที่คาดจากคำแนะนำข้างต้น (<b>'+hftFmt(b.kappaOnline,2)+'</b>) '+higherOrLower+' Target Kappa Cooking ที่ตั้งไว้ (<b>'+hftFmt(HFT_TARGET_KAPPA,2)+'</b>) แต่ข้อมูลประวัติยังไม่พอสำหรับวิเคราะห์ความสัมพันธ์ Set Point H-factor กับ Kappa No. (ต้องมีอย่างน้อย 2 ช่วง Set Point ที่มีค่า Kappa)</p>';
-      } else if(kt.status === 'flat-trend'){
-        html += '<p class="hft-kappa-note">Kappa No. (Online) ที่คาดจากคำแนะนำข้างต้น (<b>'+hftFmt(b.kappaOnline,2)+'</b>) '+higherOrLower+' Target Kappa Cooking ที่ตั้งไว้ (<b>'+hftFmt(HFT_TARGET_KAPPA,2)+'</b>) แต่ข้อมูลประวัติยังไม่แสดงความสัมพันธ์ที่ชัดเจนระหว่าง Set Point H-factor กับ Kappa No. จึงยังไม่สามารถแนะนำปรับตาม Target Kappa ได้</p>';
-      } else if(kt.status === 'reversed-trend'){
-        html += '<p class="hft-kappa-note">Kappa No. (Online) ที่คาดจากคำแนะนำข้างต้น (<b>'+hftFmt(b.kappaOnline,2)+'</b>) '+higherOrLower+' Target Kappa Cooking ที่ตั้งไว้ (<b>'+hftFmt(HFT_TARGET_KAPPA,2)+'</b>) แต่ข้อมูลประวัติในกลุ่มนี้แสดงว่า Set Point H-factor สูงขึ้นกลับให้ Kappa No. สูงขึ้นตาม ซึ่งขัดกับความสัมพันธ์ปกติของกระบวนการต้ม (H-factor สูงขึ้นควรทำให้ Kappa ลดลง) จึงน่าจะเกิดจากข้อมูลประวัติยังมีน้อยเกินไปหรือมีปัจจัยอื่นปนอยู่ ยังไม่แนะนำให้ใช้ตัวเลขนี้ปรับ Set Point จนกว่าจะมีข้อมูลมากขึ้น</p>';
-      } else {
-        const methodNote = kt.method==='trivariate'
-          ? ' (วิเคราะห์จาก Set Point H-factor ร่วมกับ EA charge Actual และ Temp.after circulation (Temp เริ่มต้น) พร้อมกัน โดยคิดที่ระดับ EA charge Actual และ Temp.after circulation ปัจจุบัน จากข้อมูล '+kt.points.length+' ช่วง)'
-          : kt.method==='multivariate'
-          ? ' (วิเคราะห์จาก Set Point H-factor ร่วมกับ EA charge Actual พร้อมกัน โดยคิดที่ระดับ EA charge Actual ปัจจุบัน จากข้อมูล '+kt.points.length+' ช่วง)'
-          : (kt.eaFiltered && kt.tempFiltered) ? ' (เฉพาะช่วงที่มี EA charge Actual และ Temp.after circulation ใกล้เคียงกับปัจจุบัน เพื่อลดผลกระทบจากปัจจัยที่ต่างกัน)'
-          : kt.eaFiltered ? ' (เฉพาะช่วงที่มี EA charge Actual ใกล้เคียงกับปัจจุบัน เพื่อลดผลกระทบจากปริมาณสารเคมีที่ต่างกัน)'
-          : kt.tempFiltered ? ' (เฉพาะช่วงที่มี Temp.after circulation ใกล้เคียงกับปัจจุบัน เพื่อลดผลกระทบจากอุณหภูมิที่ต่างกัน)'
-          : '';
-        html += '<p class="hft-kappa-note">Kappa No. (Online) ที่คาดจากคำแนะนำข้างต้น (<b>'+hftFmt(b.kappaOnline,2)+'</b>) '+higherOrLower+' Target Kappa Cooking ที่ตั้งไว้ (<b>'+hftFmt(HFT_TARGET_KAPPA,2)+'</b>) จากความสัมพันธ์ระหว่าง Set Point H-factor กับ Kappa No. (Online) ที่เคยเกิดขึ้นจริงในประวัติ'+methodNote+' แนะนำปรับ Set Point H-factor เป็น <b>'+kt.setPoint+'</b> เพื่อให้ Kappa No. ใกล้เคียง Target Kappa Cooking ที่ตั้งไว้มากขึ้น</p>';
-        html += '<table class="hft-reco-compare hft-kappa-trend-table"><thead><tr><th>Set Point H-factor (APC)</th><th>Kappa No. (Online) เฉลี่ย</th><th>จำนวนวัน (n)</th></tr></thead><tbody>';
-        kt.points.slice().sort(function(a,b2){ return a.bin-b2.bin; }).forEach(function(p){
-          html += '<tr><td>'+p.bin+'</td><td>'+hftFmt(p.kappaOnline,2)+'</td><td>'+p.n+'</td></tr>';
-        });
-        html += '</tbody></table>';
-        if(kt.status === 'clamped'){
-          html += '<p class="hft-kappa-warn">⚠ จากความสัมพันธ์ที่มีอยู่ Set Point ที่คำนวณได้จริงเกินช่วงที่เคยเดินมามาก (เคยอยู่ระหว่าง <b>'+kt.binMin+'</b>–<b>'+kt.binMax+'</b>) จึงไม่แนะนำให้ปรับมากขนาดนั้นในครั้งเดียว ระบบจำกัดคำแนะนำไว้ที่ <b>'+kt.setPoint+'</b> ซึ่งยังพอมีเหตุผลรองรับ ควรปรับทีละขั้นและติดตามผล Kappa จริงก่อนปรับเพิ่มเติม แทนที่จะปรับครั้งเดียวจำนวนมาก</p>';
-        } else if(kt.status === 'extrapolated'){
-          html += '<p class="hft-kappa-warn">⚠ Target Kappa Cooking ที่ตั้งไว้ ('+hftFmt(HFT_TARGET_KAPPA,2)+') อยู่นอกช่วง Kappa No. ที่เคยเกิดขึ้นจริงในประวัติ (เคยอยู่ระหว่าง <b>'+hftFmt(kt.kMin,2)+'</b>–<b>'+hftFmt(kt.kMax,2)+'</b>) ตัวเลข Set Point ที่แนะนำนี้เป็นการประมาณนอกช่วงข้อมูลจริง ควรใช้ด้วยความระมัดระวังและติดตามผลจริงหลังปรับ Set Point</p>';
-        }
-      }
-    }
-  }
   el.innerHTML = html;
 }
-/* "คำแนะนำ Set Point H-factor (จากข้อมูลรายเดือน)" -- same two-stage recommendation as
-   renderHFactorRecommendation (primary wood/moisture/Temp match, then a Target-Kappa-driven
-   refinement), but matched against the monthly history (computeHFactorMonthlyBuckets) instead of
-   the Set-Point-bin history. Reuses the same compute functions (computeHFactorRecommendation,
-   computeHFactorKappaTarget), generalized above to accept a bucket source and x-axis key, so the
-   actual matching/fitting/clamping logic is identical either way -- only the Thai wording below
-   (month framing instead of Set-Point-range framing) is written out separately, since the two
-   read naturally differently ("เดือน X" vs "ช่วง Set Point = X"). */
+/* "คำแนะนำ Set Point H-factor (จากข้อมูลรายเดือน)" -- same wood/moisture/Temp match as
+   renderHFactorRecommendation, but matched against the monthly history
+   (computeHFactorMonthlyBuckets) instead of the Set-Point-bin history. Reuses the same
+   computeHFactorRecommendation (generalized above to accept a bucket source), so the actual
+   matching/distance logic is identical either way -- only the Thai wording below (month framing
+   instead of Set-Point-range framing) is written out separately. */
 function renderHFactorMonthlyRecommendation(){
   const el = document.getElementById('hftMonthlyRecoBox');
   if(!el) return;
@@ -7795,46 +7504,6 @@ function renderHFactorMonthlyRecommendation(){
     html += '<tr><td>'+pair[1]+'</td><td>'+hftFmt(cur[pair[0]],2)+'</td><td>'+hftFmt(b[pair[0]],2)+'</td></tr>';
   });
   html += '</tbody></table>';
-  if(HFT_TARGET_KAPPA == null){
-    html += '<p class="hft-kappa-note">กรุณาระบุค่า Target Kappa Cooking ที่ถูกต้อง (ตัวเลขมากกว่า 0) เพื่อวิเคราะห์เพิ่มเติม</p>';
-  } else {
-    const kappaDiff = b.kappaOnline==null ? null : (b.kappaOnline - HFT_TARGET_KAPPA);
-    if(kappaDiff==null){
-      html += '<p class="hft-kappa-note">เดือนที่แนะนำข้างต้นยังไม่มีค่า Kappa No. (Online) เฉลี่ย จึงยังไม่สามารถเทียบกับ Target Kappa Cooking ได้</p>';
-    } else if(Math.abs(kappaDiff) < 0.005){
-      html += '<p class="hft-kappa-note">Kappa No. (Online) ที่คาดจากคำแนะนำข้างต้น (<b>'+hftFmt(b.kappaOnline,2)+'</b>) ใกล้เคียงกับ Target Kappa Cooking ที่ตั้งไว้ (<b>'+hftFmt(HFT_TARGET_KAPPA,2)+'</b>) อยู่แล้ว จึงไม่จำเป็นต้องปรับ Set Point H-factor เพิ่มเติมจากคำแนะนำข้างต้น</p>';
-    } else {
-      const kt = computeHFactorKappaTarget(HFT_TARGET_KAPPA, cur, monthlyBuckets, 'setPoint');
-      const higherOrLower = kappaDiff > 0 ? 'สูงกว่า' : 'ต่ำกว่า';
-      if(kt.status === 'insufficient-history'){
-        html += '<p class="hft-kappa-note">Kappa No. (Online) ที่คาดจากคำแนะนำข้างต้น (<b>'+hftFmt(b.kappaOnline,2)+'</b>) '+higherOrLower+' Target Kappa Cooking ที่ตั้งไว้ (<b>'+hftFmt(HFT_TARGET_KAPPA,2)+'</b>) แต่ข้อมูลประวัติรายเดือนยังไม่พอสำหรับวิเคราะห์ความสัมพันธ์ Set Point H-factor กับ Kappa No. (ต้องมีอย่างน้อย 2 เดือนที่มีค่า Kappa)</p>';
-      } else if(kt.status === 'flat-trend'){
-        html += '<p class="hft-kappa-note">Kappa No. (Online) ที่คาดจากคำแนะนำข้างต้น (<b>'+hftFmt(b.kappaOnline,2)+'</b>) '+higherOrLower+' Target Kappa Cooking ที่ตั้งไว้ (<b>'+hftFmt(HFT_TARGET_KAPPA,2)+'</b>) แต่ข้อมูลประวัติรายเดือนยังไม่แสดงความสัมพันธ์ที่ชัดเจนระหว่าง Set Point H-factor กับ Kappa No. จึงยังไม่สามารถแนะนำปรับตาม Target Kappa ได้</p>';
-      } else if(kt.status === 'reversed-trend'){
-        html += '<p class="hft-kappa-note">Kappa No. (Online) ที่คาดจากคำแนะนำข้างต้น (<b>'+hftFmt(b.kappaOnline,2)+'</b>) '+higherOrLower+' Target Kappa Cooking ที่ตั้งไว้ (<b>'+hftFmt(HFT_TARGET_KAPPA,2)+'</b>) แต่ข้อมูลประวัติรายเดือนแสดงว่า Set Point H-factor สูงขึ้นกลับให้ Kappa No. สูงขึ้นตาม ซึ่งขัดกับความสัมพันธ์ปกติของกระบวนการต้ม (H-factor สูงขึ้นควรทำให้ Kappa ลดลง) จึงน่าจะเกิดจากข้อมูลประวัติยังมีน้อยเกินไปหรือมีปัจจัยอื่นปนอยู่ ยังไม่แนะนำให้ใช้ตัวเลขนี้ปรับ Set Point จนกว่าจะมีข้อมูลมากขึ้น</p>';
-      } else {
-        const methodNote = kt.method==='trivariate'
-          ? ' (วิเคราะห์จาก Set Point H-factor ร่วมกับ EA charge Actual และ Temp.after circulation (Temp เริ่มต้น) พร้อมกัน โดยคิดที่ระดับ EA charge Actual และ Temp.after circulation ปัจจุบัน จากข้อมูล '+kt.points.length+' เดือน)'
-          : kt.method==='multivariate'
-          ? ' (วิเคราะห์จาก Set Point H-factor ร่วมกับ EA charge Actual พร้อมกัน โดยคิดที่ระดับ EA charge Actual ปัจจุบัน จากข้อมูล '+kt.points.length+' เดือน)'
-          : (kt.eaFiltered && kt.tempFiltered) ? ' (เฉพาะเดือนที่มี EA charge Actual และ Temp.after circulation ใกล้เคียงกับปัจจุบัน เพื่อลดผลกระทบจากปัจจัยที่ต่างกัน)'
-          : kt.eaFiltered ? ' (เฉพาะเดือนที่มี EA charge Actual ใกล้เคียงกับปัจจุบัน เพื่อลดผลกระทบจากปริมาณสารเคมีที่ต่างกัน)'
-          : kt.tempFiltered ? ' (เฉพาะเดือนที่มี Temp.after circulation ใกล้เคียงกับปัจจุบัน เพื่อลดผลกระทบจากอุณหภูมิที่ต่างกัน)'
-          : '';
-        html += '<p class="hft-kappa-note">Kappa No. (Online) ที่คาดจากคำแนะนำข้างต้น (<b>'+hftFmt(b.kappaOnline,2)+'</b>) '+higherOrLower+' Target Kappa Cooking ที่ตั้งไว้ (<b>'+hftFmt(HFT_TARGET_KAPPA,2)+'</b>) จากความสัมพันธ์ระหว่าง Set Point H-factor กับ Kappa No. (Online) ที่เคยเกิดขึ้นจริงในประวัติรายเดือน'+methodNote+' แนะนำปรับ Set Point H-factor เป็น <b>'+kt.setPoint+'</b> เพื่อให้ Kappa No. ใกล้เคียง Target Kappa Cooking ที่ตั้งไว้มากขึ้น</p>';
-        html += '<table class="hft-reco-compare hft-kappa-trend-table"><thead><tr><th>เดือน</th><th>Set Point H-factor (APC) เฉลี่ย</th><th>Kappa No. (Online) เฉลี่ย</th><th>จำนวนวัน (n)</th></tr></thead><tbody>';
-        kt.points.slice().sort(function(a,b2){ return a.bin-b2.bin; }).forEach(function(p){
-          html += '<tr><td>'+(p.label||'—')+'</td><td>'+hftFmt(p.bin,1)+'</td><td>'+hftFmt(p.kappaOnline,2)+'</td><td>'+p.n+'</td></tr>';
-        });
-        html += '</tbody></table>';
-        if(kt.status === 'clamped'){
-          html += '<p class="hft-kappa-warn">⚠ จากความสัมพันธ์ที่มีอยู่ Set Point ที่คำนวณได้จริงเกินช่วงที่เคยเดินมามาก (เคยอยู่ระหว่าง <b>'+hftFmt(kt.binMin,1)+'</b>–<b>'+hftFmt(kt.binMax,1)+'</b>) จึงไม่แนะนำให้ปรับมากขนาดนั้นในครั้งเดียว ระบบจำกัดคำแนะนำไว้ที่ <b>'+kt.setPoint+'</b> ซึ่งยังพอมีเหตุผลรองรับ ควรปรับทีละขั้นและติดตามผล Kappa จริงก่อนปรับเพิ่มเติม แทนที่จะปรับครั้งเดียวจำนวนมาก</p>';
-        } else if(kt.status === 'extrapolated'){
-          html += '<p class="hft-kappa-warn">⚠ Target Kappa Cooking ที่ตั้งไว้ ('+hftFmt(HFT_TARGET_KAPPA,2)+') อยู่นอกช่วง Kappa No. ที่เคยเกิดขึ้นจริงในประวัติรายเดือน (เคยอยู่ระหว่าง <b>'+hftFmt(kt.kMin,2)+'</b>–<b>'+hftFmt(kt.kMax,2)+'</b>) ตัวเลข Set Point ที่แนะนำนี้เป็นการประมาณนอกช่วงข้อมูลจริง ควรใช้ด้วยความระมัดระวังและติดตามผลจริงหลังปรับ Set Point</p>';
-        }
-      }
-    }
-  }
   el.innerHTML = html;
 }
 
@@ -13668,7 +13337,6 @@ function initChipMon(){
   renderHFactorTuningModel();
   renderHFactorMonthlyModel();
   initHftNToggle();
-  initHftTargetKappaInput();
   initHFactorConditionControls();
   initYaCardCollapse();
   initWoodCmp();
