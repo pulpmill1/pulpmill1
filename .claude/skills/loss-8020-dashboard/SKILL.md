@@ -168,10 +168,30 @@ behave identically:
   completion). This previously made two items on each of those two docs show "done" from a target
   date alone with no actual confirmation — caught and fixed by re-testing against the real data
   (see `Rewind Motor`/`Replace New MCC` on the MOTOR 15KW doc, now correctly `done: false`).
-- `lpParseCompleteVal(raw)` treats the resolved cell's value case-insensitively: blank, `"no"`, or
-  `"-"` (a common "not filled in yet" placeholder) → not done; `"yes"`, a date, or any other
-  filled-in text → done. A bare non-blank check (the original, naive version) would have
-  wrongly counted an explicit `"No"` as done.
+- `lpParseCompleteVal(raw)` treats the resolved cell's value case-insensitively: blank, `-`, or
+  anything **starting with** `no` (word boundary — `lpNorm` collapses newlines to spaces, so
+  `"No\n(Plan ANSD26)"` becomes `"no (plan ansd26)"`, which an exact `v==='no'` check would have
+  missed) → not done; anything starting with `yes`, a date, or any other filled-in text → done.
+
+**A third template variant has *two* "Complete" columns** (seen 2026-11-19 on the `Detial`/Pre O2
+WP doc, the same one from the very first sample — its author added columns after this feature
+shipped): a `Complete (date,time)` one, usually left blank, **and** an authoritative
+`Complete (Yes/No)` one further right that the team actually keeps current. Picking the first
+`complet`-matching column (the blank date one) silently showed every item on this doc as pending
+even though 15 of 16 CM items and all 3 PM items were marked `Yes` — explicit user report ("Status
+update CM PM ไม่ตรง", with a screenshot of the sheet) caught this. Fixed by giving **top** priority
+to a header containing both `complet` and `yes` (i.e. "Complete (Yes/No)") over the plain-`complet`
+and `actual` fallbacks described above. If a *fourth* variant shows up, re-derive the priority
+order from a real screenshot or fetch rather than guessing — this column has now drifted across
+three different header shapes on real documents, so assume more variance is coming, not less.
+
+**When a correctness fix like these lands, the already-built `harness/rca_detail.json` is stale**
+for whichever doc(s) it affects — it was built with the old (wrong) logic and `gen_data.js` does
+not re-derive it on its own. Re-fetch and re-parse just the affected `docId|gid` key(s) with the
+corrected code and patch them into the existing file (merge, don't regenerate from scratch) before
+rebuilding the snapshot, the same way you would for the daily refresh's normal "only re-fetch rows
+not yet at the terminal stage" step — a parsing-logic fix additionally needs the previously-cached
+entries for any doc the fix actually changes re-fetched too, regardless of that doc's RCA stage.
 
 **Live vs. snapshot, architecturally**: production (`index.html`, real browser, not CSP-sandboxed)
 fetches each distinct Link RCA document's CSV **live**, client-side, via the same gviz-CSV trick

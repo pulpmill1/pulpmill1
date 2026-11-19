@@ -10036,11 +10036,13 @@ function lpFindSectionRow(rows, regex, fromIdx){
   }
   return -1;
 }
-/* ค่าในช่อง Complete อาจเป็นวันที่ (เสร็จแล้ว), "Yes"/"No" ตรงๆ, หรือ "-" (ยังไม่มีข้อมูล — ไม่ใช่
-   เสร็จแล้ว แม้จะไม่ว่างเปล่า) — "No" ให้ถือว่ายังไม่เสร็จแม้ช่องจะไม่ว่าง */
+/* ค่าในช่อง Complete อาจเป็นวันที่ (เสร็จแล้ว), "Yes"/"No" ตรงๆ, "No" ตามด้วยหมายเหตุ (เช่น
+   "No\n(Plan ANSD26)" — ยังไม่ขึ้นต้นด้วยคำว่า "no" พอดี แต่ก็ยังหมายถึงยังไม่เสร็จ), หรือ "-"
+   (ยังไม่มีข้อมูล — ไม่ใช่เสร็จแล้ว แม้จะไม่ว่างเปล่า) — ใช้ขึ้นต้นด้วย "no"/"yes" (ไม่ใช่ตรงกันพอดี)
+   เพื่อจับกรณีมีหมายเหตุต่อท้ายด้วย */
 function lpParseCompleteVal(raw){
   const v = lpNorm(raw).toLowerCase();
-  if(!v || v==='no' || v==='-') return false;
+  if(!v || v==='-' || /^no\b/.test(v)) return false;
   return true; // "yes", a date, or any other filled-in value all signal done
 }
 function lpParseActionItems(rows, titleIdx, boundaryIdx){
@@ -10057,12 +10059,15 @@ function lpParseActionItems(rows, titleIdx, boundaryIdx){
   const noCol = header.findIndex(h=>h==='no');
   const descCol = header.findIndex(h=>h.includes('description'));
   // "complet" matches "Complete" and "Completion" (no trailing e: "completion".includes("complete")
-  // is false). Prefer a plain Complete/Completion column (real confirmation) over one that also says
-  // "target" (a planned date, not a confirmation) — one template splits "Target Completion" (planned)
-  // from a separate "Actual" column (the real confirmation); fall back to "actual" (excluding
-  // duration-ish "time"/"hr" columns, which track elapsed hours, not completion) only when no plain
-  // Complete/Completion column exists.
-  let completeCol = header.findIndex(h=>h.includes('complet') && !h.includes('target'));
+  // is false). Priority: (1) a column that is explicitly both Complete AND Yes/No — some templates
+  // have *two* Complete columns, one "Complete (date,time)" left blank and an authoritative
+  // "Complete (Yes/No)" further right that's actually kept up to date — that one wins outright when
+  // present; (2) otherwise a plain Complete/Completion column that doesn't also say "target" (a
+  // planned date, not a confirmation — one template splits "Target Completion" from a separate
+  // "Actual" column); (3) otherwise fall back to "actual" (excluding duration-ish "time"/"hr"
+  // columns, which track elapsed hours, not completion).
+  let completeCol = header.findIndex(h=>h.includes('complet') && h.includes('yes'));
+  if(completeCol===-1) completeCol = header.findIndex(h=>h.includes('complet') && !h.includes('target'));
   if(completeCol===-1) completeCol = header.findIndex(h=>h.includes('actual') && !h.includes('time') && !h.includes('hr'));
   if(noCol===-1 || descCol===-1) return [];
   const items = [];
