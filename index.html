@@ -7332,18 +7332,21 @@ function renderHFactorCurrentCondition(){
   const col1Header = isDateMode ? 'Set Point<br>H-factor (APC)' : 'Set Point<br>H-factor (APC) เฉลี่ย';
   wrap.innerHTML = hftBuildTableHtml([row], col1Header, 'วันที่ / ช่วง');
 }
-/* Set Point recommendation: which historical bucket's own average wood-species + chip-moisture
-   profile (the 6 RM Wood-Yield fields -- genuine external/input conditions, independent of whatever
-   Set Point the operator chose that day) most closely resembles the SELECTED condition's own
-   wood/moisture profile (whatever period the "Condition ปัจจุบัน" picker above is currently set to).
-   Deliberately excludes Target/Real H-factor and Kappa (those are OUTCOMES of the Set Point choice,
-   not inputs -- comparing on them would be circular) and the chemical-charge fields (EA/WL charges
-   are themselves operator decisions often adjusted in response to wood conditions, so folding them
-   in would muddy "what wood showed up" with "what the operator already chose to do about it").
-   Distance is a simple Euclidean distance after range-normalizing each of the 6 fields across the
-   buckets being compared (so a field like St>1m, naturally a few percent, doesn't get swamped by a
-   field like K7, naturally tens of percent, purely from scale rather than actual relevance). */
-const HFT_CONDITION_KEYS = ['woodK7','woodK58','woodSeed','woodOther','woodSt1m','moistureLab'];
+/* Set Point recommendation: which historical bucket's own average wood-species + chip-moisture +
+   Temp.after circulation (Temp เริ่มต้น) profile (the 6 RM Wood-Yield fields plus this one Cooking
+   Logsheet field) most closely resembles the SELECTED condition's own profile (whatever period the
+   "Condition ปัจจุบัน" picker above is currently set to). Deliberately excludes Target/Real H-factor
+   and Kappa (those are OUTCOMES of the Set Point choice, not inputs -- comparing on them would be
+   circular) and the chemical-charge fields (EA/WL charges are themselves operator decisions often
+   adjusted in response to wood conditions, so folding them in would muddy "what wood showed up"
+   with "what the operator already chose to do about it"); Temp.after circulation is included
+   despite being a Cooking Logsheet field like those, per explicit request, since the starting
+   circulation temperature is treated here as another condition worth matching alongside wood/
+   moisture rather than a chemistry decision made in response to it. Distance is a simple Euclidean
+   distance after range-normalizing each of the 7 fields across the buckets being compared (so a
+   field like St>1m, naturally a few percent, doesn't get swamped by a field like K7, naturally tens
+   of percent, purely from scale rather than actual relevance). */
+const HFT_CONDITION_KEYS = ['woodK7','woodK58','woodSeed','woodOther','woodSt1m','moistureLab','tempAfterCirc'];
 function computeHFactorRecommendation(){
   const cur = computeHFactorCondition();
   if(!cur) return { status:'no-current' };
@@ -7373,6 +7376,7 @@ function computeHFactorRecommendation(){
 const HFT_CONDITION_LABELS = [
   ['woodK7','Pulp 1 K7 (%)'], ['woodK58','Pulp 1 K58 (%)'], ['woodSeed','Pulp 1 Seed (%)'],
   ['woodOther','Pulp 1 Other (%)'], ['woodSt1m','Pulp 1 St>1 m (%)'], ['moistureLab','Pulp 1 Chip Moisture (Lab) (%)'],
+  ['tempAfterCirc','Temp.after circulation. (Temp เริ่มต้น) (C)'],
 ];
 /* Target Kappa Cooking -- the Set Point the wood/moisture match above recommends is independent of
    Kappa (deliberately so, see computeHFactorRecommendation's own comment), so it can land on a Kappa
@@ -7606,15 +7610,15 @@ function renderHFactorRecommendation(){
     return;
   }
   if(r.status === 'incomplete-current'){
-    el.innerHTML = '<p>ข้อมูลไม้สับ/ความชื้นของช่วงที่เลือกยังไม่ครบ ไม่สามารถแนะนำ Set Point H-factor ได้</p>';
+    el.innerHTML = '<p>ข้อมูลไม้สับ/ความชื้น/Temp.after circulation ของช่วงที่เลือกยังไม่ครบ ไม่สามารถแนะนำ Set Point H-factor ได้</p>';
     return;
   }
   if(r.status === 'insufficient-history'){
-    el.innerHTML = '<p>ข้อมูลประวัติยังไม่พอ (ต้องมีอย่างน้อย 2 ช่วง Set Point ที่มีข้อมูลไม้สับ/ความชื้นครบ) สำหรับการแนะนำ</p>';
+    el.innerHTML = '<p>ข้อมูลประวัติยังไม่พอ (ต้องมีอย่างน้อย 2 ช่วง Set Point ที่มีข้อมูลไม้สับ/ความชื้น/Temp.after circulation ครบ) สำหรับการแนะนำ</p>';
     return;
   }
   const b = r.bucket, cur = r.current;
-  let html = '<p><b>คำแนะนำ:</b> จากสภาวะไม้สับและความชื้นของช่วง ' + cur.label + ' เทียบกับค่าเฉลี่ยไม้สับ/ความชื้นในแต่ละช่วง Set Point ที่เคยเดินจริง '
+  let html = '<p><b>คำแนะนำ:</b> จากสภาวะไม้สับ ความชื้น และ Temp.after circulation (Temp เริ่มต้น) ของช่วง ' + cur.label + ' เทียบกับค่าเฉลี่ยไม้สับ/ความชื้น/Temp.after circulation (Temp เริ่มต้น) ในแต่ละช่วง Set Point ที่เคยเดินจริง '
     + 'พบว่าใกล้เคียงกับช่วง Set Point H-factor = <b>' + b.bin + '</b> มากที่สุด '
     + '(ช่วงนั้นมี Kappa No. (Online) เฉลี่ย ' + hftFmt(b.kappaOnline,2) + ' และ Real H-factor เฉลี่ย ' + hftFmt(b.realHFactor,1) + ' จากข้อมูล ' + b.n + ' วัน) '
     + 'จึงอาจพิจารณาปรับ Set Point H-factor เป็น <b>' + b.bin + '</b> เพื่อให้สภาวะการเดินเครื่องใกล้เคียงกับช่วงที่เคยได้ผลลัพธ์นี้มากที่สุด</p>';
