@@ -7458,9 +7458,18 @@ function computeHFactorKappaTarget(targetKappa, cur){
       targetKappa:targetKappa, method:method }, extra||{});
   }
 
+  /* Kraft cooking chemistry: a higher Set Point H-factor means more cooking severity, which means
+     MORE delignification, which means a LOWER Kappa No. -- the slope of Kappa against Set Point
+     should always come out negative (or at worst ~flat) in real data. A fitted slope that comes out
+     positive doesn't reflect a real physical relationship; with as few historical buckets as this
+     feature typically has, it means the sample is too small/confounded (e.g. by wood/species
+     variation not controlled for) to trust, not that H-factor genuinely raises Kappa. Trusting it
+     anyway would invert the recommendation's direction -- telling an operator to raise Set Point
+     when they should lower it, or vice versa. So a positive slope is rejected the same way a
+     too-small one already is, falling through to the next, simpler method rather than acting on it. */
   if(curEa!=null && withEa.length >= HFT_KAPPA_MULTI_MIN_POINTS){
     const fit = hftFitBivariate(withEa);
-    if(fit && Math.abs(fit.b1) > 1e-6){
+    if(fit && fit.b1 < -1e-6){
       const setPoint = (targetKappa - fit.b0 - fit.b2*curEa) / fit.b1;
       if(isFinite(setPoint)) return clampAndFinish(setPoint, withEa, 'multivariate', { fit:fit, curEa:curEa });
     }
@@ -7481,6 +7490,7 @@ function computeHFactorKappaTarget(targetKappa, cur){
   pts.forEach(function(p){ num += (p.bin-meanX)*(p.kappaOnline-meanY); den += (p.bin-meanX)*(p.bin-meanX); });
   if(den===0 || Math.abs(num/den) < 1e-9) return { status:'flat-trend', points:pts, eaFiltered:eaFiltered };
   const m = num/den, c = meanY - m*meanX;
+  if(m >= -1e-6) return { status:'reversed-trend', points:pts, eaFiltered:eaFiltered, slope:m };
   const setPoint = (targetKappa - c) / m;
   return clampAndFinish(setPoint, pts, eaFiltered ? 'single-variable-ea-filtered' : 'single-variable', { slope:m, intercept:c, eaFiltered:eaFiltered });
 }
@@ -7535,6 +7545,8 @@ function renderHFactorRecommendation(){
         html += '<p class="hft-kappa-note">Kappa No. (Online) ที่คาดจากคำแนะนำข้างต้น (<b>'+hftFmt(b.kappaOnline,2)+'</b>) '+higherOrLower+' Target Kappa Cooking ที่ตั้งไว้ (<b>'+hftFmt(HFT_TARGET_KAPPA,2)+'</b>) แต่ข้อมูลประวัติยังไม่พอสำหรับวิเคราะห์ความสัมพันธ์ Set Point H-factor กับ Kappa No. (ต้องมีอย่างน้อย 2 ช่วง Set Point ที่มีค่า Kappa)</p>';
       } else if(kt.status === 'flat-trend'){
         html += '<p class="hft-kappa-note">Kappa No. (Online) ที่คาดจากคำแนะนำข้างต้น (<b>'+hftFmt(b.kappaOnline,2)+'</b>) '+higherOrLower+' Target Kappa Cooking ที่ตั้งไว้ (<b>'+hftFmt(HFT_TARGET_KAPPA,2)+'</b>) แต่ข้อมูลประวัติยังไม่แสดงความสัมพันธ์ที่ชัดเจนระหว่าง Set Point H-factor กับ Kappa No. จึงยังไม่สามารถแนะนำปรับตาม Target Kappa ได้</p>';
+      } else if(kt.status === 'reversed-trend'){
+        html += '<p class="hft-kappa-note">Kappa No. (Online) ที่คาดจากคำแนะนำข้างต้น (<b>'+hftFmt(b.kappaOnline,2)+'</b>) '+higherOrLower+' Target Kappa Cooking ที่ตั้งไว้ (<b>'+hftFmt(HFT_TARGET_KAPPA,2)+'</b>) แต่ข้อมูลประวัติในกลุ่มนี้แสดงว่า Set Point H-factor สูงขึ้นกลับให้ Kappa No. สูงขึ้นตาม ซึ่งขัดกับความสัมพันธ์ปกติของกระบวนการต้ม (H-factor สูงขึ้นควรทำให้ Kappa ลดลง) จึงน่าจะเกิดจากข้อมูลประวัติยังมีน้อยเกินไปหรือมีปัจจัยอื่นปนอยู่ ยังไม่แนะนำให้ใช้ตัวเลขนี้ปรับ Set Point จนกว่าจะมีข้อมูลมากขึ้น</p>';
       } else {
         const methodNote = kt.method==='multivariate'
           ? ' (วิเคราะห์จาก Set Point H-factor ร่วมกับ EA charge Actual พร้อมกัน โดยคิดที่ระดับ EA charge Actual ปัจจุบัน จากข้อมูล '+kt.points.length+' ช่วง)'
