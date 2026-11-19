@@ -10036,6 +10036,13 @@ function lpFindSectionRow(rows, regex, fromIdx){
   }
   return -1;
 }
+/* ค่าในช่อง Complete อาจเป็นวันที่ (เสร็จแล้ว), "Yes"/"No" ตรงๆ, หรือ "-" (ยังไม่มีข้อมูล — ไม่ใช่
+   เสร็จแล้ว แม้จะไม่ว่างเปล่า) — "No" ให้ถือว่ายังไม่เสร็จแม้ช่องจะไม่ว่าง */
+function lpParseCompleteVal(raw){
+  const v = lpNorm(raw).toLowerCase();
+  if(!v || v==='no' || v==='-') return false;
+  return true; // "yes", a date, or any other filled-in value all signal done
+}
 function lpParseActionItems(rows, titleIdx, boundaryIdx){
   // หัวข้อย่อยปกติตามด้วย 2 แถวหัวตาราง (ชื่อคอลัมน์ + หน่วย/ชื่อคอลัมน์ต่อ เช่น "Target"/"Completion"
   // คนละแถว) แล้วค่อยเป็นข้อมูลจริง — รวม 2 แถวหัวเข้าด้วยกันแบบ concat (ไม่ใช่เลือกแถวใดแถวหนึ่ง)
@@ -10049,7 +10056,14 @@ function lpParseActionItems(rows, titleIdx, boundaryIdx){
   for(let i=0;i<len;i++){ header[i] = ((a[i]||'')+' '+(b[i]||'')).trim(); }
   const noCol = header.findIndex(h=>h==='no');
   const descCol = header.findIndex(h=>h.includes('description'));
-  const completeCol = header.findIndex(h=>h.includes('complet')); // matches "Complete" and "Completion" (no trailing e: "completion".includes("complete") is false)
+  // "complet" matches "Complete" and "Completion" (no trailing e: "completion".includes("complete")
+  // is false). Prefer a plain Complete/Completion column (real confirmation) over one that also says
+  // "target" (a planned date, not a confirmation) — one template splits "Target Completion" (planned)
+  // from a separate "Actual" column (the real confirmation); fall back to "actual" (excluding
+  // duration-ish "time"/"hr" columns, which track elapsed hours, not completion) only when no plain
+  // Complete/Completion column exists.
+  let completeCol = header.findIndex(h=>h.includes('complet') && !h.includes('target'));
+  if(completeCol===-1) completeCol = header.findIndex(h=>h.includes('actual') && !h.includes('time') && !h.includes('hr'));
   if(noCol===-1 || descCol===-1) return [];
   const items = [];
   let cur = null;
@@ -10059,7 +10073,7 @@ function lpParseActionItems(rows, titleIdx, boundaryIdx){
     const descVal = lpNorm(r[descCol]);
     if(/^\d+$/.test(noVal)){
       const doneVal = completeCol>=0 ? lpNorm(r[completeCol]) : '';
-      cur = { no:noVal, desc:descVal, hasStatus: completeCol>=0, done: !!doneVal };
+      cur = { no:noVal, desc:descVal, hasStatus: completeCol>=0, done: lpParseCompleteVal(doneVal) };
       items.push(cur);
     } else if(cur && descVal){
       cur.desc += (cur.desc ? ' ' : '') + descVal;

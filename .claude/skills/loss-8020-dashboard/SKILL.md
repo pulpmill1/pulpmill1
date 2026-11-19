@@ -157,13 +157,21 @@ behave identically:
   (sloppy manual edit, no `No` column left at all) — that section legitimately yields `[]`, which
   is correct behavior, not a bug to chase.
 
-**Known limitation**: a second template variant (seen on two "421P005 Overhead"-titled docs, same
-author) splits completion into a *`Target` Completion* date (planned) and a separate `Actual`
-date (confirmed) column, with no plain "Complete" column at all. `lpParseActionItems`'s `complet`
-match hits the *Target* completion column first, so a handful of items on those two docs may show
-"done" when only a target date was set, not a confirmed actual completion. This is a minor,
-documented inaccuracy affecting ~2 of 19 docs as of 2026-11-19 — not worth chasing further given
-the fail-soft design; revisit only if it becomes a recurring complaint.
+**Column-selection and done/not-done value parsing** (fixed 2026-11-19, explicit user request —
+"ให้ดู ช่อง Complete (Yes/No)": look at the Complete column, Yes/No). Two related fixes:
+- A second template variant (seen on two "421P005 Overhead"-titled docs, same author) splits
+  completion into a *`Target` Completion* date (planned) and a separate `Actual` date (confirmed)
+  column, with no plain "Complete" column at all. `completeCol` selection now **prefers a header
+  containing `complet` that does *not* also contain `target`** (the real confirmation column, not
+  the planned one); only if no such column exists does it fall back to a header containing
+  `actual` (excluding ones that also say `time`/`hr`, which track elapsed duration, not
+  completion). This previously made two items on each of those two docs show "done" from a target
+  date alone with no actual confirmation — caught and fixed by re-testing against the real data
+  (see `Rewind Motor`/`Replace New MCC` on the MOTOR 15KW doc, now correctly `done: false`).
+- `lpParseCompleteVal(raw)` treats the resolved cell's value case-insensitively: blank, `"no"`, or
+  `"-"` (a common "not filled in yet" placeholder) → not done; `"yes"`, a date, or any other
+  filled-in text → done. A bare non-blank check (the original, naive version) would have
+  wrongly counted an explicit `"No"` as done.
 
 **Live vs. snapshot, architecturally**: production (`index.html`, real browser, not CSP-sandboxed)
 fetches each distinct Link RCA document's CSV **live**, client-side, via the same gviz-CSV trick
