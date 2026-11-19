@@ -2430,6 +2430,15 @@
 
           <div class="hft-section-head"><h3>ประวัติแยกตามช่วง Set Point H-factor (APC)</h3><button type="button" id="hftNToggleBtn" class="hft-n-toggle"></button></div>
           <div class="hft-wrap" id="hftTableWrap"></div>
+
+          <div class="hft-section-head"><h3>ประวัติแยกตามเดือน</h3></div>
+          <div class="hft-note">
+            <b>วิธีจัดกลุ่มข้อมูล:</b> แต่ละวัน<span id="hftMonthlyHistoryRangeNote"></span>จะถูกจัดเข้ากลุ่มตามเดือนปฏิทินที่วันนั้นเกิดขึ้น (ไม่แบ่งตามช่วง Set Point H-factor) แล้วหาค่าเฉลี่ยรวมในแต่ละเดือน รวมถึงค่าเฉลี่ย Set Point H-factor (APC) ของเดือนนั้นด้วย — <b>n</b> คือจำนวนวันที่มีข้อมูลในเดือนนั้น
+          </div>
+          <div class="hft-wrap" id="hftMonthlyTableWrap"></div>
+
+          <div class="hft-section-head"><h3>คำแนะนำ Set Point H-factor (จากข้อมูลรายเดือน)</h3></div>
+          <div class="hft-note hft-reco-box" id="hftMonthlyRecoBox"></div>
         </section>
         <section class="page" data-page="cost-sensitivity" hidden>
           <div class="sens-dash">
@@ -6054,8 +6063,10 @@ function applyLang(lang){
     if(typeof renderYieldAnalysisTableMB === 'function') renderYieldAnalysisTableMB();
     if(typeof renderYieldAnalysisTableLast7 === 'function') renderYieldAnalysisTableLast7();
     if(typeof renderHFactorTuningModel === 'function') renderHFactorTuningModel();
+    if(typeof renderHFactorMonthlyModel === 'function') renderHFactorMonthlyModel();
     if(typeof renderHFactorCurrentCondition === 'function') renderHFactorCurrentCondition();
     if(typeof renderHFactorRecommendation === 'function') renderHFactorRecommendation();
+    if(typeof renderHFactorMonthlyRecommendation === 'function') renderHFactorMonthlyRecommendation();
     if(typeof woodCmpRenderBody === 'function' && document.getElementById('woodCmpBody')) woodCmpRenderBody();
     if(typeof woodStackRenderBodyFor === 'function') ['woodStack1','woodStack2','woodStackTot'].forEach(p=> { if(document.getElementById(p+'Body')) woodStackRenderBodyFor(p); });
     if(typeof woodStackRenderStrips === 'function') ['woodStack1','woodStack2','woodStackTot'].forEach(p=> { if(document.getElementById(p+'Strips')) woodStackRenderStrips(p); });
@@ -7124,6 +7135,45 @@ function computeHFactorTuningBuckets(){
     return row;
   });
 }
+function hftMonthLabel(y, mi){ return MONTH_ABBR_TH[mi] + ' ' + y; }
+/* The "Set Point H-factor (APC)" render-only field, rendered as this table's own first metric
+   column since month -- not Set Point -- is the grouping key here, so Set Point has to be averaged
+   like any other field rather than shown as the bin value. Only `key`/`label`/`unit`/`dec`/`grp` are
+   used by hftBuildTableHtml (it never calls `get`), so this entry needs no `get` of its own --
+   computeHFactorMonthlyBuckets fills row.setPoint directly from the raw Set point H-factor(APC)
+   column rather than going through the HFT_FIELDS get() pipeline. */
+const HFT_MONTHLY_FIELDS = [{key:'setPoint', label:'Set Point H-factor (APC)', unit:'', dec:1, grp:'cook'}].concat(HFT_FIELDS);
+/* Same historical window and field averaging as computeHFactorTuningBuckets, but grouped by
+   calendar month (year+month of the cook day) instead of rounded Set Point bin -- "ประวัติแยกตาม
+   เดือน": each month's own real average result, with no Set-Point-range bucketing at all. Set Point
+   itself becomes a regular averaged field here (HFT_MONTHLY_FIELDS' own first column) rather than
+   the grouping key. */
+function computeHFactorMonthlyBuckets(){
+  const buckets = new Map(); // "y-mi" -> { y, mi, n, sums:{key:sum}, counts:{key:count}, days:[...] }
+  PLS_COOKING_ROWS.forEach(function(day){
+    if(day.ts < HFT_HISTORY_START || day.ts >= HFT_HISTORY_END) return;
+    const setPoint = day.r[75];
+    if(setPoint == null) return;
+    const key = day.y + '-' + day.mi;
+    let b = buckets.get(key);
+    if(!b){ b = { y:day.y, mi:day.mi, n:0, sums:{setPoint:0}, counts:{setPoint:0}, days:[] }; buckets.set(key, b); }
+    b.n++;
+    b.days.push(day);
+    b.sums.setPoint += setPoint;
+    b.counts.setPoint++;
+    HFT_FIELDS.forEach(function(f){
+      const v = f.get(day, day.ts);
+      if(v==null) return;
+      b.sums[f.key] = (b.sums[f.key]||0) + v;
+      b.counts[f.key] = (b.counts[f.key]||0) + 1;
+    });
+  });
+  return Array.from(buckets.values()).sort(function(a,b){ return (a.y*12+a.mi)-(b.y*12+b.mi); }).map(function(b){
+    const row = { y:b.y, mi:b.mi, n:b.n, ref:hftRefRange(b.days), setPoint: b.sums.setPoint/b.counts.setPoint };
+    HFT_FIELDS.forEach(function(f){ row[f.key] = b.counts[f.key] ? b.sums[f.key]/b.counts[f.key] : null; });
+    return row;
+  });
+}
 function hftFmt(v, dec){ return v==null ? '—' : v.toLocaleString('en-US', {minimumFractionDigits:dec, maximumFractionDigits:dec}); }
 function hftDateStr(day){ return day.d+'/'+(day.mi+1)+'/'+day.y; }
 /* "Reference" column = the actual date range of the days whose data was averaged into that row --
@@ -7137,15 +7187,19 @@ function hftRefRange(days){
   const first = sorted[0], last = sorted[sorted.length-1];
   return first.ts===last.ts ? hftDateStr(first) : hftDateStr(first)+' - '+hftDateStr(last);
 }
-/* Shared table-HTML builder for both the historical bucket table and the one-row Current Condition
-   table below -- same 17 HFT_FIELDS columns (+ Reference) in the same order, so the two tables line
-   up for a direct visual comparison. `rows` is an array of {col1, col2, ref, ...HFT_FIELDS keys};
-   col1Header/col2Header let the two tables use different first-two-column labels (bin/n vs. exact
-   value/period); `ref` is each row's own real contributing-date-range string (see hftRefRange). */
-function hftBuildTableHtml(rows, col1Header, col2Header, extraClass){
-  const cookFields = HFT_FIELDS.filter(function(f){ return f.grp==='cook'; });
-  const woodFields = HFT_FIELDS.filter(function(f){ return f.grp==='wood'; });
-  const chemFields = HFT_FIELDS.filter(function(f){ return f.grp==='chem'; });
+/* Shared table-HTML builder for the historical bucket table, the one-row Current Condition table,
+   and the monthly history table below -- same columns (+ Reference) in the same order, so the
+   tables line up for a direct visual comparison. `rows` is an array of {col1, col2, ref, ...field
+   keys}; col1Header/col2Header let each table use different first-two-column labels (bin/n vs.
+   exact value/period vs. month/n); `ref` is each row's own real contributing-date-range string (see
+   hftRefRange). `fields` defaults to HFT_FIELDS (the bin/current-condition tables' own 17 columns);
+   the monthly table passes HFT_MONTHLY_FIELDS instead, which prepends a Set Point H-factor (APC)
+   column since month, not Set Point, is that table's own grouping key. */
+function hftBuildTableHtml(rows, col1Header, col2Header, extraClass, fields){
+  const flds = fields || HFT_FIELDS;
+  const cookFields = flds.filter(function(f){ return f.grp==='cook'; });
+  const woodFields = flds.filter(function(f){ return f.grp==='wood'; });
+  const chemFields = flds.filter(function(f){ return f.grp==='chem'; });
   function headCell(f){ return '<th class="hft-col">'+f.label+(f.unit?'<br>('+f.unit+')':'')+'</th>'; }
   let html = '<table class="hft-table'+(extraClass ? ' '+extraClass : '')+'"><thead><tr>'
     + '<th rowspan="2" class="hft-bin">'+col1Header+'</th>'
@@ -7193,12 +7247,32 @@ function renderHFactorTuningModel(){
   });
   wrap.innerHTML = hftBuildTableHtml(rows, 'Set Point<br>H-factor (APC)', 'n', HFT_HIST_N_COLLAPSED ? 'hft-n-collapsed' : '');
 }
+/* "ประวัติแยกตามเดือน" -- same historical window, grouped by calendar month instead of Set Point
+   bin (computeHFactorMonthlyBuckets). Shares the #hftNToggleBtn N-column toggle with the bin table
+   above (HFT_HIST_N_COLLAPSED is one shared module-scope flag), so both tables' N columns show or
+   hide together from the single button. */
+function renderHFactorMonthlyModel(){
+  const wrap = document.getElementById('hftMonthlyTableWrap');
+  const noteEl = document.getElementById('hftMonthlyHistoryRangeNote');
+  if(noteEl) noteEl.textContent = hftHistoryRangeLabel();
+  if(!wrap) return;
+  const buckets = computeHFactorMonthlyBuckets();
+  if(!buckets.length){
+    wrap.innerHTML = '<div class="hft-empty">ยังไม่มีข้อมูล'+hftHistoryRangeLabel()+'ที่สามารถสรุปได้</div>';
+    return;
+  }
+  const rows = buckets.map(function(b){
+    return Object.assign({}, b, { col1:hftMonthLabel(b.y, b.mi), col2:String(b.n) });
+  });
+  wrap.innerHTML = hftBuildTableHtml(rows, 'เดือน', 'n', HFT_HIST_N_COLLAPSED ? 'hft-n-collapsed' : '', HFT_MONTHLY_FIELDS);
+}
 function initHftNToggle(){
   const btn = document.getElementById('hftNToggleBtn');
   if(!btn) return;
   btn.addEventListener('click', function(){
     HFT_HIST_N_COLLAPSED = !HFT_HIST_N_COLLAPSED;
     renderHFactorTuningModel();
+    renderHFactorMonthlyModel();
   });
 }
 /* One record per cook day (PLS_COOKING_ROWS is already day-aggregated) that has a real Set point
@@ -7295,6 +7369,7 @@ function hftApplyCondMode(){
   HFT_COND_STATE = { mode:mode, value:value || null };
   renderHFactorCurrentCondition();
   renderHFactorRecommendation();
+  renderHFactorMonthlyRecommendation();
 }
 function initHFactorConditionControls(){
   const modeSel = document.getElementById('hftCondMode');
@@ -7347,11 +7422,15 @@ function renderHFactorCurrentCondition(){
    field like St>1m, naturally a few percent, doesn't get swamped by a field like K7, naturally tens
    of percent, purely from scale rather than actual relevance). */
 const HFT_CONDITION_KEYS = ['woodK7','woodK58','woodSeed','woodOther','woodSt1m','moistureLab','tempAfterCirc'];
-function computeHFactorRecommendation(){
+/* `buckets` defaults to the Set-Point-bin history (computeHFactorTuningBuckets); pass
+   computeHFactorMonthlyBuckets() instead to match against the monthly history -- the matching
+   logic itself (which fields, how distance is computed) is identical either way, only which
+   historical periods it's matching against differs. */
+function computeHFactorRecommendation(buckets){
+  buckets = buckets || computeHFactorTuningBuckets();
   const cur = computeHFactorCondition();
   if(!cur) return { status:'no-current' };
   if(HFT_CONDITION_KEYS.some(function(k){ return cur[k]==null; })) return { status:'incomplete-current' };
-  const buckets = computeHFactorTuningBuckets();
   const validBuckets = buckets.filter(function(b){ return HFT_CONDITION_KEYS.every(function(k){ return b[k]!=null; }); });
   if(validBuckets.length < 2) return { status:'insufficient-history' };
   const ranges = {};
@@ -7519,12 +7598,21 @@ const HFT_KAPPA_MULTI_MIN_POINTS = 6;
    swing the answer to a Set Point nobody has ever run and that isn't physically plausible for this
    process. Past that margin the result is clamped to the boundary and flagged 'clamped' (distinct
    from the milder 'extrapolated' flag, which just means targetKappa itself is outside the observed
-   Kappa range but the resulting Set Point still landed in a plausible margin). */
-function computeHFactorKappaTarget(targetKappa, cur){
+   Kappa range but the resulting Set Point still landed in a plausible margin).
+
+   `buckets` defaults to the Set-Point-bin history and `xKey` to 'bin' (that table's own rounded
+   Set Point value); passing computeHFactorMonthlyBuckets() and 'setPoint' instead runs the exact
+   same fits/guards/clamping against the monthly history's own (continuous, unrounded) average Set
+   Point per month -- everything past the `allPts` line below works purely off each point's generic
+   `.bin` property, so it never needs to know which source or x-variable it came from. */
+function computeHFactorKappaTarget(targetKappa, cur, buckets, xKey){
+  buckets = buckets || computeHFactorTuningBuckets();
+  xKey = xKey || 'bin';
   if(targetKappa==null || !isFinite(targetKappa)) return { status:'invalid-target' };
-  const allPts = computeHFactorTuningBuckets()
-    .filter(function(b){ return b.kappaOnline!=null; })
-    .map(function(b){ return { bin:b.bin, kappaOnline:b.kappaOnline, n:b.n, eaChargeActual:b.eaChargeActual, tempAfterCirc:b.tempAfterCirc }; });
+  const allPts = buckets
+    .filter(function(b){ return b.kappaOnline!=null && b[xKey]!=null; })
+    .map(function(b){ return { bin:b[xKey], kappaOnline:b.kappaOnline, n:b.n, eaChargeActual:b.eaChargeActual, tempAfterCirc:b.tempAfterCirc,
+      label: (b.y!=null && b.mi!=null) ? hftMonthLabel(b.y, b.mi) : null }; });
   if(allPts.length < 2) return { status:'insufficient-history' };
   const curEa = (cur && cur.eaChargeActual!=null) ? cur.eaChargeActual : null;
   const curTemp = (cur && cur.tempAfterCirc!=null) ? cur.tempAfterCirc : null;
@@ -7599,6 +7687,7 @@ function initHftTargetKappaInput(){
     const v = Number(input.value);
     HFT_TARGET_KAPPA = (isFinite(v) && v > 0) ? v : null;
     renderHFactorRecommendation();
+    renderHFactorMonthlyRecommendation();
   });
 }
 function renderHFactorRecommendation(){
@@ -7663,6 +7752,85 @@ function renderHFactorRecommendation(){
           html += '<p class="hft-kappa-warn">⚠ จากความสัมพันธ์ที่มีอยู่ Set Point ที่คำนวณได้จริงเกินช่วงที่เคยเดินมามาก (เคยอยู่ระหว่าง <b>'+kt.binMin+'</b>–<b>'+kt.binMax+'</b>) จึงไม่แนะนำให้ปรับมากขนาดนั้นในครั้งเดียว ระบบจำกัดคำแนะนำไว้ที่ <b>'+kt.setPoint+'</b> ซึ่งยังพอมีเหตุผลรองรับ ควรปรับทีละขั้นและติดตามผล Kappa จริงก่อนปรับเพิ่มเติม แทนที่จะปรับครั้งเดียวจำนวนมาก</p>';
         } else if(kt.status === 'extrapolated'){
           html += '<p class="hft-kappa-warn">⚠ Target Kappa Cooking ที่ตั้งไว้ ('+hftFmt(HFT_TARGET_KAPPA,2)+') อยู่นอกช่วง Kappa No. ที่เคยเกิดขึ้นจริงในประวัติ (เคยอยู่ระหว่าง <b>'+hftFmt(kt.kMin,2)+'</b>–<b>'+hftFmt(kt.kMax,2)+'</b>) ตัวเลข Set Point ที่แนะนำนี้เป็นการประมาณนอกช่วงข้อมูลจริง ควรใช้ด้วยความระมัดระวังและติดตามผลจริงหลังปรับ Set Point</p>';
+        }
+      }
+    }
+  }
+  el.innerHTML = html;
+}
+/* "คำแนะนำ Set Point H-factor (จากข้อมูลรายเดือน)" -- same two-stage recommendation as
+   renderHFactorRecommendation (primary wood/moisture/Temp match, then a Target-Kappa-driven
+   refinement), but matched against the monthly history (computeHFactorMonthlyBuckets) instead of
+   the Set-Point-bin history. Reuses the same compute functions (computeHFactorRecommendation,
+   computeHFactorKappaTarget), generalized above to accept a bucket source and x-axis key, so the
+   actual matching/fitting/clamping logic is identical either way -- only the Thai wording below
+   (month framing instead of Set-Point-range framing) is written out separately, since the two
+   read naturally differently ("เดือน X" vs "ช่วง Set Point = X"). */
+function renderHFactorMonthlyRecommendation(){
+  const el = document.getElementById('hftMonthlyRecoBox');
+  if(!el) return;
+  const monthlyBuckets = computeHFactorMonthlyBuckets();
+  const r = computeHFactorRecommendation(monthlyBuckets);
+  if(r.status === 'no-current'){
+    el.innerHTML = '<p>ยังไม่มีข้อมูล Condition สำหรับช่วงที่เลือกเพื่อวิเคราะห์</p>';
+    return;
+  }
+  if(r.status === 'incomplete-current'){
+    el.innerHTML = '<p>ข้อมูลไม้สับ/ความชื้น/Temp.after circulation ของช่วงที่เลือกยังไม่ครบ ไม่สามารถแนะนำ Set Point H-factor ได้</p>';
+    return;
+  }
+  if(r.status === 'insufficient-history'){
+    el.innerHTML = '<p>ข้อมูลประวัติรายเดือนยังไม่พอ (ต้องมีอย่างน้อย 2 เดือนที่มีข้อมูลไม้สับ/ความชื้น/Temp.after circulation ครบ) สำหรับการแนะนำ</p>';
+    return;
+  }
+  const b = r.bucket, cur = r.current;
+  const monthLabel = hftMonthLabel(b.y, b.mi);
+  const recoSetPoint = hftFmt(b.setPoint, 0);
+  let html = '<p><b>คำแนะนำ (จากข้อมูลรายเดือน):</b> จากสภาวะไม้สับ ความชื้น และ Temp.after circulation (Temp เริ่มต้น) ของช่วง ' + cur.label + ' เทียบกับค่าเฉลี่ยไม้สับ/ความชื้น/Temp.after circulation (Temp เริ่มต้น) ในแต่ละเดือนที่เคยเดินจริง '
+    + 'พบว่าใกล้เคียงกับเดือน <b>' + monthLabel + '</b> มากที่สุด '
+    + '(เดือนนั้นมี Set Point H-factor เฉลี่ย ' + hftFmt(b.setPoint,1) + ', Kappa No. (Online) เฉลี่ย ' + hftFmt(b.kappaOnline,2) + ' และ Real H-factor เฉลี่ย ' + hftFmt(b.realHFactor,1) + ' จากข้อมูล ' + b.n + ' วัน) '
+    + 'จึงอาจพิจารณาปรับ Set Point H-factor เป็น <b>' + recoSetPoint + '</b> เพื่อให้สภาวะการเดินเครื่องใกล้เคียงกับเดือนที่เคยได้ผลลัพธ์นี้มากที่สุด</p>';
+  html += '<table class="hft-reco-compare"><thead><tr><th>ค่าเปรียบเทียบ</th><th>ช่วงที่เลือก</th><th>เฉลี่ยเดือน '+monthLabel+'</th></tr></thead><tbody>';
+  HFT_CONDITION_LABELS.forEach(function(pair){
+    html += '<tr><td>'+pair[1]+'</td><td>'+hftFmt(cur[pair[0]],2)+'</td><td>'+hftFmt(b[pair[0]],2)+'</td></tr>';
+  });
+  html += '</tbody></table>';
+  if(HFT_TARGET_KAPPA == null){
+    html += '<p class="hft-kappa-note">กรุณาระบุค่า Target Kappa Cooking ที่ถูกต้อง (ตัวเลขมากกว่า 0) เพื่อวิเคราะห์เพิ่มเติม</p>';
+  } else {
+    const kappaDiff = b.kappaOnline==null ? null : (b.kappaOnline - HFT_TARGET_KAPPA);
+    if(kappaDiff==null){
+      html += '<p class="hft-kappa-note">เดือนที่แนะนำข้างต้นยังไม่มีค่า Kappa No. (Online) เฉลี่ย จึงยังไม่สามารถเทียบกับ Target Kappa Cooking ได้</p>';
+    } else if(Math.abs(kappaDiff) < 0.005){
+      html += '<p class="hft-kappa-note">Kappa No. (Online) ที่คาดจากคำแนะนำข้างต้น (<b>'+hftFmt(b.kappaOnline,2)+'</b>) ใกล้เคียงกับ Target Kappa Cooking ที่ตั้งไว้ (<b>'+hftFmt(HFT_TARGET_KAPPA,2)+'</b>) อยู่แล้ว จึงไม่จำเป็นต้องปรับ Set Point H-factor เพิ่มเติมจากคำแนะนำข้างต้น</p>';
+    } else {
+      const kt = computeHFactorKappaTarget(HFT_TARGET_KAPPA, cur, monthlyBuckets, 'setPoint');
+      const higherOrLower = kappaDiff > 0 ? 'สูงกว่า' : 'ต่ำกว่า';
+      if(kt.status === 'insufficient-history'){
+        html += '<p class="hft-kappa-note">Kappa No. (Online) ที่คาดจากคำแนะนำข้างต้น (<b>'+hftFmt(b.kappaOnline,2)+'</b>) '+higherOrLower+' Target Kappa Cooking ที่ตั้งไว้ (<b>'+hftFmt(HFT_TARGET_KAPPA,2)+'</b>) แต่ข้อมูลประวัติรายเดือนยังไม่พอสำหรับวิเคราะห์ความสัมพันธ์ Set Point H-factor กับ Kappa No. (ต้องมีอย่างน้อย 2 เดือนที่มีค่า Kappa)</p>';
+      } else if(kt.status === 'flat-trend'){
+        html += '<p class="hft-kappa-note">Kappa No. (Online) ที่คาดจากคำแนะนำข้างต้น (<b>'+hftFmt(b.kappaOnline,2)+'</b>) '+higherOrLower+' Target Kappa Cooking ที่ตั้งไว้ (<b>'+hftFmt(HFT_TARGET_KAPPA,2)+'</b>) แต่ข้อมูลประวัติรายเดือนยังไม่แสดงความสัมพันธ์ที่ชัดเจนระหว่าง Set Point H-factor กับ Kappa No. จึงยังไม่สามารถแนะนำปรับตาม Target Kappa ได้</p>';
+      } else if(kt.status === 'reversed-trend'){
+        html += '<p class="hft-kappa-note">Kappa No. (Online) ที่คาดจากคำแนะนำข้างต้น (<b>'+hftFmt(b.kappaOnline,2)+'</b>) '+higherOrLower+' Target Kappa Cooking ที่ตั้งไว้ (<b>'+hftFmt(HFT_TARGET_KAPPA,2)+'</b>) แต่ข้อมูลประวัติรายเดือนแสดงว่า Set Point H-factor สูงขึ้นกลับให้ Kappa No. สูงขึ้นตาม ซึ่งขัดกับความสัมพันธ์ปกติของกระบวนการต้ม (H-factor สูงขึ้นควรทำให้ Kappa ลดลง) จึงน่าจะเกิดจากข้อมูลประวัติยังมีน้อยเกินไปหรือมีปัจจัยอื่นปนอยู่ ยังไม่แนะนำให้ใช้ตัวเลขนี้ปรับ Set Point จนกว่าจะมีข้อมูลมากขึ้น</p>';
+      } else {
+        const methodNote = kt.method==='trivariate'
+          ? ' (วิเคราะห์จาก Set Point H-factor ร่วมกับ EA charge Actual และ Temp.after circulation (Temp เริ่มต้น) พร้อมกัน โดยคิดที่ระดับ EA charge Actual และ Temp.after circulation ปัจจุบัน จากข้อมูล '+kt.points.length+' เดือน)'
+          : kt.method==='multivariate'
+          ? ' (วิเคราะห์จาก Set Point H-factor ร่วมกับ EA charge Actual พร้อมกัน โดยคิดที่ระดับ EA charge Actual ปัจจุบัน จากข้อมูล '+kt.points.length+' เดือน)'
+          : (kt.eaFiltered && kt.tempFiltered) ? ' (เฉพาะเดือนที่มี EA charge Actual และ Temp.after circulation ใกล้เคียงกับปัจจุบัน เพื่อลดผลกระทบจากปัจจัยที่ต่างกัน)'
+          : kt.eaFiltered ? ' (เฉพาะเดือนที่มี EA charge Actual ใกล้เคียงกับปัจจุบัน เพื่อลดผลกระทบจากปริมาณสารเคมีที่ต่างกัน)'
+          : kt.tempFiltered ? ' (เฉพาะเดือนที่มี Temp.after circulation ใกล้เคียงกับปัจจุบัน เพื่อลดผลกระทบจากอุณหภูมิที่ต่างกัน)'
+          : '';
+        html += '<p class="hft-kappa-note">Kappa No. (Online) ที่คาดจากคำแนะนำข้างต้น (<b>'+hftFmt(b.kappaOnline,2)+'</b>) '+higherOrLower+' Target Kappa Cooking ที่ตั้งไว้ (<b>'+hftFmt(HFT_TARGET_KAPPA,2)+'</b>) จากความสัมพันธ์ระหว่าง Set Point H-factor กับ Kappa No. (Online) ที่เคยเกิดขึ้นจริงในประวัติรายเดือน'+methodNote+' แนะนำปรับ Set Point H-factor เป็น <b>'+kt.setPoint+'</b> เพื่อให้ Kappa No. ใกล้เคียง Target Kappa Cooking ที่ตั้งไว้มากขึ้น</p>';
+        html += '<table class="hft-reco-compare hft-kappa-trend-table"><thead><tr><th>เดือน</th><th>Set Point H-factor (APC) เฉลี่ย</th><th>Kappa No. (Online) เฉลี่ย</th><th>จำนวนวัน (n)</th></tr></thead><tbody>';
+        kt.points.slice().sort(function(a,b2){ return a.bin-b2.bin; }).forEach(function(p){
+          html += '<tr><td>'+(p.label||'—')+'</td><td>'+hftFmt(p.bin,1)+'</td><td>'+hftFmt(p.kappaOnline,2)+'</td><td>'+p.n+'</td></tr>';
+        });
+        html += '</tbody></table>';
+        if(kt.status === 'clamped'){
+          html += '<p class="hft-kappa-warn">⚠ จากความสัมพันธ์ที่มีอยู่ Set Point ที่คำนวณได้จริงเกินช่วงที่เคยเดินมามาก (เคยอยู่ระหว่าง <b>'+hftFmt(kt.binMin,1)+'</b>–<b>'+hftFmt(kt.binMax,1)+'</b>) จึงไม่แนะนำให้ปรับมากขนาดนั้นในครั้งเดียว ระบบจำกัดคำแนะนำไว้ที่ <b>'+kt.setPoint+'</b> ซึ่งยังพอมีเหตุผลรองรับ ควรปรับทีละขั้นและติดตามผล Kappa จริงก่อนปรับเพิ่มเติม แทนที่จะปรับครั้งเดียวจำนวนมาก</p>';
+        } else if(kt.status === 'extrapolated'){
+          html += '<p class="hft-kappa-warn">⚠ Target Kappa Cooking ที่ตั้งไว้ ('+hftFmt(HFT_TARGET_KAPPA,2)+') อยู่นอกช่วง Kappa No. ที่เคยเกิดขึ้นจริงในประวัติรายเดือน (เคยอยู่ระหว่าง <b>'+hftFmt(kt.kMin,2)+'</b>–<b>'+hftFmt(kt.kMax,2)+'</b>) ตัวเลข Set Point ที่แนะนำนี้เป็นการประมาณนอกช่วงข้อมูลจริง ควรใช้ด้วยความระมัดระวังและติดตามผลจริงหลังปรับ Set Point</p>';
         }
       }
     }
@@ -13498,6 +13666,7 @@ function initChipMon(){
   initYieldAnalysisControlsMB();
   renderYieldAnalysisTableLast7();
   renderHFactorTuningModel();
+  renderHFactorMonthlyModel();
   initHftNToggle();
   initHftTargetKappaInput();
   initHFactorConditionControls();
@@ -13559,8 +13728,10 @@ function initChipMon(){
     renderYieldAnalysisTableMB();
     renderYieldAnalysisTableLast7();
     renderHFactorTuningModel();
+    renderHFactorMonthlyModel();
     renderHFactorCurrentCondition();
     renderHFactorRecommendation();
+    renderHFactorMonthlyRecommendation();
     woodCmpRenderBody();
     CHIP_MON_GROUPS.forEach(grp=> { chipMonRenderTiles(grp); chipMonRenderDetail(grp.id); });
     initBatchTiming();
