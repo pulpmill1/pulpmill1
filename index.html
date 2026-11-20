@@ -705,7 +705,8 @@
   .hft-kappa-target input{width:64px;border:1px solid var(--border);border-radius:6px;padding:3px 6px;font-size:12px;font-family:"IBM Plex Mono",monospace;background:var(--surface);color:var(--ink);}
   .hft-kappa-note{margin-top:10px;}
   .hft-kappa-warn{display:block;margin-top:8px;color:#a15c00;background:rgba(255,166,0,.12);border:1px solid rgba(255,166,0,.35);border-radius:8px;padding:8px 10px;font-size:11.5px;}
-  table.hft-reco-compare{width:100%;max-width:560px;border-collapse:collapse;font-size:11.5px;}
+  .hft-reco-compare-wrap{overflow-x:auto;max-width:560px;}
+  table.hft-reco-compare{width:100%;border-collapse:collapse;font-size:11.5px;}
   table.hft-reco-compare th,table.hft-reco-compare td{padding:5px 9px;border:1px solid var(--border);text-align:right;}
   table.hft-reco-compare th{background:var(--surface);font-weight:700;color:var(--ink);}
   table.hft-reco-compare th:first-child,table.hft-reco-compare td:first-child{text-align:left;color:var(--ink);}
@@ -7573,11 +7574,11 @@ function renderHFactorRecommendation(){
     + 'พบว่าใกล้เคียงกับช่วง Set Point H-factor = <b>' + b.bin + '</b> มากที่สุด '
     + '(ช่วงนั้นมี Kappa No. (Online) เฉลี่ย ' + hftFmt(b.kappaOnline,2) + ' และ Real H-factor เฉลี่ย ' + hftFmt(b.realHFactor,1) + ' จากข้อมูล ' + b.n + ' วัน) '
     + 'จึงอาจพิจารณาปรับ Set Point H-factor เป็น <span class="hft-reco-value">' + b.bin + '</span> (Real H-factor ≈ <span class="hft-reco-value">' + hftFmt(b.realHFactor,0) + '</span>) เพื่อให้สภาวะการเดินเครื่องใกล้เคียงกับช่วงที่เคยได้ผลลัพธ์นี้มากที่สุด</p>';
-  html += '<table class="hft-reco-compare"><thead><tr><th>ค่าเปรียบเทียบ</th><th>ช่วงที่เลือก</th><th>เฉลี่ย Set Point '+b.bin+'</th></tr></thead><tbody>';
+  html += '<div class="hft-reco-compare-wrap"><table class="hft-reco-compare"><thead><tr><th>ค่าเปรียบเทียบ</th><th>ช่วงที่เลือก</th><th>เฉลี่ย Set Point '+b.bin+'</th></tr></thead><tbody>';
   HFT_CONDITION_LABELS.forEach(function(pair){
     html += '<tr><td>'+pair[1]+'</td><td>'+hftFmt(cur[pair[0]],2)+'</td><td>'+hftFmt(b[pair[0]],2)+'</td></tr>';
   });
-  html += '</tbody></table>';
+  html += '</tbody></table></div>';
   el.innerHTML = html;
 }
 /* Target Kappa (monthly recommendation only) -- the Set Point the wood/moisture/Temp match above
@@ -7648,11 +7649,11 @@ function renderHFactorMonthlyRecommendation(){
     + 'พบว่าใกล้เคียงกับเดือน <b>' + monthLabel + '</b> มากที่สุด '
     + '(เดือนนั้นมี Set Point H-factor เฉลี่ย ' + hftFmt(b.setPoint,1) + ', Kappa No. (Online) เฉลี่ย ' + hftFmt(b.kappaOnline,2) + ' และ Real H-factor เฉลี่ย ' + hftFmt(b.realHFactor,1) + ' จากข้อมูล ' + b.n + ' วัน) '
     + 'จึงอาจพิจารณาปรับ Set Point H-factor เป็น <span class="hft-reco-value">' + recoSetPoint + '</span> (Real H-factor ≈ <span class="hft-reco-value">' + hftFmt(b.realHFactor,0) + '</span>) เพื่อให้สภาวะการเดินเครื่องใกล้เคียงกับเดือนที่เคยได้ผลลัพธ์นี้มากที่สุด</p>';
-  html += '<table class="hft-reco-compare"><thead><tr><th>ค่าเปรียบเทียบ</th><th>ช่วงที่เลือก</th><th>เฉลี่ยเดือน '+monthLabel+'</th></tr></thead><tbody>';
+  html += '<div class="hft-reco-compare-wrap"><table class="hft-reco-compare"><thead><tr><th>ค่าเปรียบเทียบ</th><th>ช่วงที่เลือก</th><th>เฉลี่ยเดือน '+monthLabel+'</th></tr></thead><tbody>';
   HFT_CONDITION_LABELS.forEach(function(pair){
     html += '<tr><td>'+pair[1]+'</td><td>'+hftFmt(cur[pair[0]],2)+'</td><td>'+hftFmt(b[pair[0]],2)+'</td></tr>';
   });
-  html += '</tbody></table>';
+  html += '</tbody></table></div>';
   if(HFT_MONTHLY_TARGET_KAPPA == null){
     html += '<p class="hft-kappa-note">กรุณาระบุค่า Target Kappa ที่ต้องการเดินให้ถูกต้อง (ตัวเลขมากกว่า 0) เพื่อวิเคราะห์เพิ่มเติม</p>';
   } else {
