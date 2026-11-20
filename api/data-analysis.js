@@ -1,13 +1,15 @@
 // /api/data-analysis — shared/pinned "snapshot column" configs for the Data for analysis page.
 //
-// Each snapshot column (date-range granularity + value, plus an optional Adt/day production-range
-// filter) that a viewer pins stays visible to everyone who opens the Dashboard until someone
-// deletes it or pins a change — the whole list is one coherent ordered array, so (like
-// /api/layout.js) it's stored as a single JSON blob under one Redis key ("pm1:data-analysis-cols")
-// rather than a hash-per-field like /api/targets.js. GET returns the parsed array (or [] if nothing
-// has ever been saved, in which case the client falls back to the sheet template's own 3
-// unconfigured/local-only snapshot-column slots); POST overwrites the whole stored array. Same
-// Upstash project/credentials as /api/presence.js, /api/targets.js and /api/layout.js.
+// Every add/delete/edit/pin on the Data for analysis page's snapshot columns posts the FULL current
+// column list here (not only the ones a viewer has explicitly pinned) — the whole list is one
+// coherent ordered array, so (like /api/layout.js) it's stored as a single JSON blob under one Redis
+// key ("pm1:data-analysis-cols") rather than a hash-per-field like /api/targets.js. Each column
+// object carries its own "saved" flag (true once pinned) purely so every viewer redraws the same
+// "ยังไม่บันทึก" badge — it does not gate whether a column is stored here. GET returns the parsed array
+// (or [] if the list has never been touched, or everything in it has since been deleted, in which
+// case the client falls back to the sheet template's own 3 unconfigured snapshot-column slots); POST
+// overwrites the whole stored array. Same Upstash project/credentials as /api/presence.js,
+// /api/targets.js and /api/layout.js.
 //
 // Requires the same two Vercel project environment variables as the other three:
 //   UPSTASH_REDIS_REST_URL

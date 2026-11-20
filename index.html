@@ -724,7 +724,7 @@
   table.da-table th.da-fixed-h{background:var(--accent-soft);color:var(--accent-ink);font-size:11px;font-weight:700;text-align:center;white-space:normal;min-width:100px;}
   table.da-table td.da-fixed{text-align:left;color:var(--ink);font-size:11.5px;white-space:normal;overflow-wrap:break-word;word-break:break-word;background:var(--surface);}
   table.da-table td.da-fixed-grp{font-weight:700;}
-  table.da-table td.da-fixed-unit,table.da-table td.da-fixed-spec{text-align:center;color:var(--ink-3);font-size:11px;white-space:nowrap;}
+  table.da-table td.da-fixed-unit,table.da-table td.da-fixed-spec{text-align:center;color:var(--ink-3);font-size:11px;white-space:nowrap;background:var(--surface);}
   table.da-table td.da-val{text-align:right;font-family:"IBM Plex Mono",monospace;color:var(--ink-3);white-space:nowrap;}
   table.da-table th.da-col-head-cell{min-width:190px;max-width:190px;width:190px;background:var(--surface-2);vertical-align:top;padding:8px;}
   .da-col-head{display:flex;flex-direction:column;gap:6px;align-items:stretch;}
@@ -13975,9 +13975,13 @@ function daRenderTable(){
   html += '</tbody></table>';
   wrap.innerHTML = html;
 }
+/* Every add/delete/edit/pin is synced here -- not just explicitly-"pinned" columns -- so whatever
+   the table currently looks like (the latest activity, whoever did it) is what every viewer sees,
+   including on their own next reload. "saved" (set only by the pin button) is kept purely as a
+   display flag (the "ยังไม่บันทึก" badge), not as a gate on whether a column is shared. */
 function daSaveColumns(){
-  const toSave = DA_COLUMNS.filter(function(c){ return c.saved; }).map(function(c){
-    return { id:c.id, mode:c.mode, value:c.value, prodMin:c.prodMin, prodMax:c.prodMax };
+  const toSave = DA_COLUMNS.map(function(c){
+    return { id:c.id, mode:c.mode, value:c.value, prodMin:c.prodMin, prodMax:c.prodMax, saved:!!c.saved };
   });
   fetch('/api/data-analysis', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({columns:toSave}) }).catch(function(){});
 }
@@ -14011,6 +14015,7 @@ function daBindControls(){
       } else {
         return;
       }
+      daSaveColumns();
       daRenderTable();
     });
     wrap.addEventListener('click', function(e){
@@ -14023,9 +14028,8 @@ function daBindControls(){
         daSaveColumns();
         daRenderTable();
       } else if(e.target.classList.contains('da-del')){
-        const wasSaved = col.saved;
         DA_COLUMNS = DA_COLUMNS.filter(function(c){ return c.id !== col.id; });
-        if(wasSaved) daSaveColumns();
+        daSaveColumns();
         daRenderTable();
       }
     });
@@ -14036,13 +14040,19 @@ function daBindControls(){
       const latestDateStr = latest ? (latest.y+'-'+String(latest.mi+1).padStart(2,'0')+'-'+String(latest.d).padStart(2,'0')) : null;
       DA_NEXT_ID += 1;
       DA_COLUMNS.push({ id:DA_NEXT_ID, mode:'date', value:latestDateStr, prodMin:null, prodMax:null, saved:false });
+      daSaveColumns();
       daRenderTable();
     });
   }
 }
-/* Seeds DA_COLUMNS from the shared/pinned store (DA_SAVED_COLUMNS_REMOTE, loaded at boot) so every
-   viewer sees the same saved columns in the same order; when nothing has ever been pinned yet,
-   falls back to the sheet template's own 3 unconfigured (local-only) snapshot-column slots. */
+/* Seeds DA_COLUMNS from the shared store (DA_SAVED_COLUMNS_REMOTE, loaded at boot) so every viewer
+   sees the exact same columns, in the same order, reflecting whatever the latest add/delete/edit/pin
+   left behind -- every mutation syncs the FULL column list (see daSaveColumns), not only pinned ones,
+   so this is the one true shared state, not just a "saved" subset. Each column's own "saved" flag
+   (set only by the pin button) comes along for the ride, purely to redraw its "ยังไม่บันทึก" badge the
+   same way for every viewer. Only when the store is completely empty (nothing has ever been added,
+   or everything has since been deleted) does this fall back to the sheet template's own 3
+   unconfigured snapshot-column slots. */
 function initDataAnalysisPage(){
   const wrap = document.getElementById('daTableWrap');
   if(!wrap) return;
@@ -14056,7 +14066,7 @@ function initDataAnalysisPage(){
       return {
         id:id, mode:c.mode||'date', value:c.value||latestDateStr,
         prodMin:(typeof c.prodMin==='number')?c.prodMin:null, prodMax:(typeof c.prodMax==='number')?c.prodMax:null,
-        saved:true,
+        saved:!!c.saved,
       };
     });
   } else {
