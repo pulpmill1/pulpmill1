@@ -713,7 +713,7 @@
   table.hft-reco-compare th,table.hft-reco-compare td{padding:5px 9px;border:1px solid var(--border);text-align:right;}
   table.hft-reco-compare th{background:var(--surface);font-weight:700;color:var(--ink);}
   table.hft-reco-compare th:first-child,table.hft-reco-compare td:first-child{text-align:left;color:var(--ink);}
-  /* Data for analysis page -- grouped metric table (Group/Subgroup/Metric/Unit/Spec, fixed) plus
+  /* Data for analysis page -- grouped metric table (Group/Subgroup/Metric/Unit/KPI, fixed) plus
      N configurable "snapshot" value columns to the right, each with its own date-range + Adt/day
      production-range filter and an optional shared/pinned save. Same overflow-x:auto + fixed
      per-column width pattern as table.hft-table above, so a wide table never pushes the page. */
@@ -724,12 +724,15 @@
   /* table-layout:fixed + an explicit <colgroup> (widths read from DA_COL_WIDTHS, drag-resizable via
      .da-resize-handle) is what makes per-column resize possible and stick; columns 1-3 (กลุ่ม/
      กลุ่มย่อย/รายการ) are also frozen (position:sticky;left, offsets computed from those same widths)
-     so they stay visible while scrolling through however many snapshot columns exist. */
+     so they stay visible while scrolling through however many snapshot columns exist. Unit/KPI
+     (columns 4-5) are resizable too but NOT frozen -- da-plain-h/da-plain share da-fixed-h/da-fixed's
+     look without position:sticky, so they just scroll away normally with the snapshot columns. */
   table.da-table{width:100%;min-width:900px;border-collapse:collapse;font-size:12px;table-layout:fixed;}
   table.da-table thead{position:sticky;top:0;z-index:3;}
   table.da-table th,table.da-table td{padding:6px 7px;border:1px solid var(--border);position:relative;}
-  table.da-table th.da-fixed-h{background:var(--accent-soft);color:var(--accent-ink);font-size:11px;font-weight:700;text-align:center;white-space:normal;}
-  table.da-table td.da-fixed{text-align:left;color:var(--ink);font-size:11.5px;white-space:normal;overflow-wrap:break-word;word-break:break-word;background:var(--surface);}
+  table.da-table th.da-fixed-h,table.da-table th.da-plain-h{background:var(--accent-soft);color:var(--accent-ink);font-size:11px;font-weight:700;text-align:center;white-space:normal;}
+  table.da-table td.da-fixed,table.da-table td.da-plain{text-align:left;color:var(--ink);font-size:11.5px;white-space:normal;overflow-wrap:break-word;word-break:break-word;background:var(--surface);}
+  table.da-table td.da-plain{text-align:center;color:var(--ink-3);font-size:11px;}
   table.da-table td.da-fixed-grp{font-weight:700;}
   table.da-table td.da-val{text-align:right;font-family:"IBM Plex Mono",monospace;color:var(--ink-3);white-space:nowrap;}
   table.da-table th.da-col-head-cell{background:var(--surface-2);vertical-align:top;padding:8px;}
@@ -13918,15 +13921,15 @@ let DA_NEXT_ID = 1;
    personal viewing preference, unlike the shared/pinned column configs themselves) -- resizing
    always overwrites with the LATEST size, per request, there is no history of past sizes. */
 const DA_COL_WIDTHS_KEY = 'pm1_da_col_widths';
-const DA_COL_WIDTHS_DEFAULT = { grp:120, sub:130, label:220, snapshot:190 };
-const DA_COL_WIDTHS_MIN = { grp:60, sub:60, label:100, snapshot:120 };
+const DA_COL_WIDTHS_DEFAULT = { grp:120, sub:130, label:220, unit:90, kpi:110, snapshot:190 };
+const DA_COL_WIDTHS_MIN = { grp:60, sub:60, label:100, unit:60, kpi:60, snapshot:120 };
 function daLoadColWidths(){
   try{
     const raw = localStorage.getItem(DA_COL_WIDTHS_KEY);
     const parsed = raw ? JSON.parse(raw) : null;
     const out = Object.assign({}, DA_COL_WIDTHS_DEFAULT);
     if(parsed && typeof parsed === 'object'){
-      ['grp','sub','label','snapshot'].forEach(function(k){
+      ['grp','sub','label','unit','kpi','snapshot'].forEach(function(k){
         if(typeof parsed[k] === 'number' && parsed[k] >= DA_COL_WIDTHS_MIN[k]) out[k] = parsed[k];
       });
     }
@@ -14000,11 +14003,15 @@ function daRenderTable(){
     + '<col data-col="grp" style="width:'+DA_COL_WIDTHS.grp+'px">'
     + '<col data-col="sub" style="width:'+DA_COL_WIDTHS.sub+'px">'
     + '<col data-col="label" style="width:'+DA_COL_WIDTHS.label+'px">'
+    + '<col data-col="unit" style="width:'+DA_COL_WIDTHS.unit+'px">'
+    + '<col data-col="kpi" style="width:'+DA_COL_WIDTHS.kpi+'px">'
     + DA_COLUMNS.map(function(){ return '<col data-col="snapshot" style="width:'+DA_COL_WIDTHS.snapshot+'px">'; }).join('')
     + '</colgroup><thead><tr>'
     + '<th class="da-fixed-h da-fixed-grp" style="left:'+daColLeft('grp')+'px">กลุ่ม'+daResizeHandle('grp')+'</th>'
     + '<th class="da-fixed-h da-fixed-sub" style="left:'+daColLeft('sub')+'px">กลุ่มย่อย'+daResizeHandle('sub')+'</th>'
-    + '<th class="da-fixed-h da-fixed-label" style="left:'+daColLeft('label')+'px">รายการ'+daResizeHandle('label')+'</th>';
+    + '<th class="da-fixed-h da-fixed-label" style="left:'+daColLeft('label')+'px">รายการ'+daResizeHandle('label')+'</th>'
+    + '<th class="da-plain-h">หน่วย'+daResizeHandle('unit')+'</th>'
+    + '<th class="da-plain-h">KPI'+daResizeHandle('kpi')+'</th>';
   DA_COLUMNS.forEach(function(col){
     html += '<th class="da-col-head-cell" data-col-id="'+col.id+'"><div class="da-col-head">'+daRenderColHeadInner(col)+'</div>'+daResizeHandle('snapshot')+'</th>';
   });
@@ -14015,7 +14022,9 @@ function daRenderTable(){
     html += '<tr>';
     if(grpSpan) html += '<td class="da-fixed da-fixed-grp" rowspan="'+grpSpan+'" style="left:'+daColLeft('grp')+'px">'+f.grp+'</td>';
     if(subSpan) html += '<td class="da-fixed da-fixed-sub" rowspan="'+subSpan+'" style="left:'+daColLeft('sub')+'px">'+(f.sub||'')+'</td>';
-    html += '<td class="da-fixed da-fixed-label" style="left:'+daColLeft('label')+'px">'+f.label+'</td>';
+    html += '<td class="da-fixed da-fixed-label" style="left:'+daColLeft('label')+'px">'+f.label+'</td>'
+      + '<td class="da-plain">'+(f.unit||'')+'</td>'
+      + '<td class="da-plain">'+(f.spec||'')+'</td>';
     colDaySets.forEach(function(days){
       const v = daFieldAverage(f, days);
       html += '<td class="da-val">'+(v==null?'—':hftFmt(v,2))+'</td>';
@@ -14035,6 +14044,8 @@ function daApplyColWidths(wrap){
   table.querySelectorAll('col[data-col="grp"]').forEach(function(c){ c.style.width = DA_COL_WIDTHS.grp+'px'; });
   table.querySelectorAll('col[data-col="sub"]').forEach(function(c){ c.style.width = DA_COL_WIDTHS.sub+'px'; });
   table.querySelectorAll('col[data-col="label"]').forEach(function(c){ c.style.width = DA_COL_WIDTHS.label+'px'; });
+  table.querySelectorAll('col[data-col="unit"]').forEach(function(c){ c.style.width = DA_COL_WIDTHS.unit+'px'; });
+  table.querySelectorAll('col[data-col="kpi"]').forEach(function(c){ c.style.width = DA_COL_WIDTHS.kpi+'px'; });
   table.querySelectorAll('col[data-col="snapshot"]').forEach(function(c){ c.style.width = DA_COL_WIDTHS.snapshot+'px'; });
   table.querySelectorAll('.da-fixed-sub').forEach(function(el){ el.style.left = daColLeft('sub')+'px'; });
   table.querySelectorAll('.da-fixed-label').forEach(function(el){ el.style.left = daColLeft('label')+'px'; });
