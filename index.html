@@ -207,6 +207,7 @@
   .dtable-label::before{content:"▸"; color:var(--accent); font-size:11px; transition:transform .15s; display:inline-block;}
   details.dtable[open] .dtable-label::before{transform:rotate(90deg);}
   .hft-bin-details > .hft-wrap{margin-top:12px;}
+  .hft-bin-details{margin-top:18px;}
   .avg7-badge{
     display:flex; flex-direction:column; align-items:flex-end; gap:1px;
     background:var(--surface-2); border:1px solid var(--box-border); border-radius:8px;
@@ -714,12 +715,13 @@
   table.hft-reco-compare th{background:var(--surface);font-weight:700;color:var(--ink);}
   table.hft-reco-compare th:first-child,table.hft-reco-compare td:first-child{text-align:left;color:var(--ink);}
   /* Consolidates the 3 Set Point recommendations (monthly match, monthly Target-Kappa, latest-3-
-     batch Target-Kappa) into one at-a-glance table -- no fixed min-width, since it's only ever 4
-     narrow columns and should never need its own horizontal scroll on any screen. */
+     batch Target-Kappa) into one at-a-glance table. Column 2 (คำแนะนำ) keeps its label on one line
+     (its own container, .hft-wrap, already scrolls horizontally if a screen is too narrow for that). */
   table.hft-summary-table{width:100%;border-collapse:collapse;font-size:12px;}
   table.hft-summary-table th,table.hft-summary-table td{padding:7px 10px;border:1px solid var(--border);text-align:left;}
   table.hft-summary-table th{background:var(--surface);font-weight:700;color:var(--ink);}
   table.hft-summary-table td:first-child,table.hft-summary-table th:first-child{text-align:center;width:36px;}
+  table.hft-summary-table td:nth-child(2),table.hft-summary-table th:nth-child(2){white-space:nowrap;}
   table.hft-summary-table td:last-child,table.hft-summary-table th:last-child{text-align:right;white-space:nowrap;}
   /* Data for analysis page -- grouped metric table (Group/Subgroup/Metric/Unit/KPI, fixed) plus
      N configurable "snapshot" value columns to the right, each with its own date-range + Adt/day
@@ -2530,7 +2532,7 @@
           <div class="hft-wrap" id="hftSummaryRecoBox"></div>
 
           <details class="dtable hft-bin-details" id="hftBinSectionDetails">
-            <summary><span class="dtable-label">ประวัติแยกตามช่วง Set Point H-factor (APC) และคำแนะนำ</span></summary>
+            <summary><span class="dtable-label">ประวัติแยกตามช่วง Set Point H-factor (APC) และคำแนะนำ</span><span class="hft-n-toggle" id="hftBinHideLabel">ซ่อนข้อมูล</span></summary>
             <div class="hft-wrap" id="hftTableWrap"></div>
 
             <div class="hft-section-head">
@@ -7812,6 +7814,18 @@ function initHftNToggle(){
     renderHFactorMonthlyModel();
   });
 }
+/* "ซ่อนข้อมูล"/"แสดงข้อมูล" label on the bin-history <details> -- it already collapses/expands via
+   its own <summary> (native disclosure behavior, so clicking anywhere on this label collapses it
+   too, no separate click handler needed here), this only keeps the label text in sync via the
+   native 'toggle' event so it reads as an explicit button rather than just the bare ▸ arrow. */
+function initHftBinHideToggle(){
+  const details = document.getElementById('hftBinSectionDetails');
+  const label = document.getElementById('hftBinHideLabel');
+  if(!details || !label) return;
+  const sync = function(){ label.textContent = details.open ? 'ซ่อนข้อมูล' : 'แสดงข้อมูล'; };
+  sync();
+  details.addEventListener('toggle', sync);
+}
 /* One record per cook day (PLS_COOKING_ROWS is already day-aggregated) that has a real Set point
    H-factor(APC) value, each pre-computed with its own setPoint + all 21 HFT_FIELDS values -- shared
    by the "Condition ปัจจุบัน" period picker below. NOT restricted to year 2026 (unlike
@@ -8137,16 +8151,16 @@ function computeHFactorLast3KappaAvg(){
     return { d:rec.d, mi:rec.mi, y:rec.y, cookNo:rec.r[4], kappa:rec.r[109], setPoint:rec.r[75] };
   }) };
 }
-/* Absolute Set Point for the summary table's row 3 -- anchored on the MOST RECENT of the 3 averaged
-   cooks' own actual Set Point H-factor(APC) (column 75), shifted by the same fixed Kappa<->Set Point
-   ratio as every other Target-Kappa calculation on this page. The Last 3 Batch box itself only ever
-   states this as a +/- delta (per explicit request), so this absolute figure exists only for the
-   summary table below, not duplicated into that box's own text. */
-function hftLast3AnchoredSetPoint(k, targetKappa){
+/* Row 3 of the summary table states the SAME +/- delta as the Last 3 Batch box itself (per explicit
+   request: no separately-computed absolute Set Point for this row), so this just reproduces that
+   box's own direction/magnitude text in one place both can share. */
+function hftLast3AdjustmentLabel(k, targetKappa){
   if(k.status !== 'ok' || targetKappa == null) return null;
-  const anchor = k.batches[k.batches.length-1];
-  if(anchor.setPoint == null) return null;
-  return Math.round(anchor.setPoint - HFT_KAPPA_TO_SETPOINT_RATIO*(targetKappa - k.avg));
+  const diff = k.avg - targetKappa;
+  if(Math.abs(diff) < 0.005) return 'ไม่จำเป็นต้องปรับ';
+  const delta = Math.round(HFT_KAPPA_TO_SETPOINT_RATIO * Math.abs(diff));
+  const direction = diff > 0 ? 'เพิ่มขึ้น' : 'ลดลง';
+  return direction+' '+delta+' หน่วย';
 }
 function initHftLast3TargetKappaInput(){
   const input = document.getElementById('hftLast3TargetKappaInput');
@@ -8200,7 +8214,7 @@ function renderHFactorSummaryTable(){
   const r = computeHFactorRecommendation(monthlyBuckets);
   if(r.status !== 'ok'){
     rows.push({ label:'จากข้อมูลรายเดือน (จับคู่สภาวะไม้สับ/ความชื้น/Temp/Heat&amp;Cook ใกล้เคียงที่สุด)', ref:'—', setPoint:'ยังไม่มีคำแนะนำ' });
-    rows.push({ label:'จากข้อมูลรายเดือน เป้าหมายตาม Target Kappa ที่ต้องการ', ref:'—', setPoint:'ยังไม่มีคำแนะนำ' });
+    rows.push({ label:'จากข้อมูลรายเดือน เป้าหมายตาม Target Kappa', ref:'—', setPoint:'ยังไม่มีคำแนะนำ' });
   } else {
     const b = r.bucket;
     const monthLabel = hftMonthLabel(b.y, b.mi);
@@ -8208,30 +8222,29 @@ function renderHFactorSummaryTable(){
       ref:'เดือน '+monthLabel+' (Kappa No. (Online) เฉลี่ย '+hftFmt(b.kappaOnline,2)+')',
       setPoint:hftFmt(b.setPoint,0) });
     if(HFT_MONTHLY_TARGET_KAPPA == null){
-      rows.push({ label:'จากข้อมูลรายเดือน เป้าหมายตาม Target Kappa ที่ต้องการ', ref:'—', setPoint:'กรุณาระบุ Target Kappa' });
+      rows.push({ label:'จากข้อมูลรายเดือน เป้าหมายตาม Target Kappa', ref:'—', setPoint:'กรุณาระบุ Target Kappa' });
     } else if(b.kappaOnline == null){
-      rows.push({ label:'จากข้อมูลรายเดือน เป้าหมายตาม Target Kappa ที่ต้องการ', ref:'Target Kappa '+hftFmt(HFT_MONTHLY_TARGET_KAPPA,2), setPoint:'ไม่มีข้อมูล Kappa' });
+      rows.push({ label:'จากข้อมูลรายเดือน เป้าหมายตาม Target Kappa', ref:'Target Kappa '+hftFmt(HFT_MONTHLY_TARGET_KAPPA,2), setPoint:'ไม่มีข้อมูล Kappa' });
     } else {
       const kappaDiff = b.kappaOnline - HFT_MONTHLY_TARGET_KAPPA;
       const ref2 = 'Target Kappa '+hftFmt(HFT_MONTHLY_TARGET_KAPPA,2);
       if(Math.abs(kappaDiff) < 0.005){
-        rows.push({ label:'จากข้อมูลรายเดือน เป้าหมายตาม Target Kappa ที่ต้องการ', ref:ref2, setPoint:hftFmt(b.setPoint,0)+' (ตรงเป้าหมายแล้ว)' });
+        rows.push({ label:'จากข้อมูลรายเดือน เป้าหมายตาม Target Kappa', ref:ref2, setPoint:hftFmt(b.setPoint,0)+' (ตรงเป้าหมายแล้ว)' });
       } else {
         const kt = computeHFactorMonthlyKappaTarget(HFT_MONTHLY_TARGET_KAPPA, b);
-        rows.push({ label:'จากข้อมูลรายเดือน เป้าหมายตาม Target Kappa ที่ต้องการ', ref:ref2, setPoint:kt.status==='ok' ? hftFmt(kt.setPoint,0) : 'ข้อมูลไม่พอ' });
+        rows.push({ label:'จากข้อมูลรายเดือน เป้าหมายตาม Target Kappa', ref:ref2, setPoint:kt.status==='ok' ? hftFmt(kt.setPoint,0) : 'ข้อมูลไม่พอ' });
       }
     }
   }
   const k = computeHFactorLast3KappaAvg();
   if(k.status !== 'ok'){
-    rows.push({ label:'จากค่าเฉลี่ย Kappa 3 Batch ล่าสุด เป้าหมายตาม Target Kappa ที่ต้องการ', ref:'—', setPoint:'ข้อมูลยังไม่ครบ 3 Batch' });
+    rows.push({ label:'จากค่าเฉลี่ย Kappa 3 Batch ล่าสุด เป้าหมายตาม Target Kappa', ref:'—', setPoint:'ข้อมูลยังไม่ครบ 3 Batch' });
   } else if(HFT_LAST3_TARGET_KAPPA == null){
-    rows.push({ label:'จากค่าเฉลี่ย Kappa 3 Batch ล่าสุด เป้าหมายตาม Target Kappa ที่ต้องการ', ref:'Kappa เฉลี่ย '+hftFmt(k.avg,2), setPoint:'กรุณาระบุ Target Kappa' });
+    rows.push({ label:'จากค่าเฉลี่ย Kappa 3 Batch ล่าสุด เป้าหมายตาม Target Kappa', ref:'Kappa เฉลี่ย '+hftFmt(k.avg,2), setPoint:'กรุณาระบุ Target Kappa' });
   } else {
     const ref3 = 'Kappa เฉลี่ย '+hftFmt(k.avg,2)+' เทียบ Target Kappa '+hftFmt(HFT_LAST3_TARGET_KAPPA,2);
-    const sp = hftLast3AnchoredSetPoint(k, HFT_LAST3_TARGET_KAPPA);
-    rows.push({ label:'จากค่าเฉลี่ย Kappa 3 Batch ล่าสุด เป้าหมายตาม Target Kappa ที่ต้องการ', ref:ref3,
-      setPoint: sp!=null ? hftFmt(sp,0) : 'ไม่มีข้อมูล Set Point ของ Batch ล่าสุด' });
+    rows.push({ label:'จากค่าเฉลี่ย Kappa 3 Batch ล่าสุด เป้าหมายตาม Target Kappa', ref:ref3,
+      setPoint: hftLast3AdjustmentLabel(k, HFT_LAST3_TARGET_KAPPA) });
   }
   const html = '<table class="hft-summary-table"><thead><tr><th>#</th><th>คำแนะนำ</th><th>ค่าที่ใช้อ้างอิง</th><th>แนะนำ Set Point H-factor</th></tr></thead><tbody>'
     + rows.map(function(row, i){
@@ -14338,6 +14351,7 @@ function initChipMon(){
   renderHFactorTuningModel();
   renderHFactorMonthlyModel();
   initHftNToggle();
+  initHftBinHideToggle();
   initHftMonthlyTargetKappaInput();
   initHftLast3TargetKappaInput();
   renderHFactorLast3Recommendation();
