@@ -8187,9 +8187,12 @@ function computeHFactorLast3KappaAvg(){
   if(withKappa.length < 3) return { status:'insufficient-history', n:withKappa.length };
   const last3 = withKappa.slice(-3);
   const avg = last3.reduce(function(s,rec){ return s+rec.r[109]; }, 0) / 3;
-  return { status:'ok', avg:avg, batches:last3.map(function(rec){
-    return { d:rec.d, mi:rec.mi, y:rec.y, cookNo:rec.r[4], kappa:rec.r[109], setPoint:rec.r[75] };
-  }) };
+  const batches = last3.map(function(rec){
+    return { d:rec.d, mi:rec.mi, y:rec.y, cookNo:rec.r[4], kappa:rec.r[109], setPoint:rec.r[75], realHFactor:rec.r[77] };
+  });
+  const withRealH = batches.filter(function(b){ return b.realHFactor!=null; });
+  const avgRealHFactor = withRealH.length ? withRealH.reduce(function(s,b){ return s+b.realHFactor; }, 0) / withRealH.length : null;
+  return { status:'ok', avg:avg, avgRealHFactor:avgRealHFactor, batches:batches };
 }
 /* Shared by both the Last 3 Batch box and row 3 of the summary table: the +/- delta plus the
    resulting absolute Set Point H-factor, anchored on the LATEST of the 3 averaged cooks' own
@@ -8225,10 +8228,11 @@ function renderHFactorLast3Recommendation(){
     return;
   }
   const batchList = k.batches.map(function(b){
-    return 'Cook #'+(b.cookNo!=null?b.cookNo:'—')+' ('+b.d+' '+MONTH_ABBR_TH[b.mi]+' '+b.y+') = '+hftFmt(b.kappa,2);
+    return 'Cook #'+(b.cookNo!=null?b.cookNo:'—')+' ('+b.d+' '+MONTH_ABBR_TH[b.mi]+' '+b.y+') = '+hftFmt(b.kappa,2)+' (H-factor '+hftFmt(b.realHFactor,0)+')';
   }).join(', ');
+  const avgHFactorNote = k.avgRealHFactor!=null ? ' และเฉลี่ยได้ Real H-factor = <span class="hft-reco-value">' + hftFmt(k.avgRealHFactor,0) + '</span>' : '';
   let html = '<p class="hft-reco-highlight"><b>คำแนะนำ (จากค่าเฉลี่ย Kappa 3 Batch ล่าสุด):</b> Kappa No. (Online) จาก Cooking Logsheet ของ 3 Batch ล่าสุดที่นำมาเฉลี่ย ได้แก่ '
-    + batchList + ' เฉลี่ยได้ Kappa No. (Online) = <span class="hft-reco-value">' + hftFmt(k.avg,2) + '</span>';
+    + batchList + ' เฉลี่ยได้ Kappa No. (Online) = <span class="hft-reco-value">' + hftFmt(k.avg,2) + '</span>' + avgHFactorNote;
   if(HFT_LAST3_TARGET_KAPPA == null){
     html += '</p><p class="hft-kappa-note">กรุณาระบุค่า Target Kappa ที่ต้องการเดินให้ถูกต้อง (ตัวเลขมากกว่า 0) เพื่อวิเคราะห์เพิ่มเติม</p>';
   } else {
