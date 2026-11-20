@@ -10,6 +10,11 @@
     --grid:#E6ECED; --box-border:#999999;
     --shadow:0 1px 2px rgba(18,34,38,.06), 0 8px 22px rgba(18,34,38,.05);
     --good:#0B7A28; --good-soft:#E4F5E8;
+    /* Data for analysis -- one evenly-spaced hue per source-sheet group (21 total, same fixed
+       order the rows themselves appear in), same lightness/saturation for every slot so sections
+       read as a uniform, calm "which block am I in" scanning aid, never as identity carried by hue
+       alone (the Group/Subgroup/Metric text already does that) -- see DA_GROUP_ORDER. */
+    --da-g1:#f5dad6; --da-g2:#f5e3d6; --da-g3:#f5ecd6; --da-g4:#f5f5d6; --da-g5:#ecf5d6; --da-g6:#e3f5d6; --da-g7:#daf5d6; --da-g8:#d6f5da; --da-g9:#d6f5e3; --da-g10:#d6f5ec; --da-g11:#d6f5f5; --da-g12:#d6ecf5; --da-g13:#d6e3f5; --da-g14:#d6daf5; --da-g15:#dad6f5; --da-g16:#e3d6f5; --da-g17:#ecd6f5; --da-g18:#f5d6f5; --da-g19:#f5d6ec; --da-g20:#f5d6e3; --da-g21:#f5d6da;
   }
   @media (prefers-color-scheme: dark){
     :root:not([data-theme="light"]){
@@ -19,6 +24,7 @@
       --grid:#263134; --box-border:#8A8A8A;
       --shadow:0 1px 2px rgba(0,0,0,.35), 0 10px 26px rgba(0,0,0,.4);
       --good:#4ADE80; --good-soft:rgba(74,222,128,.14);
+      --da-g1:#432723; --da-g2:#433023; --da-g3:#433a23; --da-g4:#434323; --da-g5:#3a4323; --da-g6:#314323; --da-g7:#284323; --da-g8:#234327; --da-g9:#234330; --da-g10:#23433a; --da-g11:#234343; --da-g12:#233a43; --da-g13:#233143; --da-g14:#232843; --da-g15:#272343; --da-g16:#302343; --da-g17:#3a2343; --da-g18:#432343; --da-g19:#43233a; --da-g20:#432331; --da-g21:#432328;
     }
   }
   :root[data-theme="dark"]{
@@ -28,6 +34,7 @@
     --grid:#263134; --box-border:#8A8A8A;
     --shadow:0 1px 2px rgba(0,0,0,.35), 0 10px 26px rgba(0,0,0,.4);
     --good:#4ADE80; --good-soft:rgba(74,222,128,.14);
+    --da-g1:#432723; --da-g2:#433023; --da-g3:#433a23; --da-g4:#434323; --da-g5:#3a4323; --da-g6:#314323; --da-g7:#284323; --da-g8:#234327; --da-g9:#234330; --da-g10:#23433a; --da-g11:#234343; --da-g12:#233a43; --da-g13:#233143; --da-g14:#232843; --da-g15:#272343; --da-g16:#302343; --da-g17:#3a2343; --da-g18:#432343; --da-g19:#43233a; --da-g20:#432331; --da-g21:#432328;
   }
 
   *{box-sizing:border-box;}
@@ -742,8 +749,35 @@
   table.da-table th,table.da-table td{padding:6px 7px;border:1px solid var(--border);position:relative;}
   table.da-table th.da-fixed-h,table.da-table th.da-plain-h{background:var(--accent-soft);color:var(--accent-ink);font-size:11px;font-weight:700;text-align:center;white-space:normal;}
   table.da-table td.da-fixed,table.da-table td.da-plain{text-align:left;color:var(--ink);font-size:11.5px;white-space:normal;overflow-wrap:break-word;word-break:break-word;background:var(--surface);}
-  table.da-table td.da-plain{text-align:center;color:var(--ink-3);font-size:11px;}
+  /* color:var(--ink) not --ink-3 here -- every row now sits on a tinted --da-gN background (see
+     below), and --ink-3 (tuned for the plain --surface this cell used to sit on) drops under 3:1
+     contrast against several of those hues. */
+  table.da-table td.da-plain{text-align:center;color:var(--ink);font-size:11px;}
   table.da-table td.da-fixed-grp{font-weight:700;}
+  /* One tinted background per source-sheet group (see --da-g1..21 above and DA_GROUP_ORDER) --
+     higher specificity than the plain td.da-fixed/td.da-plain rule above on purpose, so it always
+     wins regardless of source order. */
+  table.da-table tr.da-grp-1 td.da-fixed,table.da-table tr.da-grp-1 td.da-plain{background:var(--da-g1);}
+  table.da-table tr.da-grp-2 td.da-fixed,table.da-table tr.da-grp-2 td.da-plain{background:var(--da-g2);}
+  table.da-table tr.da-grp-3 td.da-fixed,table.da-table tr.da-grp-3 td.da-plain{background:var(--da-g3);}
+  table.da-table tr.da-grp-4 td.da-fixed,table.da-table tr.da-grp-4 td.da-plain{background:var(--da-g4);}
+  table.da-table tr.da-grp-5 td.da-fixed,table.da-table tr.da-grp-5 td.da-plain{background:var(--da-g5);}
+  table.da-table tr.da-grp-6 td.da-fixed,table.da-table tr.da-grp-6 td.da-plain{background:var(--da-g6);}
+  table.da-table tr.da-grp-7 td.da-fixed,table.da-table tr.da-grp-7 td.da-plain{background:var(--da-g7);}
+  table.da-table tr.da-grp-8 td.da-fixed,table.da-table tr.da-grp-8 td.da-plain{background:var(--da-g8);}
+  table.da-table tr.da-grp-9 td.da-fixed,table.da-table tr.da-grp-9 td.da-plain{background:var(--da-g9);}
+  table.da-table tr.da-grp-10 td.da-fixed,table.da-table tr.da-grp-10 td.da-plain{background:var(--da-g10);}
+  table.da-table tr.da-grp-11 td.da-fixed,table.da-table tr.da-grp-11 td.da-plain{background:var(--da-g11);}
+  table.da-table tr.da-grp-12 td.da-fixed,table.da-table tr.da-grp-12 td.da-plain{background:var(--da-g12);}
+  table.da-table tr.da-grp-13 td.da-fixed,table.da-table tr.da-grp-13 td.da-plain{background:var(--da-g13);}
+  table.da-table tr.da-grp-14 td.da-fixed,table.da-table tr.da-grp-14 td.da-plain{background:var(--da-g14);}
+  table.da-table tr.da-grp-15 td.da-fixed,table.da-table tr.da-grp-15 td.da-plain{background:var(--da-g15);}
+  table.da-table tr.da-grp-16 td.da-fixed,table.da-table tr.da-grp-16 td.da-plain{background:var(--da-g16);}
+  table.da-table tr.da-grp-17 td.da-fixed,table.da-table tr.da-grp-17 td.da-plain{background:var(--da-g17);}
+  table.da-table tr.da-grp-18 td.da-fixed,table.da-table tr.da-grp-18 td.da-plain{background:var(--da-g18);}
+  table.da-table tr.da-grp-19 td.da-fixed,table.da-table tr.da-grp-19 td.da-plain{background:var(--da-g19);}
+  table.da-table tr.da-grp-20 td.da-fixed,table.da-table tr.da-grp-20 td.da-plain{background:var(--da-g20);}
+  table.da-table tr.da-grp-21 td.da-fixed,table.da-table tr.da-grp-21 td.da-plain{background:var(--da-g21);}
   table.da-table td.da-val{text-align:right;font-family:"IBM Plex Mono",monospace;color:var(--ink-3);white-space:nowrap;}
   table.da-table th.da-col-head-cell{background:var(--surface-2);vertical-align:top;padding:8px;}
   table.da-table th.da-fixed-h,table.da-table td.da-fixed{position:sticky;z-index:1;}
@@ -6964,6 +6998,19 @@ const DA_FIELDS = DA_FIELD_TUPLES.map(function(t){ return { grp:t[0], sub:t[1], 
 /* "Production > End Production" (Adt/day) is both an ordinary table row AND the source metric for
    every snapshot column's own production-range (adt/day) filter below. */
 const DA_PROD_FIELD = DA_FIELDS.find(function(f){ return f.grp==='Production' && f.label==='End Production'; });
+/* Group color tinting -- DA_GROUP_ORDER is every unique group name in FIRST-APPEARANCE order (21 of
+   them), each mapped 1:1 to one of the --da-g1..21 CSS slots (see that declaration for the palette
+   rationale: one evenly-spaced hue per group, same lightness/saturation throughout, since identity
+   here is already carried by the Group/Subgroup/Metric text -- color is purely a scanning aid). */
+const DA_GROUP_ORDER = (function(){
+  const seen = [];
+  DA_FIELDS.forEach(function(f){ if(seen.indexOf(f.grp) === -1) seen.push(f.grp); });
+  return seen;
+})();
+function daGroupColorClass(grp){
+  const idx = DA_GROUP_ORDER.indexOf(grp);
+  return idx >= 0 ? 'da-grp-' + (idx + 1) : '';
+}
 /* "Data" sheet layout: rows 1-7 (index0-6) are headers (group/subgroup/metric/unit/freq/spec rows,
    mixed per section -- never read directly, since every field above already carries its own
    group/subgroup/label/unit/spec from the "Data for analysis" template instead), row8+ (index7+) is
@@ -14175,7 +14222,7 @@ function daRenderTable(){
   DA_FIELDS.forEach(function(f, i){
     const grpSpan = (i===0 || DA_FIELDS[i-1].grp!==f.grp) ? daSpanCount(DA_FIELDS, i, 'grp') : 0;
     const subSpan = (i===0 || DA_FIELDS[i-1].grp!==f.grp || DA_FIELDS[i-1].sub!==f.sub) ? daSpanCount(DA_FIELDS, i, 'sub', f.grp) : 0;
-    html += '<tr>';
+    html += '<tr class="'+daGroupColorClass(f.grp)+'">';
     if(grpSpan) html += '<td class="da-fixed da-fixed-grp" rowspan="'+grpSpan+'" style="left:'+daColLeft('grp')+'px">'+f.grp+'</td>';
     if(subSpan) html += '<td class="da-fixed da-fixed-sub" rowspan="'+subSpan+'" style="left:'+daColLeft('sub')+'px">'+(f.sub||'')+'</td>';
     html += '<td class="da-fixed da-fixed-label" style="left:'+daColLeft('label')+'px">'+f.label+'</td>'
