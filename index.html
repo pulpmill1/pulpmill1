@@ -2509,6 +2509,15 @@
           </div>
           <div class="hft-note hft-reco-box" id="hftMonthlyRecoBox"></div>
 
+          <div class="hft-section-head">
+            <h3>คำแนะนำ Set Point H-factor จากค่าเฉลี่ย Kappa 3 Batch ล่าสุด</h3>
+            <div class="hft-kappa-target">
+              <label for="hftLast3TargetKappaInput">Target Kappa ที่ต้องการเดิน</label>
+              <input type="number" id="hftLast3TargetKappaInput" step="0.01" min="0" value="13.50">
+            </div>
+          </div>
+          <div class="hft-note hft-reco-box" id="hftLast3RecoBox"></div>
+
           <details class="dtable hft-bin-details" id="hftBinSectionDetails">
             <summary><span class="dtable-label">ประวัติแยกตามช่วง Set Point H-factor (APC) และคำแนะนำ</span></summary>
             <div class="hft-wrap" id="hftTableWrap"></div>
@@ -8093,6 +8102,62 @@ function renderHFactorMonthlyRecommendation(){
         const realHFactorNote = kt.estimatedRealHFactor!=null ? ' (Real H-factor ≈ <span class="hft-reco-value">'+hftFmt(kt.estimatedRealHFactor,0)+'</span>)' : '';
         html += '<p class="hft-kappa-note">Kappa No. (Online) ที่คาดจากคำแนะนำข้างต้น (<b>'+hftFmt(b.kappaOnline,2)+'</b>) '+higherOrLower+' Target Kappa ที่ต้องการเดิน (<b>'+hftFmt(HFT_MONTHLY_TARGET_KAPPA,2)+'</b>) โดยใช้อัตราคงที่ Kappa 1 หน่วย เท่ากับ Set Point H-factor '+HFT_KAPPA_TO_SETPOINT_RATIO+' หน่วย แนะนำปรับ Set Point H-factor เป็น <span class="hft-reco-value">'+kt.setPoint+'</span>'+realHFactorNote+' เพื่อให้ Kappa No. ใกล้เคียง Target Kappa ที่ต้องการเดินมากขึ้น</p>';
       }
+    }
+  }
+  el.innerHTML = html;
+}
+
+/* "คำแนะนำ Set Point H-factor จากค่าเฉลี่ย Kappa 3 Batch ล่าสุด" -- unlike the bin/monthly
+   recommendations above, this one has no "current condition" or historical bucket to match against:
+   it is just the latest 3 individual cooks (batches, not days) that have a logged Kappa No. (Online)
+   (Cooking Logsheet column DF, r[109] -- the exact same raw column HFT_FIELDS' own kappaOnline field
+   already reads), averaged, and compared directly to its own Target Kappa input. It never changes
+   with the "Condition ปัจจุบัน" date-range picker, so (unlike renderHFactorMonthlyRecommendation) it
+   is never wired into hftApplyCondMode -- only into boot and its own Target Kappa input's listener. */
+let HFT_LAST3_TARGET_KAPPA = 13.50;
+function computeHFactorLast3KappaAvg(){
+  const withKappa = PLS_COOKING_ROWS_RAW.filter(function(rec){ return rec.r[109]!=null; }).sort(function(a,b){ return a.ts-b.ts; });
+  if(withKappa.length < 3) return { status:'insufficient-history', n:withKappa.length };
+  const last3 = withKappa.slice(-3);
+  const avg = last3.reduce(function(s,rec){ return s+rec.r[109]; }, 0) / 3;
+  return { status:'ok', avg:avg, batches:last3.map(function(rec){
+    return { d:rec.d, mi:rec.mi, y:rec.y, cookNo:rec.r[4], kappa:rec.r[109] };
+  }) };
+}
+function initHftLast3TargetKappaInput(){
+  const input = document.getElementById('hftLast3TargetKappaInput');
+  if(!input) return;
+  HFT_LAST3_TARGET_KAPPA = Number(input.value) || 13.50;
+  input.addEventListener('input', function(){
+    const v = Number(input.value);
+    HFT_LAST3_TARGET_KAPPA = (isFinite(v) && v > 0) ? v : null;
+    renderHFactorLast3Recommendation();
+  });
+}
+function renderHFactorLast3Recommendation(){
+  const el = document.getElementById('hftLast3RecoBox');
+  if(!el) return;
+  const k = computeHFactorLast3KappaAvg();
+  if(k.status === 'insufficient-history'){
+    el.innerHTML = '<p>ข้อมูล Kappa No. (Online) จาก Cooking Logsheet ยังมีไม่ครบ 3 Batch (มีข้อมูลอยู่ '+k.n+' Batch) จึงยังไม่สามารถคำนวณค่าเฉลี่ยได้</p>';
+    return;
+  }
+  const batchList = k.batches.map(function(b){
+    return 'Cook #'+(b.cookNo!=null?b.cookNo:'—')+' ('+b.d+' '+MONTH_ABBR_TH[b.mi]+' '+b.y+') = '+hftFmt(b.kappa,2);
+  }).join(', ');
+  let html = '<p class="hft-reco-highlight"><b>คำแนะนำ (จากค่าเฉลี่ย Kappa 3 Batch ล่าสุด):</b> Kappa No. (Online) จาก Cooking Logsheet ของ 3 Batch ล่าสุดที่นำมาเฉลี่ย ได้แก่ '
+    + batchList + ' เฉลี่ยได้ Kappa No. (Online) = <span class="hft-reco-value">' + hftFmt(k.avg,2) + '</span>';
+  if(HFT_LAST3_TARGET_KAPPA == null){
+    html += '</p><p class="hft-kappa-note">กรุณาระบุค่า Target Kappa ที่ต้องการเดินให้ถูกต้อง (ตัวเลขมากกว่า 0) เพื่อวิเคราะห์เพิ่มเติม</p>';
+  } else {
+    const diff = k.avg - HFT_LAST3_TARGET_KAPPA;
+    if(Math.abs(diff) < 0.005){
+      html += ' ซึ่งใกล้เคียงกับ Target Kappa ที่ต้องการเดิน (<b>'+hftFmt(HFT_LAST3_TARGET_KAPPA,2)+'</b>) อยู่แล้ว จึงไม่จำเป็นต้องปรับ Set Point H-factor</p>';
+    } else {
+      const deltaSetPoint = Math.round(HFT_KAPPA_TO_SETPOINT_RATIO * Math.abs(diff));
+      const direction = diff > 0 ? 'เพิ่มขึ้น' : 'ลดลง';
+      html += ' เทียบกับ Target Kappa ที่ต้องการเดิน (<b>'+hftFmt(HFT_LAST3_TARGET_KAPPA,2)+'</b>) โดยใช้อัตราคงที่ Kappa 1 หน่วย เท่ากับ Set Point H-factor '+HFT_KAPPA_TO_SETPOINT_RATIO+' หน่วย '
+        + 'แนะนำปรับ Set Point H-factor <span class="hft-reco-value">'+direction+' '+deltaSetPoint+' หน่วย</span></p>';
     }
   }
   el.innerHTML = html;
@@ -14196,6 +14261,8 @@ function initChipMon(){
   renderHFactorMonthlyModel();
   initHftNToggle();
   initHftMonthlyTargetKappaInput();
+  initHftLast3TargetKappaInput();
+  renderHFactorLast3Recommendation();
   initHFactorConditionControls();
   initDataAnalysisPage();
   initYaCardCollapse();
