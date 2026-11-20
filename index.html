@@ -13,11 +13,12 @@
     /* Data for analysis -- a tinted row per source-sheet group (23 total, same fixed order the rows
        themselves appear in), redesigned Nov 2026 for a calmer, more professional look: a curated
        12-hue set (reusing the Claude categorical-chart hue family: blue/orange/yellow/aqua/violet/
-       magenta/green plus a few intermediate hues for better spacing) at low saturation and high
-       lightness, CYCLING past 12 groups rather than forcing 23 fully-saturated hues into one wheel --
-       identity still comes from the Group/Subgroup/Metric text (and the rowspan'd group-name cell),
-       never from hue alone, so a repeat 11 groups apart reads fine. See DA_GROUP_ORDER. */
-    --da-g1:#eaf0f5; --da-g2:#f5edea; --da-g3:#f5f1ea; --da-g4:#eff5ea; --da-g5:#eaf5f1; --da-g6:#eaf5f5; --da-g7:#eceaf5; --da-g8:#f5eaee; --da-g9:#f4eaf5; --da-g10:#f4f5ea; --da-g11:#eaf5ea; --da-g12:#f5eaf2; --da-g13:#eaf0f5; --da-g14:#f5edea; --da-g15:#f5f1ea; --da-g16:#eff5ea; --da-g17:#eaf5f1; --da-g18:#eaf5f5; --da-g19:#eceaf5; --da-g20:#f5eaee; --da-g21:#f4eaf5; --da-g22:#f4f5ea; --da-g23:#eaf5ea;
+       magenta/green plus a few intermediate hues for better spacing), CYCLING past 12 groups rather
+       than forcing 23 fully-saturated hues into one wheel -- identity still comes from the
+       Group/Subgroup/Metric text (and the rowspan'd group-name cell), never from hue alone, so a
+       repeat 11 groups apart reads fine. Deepened (higher saturation, lower lightness) per explicit
+       request right after the first pass read as too washed-out. See DA_GROUP_ORDER. */
+    --da-g1:#c9dbed; --da-g2:#edd2c9; --da-g3:#eddfc9; --da-g4:#d8edc9; --da-g5:#c9edde; --da-g6:#c9ebed; --da-g7:#cec9ed; --da-g8:#edc9d5; --da-g9:#eac9ed; --da-g10:#eaedc9; --da-g11:#c9edc9; --da-g12:#edc9e3; --da-g13:#c9dbed; --da-g14:#edd2c9; --da-g15:#eddfc9; --da-g16:#d8edc9; --da-g17:#c9edde; --da-g18:#c9ebed; --da-g19:#cec9ed; --da-g20:#edc9d5; --da-g21:#eac9ed; --da-g22:#eaedc9; --da-g23:#c9edc9;
   }
   @media (prefers-color-scheme: dark){
     :root:not([data-theme="light"]){
@@ -27,7 +28,7 @@
       --grid:#263134; --box-border:#8A8A8A;
       --shadow:0 1px 2px rgba(0,0,0,.35), 0 10px 26px rgba(0,0,0,.4);
       --good:#4ADE80; --good-soft:rgba(74,222,128,.14);
-      --da-g1:#28333e; --da-g2:#3e2d28; --da-g3:#3e3628; --da-g4:#313e28; --da-g5:#283e35; --da-g6:#283d3e; --da-g7:#2b283e; --da-g8:#3e282f; --da-g9:#3c283e; --da-g10:#3c3e28; --da-g11:#283e28; --da-g12:#3e2838; --da-g13:#28333e; --da-g14:#3e2d28; --da-g15:#3e3628; --da-g16:#313e28; --da-g17:#283e35; --da-g18:#283d3e; --da-g19:#2b283e; --da-g20:#3e282f; --da-g21:#3c283e; --da-g22:#3c3e28; --da-g23:#283e28;
+      --da-g1:#2d4258; --da-g2:#58372d; --da-g3:#58472d; --da-g4:#3f582d; --da-g5:#2d5846; --da-g6:#2d5558; --da-g7:#332d58; --da-g8:#582d3b; --da-g9:#532d58; --da-g10:#54582d; --da-g11:#2d582d; --da-g12:#582d4b; --da-g13:#2d4258; --da-g14:#58372d; --da-g15:#58472d; --da-g16:#3f582d; --da-g17:#2d5846; --da-g18:#2d5558; --da-g19:#332d58; --da-g20:#582d3b; --da-g21:#532d58; --da-g22:#54582d; --da-g23:#2d582d;
     }
   }
   :root[data-theme="dark"]{
@@ -37,7 +38,7 @@
     --grid:#263134; --box-border:#8A8A8A;
     --shadow:0 1px 2px rgba(0,0,0,.35), 0 10px 26px rgba(0,0,0,.4);
     --good:#4ADE80; --good-soft:rgba(74,222,128,.14);
-    --da-g1:#28333e; --da-g2:#3e2d28; --da-g3:#3e3628; --da-g4:#313e28; --da-g5:#283e35; --da-g6:#283d3e; --da-g7:#2b283e; --da-g8:#3e282f; --da-g9:#3c283e; --da-g10:#3c3e28; --da-g11:#283e28; --da-g12:#3e2838; --da-g13:#28333e; --da-g14:#3e2d28; --da-g15:#3e3628; --da-g16:#313e28; --da-g17:#283e35; --da-g18:#283d3e; --da-g19:#2b283e; --da-g20:#3e282f; --da-g21:#3c283e; --da-g22:#3c3e28; --da-g23:#283e28;
+    --da-g1:#2d4258; --da-g2:#58372d; --da-g3:#58472d; --da-g4:#3f582d; --da-g5:#2d5846; --da-g6:#2d5558; --da-g7:#332d58; --da-g8:#582d3b; --da-g9:#532d58; --da-g10:#54582d; --da-g11:#2d582d; --da-g12:#582d4b; --da-g13:#2d4258; --da-g14:#58372d; --da-g15:#58472d; --da-g16:#3f582d; --da-g17:#2d5846; --da-g18:#2d5558; --da-g19:#332d58; --da-g20:#582d3b; --da-g21:#532d58; --da-g22:#54582d; --da-g23:#2d582d;
   }
 
   *{box-sizing:border-box;}
