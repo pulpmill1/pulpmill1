@@ -35,6 +35,8 @@
     margin:0; background:var(--bg); color:var(--ink);
     font-family:"Anuphan","Noto Sans","Noto Sans Thai",system-ui,sans-serif;
     font-size:14px; line-height:1.5;
+    overflow-x:hidden; /* defensive backstop -- wide content (tables, charts) must scroll within its
+      own wrapper (.hft-wrap, .tbl-wrap, etc.), never force the whole page wider than the viewport */
   }
   .mono{font-family:"IBM Plex Mono",ui-monospace,monospace; font-variant-numeric:tabular-nums;}
   h1,h2,h3{text-wrap:balance; margin:0;}
@@ -96,8 +98,29 @@
   .nav-source-link .nsl-text{flex:1; min-width:0;}
   .nav-source-link .nsl-ext{font-size:10px; color:#8098B7; flex-shrink:0;}
 
-  .main{flex:1; min-width:0;}
+  .main{flex:1; min-width:0; max-width:100%;}
   .shell{max-width:1320px; margin:0 auto; padding:20px 22px 44px;}
+
+  /* On a phone, the sidebar's own fixed 222px width eats more than half a typical screen, leaving
+     too little room for the dashboard itself -- below this breakpoint the sidebar becomes an
+     off-canvas drawer (hidden by default, slides in over the content) instead of sitting in the
+     normal flex flow. .sb-toggle-btn (the hamburger, in the toolbar) and #sbOverlay (the dimmed
+     backdrop that closes the drawer on click) only exist for this -- both stay inert/hidden above
+     the breakpoint. See initSidebarDrawer() for the open/close logic. */
+  button.sb-toggle-btn{display:none;}
+  #sbOverlay{display:none;}
+  @media (max-width:760px){
+    .app{ zoom:1 !important; transform:none !important; width:auto !important; }
+    .sidebar{
+      position:fixed; left:0; top:0; z-index:210; width:min(82vw,280px); height:100vh;
+      transform:translateX(-100%); transition:transform .22s ease; box-shadow:0 0 28px rgba(0,0,0,.35);
+    }
+    .sidebar.sb-open{transform:translateX(0);}
+    button.sb-toggle-btn{display:flex;}
+    #sbOverlay.sb-open{
+      display:block; position:fixed; inset:0; background:rgba(15,23,36,.45); z-index:200;
+    }
+  }
 
   /* header */
   .topbar{display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:16px; flex-wrap:wrap;}
@@ -781,7 +804,7 @@
   .sens-dash-title{min-width:0;flex:1 1 auto;}
   .sens-dash-title h2{margin:0 0 6px;font-size:23px;font-weight:800;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .sens-dash-sub{margin:0;font-size:12.5px;color:#9FB4CE;max-width:560px;}
-  .sens-dash-kpis{display:flex;align-items:flex-start;gap:8px;flex-wrap:nowrap;flex:0 0 auto;overflow-x:auto;}
+  .sens-dash-kpis{display:flex;align-items:flex-start;gap:8px;flex-wrap:nowrap;flex:0 1 auto;min-width:0;overflow-x:auto;}
   .sens-kpi{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:10px;padding:8px 12px;min-width:104px;flex:0 0 auto;}
   .sens-kpi .k-lbl{font-size:10px;font-weight:700;color:#9FB4CE;margin-bottom:5px;white-space:nowrap;}
   .sens-kpi .k-input{width:72px;font:inherit;font-size:16px;font-weight:800;color:#fff;background:transparent;border:none;border-bottom:1px solid transparent;padding:0;}
@@ -903,8 +926,10 @@
     </div>
   </aside>
 
+  <div id="sbOverlay"></div>
   <div class="main">
     <header class="app-toolbar" id="appToolbar">
+      <button class="tb-btn sb-toggle-btn" id="sbToggleBtn" type="button" aria-label="เปิดเมนู" title="เมนู">☰</button>
       <div class="tb-title">
         <div class="tb-title-main" id="tbPageTitle">Pulp mill 1 — Dashboard</div>
         <div class="tb-title-sub" id="tbPageSub"><span class="dot"></span>ข้อมูลล่าสุด ณ 4 ก.ย. 2026</div>
@@ -2776,10 +2801,39 @@ function showPage(pageId){
   if(moreMenuEl) moreMenuEl.hidden = true;
   const searchWrapEl = document.getElementById('tbSearch');
   if(searchWrapEl) searchWrapEl.classList.remove('force-open');
+  closeSidebarDrawer();
 }
 document.querySelectorAll('.nav-item[data-page]').forEach(btn=>{
   btn.addEventListener('click', ()=> showPage(btn.dataset.page));
 });
+/* Mobile off-canvas sidebar drawer (see the max-width:760px rules above .main/.shell) -- the
+   sidebar/overlay/toggle button all exist in the DOM at every width, this just drives the
+   .sb-open class that the CSS keys off of. Runs unconditionally at script-eval time (not inside
+   boot()/initChipMon(), which bail out early when there's no sheet data yet) since page
+   navigation itself has to work regardless of data state. */
+function closeSidebarDrawer(){
+  const sidebar = document.querySelector('.sidebar');
+  const overlay = document.getElementById('sbOverlay');
+  if(sidebar) sidebar.classList.remove('sb-open');
+  if(overlay) overlay.classList.remove('sb-open');
+}
+function openSidebarDrawer(){
+  const sidebar = document.querySelector('.sidebar');
+  const overlay = document.getElementById('sbOverlay');
+  if(sidebar) sidebar.classList.add('sb-open');
+  if(overlay) overlay.classList.add('sb-open');
+}
+(function initSidebarDrawer(){
+  const toggleBtn = document.getElementById('sbToggleBtn');
+  const overlay = document.getElementById('sbOverlay');
+  if(toggleBtn) toggleBtn.addEventListener('click', ()=>{
+    const sidebar = document.querySelector('.sidebar');
+    if(sidebar && sidebar.classList.contains('sb-open')) closeSidebarDrawer();
+    else openSidebarDrawer();
+  });
+  if(overlay) overlay.addEventListener('click', closeSidebarDrawer);
+  document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeSidebarDrawer(); });
+})();
 /* initial page render happens at the bottom of this script, after the
    header-toolbar (i18n / search / export) definitions exist */
 
@@ -7244,9 +7298,9 @@ function hftBuildTableHtml(rows, col1Header, col2Header, extraClass, fields){
   let html = '<table class="hft-table'+(extraClass ? ' '+extraClass : '')+'"><thead><tr>'
     + '<th rowspan="2" class="hft-bin">'+col1Header+'</th>'
     + '<th rowspan="2" class="hft-n">'+col2Header+'</th>'
-    + '<th class="hft-grp" colspan="'+cookFields.length+'">Cooking Logsheet</th>'
-    + '<th class="hft-grp" colspan="'+woodFields.length+'">RM Wood-Yield</th>'
-    + '<th class="hft-grp" colspan="'+chemFields.length+'">Cooking Logsheet &amp; QC Lab FL1</th>'
+    + '<th class="hft-grp" colspan="'+cookFields.length+'">Cooking</th>'
+    + '<th class="hft-grp" colspan="'+woodFields.length+'">Raw Material</th>'
+    + '<th class="hft-grp" colspan="'+chemFields.length+'">Condition</th>'
     + '<th rowspan="2" class="hft-ref-h">Reference</th>'
     + '</tr><tr>'
     + cookFields.map(headCell).join('')
@@ -14067,15 +14121,22 @@ function sensRenderChart(){
      positioned from the chart's own pixel scale is the reliable way to get that per-line styling. */
   const calloutEl = document.getElementById('sensChartCallout');
   if(calloutEl){
-    const px = sensChartInstance.scales.x.getPixelForValue(s.woodPrice);
-    const py = sensChartInstance.scales.y.getPixelForValue(s.clo2Price);
-    calloutEl.style.left = px+'px';
-    calloutEl.style.top = (py+16)+'px';
     document.getElementById('sensCalloutWood').textContent = `ราคาไม้สับ ${sensFmtMoney(s.woodPrice)} Baht/Bdt`;
     document.getElementById('sensCalloutClo2').textContent = `ราคา ClO2 ${s.clo2Price.toFixed(2)} Baht/kg`;
     const netEl = document.getElementById('sensCalloutNet');
     netEl.textContent = `ต้นทุนสุทธิ ${c.netCost>=0?'+':''}${sensFmtMoney(c.netCost)} Baht/Adt`;
     netEl.style.color = curColor;
+    const px = sensChartInstance.scales.x.getPixelForValue(s.woodPrice);
+    const py = sensChartInstance.scales.y.getPixelForValue(s.clo2Price);
+    /* The callout is centered on px via transform:translate(-50%,0) -- on a narrow screen that can
+       push it past its own .sens-chart-wrap's edges (the chart itself shrinks, but the callout's
+       own text width doesn't), so clamp px to keep the whole box within the wrap instead of letting
+       it spill off-screen. Text content must already be set above for offsetWidth to reflect it. */
+    const wrapWidth = calloutEl.parentElement ? calloutEl.parentElement.clientWidth : px*2;
+    const halfW = calloutEl.offsetWidth / 2;
+    const clampedPx = Math.min(Math.max(px, halfW), Math.max(halfW, wrapWidth - halfW));
+    calloutEl.style.left = clampedPx+'px';
+    calloutEl.style.top = (py+16)+'px';
   }
 }
 /* exposed on window — showPage() (defined before boot(), so it can't see boot()'s local scope)
