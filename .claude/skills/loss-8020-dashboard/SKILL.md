@@ -278,6 +278,40 @@ This exact mistake happened once while building this feature — re-extract `ful
 block between `<style>` and `</style>` near the top of `index.html`) every time *any* CSS changes,
 not just when JS changes.
 
+## Equipment tag normalization (`lpNormEq`/`LP_EQNUM_CANON`, added 2026-11-20)
+
+The source sheet spells the same equipment tag differently across years/tabs — case and
+whitespace/punctuation variance only (never a genuinely different tag): e.g. `"Limit BL"`
+(2022/2024/2025) vs `"LIMIT BL"` (2026), or `"421E003-1"` vs `"421E003.1"`. Any aggregation keyed
+by the raw `eqNum` string therefore silently splits one real piece of equipment into two separate
+rows/groups — this is how a user-visible bug was reported: the Equipment Loss Matrix showed "–"
+for 2026 on the "Limit BL" row even though 2026 data for that equipment genuinely existed, just
+filed under the differently-cased "LIMIT BL" bucket. A full scan across all 5 year CSVs found
+**11 distinct tags** affected at the time of the fix (grep `lpBuildDataQuality`'s `eqTagVariants`
+output for the current list — it still flags these as a data-quality note even after the fix,
+intentionally, since the fix normalizes aggregation but doesn't touch the underlying sheet).
+
+Fix: `lpNormEq(s)` (pre-existing: `s.replace(/[\s.\-]/g,'').toUpperCase()`) is now the required key
+for **every** place that groups/filters/dedupes by `eqNum`:
+`lpBuildEquipmentMatrix`, `lpBuildPareto`'s `eqNum`/`eqNumType` modes, `lpBuildMonthlyTrend`'s
+`byEq` top-equipment tracking, `lpRenderKpis`'s top-equipment tile, `lpApplyFilters`'s eqNum filter
+comparison, and the EQ num filter dropdown (`lpDistinctEqNums`, replacing a raw `lpDistinctSorted`
+call). A global `LP_EQNUM_CANON` (built once per data load by `lpBuildEqNumCanon(LP_DATA.rows)` in
+`initLoss8020Dashboard()`, right after `LP_DATA` is assigned and before `lpPopulateFilterOptions()`
+runs) maps each normalized key to its most-frequent raw spelling across the **full** dataset, so
+the Matrix, the Pareto labels, the dropdown, and the click-to-filter row handler all agree on the
+same canonical display string — `lpEqCanon(eqNum)` is the lookup helper, used by `lpEqLabel` and
+anywhere else a canonical (not raw) label needs to be shown.
+
+**Deliberately left untouched**: the raw per-row `eqNum` value stored during `lpParseYearSheet` is
+never rewritten — only aggregation/grouping/filtering functions normalize. This keeps the Loss
+Detail table, Classification Review, and Data Quality panel showing the exact original sheet text,
+which matters for anyone cross-checking against the source sheet by eye.
+
+If a future report says "my equipment's older-year data looks missing from the Matrix/Pareto/Trend
+despite being in the sheet", check for a new raw-spelling variant before assuming a data gap —
+run the same normalize-and-group scan across `sheet_{year}.csv` for that equipment's tag.
+
 ## Live-fetch pattern (production, `index.html`)
 
 Same shape as the sibling `pulp-mill-1-dashboard` skill's pattern: `fetch()` against

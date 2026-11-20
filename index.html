@@ -9330,6 +9330,29 @@ function lpTokenize(s){
   return out;
 }
 function lpNormEq(s){ return String(s||'').replace(/[\s.\-]/g,'').toUpperCase(); }
+let LP_EQNUM_CANON = null; // Map: normalized eqNum -> most-frequent raw spelling across full dataset
+function lpBuildEqNumCanon(allRows){
+  const counts = new Map(); // norm -> Map(rawSpelling -> count)
+  allRows.forEach(r=>{
+    if(!r.eqNum) return;
+    const norm = lpNormEq(r.eqNum);
+    if(!counts.has(norm)) counts.set(norm, new Map());
+    const spellings = counts.get(norm);
+    spellings.set(r.eqNum, (spellings.get(r.eqNum)||0)+1);
+  });
+  const canon = new Map();
+  counts.forEach((spellings, norm)=>{
+    let best=null, bestN=-1;
+    spellings.forEach((n,s)=>{ if(n>bestN){ bestN=n; best=s; } });
+    canon.set(norm, best);
+  });
+  return canon;
+}
+function lpEqCanon(eqNum){
+  if(!eqNum) return eqNum;
+  const norm = lpNormEq(eqNum);
+  return (LP_EQNUM_CANON && LP_EQNUM_CANON.get(norm)) || eqNum;
+}
 function lpBuildClassifier(allRows){
   const refRows = allRows.filter(r=>r.originalType);
   const eqIndex = new Map(), tokIndex = new Map(), pairCount = new Map(), pairLabel = new Map();
@@ -9425,7 +9448,7 @@ function lpFmtNum(n, dec){
   if(n==null || !Number.isFinite(n)) return '–';
   return n.toLocaleString('en-US', {minimumFractionDigits:dec||0, maximumFractionDigits:dec||0});
 }
-function lpEqLabel(r){ return r.eqName ? (r.eqNum ? r.eqNum+' — '+r.eqName : r.eqName) : (r.eqNum || 'N/A (ไม่มี EQ num)'); }
+function lpEqLabel(r){ const eqNum = lpEqCanon(r.eqNum); return r.eqName ? (eqNum ? eqNum+' — '+r.eqName : r.eqName) : (eqNum || 'N/A (ไม่มี EQ num)'); }
 
 /* ---- period helpers ---- */
 function lpAllMonthKeys(){
@@ -9483,7 +9506,7 @@ function lpApplyFilters(rows, state, opts){
   opts = opts || {};
   return rows.filter(r=>{
     if(!opts.skipPeriod && !lpInPeriod(r, state.period)) return false;
-    if(state.eqNum!=='all' && (r.eqNum||'N/A')!==state.eqNum) return false;
+    if(state.eqNum!=='all' && lpNormEq(r.eqNum||'N/A')!==lpNormEq(state.eqNum)) return false;
     if(state.eqName!=='all' && (r.eqName||'N/A')!==state.eqName) return false;
     if(state.type!=='all' && r.classifiedType!==state.type) return false;
     if(state.clsSource!=='all' && r.classificationSource!==state.clsSource) return false;
@@ -9509,8 +9532,8 @@ function lpGroupSum(rows, keyFn, labelFn){
 }
 function lpBuildPareto(rows, by){
   let keyFn, labelFn;
-  if(by==='eqNumType') { keyFn=r=>(r.eqNum||'__NA__')+'␟'+(r.classifiedType||'Unclassified'); labelFn=r=> (r.eqNum||'N/A')+' : '+(r.classifiedType||'Unclassified'); }
-  else if(by==='eqNum') { keyFn=r=>r.eqNum||'__NA__'; labelFn=r=> r.eqNum ? lpEqLabel(r) : 'N/A (ไม่มี EQ num)'; }
+  if(by==='eqNumType') { keyFn=r=>lpNormEq(r.eqNum||'__NA__')+'␟'+(r.classifiedType||'Unclassified'); labelFn=r=> (lpEqCanon(r.eqNum)||'N/A')+' : '+(r.classifiedType||'Unclassified'); }
+  else if(by==='eqNum') { keyFn=r=>lpNormEq(r.eqNum||'__NA__'); labelFn=r=> r.eqNum ? lpEqLabel(r) : 'N/A (ไม่มี EQ num)'; }
   else if(by==='eqName') { keyFn=r=>r.eqName||'__NA__'; labelFn=r=>r.eqName||'N/A (ไม่มี EQ Type)'; }
   else if(by==='type') { keyFn=r=>r.classifiedType||'Unclassified'; labelFn=r=>r.classifiedType||'Unclassified'; }
   else if(by==='lossCategory') { keyFn=r=>r.lossCategory||'__NA__'; labelFn=r=>r.lossCategory||'ไม่ระบุหมวด'; }
@@ -9537,23 +9560,23 @@ function lpBuildMonthlyTrend(rows){
     if(!m.has(k)) m.set(k, {year:r.year, mi:r.monthIndex, loss:0, records:0, byEq:new Map(), byType:new Map()});
     const g = m.get(k);
     g.loss += (r.lossAdt||0); g.records += 1;
-    const eqK = r.eqNum||'N/A'; g.byEq.set(eqK, (g.byEq.get(eqK)||0)+(r.lossAdt||0));
+    const eqK = lpNormEq(r.eqNum)||'N/A'; g.byEq.set(eqK, (g.byEq.get(eqK)||0)+(r.lossAdt||0));
     const tyK = r.classifiedType||'Unclassified'; g.byType.set(tyK, (g.byType.get(tyK)||0)+(r.lossAdt||0));
   });
   const list = [...m.values()].sort((a,b)=>(+a.year*12+a.mi)-(+b.year*12+b.mi));
   list.forEach(g=>{
     let topEq=null, topEqV=-1; g.byEq.forEach((v,k)=>{ if(v>topEqV){ topEqV=v; topEq=k; } });
     let topTy=null, topTyV=-1; g.byType.forEach((v,k)=>{ if(v>topTyV){ topTyV=v; topTy=k; } });
-    g.topEquipment = topEq; g.topType = topTy;
+    g.topEquipment = topEq==='N/A' ? null : lpEqCanon(topEq); g.topType = topTy;
   });
   return list;
 }
 function lpBuildEquipmentMatrix(rows){
   const m = new Map();
   rows.forEach(r=>{
-    const key = r.eqNum || '__NA__';
+    const key = lpNormEq(r.eqNum) || '__NA__';
     const isNaBucket = key === '__NA__';
-    if(!m.has(key)) m.set(key, {eqNum:r.eqNum||'', eqName: isNaBucket ? '' : (r.eqName||''), byYear:{}, records:0, cumulative:0, eqNameVariants:new Set()});
+    if(!m.has(key)) m.set(key, {eqNum: isNaBucket ? '' : lpEqCanon(r.eqNum), eqName: isNaBucket ? '' : (r.eqName||''), byYear:{}, records:0, cumulative:0, eqNameVariants:new Set()});
     const g = m.get(key);
     g.byYear[r.year] = (g.byYear[r.year]||0) + (r.lossAdt||0);
     g.records += 1; g.cumulative += (r.lossAdt||0);
@@ -9568,6 +9591,15 @@ function lpBuildEquipmentMatrix(rows){
 }
 function lpDistinctSorted(rows, fn){
   return [...new Set(rows.map(fn).filter(v=>v))].sort((a,b)=>a.localeCompare(b));
+}
+function lpDistinctEqNums(rows){
+  const seen = new Map(); // normalized -> canonical label
+  rows.forEach(r=>{
+    if(!r.eqNum) return;
+    const norm = lpNormEq(r.eqNum);
+    if(!seen.has(norm)) seen.set(norm, lpEqCanon(r.eqNum));
+  });
+  return [...seen.values()].sort((a,b)=>a.localeCompare(b));
 }
 
 /* ---- Data Quality ---- */
@@ -9636,6 +9668,7 @@ async function initLoss8020Dashboard(){
   if(!page) return;
   try{
     LP_DATA = await lpFetchAll();
+    LP_EQNUM_CANON = lpBuildEqNumCanon(LP_DATA.rows);
     lpPopulateFilterOptions();
     lpWireFilterEvents();
     lpSyncStateFromUI();
@@ -9673,7 +9706,7 @@ function lpPopulateFilterOptions(){
     const dTo = document.getElementById('lpDateTo'); if(dTo){ dTo.min = toInputVal(minD); dTo.max = toInputVal(maxD); dTo.value = toInputVal(maxD); }
   }
 
-  const eqNums = lpDistinctSorted(rows, r=>r.eqNum);
+  const eqNums = lpDistinctEqNums(rows);
   const eqNames = lpDistinctSorted(rows, r=>r.eqName);
   const types = lpDistinctSorted(rows, r=>r.classifiedType);
   const setSel = (id, values, allLabel)=>{
@@ -9814,7 +9847,7 @@ function lpRenderKpis(filtered){
   const allExceptPeriod = lpApplyFilters(LP_DATA.rows, LP_STATE, {skipPeriod:true});
   const cumulativeAll = lpSum(allExceptPeriod);
   const recordCount = filtered.length;
-  const byEq = lpGroupSum(filtered, r=>r.eqNum||'__NA__', r=> r.eqNum ? lpEqLabel(r) : 'N/A (ไม่มี EQ num)').sort((a,b)=>b.loss-a.loss)[0];
+  const byEq = lpGroupSum(filtered, r=>lpNormEq(r.eqNum)||'__NA__', r=> r.eqNum ? lpEqLabel(r) : 'N/A (ไม่มี EQ num)').sort((a,b)=>b.loss-a.loss)[0];
   const byType = lpGroupSum(filtered, r=>r.classifiedType||'Unclassified', r=>r.classifiedType||'Unclassified').sort((a,b)=>b.loss-a.loss)[0];
   const unclassifiedCount = filtered.filter(r=>r.classifiedType==='Unclassified').length;
   const tiles = [
