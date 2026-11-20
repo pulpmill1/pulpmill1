@@ -724,7 +724,6 @@
   table.da-table th.da-fixed-h{background:var(--accent-soft);color:var(--accent-ink);font-size:11px;font-weight:700;text-align:center;white-space:normal;min-width:100px;}
   table.da-table td.da-fixed{text-align:left;color:var(--ink);font-size:11.5px;white-space:normal;overflow-wrap:break-word;word-break:break-word;background:var(--surface);}
   table.da-table td.da-fixed-grp{font-weight:700;}
-  table.da-table td.da-fixed-unit,table.da-table td.da-fixed-spec{text-align:center;color:var(--ink-3);font-size:11px;white-space:nowrap;background:var(--surface);}
   table.da-table td.da-val{text-align:right;font-family:"IBM Plex Mono",monospace;color:var(--ink-3);white-space:nowrap;}
   table.da-table th.da-col-head-cell{min-width:190px;max-width:190px;width:190px;background:var(--surface-2);vertical-align:top;padding:8px;}
   .da-col-head{display:flex;flex-direction:column;gap:6px;align-items:stretch;}
@@ -13952,7 +13951,7 @@ function daRenderTable(){
   if(!DA_ROWS_RAW.length){ wrap.innerHTML = '<div class="hft-empty">ไม่มีข้อมูล</div>'; return; }
   const colDaySets = DA_COLUMNS.map(function(col){ return daQualifyingDays(col); });
   let html = '<table class="da-table"><thead><tr>'
-    + '<th class="da-fixed-h">กลุ่ม</th><th class="da-fixed-h">กลุ่มย่อย</th><th class="da-fixed-h">รายการ</th><th class="da-fixed-h">หน่วย</th><th class="da-fixed-h">Spec</th>';
+    + '<th class="da-fixed-h">กลุ่ม</th><th class="da-fixed-h">กลุ่มย่อย</th><th class="da-fixed-h">รายการ</th>';
   DA_COLUMNS.forEach(function(col){
     html += '<th class="da-col-head-cell" data-col-id="'+col.id+'"><div class="da-col-head">'+daRenderColHeadInner(col)+'</div></th>';
   });
@@ -13963,9 +13962,7 @@ function daRenderTable(){
     html += '<tr>';
     if(grpSpan) html += '<td class="da-fixed da-fixed-grp" rowspan="'+grpSpan+'">'+f.grp+'</td>';
     if(subSpan) html += '<td class="da-fixed" rowspan="'+subSpan+'">'+(f.sub||'')+'</td>';
-    html += '<td class="da-fixed">'+f.label+'</td>'
-      + '<td class="da-fixed-unit">'+(f.unit||'')+'</td>'
-      + '<td class="da-fixed-spec">'+(f.spec||'')+'</td>';
+    html += '<td class="da-fixed">'+f.label+'</td>';
     colDaySets.forEach(function(days){
       const v = daFieldAverage(f, days);
       html += '<td class="da-val">'+(v==null?'—':hftFmt(v,2))+'</td>';
