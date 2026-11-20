@@ -8187,12 +8187,9 @@ function computeHFactorLast3KappaAvg(){
   if(withKappa.length < 3) return { status:'insufficient-history', n:withKappa.length };
   const last3 = withKappa.slice(-3);
   const avg = last3.reduce(function(s,rec){ return s+rec.r[109]; }, 0) / 3;
-  const batches = last3.map(function(rec){
-    return { d:rec.d, mi:rec.mi, y:rec.y, cookNo:rec.r[4], kappa:rec.r[109], setPoint:rec.r[75], realHFactor:rec.r[77] };
-  });
-  const withRealH = batches.filter(function(b){ return b.realHFactor!=null; });
-  const avgRealHFactor = withRealH.length ? withRealH.reduce(function(s,b){ return s+b.realHFactor; }, 0) / withRealH.length : null;
-  return { status:'ok', avg:avg, avgRealHFactor:avgRealHFactor, batches:batches };
+  return { status:'ok', avg:avg, batches:last3.map(function(rec){
+    return { d:rec.d, mi:rec.mi, y:rec.y, cookNo:rec.r[4], kappa:rec.r[109], setPoint:rec.r[75] };
+  }) };
 }
 /* Shared by both the Last 3 Batch box and row 3 of the summary table: the +/- delta plus the
    resulting absolute Set Point H-factor, anchored on the LATEST of the 3 averaged cooks' own
@@ -8228,11 +8225,10 @@ function renderHFactorLast3Recommendation(){
     return;
   }
   const batchList = k.batches.map(function(b){
-    return 'Cook #'+(b.cookNo!=null?b.cookNo:'—')+' ('+b.d+' '+MONTH_ABBR_TH[b.mi]+' '+b.y+') = '+hftFmt(b.kappa,2)+' (H-factor '+hftFmt(b.realHFactor,0)+')';
+    return 'Cook #'+(b.cookNo!=null?b.cookNo:'—')+' ('+b.d+' '+MONTH_ABBR_TH[b.mi]+' '+b.y+') = '+hftFmt(b.kappa,2);
   }).join(', ');
-  const avgHFactorNote = k.avgRealHFactor!=null ? ' และเฉลี่ยได้ Real H-factor = <span class="hft-reco-value">' + hftFmt(k.avgRealHFactor,0) + '</span>' : '';
   let html = '<p class="hft-reco-highlight"><b>คำแนะนำ (จากค่าเฉลี่ย Kappa 3 Batch ล่าสุด):</b> Kappa No. (Online) จาก Cooking Logsheet ของ 3 Batch ล่าสุดที่นำมาเฉลี่ย ได้แก่ '
-    + batchList + ' เฉลี่ยได้ Kappa No. (Online) = <span class="hft-reco-value">' + hftFmt(k.avg,2) + '</span>' + avgHFactorNote;
+    + batchList + ' เฉลี่ยได้ Kappa No. (Online) = <span class="hft-reco-value">' + hftFmt(k.avg,2) + '</span>';
   if(HFT_LAST3_TARGET_KAPPA == null){
     html += '</p><p class="hft-kappa-note">กรุณาระบุค่า Target Kappa ที่ต้องการเดินให้ถูกต้อง (ตัวเลขมากกว่า 0) เพื่อวิเคราะห์เพิ่มเติม</p>';
   } else {
@@ -8241,9 +8237,10 @@ function renderHFactorLast3Recommendation(){
       const stay = reco.anchorSetPoint!=null ? ' (คงค่า Set Point H-factor ที่ <span class="hft-reco-value">'+hftFmt(reco.anchorSetPoint,0)+'</span>)' : '';
       html += ' ซึ่งใกล้เคียงกับ Target Kappa ที่ต้องการเดิน (<b>'+hftFmt(HFT_LAST3_TARGET_KAPPA,2)+'</b>) อยู่แล้ว จึงไม่จำเป็นต้องปรับ Set Point H-factor'+stay+'</p>';
     } else {
+      const anchorNote = reco.anchorSetPoint!=null ? ' Set Point H-factor ปัจจุบัน (ก่อนปรับ) = <span class="hft-reco-value">'+hftFmt(reco.anchorSetPoint,0)+'</span>,' : '';
       const newSetPointNote = reco.newSetPoint!=null ? ' เป็น <span class="hft-reco-value">'+hftFmt(reco.newSetPoint,0)+'</span>' : '';
-      html += ' เทียบกับ Target Kappa ที่ต้องการเดิน (<b>'+hftFmt(HFT_LAST3_TARGET_KAPPA,2)+'</b>) โดยใช้อัตราคงที่ Kappa 1 หน่วย เท่ากับ Set Point H-factor '+HFT_KAPPA_TO_SETPOINT_RATIO+' หน่วย '
-        + 'แนะนำปรับ Set Point H-factor <span class="hft-reco-value">'+reco.direction+' '+reco.deltaUnits+' หน่วย</span>'+newSetPointNote+'</p>';
+      html += ' เทียบกับ Target Kappa ที่ต้องการเดิน (<b>'+hftFmt(HFT_LAST3_TARGET_KAPPA,2)+'</b>) โดยใช้อัตราคงที่ Kappa 1 หน่วย เท่ากับ Set Point H-factor '+HFT_KAPPA_TO_SETPOINT_RATIO+' หน่วย'+anchorNote
+        + ' แนะนำปรับ Set Point H-factor <span class="hft-reco-value">'+reco.direction+' '+reco.deltaUnits+' หน่วย</span>'+newSetPointNote+'</p>';
     }
   }
   el.innerHTML = html;
@@ -8289,8 +8286,9 @@ function renderHFactorSummaryTable(){
   } else if(HFT_LAST3_TARGET_KAPPA == null){
     rows.push({ label:'จากค่าเฉลี่ย Kappa 3 Batch ล่าสุด เป้าหมายตาม Target Kappa', ref:'Kappa เฉลี่ย '+hftFmt(k.avg,2), setPoint:'กรุณาระบุ Target Kappa' });
   } else {
-    const ref3 = 'Kappa เฉลี่ย '+hftFmt(k.avg,2)+' เทียบ Target Kappa '+hftFmt(HFT_LAST3_TARGET_KAPPA,2);
     const reco = hftLast3Recommendation(k, HFT_LAST3_TARGET_KAPPA);
+    const ref3 = 'Kappa เฉลี่ย '+hftFmt(k.avg,2)+' เทียบ Target Kappa '+hftFmt(HFT_LAST3_TARGET_KAPPA,2)
+      + (reco.anchorSetPoint!=null ? ', Set Point H-factor ปัจจุบัน '+hftFmt(reco.anchorSetPoint,0) : '');
     let setPoint3;
     if(reco.noAdjust){
       setPoint3 = 'ไม่จำเป็นต้องปรับ' + (reco.anchorSetPoint!=null ? ' ('+hftFmt(reco.anchorSetPoint,0)+')' : '');
