@@ -8240,7 +8240,7 @@ function renderHFactorLast3Recommendation(){
       const anchorNote = reco.anchorSetPoint!=null ? ' Set Point H-factor ปัจจุบัน (ก่อนปรับ) = <span class="hft-reco-value">'+hftFmt(reco.anchorSetPoint,0)+'</span>,' : '';
       const newSetPointNote = reco.newSetPoint!=null ? ' เป็น <span class="hft-reco-value">'+hftFmt(reco.newSetPoint,0)+'</span>' : '';
       html += ' เทียบกับ Target Kappa ที่ต้องการเดิน (<b>'+hftFmt(HFT_LAST3_TARGET_KAPPA,2)+'</b>) โดยใช้อัตราคงที่ Kappa 1 หน่วย เท่ากับ Set Point H-factor '+HFT_KAPPA_TO_SETPOINT_RATIO+' หน่วย'+anchorNote
-        + ' แนะนำปรับ Set Point H-factor <span class="hft-reco-value">'+reco.direction+' '+reco.deltaUnits+' หน่วย</span>'+newSetPointNote+'</p>';
+        + ' แนะนำปรับ Set Point H-factor '+reco.direction+' '+reco.deltaUnits+' หน่วย'+newSetPointNote+'</p>';
     }
   }
   el.innerHTML = html;
@@ -8287,13 +8287,14 @@ function renderHFactorSummaryTable(){
     rows.push({ label:'จากค่าเฉลี่ย Kappa 3 Batch ล่าสุด เป้าหมายตาม Target Kappa', ref:'Kappa เฉลี่ย '+hftFmt(k.avg,2), setPoint:'กรุณาระบุ Target Kappa' });
   } else {
     const reco = hftLast3Recommendation(k, HFT_LAST3_TARGET_KAPPA);
-    const ref3 = 'Kappa เฉลี่ย '+hftFmt(k.avg,2)+' เทียบ Target Kappa '+hftFmt(HFT_LAST3_TARGET_KAPPA,2)
+    let ref3 = 'Kappa เฉลี่ย '+hftFmt(k.avg,2)+' เทียบ Target Kappa '+hftFmt(HFT_LAST3_TARGET_KAPPA,2)
       + (reco.anchorSetPoint!=null ? ', Set Point H-factor ปัจจุบัน '+hftFmt(reco.anchorSetPoint,0) : '');
     let setPoint3;
     if(reco.noAdjust){
-      setPoint3 = 'ไม่จำเป็นต้องปรับ' + (reco.anchorSetPoint!=null ? ' ('+hftFmt(reco.anchorSetPoint,0)+')' : '');
+      setPoint3 = 'ไม่จำเป็นต้องปรับ';
     } else {
-      setPoint3 = reco.direction+' '+reco.deltaUnits+' หน่วย' + (reco.newSetPoint!=null ? ' (เป็น '+hftFmt(reco.newSetPoint,0)+')' : '');
+      ref3 += ' '+reco.direction+' '+reco.deltaUnits+' หน่วย';
+      setPoint3 = reco.newSetPoint!=null ? hftFmt(reco.newSetPoint,0) : 'ข้อมูลไม่พอ';
     }
     rows.push({ label:'จากค่าเฉลี่ย Kappa 3 Batch ล่าสุด เป้าหมายตาม Target Kappa', ref:ref3,
       setPoint: setPoint3 });
