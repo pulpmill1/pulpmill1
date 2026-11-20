@@ -705,7 +705,10 @@
   .hft-kappa-target input{width:64px;border:1px solid var(--border);border-radius:6px;padding:3px 6px;font-size:12px;font-family:"IBM Plex Mono",monospace;background:var(--surface);color:var(--ink);}
   .hft-kappa-note{margin-top:10px;}
   .hft-kappa-warn{display:block;margin-top:8px;color:#a15c00;background:rgba(255,166,0,.12);border:1px solid rgba(255,166,0,.35);border-radius:8px;padding:8px 10px;font-size:11.5px;}
-  .hft-reco-compare-wrap{overflow-x:auto;max-width:560px;}
+  /* max-width:100% (not a fixed px cap) lets this fit entirely on a normal desktop screen, where the
+     3-column table is usually narrower than its container anyway -- overflow-x:auto only kicks in
+     as a safety net if the table's own content still doesn't fit (e.g. a narrow mobile viewport). */
+  .hft-reco-compare-wrap{overflow-x:auto;max-width:100%;}
   table.hft-reco-compare{width:100%;border-collapse:collapse;font-size:11.5px;}
   table.hft-reco-compare th,table.hft-reco-compare td{padding:5px 9px;border:1px solid var(--border);text-align:right;}
   table.hft-reco-compare th{background:var(--surface);font-weight:700;color:var(--ink);}
