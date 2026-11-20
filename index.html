@@ -7081,6 +7081,34 @@ const HFT_WOOD_SERIES_BY_TS = {
    a DIFFERENT "Residual alkali" column (idx9, under "Accumulated BL") also exists on that sheet
    and must not be confused with this one. */
 const QC_LAB_FL1_RESID_BY_TS = new Map(QC_LAB_FL1_ROWS.map(x=> [x.ts, x.r[14]]));
+/* Chip filling time is logged at the very START of a cook's own Batch Timing sequence (chip
+   filling -> PST&PHT -> HL filling -> Heat&Cook -> Displacement -> Discharge -- same phases as
+   BCH_SEGMENTS/BCH_DISCHARGE_COL further below), so a cook still mid-sequence can already show a
+   value here even though its own batch isn't finished yet. The generic plsAggregateByDay() day
+   average that PLS_COOKING_ROWS itself uses blends every cook of a day together regardless, which
+   would let a cook still in progress (in practice, today's latest) distort that day's Chip filling
+   time average. Qualifying the same way Batch Timing already does -- only count a cook once its own
+   Discharge time (col 141) is logged -- and pre-computing that qualified per-day average here lets
+   HFT_FIELDS' chipFillingTime field read it directly instead of the raw (unqualified) day.r[130].
+   In practice this only ever changes "Condition ปัจจุบัน" (HFT_ALL_DAYS/computeHFactorCondition):
+   the bin/monthly history tables' own HFT_HISTORY_END already excludes the current month entirely,
+   so every cook they average is from a closed month where Discharge time is always long since
+   logged. */
+const HFT_CHIP_FILL_QUALIFIED_BY_TS = (function(){
+  const byDay = new Map(); // day ts -> {sum, count}
+  PLS_COOKING_ROWS_RAW.forEach(function(rec){
+    if(rec.r[141] == null) return; // sequence not finished yet -- exclude from Chip filling time
+    const v = rec.r[130];
+    if(v == null) return;
+    const dayTs = new Date(rec.y, rec.mi, rec.d).getTime();
+    let agg = byDay.get(dayTs);
+    if(!agg){ agg = { sum:0, count:0 }; byDay.set(dayTs, agg); }
+    agg.sum += v; agg.count++;
+  });
+  const out = new Map();
+  byDay.forEach(function(agg, ts){ out.set(ts, agg.sum/agg.count); });
+  return out;
+})();
 /* The 21 averaged columns, table display order. `get(cookDay, ts)` returns that day's own value
    for the field (or null); cookDay is PLS_COOKING_ROWS' per-day record (r[] indexed by raw
    Cooking Logsheet column, see the column-index comment above PLS_COOKING_ROWS_RAW), ts is that
@@ -7090,7 +7118,7 @@ const HFT_FIELDS = [
   {key:'targetHFactor', label:'Target H-factor', unit:'', dec:1, grp:'cook', get:function(c){ return c.r[76]; }},
   {key:'realHFactor', label:'Real H-factor', unit:'', dec:1, grp:'cook', get:function(c){ return c.r[77]; }},
   {key:'loadBelt321c021', label:'Load Belt 321C021', unit:'%', dec:2, grp:'cook', get:function(c){ return c.r[24]; }},
-  {key:'chipFillingTime', label:'Chip filling time', unit:'min', dec:2, grp:'cook', get:function(c){ return c.r[130]; }},
+  {key:'chipFillingTime', label:'Chip filling time', unit:'min', dec:2, grp:'cook', get:function(c,ts){ return HFT_CHIP_FILL_QUALIFIED_BY_TS.get(ts); }},
   {key:'chipFlow', label:'Chip flow', unit:'GT/min', dec:2, grp:'cook', get:function(c){ return c.r[25]; }},
   {key:'tempAfterCirc', label:'Temp.after circulation. (Temp เริ่มต้น)', unit:'C', dec:1, grp:'cook', get:function(c){ return c.r[72]; }},
   {key:'heatCookTime', label:'Heat&Cook time', unit:'min', dec:1, grp:'cook', get:function(c){ return c.r[138]; }},
