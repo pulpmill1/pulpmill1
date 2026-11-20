@@ -710,6 +710,34 @@
   table.hft-reco-compare th,table.hft-reco-compare td{padding:5px 9px;border:1px solid var(--border);text-align:right;}
   table.hft-reco-compare th{background:var(--surface);font-weight:700;color:var(--ink);}
   table.hft-reco-compare th:first-child,table.hft-reco-compare td:first-child{text-align:left;color:var(--ink);}
+  /* Data for analysis page -- grouped metric table (Group/Subgroup/Metric/Unit/Spec, fixed) plus
+     N configurable "snapshot" value columns to the right, each with its own date-range + Adt/day
+     production-range filter and an optional shared/pinned save. Same overflow-x:auto + fixed
+     per-column width pattern as table.hft-table above, so a wide table never pushes the page. */
+  .da-toolbar{display:flex;justify-content:flex-end;margin-bottom:10px;}
+  .da-add-btn{font:inherit;font-size:12px;font-weight:700;color:var(--accent-ink);background:var(--accent-soft);border:1px solid var(--accent);border-radius:20px;padding:6px 14px;cursor:pointer;}
+  .da-add-btn:hover{filter:brightness(0.97);}
+  .da-wrap{overflow-x:auto;overflow-y:auto;border:1px solid var(--border);border-radius:10px;max-height:76vh;}
+  table.da-table{width:100%;min-width:900px;border-collapse:collapse;font-size:12px;}
+  table.da-table thead{position:sticky;top:0;z-index:3;}
+  table.da-table th,table.da-table td{padding:6px 7px;border:1px solid var(--border);}
+  table.da-table th.da-fixed-h{background:var(--accent-soft);color:var(--accent-ink);font-size:11px;font-weight:700;text-align:center;white-space:normal;min-width:100px;}
+  table.da-table td.da-fixed{text-align:left;color:var(--ink);font-size:11.5px;white-space:normal;overflow-wrap:break-word;word-break:break-word;background:var(--surface);}
+  table.da-table td.da-fixed-grp{font-weight:700;}
+  table.da-table td.da-fixed-unit,table.da-table td.da-fixed-spec{text-align:center;color:var(--ink-3);font-size:11px;white-space:nowrap;}
+  table.da-table td.da-val{text-align:right;font-family:"IBM Plex Mono",monospace;color:var(--ink-3);white-space:nowrap;}
+  table.da-table th.da-col-head-cell{min-width:190px;max-width:190px;width:190px;background:var(--surface-2);vertical-align:top;padding:8px;}
+  .da-col-head{display:flex;flex-direction:column;gap:6px;align-items:stretch;}
+  .da-col-label{font-size:12px;font-weight:800;color:var(--ink);text-align:center;min-height:16px;}
+  .da-col-unsaved{font-size:10px;font-weight:700;color:#a15c00;background:rgba(255,166,0,.14);border-radius:12px;padding:2px 8px;text-align:center;}
+  .da-col-ctrl-row,.da-col-prod-row,.da-col-btn-row{display:flex;flex-wrap:wrap;gap:4px;align-items:center;justify-content:center;}
+  .da-col-head select,.da-col-head input[type="date"],.da-col-head input[type="week"],.da-col-head input[type="month"]{font:inherit;font-size:10.5px;color:var(--ink);background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:3px 5px;min-width:0;max-width:100%;}
+  .da-col-prod-row input[type="number"]{font:inherit;font-size:10.5px;color:var(--ink);background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:3px 5px;width:52px;}
+  .da-col-prod-row span{font-size:10px;color:var(--ink-2);}
+  .da-col-prod-unit{white-space:nowrap;}
+  .da-col-btn-row button{font:inherit;font-size:10.5px;font-weight:700;border-radius:6px;padding:3px 9px;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--ink-2);}
+  .da-pin.pinned{background:var(--accent-soft);color:var(--accent-ink);border-color:var(--accent);}
+  .da-del:hover{background:rgba(212,52,44,.12);color:#d4342c;border-color:#d4342c;}
   .ya-summary{margin-bottom:14px;font-size:12px;color:var(--ink-2);}
   .ya-summary .rn-head{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border);}
   .ya-summary .ys-body,.ya-overview-col .ys-body{font-weight:300;line-height:1.9;}
@@ -918,6 +946,7 @@
         </div>
       </div>
       <button class="nav-item" data-page="h-factor-tuning"><span style="display:flex; align-items:center; min-width:0;"><span class="nav-ico">🧪</span><span class="nav-label" data-i18n-nav="navHFactorTuning">H-Factor Tuning Model</span></span></button>
+      <button class="nav-item" data-page="data-analysis"><span style="display:flex; align-items:center; min-width:0;"><span class="nav-ico">📊</span><span class="nav-label" data-i18n-nav="navDataAnalysis">Data for analysis</span></span></button>
       <button class="nav-item" data-page="cost-sensitivity"><span style="display:flex; align-items:center; min-width:0;"><span class="nav-ico">🎯</span><span class="nav-label" data-i18n-nav="navCostSensitivity">Sensitivity</span></span></button>
     </nav>
     <div class="sidebar-foot">
@@ -2477,6 +2506,16 @@
             <div class="hft-note hft-reco-box" id="hftRecoBox"></div>
           </details>
         </section>
+        <section class="page" data-page="data-analysis" hidden>
+          <div class="hft-head">
+            <h2>Data for analysis</h2>
+            <p>สรุปข้อมูล Condition การเดินเครื่อง Fiberline 1 ตามชีท "Data for analysis" — แต่ละคอลัมน์ทางขวาเลือกช่วงวันที่และช่วงผลผลิต (Adt/day) ของตัวเองได้อิสระ กดบันทึกเพื่อให้ทุกคนที่เปิดดู Dashboard เห็นคอลัมน์เดียวกัน</p>
+          </div>
+          <div class="da-toolbar">
+            <button type="button" class="da-add-btn" id="daAddColBtn">+ เพิ่มคอลัมน์</button>
+          </div>
+          <div class="da-wrap" id="daTableWrap"></div>
+        </section>
         <section class="page" data-page="cost-sensitivity" hidden>
           <div class="sens-dash">
             <div class="sens-dash-header">
@@ -2850,7 +2889,7 @@ const DAYS_IN_MONTH = [31,28,31,30,31,30,31,31,30,31,30,31];
    Daily (Act) gid=0, Daily (BG) gid=1682718600, Daily (Plan) gid=3664159, Daily (Loss) gid=786133815
    Monthly (Act) gid=1448795576, Monthly (Budget) gid=1872828527 */
 const SHEET_ID = '1dStWwliEd6YhSOL3oT8JNyWHZOuII5F-QVeubIrBS50';
-const SHEET_GIDS = { dailyAct:0, dailyBg:1682718600, dailyPlan:3664159, dailyLoss:786133815, monthlyAct:1448795576, monthlyBudget:1872828527, chipWood:632351488, cookingCond:1561629878, weightScaleDig:1177773637, cookingLog:937055806, brownStock:1668226684, bleaching:1596215251, morningLog:1162647187, qcLabFl1:1353468044 };
+const SHEET_GIDS = { dailyAct:0, dailyBg:1682718600, dailyPlan:3664159, dailyLoss:786133815, monthlyAct:1448795576, monthlyBudget:1872828527, chipWood:632351488, cookingCond:1561629878, weightScaleDig:1177773637, cookingLog:937055806, brownStock:1668226684, bleaching:1596215251, morningLog:1162647187, qcLabFl1:1353468044, dataAnalysis:530791002 };
 function sheetCsvUrl(gid){ return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${gid}`; }
 
 // robust CSV parser: handles quoted fields, embedded commas, embedded newlines, doubled-quote escaping
@@ -2910,6 +2949,14 @@ async function fetchKpiLayout(){
   try{ const r = await fetch('/api/layout'); return r.ok ? await r.json() : null; }
   catch(e){ return null; }
 }
+/* Shared/pinned "snapshot column" configs for the Data for analysis page (/api/data-analysis,
+   same Upstash-Redis-JSON-blob pattern as /api/layout.js). Falls back to [] (an empty shared
+   list, so the page shows its 3 default unconfigured local-only columns) if the endpoint isn't
+   configured yet or the fetch fails. */
+async function fetchDaColumns(){
+  try{ const r = await fetch('/api/data-analysis'); return r.ok ? await r.json() : null; }
+  catch(e){ return null; }
+}
 function sheetIsLeapYear(y){ return (y % 4 === 0 && y % 100 !== 0) || (y % 400 === 0); }
 function sheetDaysInMonth(y, mi){ return mi===1 && sheetIsLeapYear(y) ? 29 : DAYS_IN_MONTH[mi]; }
 function parseDailySheet(rows, opts){
@@ -2965,11 +3012,12 @@ function parseMonthlySheet(rows, labelWord){
   return byYear;
 }
 
-const [dailyActRows, dailyBgRows, dailyPlanRows, dailyLossRows, monthlyActRows, monthlyBudgetRows, chipWoodRows, cookingCondRows, weightScaleDigRows, cookingLogRows, brownStockRows, bleachingRows, morningLogRows, qcLabFl1Rows, kpiTargetsResp, kpiLayoutResp] = await Promise.all([
+const [dailyActRows, dailyBgRows, dailyPlanRows, dailyLossRows, monthlyActRows, monthlyBudgetRows, chipWoodRows, cookingCondRows, weightScaleDigRows, cookingLogRows, brownStockRows, bleachingRows, morningLogRows, qcLabFl1Rows, kpiTargetsResp, kpiLayoutResp, dataAnalysisRows, daColumnsResp] = await Promise.all([
   fetchSheetCsv(SHEET_GIDS.dailyAct), fetchSheetCsv(SHEET_GIDS.dailyBg), fetchSheetCsv(SHEET_GIDS.dailyPlan), fetchSheetCsv(SHEET_GIDS.dailyLoss),
   fetchSheetCsv(SHEET_GIDS.monthlyAct), fetchSheetCsv(SHEET_GIDS.monthlyBudget), fetchSheetCsv(SHEET_GIDS.chipWood), fetchSheetCsv(SHEET_GIDS.cookingCond),
   fetchSheetCsv(SHEET_GIDS.weightScaleDig), fetchSheetCsv(SHEET_GIDS.cookingLog), fetchSheetCsv(SHEET_GIDS.brownStock), fetchSheetCsv(SHEET_GIDS.bleaching),
   fetchSheetCsv(SHEET_GIDS.morningLog), fetchSheetCsv(SHEET_GIDS.qcLabFl1), fetchKpiTargets(), fetchKpiLayout(),
+  fetchSheetCsv(SHEET_GIDS.dataAnalysis), fetchDaColumns(),
 ]);
 // Shared Target Low/High store — see fetchKpiTargets() above. Mutated in place (not reassigned)
 // by chipMonSetTarget/wsdSetTarget so every closure that already captured it sees new saves.
@@ -2982,6 +3030,9 @@ const CHIP_LAYOUT = (kpiLayoutResp && kpiLayoutResp.layout) || {};
 CHIP_LAYOUT.groupOrder = CHIP_LAYOUT.groupOrder || {};
 CHIP_LAYOUT.tileGroup = CHIP_LAYOUT.tileGroup || {};
 CHIP_LAYOUT.tileOrder = CHIP_LAYOUT.tileOrder || {};
+/* Shared/pinned Data-for-analysis snapshot columns -- see fetchDaColumns() above. Each entry is
+   {id, mode, value, prodMin, prodMax}; consumed by initDataAnalysisPage() below. */
+const DA_SAVED_COLUMNS_REMOTE = (daColumnsResp && Array.isArray(daColumnsResp.columns)) ? daColumnsResp.columns : [];
 
 const dailyActParsed = parseDailySheet(dailyActRows, {numeric:true});
 const YEAR = dailyActParsed.year;
@@ -5559,6 +5610,7 @@ const PAGE_META = {
   yield:{th:'Yield', en:'Yield', hasData:true},
   'yield-weightscale':{th:'Weight scale digester', en:'Weight scale digester', hasData:false},
   'h-factor-tuning':{th:'H-Factor Tuning Model', en:'H-Factor Tuning Model', hasData:true},
+  'data-analysis':{th:'Data for analysis', en:'Data for analysis', hasData:true},
   'cost-sensitivity':{th:'Sensitivity', en:'Sensitivity', hasData:true},
   'process-rawmaterial':{th:'Raw material', en:'Raw material', hasData:false},
   'process-cooking':{th:'Cooking', en:'Cooking', hasData:false},
@@ -5568,7 +5620,7 @@ const PAGE_META = {
 
 const I18N = {
   th:{
-    navProduction:'Production', navProductionPm1:'Pulp mill 1', navProductionPm2:'Pulp mill 2', navProductionPm12:'Pulp mill 1+2', navYield:'Yield', navYieldWeightScale:'Weight scale digester', navCostSensitivity:'Sensitivity', navHFactorTuning:'H-Factor Tuning Model',
+    navProduction:'Production', navProductionPm1:'Pulp mill 1', navProductionPm2:'Pulp mill 2', navProductionPm12:'Pulp mill 1+2', navYield:'Yield', navYieldWeightScale:'Weight scale digester', navCostSensitivity:'Sensitivity', navHFactorTuning:'H-Factor Tuning Model', navDataAnalysis:'Data for analysis',
     navProcessArea:'Process area', navProcessRawMaterial:'Raw material', navProcessCooking:'Cooking', navProcessBrownStock:'Brown stock', navProcessBleaching:'Bleaching',
     searchPlaceholder:'ค้นหา KPI (Search metrics)',
     lastDataAt:'ข้อมูลล่าสุด ณ', noDataYet:'ยังไม่เชื่อมต่อแหล่งข้อมูล',
@@ -5584,7 +5636,7 @@ const I18N = {
     avg7Label:'ค่าเฉลี่ย 7 วันย้อนหลัง (Adt/day)', daysUnit:'วัน',
   },
   en:{
-    navProduction:'Production', navProductionPm1:'Pulp mill 1', navProductionPm2:'Pulp mill 2', navProductionPm12:'Pulp mill 1+2', navYield:'Yield', navYieldWeightScale:'Weight scale digester', navCostSensitivity:'Sensitivity', navHFactorTuning:'H-Factor Tuning Model',
+    navProduction:'Production', navProductionPm1:'Pulp mill 1', navProductionPm2:'Pulp mill 2', navProductionPm12:'Pulp mill 1+2', navYield:'Yield', navYieldWeightScale:'Weight scale digester', navCostSensitivity:'Sensitivity', navHFactorTuning:'H-Factor Tuning Model', navDataAnalysis:'Data for analysis',
     navProcessArea:'Process area', navProcessRawMaterial:'Raw material', navProcessCooking:'Cooking', navProcessBrownStock:'Brown stock', navProcessBleaching:'Bleaching',
     searchPlaceholder:'Search metrics',
     lastDataAt:'Latest data as of', noDataYet:'No data source connected yet',
@@ -6625,6 +6677,341 @@ const PLS_BLEACHING_ROWS = plsAggregateByDay(PLS_BLEACHING_ROWS_RAW);
    non-null rows per day, same as every other *_ROWS pair above. */
 const QC_LAB_FL1_ROWS_RAW = plsBuildRawRows(qcLabFl1Rows, 'Date', 1, null);
 const QC_LAB_FL1_ROWS = plsAggregateByDay(QC_LAB_FL1_ROWS_RAW);
+/* ===================== Data for analysis page =====================
+   Metric list + source-column mapping is baked in statically (mirrors HFT_FIELDS' own approach)
+   from the "Data for analysis" sheet (gid 99363202) -- that sheet is a fixed SCHEMA/TEMPLATE (which
+   metrics, grouped/sub-grouped, with Unit/Spec, and which "Data" sheet column each pulls from), not
+   runtime data, so it is never fetched in the browser. Each tuple is
+   [group, subgroup, label, unit, spec, colIdx] where colIdx is the 0-indexed column number within
+   the "Data" sheet (gid 530791002, fetched live as dataAnalysisRows below), converted from the
+   template's own "Column \"XXX\"" spreadsheet-letter references via base-26 (A=0, Z=25, AA=26, ...).
+   Confirmed by direct sampling (e.g. "Column APC" -> colIdx 1094 -> that exact column's own row3
+   literally reads "Pulp 1 End Prod.") that every referenced column already holds ONE final
+   pre-aggregated number per day (the sheet's own comment calls this its "สำหรับทำกราฟ" / graphing
+   column block) -- unlike the main Day/Night/Total grid earlier in the same "Data" sheet, these
+   columns need no Day/Night/Total/Avg disambiguation, just a direct per-day read.
+   A few rows share the sheet's own "(Online)" convention (the raw template puts the word "Online"
+   in the Unit cell of a row whose Metric cell is blank, meaning "this is the online-probe reading of
+   the metric above, not a unit") -- folded into the label here (e.g. "Kappa number (Online)") when
+   this tuple list was generated; 3 template rows had no "Column" reference at all (Hydraulic/Fix
+   Vat/Move Vat Pressure under PostO2 Press, rows 121-123) and were dropped since there is nothing to
+   display for them. */
+const DA_FIELD_TUPLES = [
+['Production','','End Production','Adt/day','',1094],
+['Production','','Batch per day','Adt/day','',558],
+['Production','','Cooking Production','Adt/day','',559],
+['Production','','Brown Stock Production','Adt/day','',695],
+['Production','','Bleaching Production','Adt/day','',753],
+['Woodhandling','Wood Chip','Pulp 1 Bulk density','','',1046],
+['Woodhandling','Wood Chip','Pulp 1 Bulk density *Dryness','','',1047],
+['Woodhandling','Wood Chip','Pulp 1 Chip Dryness','','',1048],
+['Woodhandling','Wood Chip','Pulp 1 Chip Moisture (Lab)','','',1049],
+['Woodhandling','Wood Chip','Pulp 1 Fine, <4.8','','',1050],
+['Woodhandling','Wood Chip','Pulp 1 Pin, 9.5-4.8','','',1051],
+['Woodhandling','Wood Chip','Pulp 1 Accept 2, 22.2-9.5','','',1052],
+['Woodhandling','Wood Chip','Pulp 1 Accept 1, 28.6-22.2','','',1053],
+['Woodhandling','Wood Chip','Pulp 1 Over Thick, 45.0-28.6','','',1054],
+['Woodhandling','Wood Chip','Pulp 1 Over size >45.0 mm','','',1055],
+['Woodhandling','Wood Chip','Pulp 1 Acc1+2+Pin, 28.6-4.8','','',1056],
+['Woodhandling','Wood Chip','Pulp 1 Bark','','',1057],
+['Cooking','Chip Filling','Chip flow','GT/min','',573],
+['Cooking','Chip Filling','Packing Steam ratio','','',569],
+['Cooking','Chip Filling','Pressure packing steam (Cal.)','bar','',570],
+['Cooking','Pre Steaming & Pre Heating','Presteaming temp. target','C','',582],
+['Cooking','Pre Steaming & Pre Heating','Preheating temp target','C','',583],
+['Cooking','Hot Liquor Filling','EA charge Set point','ton EA/batch','',586],
+['Cooking','Hot Liquor Filling','EA charge Actual','%','',587],
+['Cooking','Hot Liquor Filling','NEU','%','',588],
+['Cooking','Hot Liquor Filling','WL Temp.','C','',592],
+['Cooking','Hot Liquor Filling','HWL. Acc. Target Temp','C','',594],
+['Cooking','Hot Liquor Filling','HWL. Acc. Temp','C','',595],
+['Cooking','Hot Liquor Filling','HBL. Acc. 1 Target Temp','C','',597],
+['Cooking','Hot Liquor Filling','HBL. Acc. 1 Temp','C','',598],
+['Cooking','Hot Liquor Filling','HWL Nue. target amount','m3/batch','',599],
+['Cooking','Hot Liquor Filling','HWL Nue. real amount','m3/batch','',600],
+['Cooking','Hot Liquor Filling','HBL + HWL target amount','m3/batch','',601],
+['Cooking','Hot Liquor Filling','HBL real amount','m3/batch','',602],
+['Cooking','Hot Liquor Filling','Last HWL.target amount','m3/batch','',603],
+['Cooking','Hot Liquor Filling','Last HWL.real amount','m3/batch','',604],
+['Cooking','Hot Liquor Filling','Last HWL.real amount','m3/day','',605],
+['Cooking','Hot Liquor Filling','WL Split Charge HBL ACC1','m3/day','',606],
+['Cooking','Hot Liquor Filling','WL Split Charge  P009','m3/day','',607],
+['Cooking','Hot Liquor Filling','WL Charge to digester','m3/batch','',608],
+['Cooking','Hot Liquor Filling','WL Charge to digester','m3/day','',609],
+['Cooking','Hot Liquor Filling','WL Charge to digester','Ton EA/batch','',610],
+['Cooking','Hot Liquor Filling','WL Charge to digester','Ton EA/day','',611],
+['Cooking','Hot Liquor Filling','Total WL Consump.','m3/day','',612],
+['Cooking','Hot Liquor Filling','Total WL Consump.','Ton EA/day','',613],
+['Cooking','Hot Liquor Filling','Weight Scale After HLF','ton/batch','',614],
+['Cooking','Heat & Cook','Target cook temp.','C','',616],
+['Cooking','Heat & Cook','Temp.after circulation. (Temp เริ่มต้น)','C','',617],
+['Cooking','Heat & Cook','Temp.after circulation. (Temp สูงสุด)','C','',618],
+['Cooking','Heat & Cook','MP Steam direct charge','min','',619],
+['Cooking','Heat & Cook','Set point H-factor(APC)','','',620],
+['Cooking','Heat & Cook','Target H-factor','','',621],
+['Cooking','Heat & Cook','Real H-factor','','',622],
+['Cooking','Heat & Cook','Circulation Pump Loading','%','',623],
+['Cooking','Heat & Cook','H&C Screen pressure Diff.','bar','',624],
+['Cooking','Heat & Cook','H&C Screen pressure Diff. (> +/- 0.20 Peak)','bar','',625],
+['Cooking','Heat & Cook','H&C Screen pressure Diff. (+/- 0.20)','times','',626],
+['Cooking','Displacement','Displacement amount','m3/batch','≥300',629],
+['Cooking','Displacement','DPL Screen pressure Diff.','bar','',630],
+['Cooking','Displacement','DPL Screen pressure Diff. (> +/- 0.20 Peak)','bar','',631],
+['Cooking','Displacement','DPL Screen pressure Diff. (+/- 0.20)','times','',632],
+['Cooking','Displacement','Displacement flow (< 30 ton)','l/s','',633],
+['Cooking','Displacement','Displacement flow (< 100 ton)','l/s','',634],
+['Cooking','Displacement','Displacement flow (< 150 ton)','l/s','',635],
+['Cooking','Displacement','Displacement flow (> 150 ton)','l/s','',636],
+['Cooking','Displacement','Temp.after circulation.','C','',637],
+['Cooking','Discharge','Discharge level before discharge','%','> 60%',640],
+['Cooking','Discharge','Dilution amount.','m3','≤ 170',641],
+['Cooking','Discharge','Average Consistency','%','',642],
+['Cooking','Discharge','Maximum discharge temp.','C','',643],
+['Cooking','White Liquor','Effective alkali','g/L','120 ± 5',841],
+['Cooking','White Liquor','Effective alkali (Online)','g/L','',842],
+['Cooking','White Liquor','Sulfidity @CE 80%','%','32.5 ± 1.5',843],
+['Cooking','White Liquor','Sulfidity','%','',844],
+['Cooking','White Liquor','Causticizing Efficiency','%','80 ± 2',845],
+['Cooking','White Liquor','Suspended Solids','mg/L','≤ 20',846],
+['Cooking','Accumulated BL','Residual alkali','g/L','19 ± 1',847],
+['Cooking','Accumulated BL','Residual alkali (Online)','g/L','',848],
+['Cooking','WBL to Evaporator','Fiber content','mg/L','≤ 10',849],
+['Cooking','WBL to Evaporator','Dry solid content','%','18 ± 2',850],
+['Cooking','WBL to Evaporator','Residual alkali','g/L','11 ± 1',851],
+['Cooking','Discharged Pipe','Kappa number','','13 ± 1',853],
+['Cooking','Discharged Pipe','Kappa number (Online)','','',854],
+['Cooking','Discharge Tank','Discharge Level','%','',640],
+['Washing','PreO2 Press','Consistency out WP1','%','28 - 35',855],
+['Washing','PreO2 Press','Roll Torque','kNm','20-28',701],
+['Washing','PreO2 Press','Fix Vat Pressure 421PI146','bar','',702],
+['Washing','PreO2 Press','Move Vat Pressure 421PI147','bar','',703],
+['Washing','PreO2 Press','Primary 421PDI210','bar','',704],
+['Washing','PreO2 Press','Secondary 421PDI216','bar','',705],
+['Washing','PreO2 Press','Tertiary 421PDI220','bar','',706],
+['Washing','PreO2 Press','Consist 421QC412','%','',709],
+['Washing','PreO2 Press','DF PRE O2 PRESS','','',712],
+['Washing','PreO2 Press','Consistency out WP2','%','30 - 35',856],
+['Washing','PreO2 Press','Hydraulic Pressure 421PC324','bar','',716],
+['Washing','PreO2 Press','Fix Vat Pressure 421PI346','bar','',717],
+['Washing','PreO2 Press','Move Vat Pressure 421PI347','bar','',718],
+['Washing','PreO2 Press','COD','kg/ADT','80 ± 15',857],
+['Washing','PreO2 Press','Kappa number','','≤ 16',858],
+['Washing','PreO2 Press','Kappa number (Online)','','',859],
+['Washing','PreO2 Press','Viscosity','mL/g','≥ 700',860],
+['Washing','PreO2 Press','Wet Brightness','%','',861],
+['Oxygen Delignification','PostO2 Press','O2 rxt#1','kg/adt','',724],
+['Oxygen Delignification','PostO2 Press','Pressure Top O2 rxt#1 421PZ426','Bar','',746],
+['Oxygen Delignification','PostO2 Press','Inlet before Mix 421E017 to R1 421TC410','C','',747],
+['Oxygen Delignification','PostO2 Press','Temp Bottom Reactor1 421TI424','C','',748],
+['Oxygen Delignification','PostO2 Press','O2 rxt#2','kg/adt','',725],
+['Oxygen Delignification','PostO2 Press','Pressure Top O2 rxt#2 421PC478','Bar','',749],
+['Oxygen Delignification','PostO2 Press','Inlet after Mix 421E030 to R2 421TC473','C','',750],
+['Oxygen Delignification','PostO2 Press','Temp Bottom Reactor 2 421TI474','C','',751],
+['Oxygen Delignification','PostO2 Press','O2 Purity','','',723],
+['Oxygen Delignification','PostO2 Press','OWL/NaOH','kg/ADT','',721],
+['Oxygen Delignification','PostO2 Press','DF POST O2 PRESS','','',737],
+['Oxygen Delignification','PostO2 Press','COD Pulp to Reactor 1','kg/ADT','',862],
+['Oxygen Delignification','PostO2 Press','Consistency out WP3','%','30 - 35',863],
+['Oxygen Delignification','PostO2 Press','Kappa number','','≤ 10',864],
+['Oxygen Delignification','PostO2 Press','Kappa number (Online)','','',865],
+['Oxygen Delignification','PostO2 Press','Delignification','%','≥ 35',866],
+['Oxygen Delignification','PostO2 Press','Viscosity','mL/g','≥ 600',867],
+['Oxygen Delignification','PostO2 Press','Wet Brightness','%','≥ 45',868],
+['Oxygen Delignification','pH PostO2','pH PostO2 Filtrate','','10.5 ± 0.5',869],
+['Oxygen Delignification','Unbleach Tank','Unbleach Level','%','',696],
+['ETP','Fiberline Waste Water','COD','ppm','',870],
+['ETP','Fiberline Waste Water','Suspended Solids','mg/L','',871],
+['ClO2','To BC','Active chlorine','g/L','26 ± 1',872],
+['ClO2','To BC','DF Pre Bleach','','',762],
+['Pre Bleaching','To Press','Consistency','%','',763],
+['Pre Bleaching','To Press','Hydraulic Pressure 431PC016','bar','',765],
+['Pre Bleaching','To Press','Fix Vat Pressure 431PI019','bar','',766],
+['Pre Bleaching','To Press','Move Vat Pressure 431PI025','bar','',767],
+['Pre Bleaching','From Press','Kappa number','','≤ 10',874],
+['Pre Bleaching','From Press','Kappa number (Online)','','',875],
+['Pre Bleaching','From Press','Consistency','%','30 - 35',876],
+['Pre Bleaching','From Press','Wet Brightness','%','',877],
+['Pre Bleaching','From Press','Wet Brightness (Online)','%','',878],
+['Pre Bleaching','From Press','COD','kg/ADT','7.5 ± 1.5',879],
+['D0','To Press','ClO D0','kg/ADT','',772],
+['D0','To Press','Cl Factor','kg/u','',773],
+['D0','To Press','End pH','','3.0 ± 0.5',880],
+['D0','To Press','H2SO4','l/s','',777],
+['D0','To Press','Residual active Cl','g/L','≤ 0.05',881],
+['D0','From Press','Kappa number','','2.5 ± 0.5',882],
+['D0','From Press','Kappa number (Online)','','',883],
+['D0','From Press','Consistency','%','28 - 35',884],
+['D0','From Press','Hydraulic Pressure 431PC214','bar','',780],
+['D0','From Press','Fix Vat Pressure 431PI216','bar','',781],
+['D0','From Press','Move Vat Pressure 431PI221','bar','',782],
+['D0','From Press','Wet Brightness','%','71.5 ± 3.5',885],
+['D0','From Press','Wet Brightness (Online)','%','',886],
+['EOP','OWL','Na2S','g/L','≤ 3',887],
+['EOP','OWL','NaOH','g/L','≥ 120',888],
+['EOP','OWL','Na2CO3','g/L','',889],
+['EOP','To Press','End  pH','','10.25 ± 0.25',890],
+['EOP','To Press','NaOH','l/s','',786],
+['EOP','To Press','H2O2','kg/ADT','',787],
+['EOP','To Press','Residual H2O2','g/L','≤ 0.05',891],
+['EOP','To Press','O2 Purity','%','',789],
+['EOP','To Press','O2','kg/ADT','',790],
+['EOP','To Press','NaoH+OWL','kg/ADT','',791],
+['EOP','From Press','Kappa number','','2.25 ± 0.75',892],
+['EOP','From Press','Kappa number (Online)','','',893],
+['EOP','From Press','Consistency','%','30 - 35',894],
+['EOP','From Press','Hydraulic Pressure 431PC333','bar','',797],
+['EOP','From Press','Vat Pressure 431PI330','bar','',798],
+['EOP','From Press','Wet Brightness','%','80 ± 2',895],
+['EOP','From Press','Wet Brightness (Online)','%','',896],
+['D1','','ClO D0','kg/ADT','',801],
+['D1','','Cl Factor','kg/u','',802],
+['D1','To Press','End pH','','4.5 ± 0.5',897],
+['D1','To Press','H2SO4','l/s','',806],
+['D1','To Press','Residual active Cl','g/L','≤ 0.05',898],
+['D1','From Press','Consistency','%','30 - 35',899],
+['D1','From Press','Hydraulic Pressure 431PC429','bar','',809],
+['D1','From Press','Vat Pressure 431PI432','bar','',810],
+['D1','From Press','Wet Brightness','%','84 ± 1',900],
+['D1','From Press','Wet Brightness (Online)','%','',901],
+['D1','From Press','Viscosity','mL/g','≥ 500',902],
+['D1','Total','Total ClO2','kg/ADT','',816],
+['D1','Total','Cl Factor','kg/u','',817],
+['Stage Cleaner No.5','','Consistency','%','',903],
+['LC tank','','pH','','',904],
+['LC tank','','NaOH','l/s','',822],
+['Decker','','Wet Brightness','%','',905],
+['Decker','','Dirt','mm2/kg','',906],
+['Decker','','Shives','','',907],
+['Decker','','Dirt+Shives','','≤ 5',908],
+['Feed to Wet Lap (HD1)','','Wet Brightness','%','',909],
+['Feed to Wet Lap (HD1)','','Consistency','%','',910],
+['Feed to Wet Lap (HD1)','','pH','','5.5 ± 0.5',911],
+['Before Refiner','','Freeness','mL','550 ± 20',912],
+['Before Refiner','','Delta Freeness','mL','≤ 20',913],
+['Before Refiner','','F-Factor','','50 ± 5',914],
+['Before Refiner','','Conductivity','uS/cm','≤ 1800',915],
+['White water','','Conductivity Online','uS/cm','≤ 1200',833],
+['White water','','Conductivity Before refiner','uS/cm','≤ 1200',834],
+['HD1 Tank','','HD1 Level','','',757],
+['HD2 Tank','','HD2 Level','','',758],
+['Paper Mill','PM1 After Refiner','Freeness LBKP1','mL','360 ± 40',916],
+['Paper Mill','PM1 After Refiner','Freeness LBKP2','mL','',917],
+['Paper Mill','PM1 After Refiner','F-Factor LBKP1','','> 100',918],
+['Paper Mill','PM1 After Refiner','F-Factor LBKP2','','',919],
+['Paper Mill','PM2 After Refiner','Freeness LBKP1','mL','320 ± 40',920],
+['Paper Mill','PM2 After Refiner','Freeness LBKP2','mL','',921],
+['Paper Mill','PM2 After Refiner','F-Factor LBKP1','','> 100',922],
+['Paper Mill','PM2 After Refiner','F-Factor LBKP2','','',923],
+['Tested by PM','HD1','pH','','5.5 ± 0.5',924],
+['Tested by PM','Wet Lap to PM','pH','','> 7.5',925]
+];
+const DA_FIELDS = DA_FIELD_TUPLES.map(function(t){ return { grp:t[0], sub:t[1], label:t[2], unit:t[3], spec:t[4], col:t[5] }; });
+/* "Production > End Production" (Adt/day) is both an ordinary table row AND the source metric for
+   every snapshot column's own production-range (adt/day) filter below. */
+const DA_PROD_FIELD = DA_FIELDS.find(function(f){ return f.grp==='Production' && f.label==='End Production'; });
+/* "Data" sheet layout: rows 1-7 (index0-6) are headers (group/subgroup/metric/unit/freq/spec rows,
+   mixed per section -- never read directly, since every field above already carries its own
+   group/subgroup/label/unit/spec from the "Data for analysis" template instead), row8+ (index7+) is
+   one row per calendar day, col A = date as "D/M/YYYY" or "DD/MM/YYYY" (day-first, matching every
+   other daily sheet in this file -- see parseDailySheet's own comment). Column letters go well
+   beyond Z (up to "APC"), so unlike PLS_*_ROWS_RAW (which only ever needs a handful of named extra
+   columns), this keeps the FULL raw row array so every DA_FIELDS.col index can read directly into it. */
+const DA_ROWS_RAW = (function(){
+  const out = [];
+  for(let i=7; i<dataAnalysisRows.length; i++){
+    const r = dataAnalysisRows[i];
+    if(!r || !r[0]) continue;
+    const m = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(String(r[0]).trim());
+    if(!m) continue;
+    const d = +m[1], mi = (+m[2])-1, y = +m[3];
+    out.push({ y:y, mi:mi, d:d, ts:new Date(y,mi,d).getTime(), r:r });
+  }
+  return out.sort(function(a,b){ return a.ts-b.ts; });
+})();
+const DA_YEARS = Array.from(new Set(DA_ROWS_RAW.map(function(d){ return d.y; }))).sort();
+function daFieldValue(field, day){ return parseSheetNum(day.r[field.col]); }
+/* {mode:'date'|'week'|'month'|'quarter'|'year', value:string} -- identical shape to HFT_COND_STATE /
+   YAD_STATE elsewhere in this file; yaWeekRange/yaQuarterRange/yaHeaderLabel (defined further down,
+   already generic over this exact shape) are reused as-is, not reimplemented. */
+function daDayMatchesState(day, state){
+  if(!state || !state.value) return false;
+  if(state.mode === 'date'){
+    const p = state.value.split('-').map(Number);
+    return day.y===p[0] && day.mi===(p[1]-1) && day.d===p[2];
+  }
+  if(state.mode === 'week'){
+    const range = yaWeekRange(state.value);
+    return !!range && day.ts>=range.start.getTime() && day.ts<=range.end.getTime();
+  }
+  if(state.mode === 'month'){
+    const p = state.value.split('-').map(Number);
+    return day.y===p[0] && day.mi===(p[1]-1);
+  }
+  if(state.mode === 'quarter'){
+    const range = yaQuarterRange(state.value);
+    return !!range && day.ts>=range.start.getTime() && day.ts<=range.end.getTime();
+  }
+  if(state.mode === 'year') return day.y === Number(state.value);
+  return false;
+}
+/* Every snapshot column's own day-set: the date-range filter AND (when either bound is set) the
+   Production > End Production (adt/day) range filter, applied together on the SAME day-set -- per
+   the user's explicit request that the two controls stay "correlated" rather than filtering each
+   metric row independently. */
+function daQualifyingDays(col){
+  return DA_ROWS_RAW.filter(function(day){
+    if(!daDayMatchesState(day, col)) return false;
+    if(col.prodMin != null || col.prodMax != null){
+      const v = DA_PROD_FIELD ? daFieldValue(DA_PROD_FIELD, day) : null;
+      if(v == null) return false;
+      if(col.prodMin != null && v < col.prodMin) return false;
+      if(col.prodMax != null && v > col.prodMax) return false;
+    }
+    return true;
+  });
+}
+function daFieldAverage(field, days){
+  let sum = 0, cnt = 0;
+  days.forEach(function(day){ const v = daFieldValue(field, day); if(v != null){ sum += v; cnt++; } });
+  return cnt ? sum/cnt : null;
+}
+/* ISO week-of-year for a given calendar date -- the reverse of yaWeekRange (which goes value ->
+   range); used only to pick a sensible default week value when a snapshot column's granularity
+   selector switches TO "week" from another mode (carrying the old selection's reference date
+   forward). Same Jan-4-anchored ISO definition as yaWeekRange itself, so the two stay consistent;
+   not exact across a year boundary (falls back to week 52 rather than computing week 53 correctly),
+   which only affects this one convenience default, never the actual date-range math used to filter
+   DA_ROWS_RAW (that's yaWeekRange itself, called straight from the resulting value). */
+function daWeekValueForDate(y, mi, d){
+  const jan4 = new Date(y, 0, 4);
+  const jan4Day = jan4.getDay() || 7;
+  const week1Mon = new Date(y, 0, 4 - jan4Day + 1);
+  const diffDays = Math.round((new Date(y, mi, d) - week1Mon) / 86400000);
+  let week = Math.floor(diffDays/7) + 1, yy = y;
+  if(week < 1){ yy = y - 1; week = 52; }
+  return yy + '-W' + String(week).padStart(2,'0');
+}
+/* Carries the "current period" forward across a granularity switch (e.g. picking "เดือน" right
+   after "วัน" keeps the same month/year the date was in, instead of resetting to blank) by first
+   recovering a reference (y,mi,d) from the OLD mode/value, then reformatting it for the new mode. */
+function daDefaultValueForMode(mode, fromMode, fromValue){
+  let y, mi, d;
+  if(fromMode === 'date' && fromValue){ const p = fromValue.split('-').map(Number); y=p[0]; mi=p[1]-1; d=p[2]; }
+  else if(fromMode === 'month' && fromValue){ const p = fromValue.split('-').map(Number); y=p[0]; mi=p[1]-1; d=1; }
+  else if(fromMode === 'year' && fromValue){ y = Number(fromValue); mi=0; d=1; }
+  else if(fromMode === 'quarter' && fromValue){ const p = fromValue.split('-Q'); y=Number(p[0]); mi=(Number(p[1])-1)*3; d=1; }
+  else if(fromMode === 'week' && fromValue){ const r = yaWeekRange(fromValue); if(r){ y=r.start.getFullYear(); mi=r.start.getMonth(); d=r.start.getDate(); } }
+  if(y == null){
+    const latest = DA_ROWS_RAW.length ? DA_ROWS_RAW[DA_ROWS_RAW.length-1] : null;
+    if(latest){ y=latest.y; mi=latest.mi; d=latest.d; } else { const now=new Date(); y=now.getFullYear(); mi=now.getMonth(); d=now.getDate(); }
+  }
+  if(mode === 'date') return y+'-'+String(mi+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+  if(mode === 'week') return daWeekValueForDate(y, mi, d);
+  if(mode === 'month') return y+'-'+String(mi+1).padStart(2,'0');
+  if(mode === 'quarter') return y+'-Q'+(Math.floor(mi/3)+1);
+  if(mode === 'year') return String(y);
+  return null;
+}
 /* คอลัมน์ (ตำแหน่ง, 0-indexed) ของทุก metric ในชีต Cooking Logsheet — รวมทั้งหมด ยกเว้นคอลัมน์ระบุ
    ตัวแถว (Month/Date/Cooking No./Cooking Batch ACC./Digester no.) คอลัมน์ว่างที่ยังไม่มีการบันทึก
    ข้อมูลจริง (เช่น H-factor, Target cook temp., Bulk density) ก็ยังประกาศไว้เช่นกัน เพียงแต่จะแสดง
@@ -13490,6 +13877,173 @@ function initYaCardCollapse(){
     });
   }
 }
+let DA_COLUMNS = [];
+let DA_NEXT_ID = 1;
+function daColumnHeaderLabel(col){ return yaHeaderLabel({mode:col.mode, value:col.value}); }
+function daSpanCount(fields, startIdx, kind, grpFilter){
+  let n = 0;
+  for(let i=startIdx; i<fields.length; i++){
+    if(kind === 'grp'){ if(fields[i].grp !== fields[startIdx].grp) break; }
+    else { if(fields[i].grp !== grpFilter || fields[i].sub !== fields[startIdx].sub) break; }
+    n++;
+  }
+  return n;
+}
+function daRenderColHeadInner(col){
+  const modeOptions = [['date','วัน'],['week','สัปดาห์'],['month','เดือน'],['quarter','ไตรมาส'],['year','ปี']];
+  const modeSelect = '<select class="da-mode">' + modeOptions.map(function(o){ return '<option value="'+o[0]+'"'+(col.mode===o[0]?' selected':'')+'>'+o[1]+'</option>'; }).join('') + '</select>';
+  let yForQtr = '';
+  if(col.mode === 'quarter' && col.value){ yForQtr = col.value.split('-Q')[0]; }
+  const qtrVal = (col.mode === 'quarter' && col.value) ? col.value.split('-Q')[1] : '1';
+  const dateVal = col.mode === 'date' ? (col.value||'') : '';
+  const weekVal = col.mode === 'week' ? (col.value||'') : '';
+  const monthVal = col.mode === 'month' ? (col.value||'') : '';
+  const yearForSelect = col.mode === 'year' ? (col.value||'') : (col.mode === 'quarter' ? yForQtr : '');
+  const yearOptions = DA_YEARS.map(function(yy){ return '<option value="'+yy+'"'+(String(yy)===String(yearForSelect)?' selected':'')+'>'+yy+'</option>'; }).join('');
+  const quarterOptions = [1,2,3,4].map(function(q){ return '<option value="'+q+'"'+(String(q)===String(qtrVal)?' selected':'')+'>ไตรมาส '+q+'</option>'; }).join('');
+  const label = daColumnHeaderLabel(col);
+  return ''
+    + '<div class="da-col-label">'+(label||'—')+'</div>'
+    + (col.saved ? '' : '<div class="da-col-unsaved">ยังไม่บันทึก</div>')
+    + '<div class="da-col-ctrl-row">'
+      + modeSelect
+      + '<input type="date" class="da-val-date" value="'+dateVal+'"'+(col.mode!=='date'?' hidden':'')+'>'
+      + '<input type="week" class="da-val-week" value="'+weekVal+'"'+(col.mode!=='week'?' hidden':'')+'>'
+      + '<input type="month" class="da-val-month" value="'+monthVal+'"'+(col.mode!=='month'?' hidden':'')+'>'
+      + '<select class="da-val-quarter"'+(col.mode!=='quarter'?' hidden':'')+'>'+quarterOptions+'</select>'
+      + '<select class="da-val-year"'+(!(col.mode==='year'||col.mode==='quarter')?' hidden':'')+'>'+yearOptions+'</select>'
+    + '</div>'
+    + '<div class="da-col-prod-row">'
+      + '<input type="number" class="da-prod-min" placeholder="Min" value="'+(col.prodMin!=null?col.prodMin:'')+'">'
+      + '<span>–</span>'
+      + '<input type="number" class="da-prod-max" placeholder="Max" value="'+(col.prodMax!=null?col.prodMax:'')+'">'
+      + '<span class="da-col-prod-unit">adt/day</span>'
+    + '</div>'
+    + '<div class="da-col-btn-row">'
+      + '<button type="button" class="da-pin'+(col.saved?' pinned':'')+'">'+(col.saved?'📌 บันทึกแล้ว':'📌 บันทึก')+'</button>'
+      + '<button type="button" class="da-del">✕</button>'
+    + '</div>';
+}
+function daRenderTable(){
+  const wrap = document.getElementById('daTableWrap');
+  if(!wrap) return;
+  if(!DA_ROWS_RAW.length){ wrap.innerHTML = '<div class="hft-empty">ไม่มีข้อมูล</div>'; return; }
+  const colDaySets = DA_COLUMNS.map(function(col){ return daQualifyingDays(col); });
+  let html = '<table class="da-table"><thead><tr>'
+    + '<th class="da-fixed-h">กลุ่ม</th><th class="da-fixed-h">กลุ่มย่อย</th><th class="da-fixed-h">รายการ</th><th class="da-fixed-h">หน่วย</th><th class="da-fixed-h">Spec</th>';
+  DA_COLUMNS.forEach(function(col){
+    html += '<th class="da-col-head-cell" data-col-id="'+col.id+'"><div class="da-col-head">'+daRenderColHeadInner(col)+'</div></th>';
+  });
+  html += '</tr></thead><tbody>';
+  DA_FIELDS.forEach(function(f, i){
+    const grpSpan = (i===0 || DA_FIELDS[i-1].grp!==f.grp) ? daSpanCount(DA_FIELDS, i, 'grp') : 0;
+    const subSpan = (i===0 || DA_FIELDS[i-1].grp!==f.grp || DA_FIELDS[i-1].sub!==f.sub) ? daSpanCount(DA_FIELDS, i, 'sub', f.grp) : 0;
+    html += '<tr>';
+    if(grpSpan) html += '<td class="da-fixed da-fixed-grp" rowspan="'+grpSpan+'">'+f.grp+'</td>';
+    if(subSpan) html += '<td class="da-fixed" rowspan="'+subSpan+'">'+(f.sub||'')+'</td>';
+    html += '<td class="da-fixed">'+f.label+'</td>'
+      + '<td class="da-fixed-unit">'+(f.unit||'')+'</td>'
+      + '<td class="da-fixed-spec">'+(f.spec||'')+'</td>';
+    colDaySets.forEach(function(days){
+      const v = daFieldAverage(f, days);
+      html += '<td class="da-val">'+(v==null?'—':hftFmt(v,2))+'</td>';
+    });
+    html += '</tr>';
+  });
+  html += '</tbody></table>';
+  wrap.innerHTML = html;
+}
+function daSaveColumns(){
+  const toSave = DA_COLUMNS.filter(function(c){ return c.saved; }).map(function(c){
+    return { id:c.id, mode:c.mode, value:c.value, prodMin:c.prodMin, prodMax:c.prodMax };
+  });
+  fetch('/api/data-analysis', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({columns:toSave}) }).catch(function(){});
+}
+function daFindCol(id){ return DA_COLUMNS.find(function(c){ return String(c.id)===String(id); }); }
+function daBindControls(){
+  const wrap = document.getElementById('daTableWrap');
+  const addBtn = document.getElementById('daAddColBtn');
+  if(wrap){
+    wrap.addEventListener('change', function(e){
+      const th = e.target.closest('[data-col-id]');
+      if(!th) return;
+      const col = daFindCol(th.dataset.colId);
+      if(!col) return;
+      const cls = e.target.classList;
+      if(cls.contains('da-mode')){
+        const newMode = e.target.value;
+        col.value = daDefaultValueForMode(newMode, col.mode, col.value);
+        col.mode = newMode;
+      } else if(cls.contains('da-val-date') || cls.contains('da-val-week') || cls.contains('da-val-month')){
+        col.value = e.target.value || null;
+      } else if(cls.contains('da-val-quarter')){
+        const y = col.mode==='quarter' && col.value ? col.value.split('-Q')[0] : String(DA_YEARS[DA_YEARS.length-1]||'');
+        col.value = y+'-Q'+e.target.value;
+      } else if(cls.contains('da-val-year')){
+        if(col.mode === 'year') col.value = e.target.value;
+        else if(col.mode === 'quarter'){ const q = col.value ? col.value.split('-Q')[1] : '1'; col.value = e.target.value+'-Q'+q; }
+      } else if(cls.contains('da-prod-min')){
+        col.prodMin = e.target.value==='' ? null : Number(e.target.value);
+      } else if(cls.contains('da-prod-max')){
+        col.prodMax = e.target.value==='' ? null : Number(e.target.value);
+      } else {
+        return;
+      }
+      daRenderTable();
+    });
+    wrap.addEventListener('click', function(e){
+      const th = e.target.closest('[data-col-id]');
+      if(!th) return;
+      const col = daFindCol(th.dataset.colId);
+      if(!col) return;
+      if(e.target.classList.contains('da-pin')){
+        col.saved = true;
+        daSaveColumns();
+        daRenderTable();
+      } else if(e.target.classList.contains('da-del')){
+        const wasSaved = col.saved;
+        DA_COLUMNS = DA_COLUMNS.filter(function(c){ return c.id !== col.id; });
+        if(wasSaved) daSaveColumns();
+        daRenderTable();
+      }
+    });
+  }
+  if(addBtn){
+    addBtn.addEventListener('click', function(){
+      const latest = DA_ROWS_RAW.length ? DA_ROWS_RAW[DA_ROWS_RAW.length-1] : null;
+      const latestDateStr = latest ? (latest.y+'-'+String(latest.mi+1).padStart(2,'0')+'-'+String(latest.d).padStart(2,'0')) : null;
+      DA_NEXT_ID += 1;
+      DA_COLUMNS.push({ id:DA_NEXT_ID, mode:'date', value:latestDateStr, prodMin:null, prodMax:null, saved:false });
+      daRenderTable();
+    });
+  }
+}
+/* Seeds DA_COLUMNS from the shared/pinned store (DA_SAVED_COLUMNS_REMOTE, loaded at boot) so every
+   viewer sees the same saved columns in the same order; when nothing has ever been pinned yet,
+   falls back to the sheet template's own 3 unconfigured (local-only) snapshot-column slots. */
+function initDataAnalysisPage(){
+  const wrap = document.getElementById('daTableWrap');
+  if(!wrap) return;
+  if(!DA_ROWS_RAW.length){ wrap.innerHTML = '<div class="hft-empty">ไม่มีข้อมูล</div>'; return; }
+  const latest = DA_ROWS_RAW[DA_ROWS_RAW.length-1];
+  const latestDateStr = latest.y+'-'+String(latest.mi+1).padStart(2,'0')+'-'+String(latest.d).padStart(2,'0');
+  if(DA_SAVED_COLUMNS_REMOTE.length){
+    DA_COLUMNS = DA_SAVED_COLUMNS_REMOTE.map(function(c){
+      const id = (typeof c.id === 'number') ? c.id : (DA_NEXT_ID++);
+      if(id >= DA_NEXT_ID) DA_NEXT_ID = id + 1;
+      return {
+        id:id, mode:c.mode||'date', value:c.value||latestDateStr,
+        prodMin:(typeof c.prodMin==='number')?c.prodMin:null, prodMax:(typeof c.prodMax==='number')?c.prodMax:null,
+        saved:true,
+      };
+    });
+  } else {
+    DA_COLUMNS = [1,2,3].map(function(id){ DA_NEXT_ID = id+1; return { id:id, mode:'date', value:latestDateStr, prodMin:null, prodMax:null, saved:false }; });
+  }
+  daBindControls();
+  daRenderTable();
+}
+
 function initChipMon(){
   if(!CHIP_MON_ROWS.length) return;
   // apply any saved group order + wire drag-and-drop grips before the tile render loop below,
@@ -13508,6 +14062,7 @@ function initChipMon(){
   initHftNToggle();
   initHftMonthlyTargetKappaInput();
   initHFactorConditionControls();
+  initDataAnalysisPage();
   initYaCardCollapse();
   initWoodCmp();
   initWoodStackAll();
