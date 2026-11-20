@@ -1011,6 +1011,7 @@
           <button class="nav-item" data-page="process-cooking"><span class="nav-label" data-i18n-nav="navProcessCooking">Cooking</span></button>
           <button class="nav-item" data-page="process-brownstock"><span class="nav-label" data-i18n-nav="navProcessBrownStock">Brown stock</span></button>
           <button class="nav-item" data-page="process-bleaching"><span class="nav-label" data-i18n-nav="navProcessBleaching">Bleaching</span></button>
+          <button class="nav-item" data-page="daily-data"><span class="nav-label" data-i18n-nav="navProcessDailyData">Daily data</span></button>
         </div>
       </div>
       <button class="nav-item" data-page="h-factor-tuning"><span style="display:flex; align-items:center; min-width:0;"><span class="nav-ico">🧪</span><span class="nav-label" data-i18n-nav="navHFactorTuning">H-Factor Tuning Model</span></span></button>
@@ -2836,6 +2837,128 @@
           <div class="foot" id="bleachFoot" hidden>
             ที่มา: Google Sheets tab "Bleaching Logsheet" (<code>gid=1596215251</code>) · หนึ่งแถวในชีต = หนึ่งชั่วโมง (คอลัมน์ TIME) · ทุกคอลัมน์ของชีตถูกนำมาแสดง ยกเว้นคอลัมน์ระบุตัวแถว (Month/Date/TIME) และคอลัมน์ข้อความ/หมวดหมู่ (Mode APC/Valmet/OPC, O2 Type, make up, Switch Pulp to HD, pulp grade) ที่ไม่ใช่ตัวเลข · กลุ่มตามหมวดหมู่ที่มีอยู่แล้วในหัวตารางของชีต (รวมกลุ่มย่อยท้ายชีตหลัง "TOTAL" ที่มีคอลัมน์เดียวจำนวนมาก เช่น ClO2/OWL/LC/NaOH/Dirt-Shive/White water/F-factor/จุดวัดอุณหภูมิ เข้าเป็นกลุ่ม Summary / Totals กลุ่มเดียว)<br>กราฟแสดงทุกชั่วโมงเป็นจุดข้อมูลของตัวเอง (ไม่เฉลี่ยรวมรายวัน) โดยแกน x ระบุทั้งวันที่และเวลา (ชั่วโมง:นาที) · ตัวเลขสรุปบนกรอบหลัก (ค่าล่าสุด/ค่าเฉลี่ย 7 วัน) คำนวณจากค่าเฉลี่ยรายวันตามปกติ<br>COD Effluent: ที่มา Google Sheets tab "Morning" (<code>gid=1162647187</code>) · หนึ่งแถวในชีต = หนึ่งวัน (คอลัมน์ A) · ตัวเลขสรุปบนกรอบหลักคำนวณจากค่าเฉลี่ยรายวันตามปกติ
           </div>
+        </section>
+        <section class="page" data-page="daily-data" hidden>
+          <div class="hft-head">
+            <h2>Daily data</h2>
+            <p>กราฟรายวันแยกตามกลุ่ม ดึงข้อมูลจากชีท "Data" (gid 530791002) ตามคอลัมภ์เดียวกับตาราง Data for analysis -- คลิกที่บล็อกค่าใดก็ได้เพื่อดูประวัติย้อนหลังเป็นกราฟ</p>
+          </div>
+          <div id="chipDailyDataHost">
+            <div class="mon-group">
+              <div class="mon-group-head"><span class="gi">📦</span><span class="gt">Production</span><span class="gs">5 ค่า · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
+              <div class="mon-tiles" id="chipTiles_ddProduction"></div>
+              <div class="mon-detail" id="chipDetail_ddProduction" hidden></div>
+            </div>
+            <div class="mon-group">
+              <div class="mon-group-head"><span class="gi">🪵</span><span class="gt">Woodhandling</span><span class="gs">12 ค่า · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
+              <div class="mon-tiles" id="chipTiles_ddWoodhandling"></div>
+              <div class="mon-detail" id="chipDetail_ddWoodhandling" hidden></div>
+            </div>
+            <div class="mon-group">
+              <div class="mon-group-head"><span class="gi">🔥</span><span class="gt">Cooking</span><span class="gs">67 ค่า · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
+              <div class="mon-tiles" id="chipTiles_ddCooking"></div>
+              <div class="mon-detail" id="chipDetail_ddCooking" hidden></div>
+            </div>
+            <div class="mon-group">
+              <div class="mon-group-head"><span class="gi">🧼</span><span class="gt">Washing</span><span class="gs">18 ค่า · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
+              <div class="mon-tiles" id="chipTiles_ddWashing"></div>
+              <div class="mon-detail" id="chipDetail_ddWashing" hidden></div>
+            </div>
+            <div class="mon-group">
+              <div class="mon-group-head"><span class="gi">💨</span><span class="gt">Oxygen Delignification</span><span class="gs">20 ค่า · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
+              <div class="mon-tiles" id="chipTiles_ddOxygenDelignification"></div>
+              <div class="mon-detail" id="chipDetail_ddOxygenDelignification" hidden></div>
+            </div>
+            <div class="mon-group">
+              <div class="mon-group-head"><span class="gi">🪢</span><span class="gt">Knot</span><span class="gs">1 ค่า · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
+              <div class="mon-tiles" id="chipTiles_ddKnot"></div>
+              <div class="mon-detail" id="chipDetail_ddKnot" hidden></div>
+            </div>
+            <div class="mon-group">
+              <div class="mon-group-head"><span class="gi">⚪</span><span class="gt">White</span><span class="gs">1 ค่า · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
+              <div class="mon-tiles" id="chipTiles_ddWhite"></div>
+              <div class="mon-detail" id="chipDetail_ddWhite" hidden></div>
+            </div>
+            <div class="mon-group">
+              <div class="mon-group-head"><span class="gi">💧</span><span class="gt">ETP</span><span class="gs">2 ค่า · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
+              <div class="mon-tiles" id="chipTiles_ddEtp"></div>
+              <div class="mon-detail" id="chipDetail_ddEtp" hidden></div>
+            </div>
+            <div class="mon-group">
+              <div class="mon-group-head"><span class="gi">🧪</span><span class="gt">ClO2</span><span class="gs">1 ค่า · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
+              <div class="mon-tiles" id="chipTiles_ddClo2"></div>
+              <div class="mon-detail" id="chipDetail_ddClo2" hidden></div>
+            </div>
+            <div class="mon-group">
+              <div class="mon-group-head"><span class="gi">🌬️</span><span class="gt">Pre Bleaching</span><span class="gs">11 ค่า · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
+              <div class="mon-tiles" id="chipTiles_ddPreBleaching"></div>
+              <div class="mon-detail" id="chipDetail_ddPreBleaching" hidden></div>
+            </div>
+            <div class="mon-group">
+              <div class="mon-group-head"><span class="gi">💛</span><span class="gt">D0</span><span class="gs">13 ค่า · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
+              <div class="mon-tiles" id="chipTiles_ddD0"></div>
+              <div class="mon-detail" id="chipDetail_ddD0" hidden></div>
+            </div>
+            <div class="mon-group">
+              <div class="mon-group-head"><span class="gi">🔵</span><span class="gt">EOP</span><span class="gs">17 ค่า · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
+              <div class="mon-tiles" id="chipTiles_ddEop"></div>
+              <div class="mon-detail" id="chipDetail_ddEop" hidden></div>
+            </div>
+            <div class="mon-group">
+              <div class="mon-group-head"><span class="gi">⚪</span><span class="gt">D1</span><span class="gs">13 ค่า · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
+              <div class="mon-tiles" id="chipTiles_ddD1"></div>
+              <div class="mon-detail" id="chipDetail_ddD1" hidden></div>
+            </div>
+            <div class="mon-group">
+              <div class="mon-group-head"><span class="gi">🧹</span><span class="gt">Stage Cleaner No.5</span><span class="gs">1 ค่า · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
+              <div class="mon-tiles" id="chipTiles_ddStageCleanerNo5"></div>
+              <div class="mon-detail" id="chipDetail_ddStageCleanerNo5" hidden></div>
+            </div>
+            <div class="mon-group">
+              <div class="mon-group-head"><span class="gi">🛢️</span><span class="gt">LC tank</span><span class="gs">2 ค่า · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
+              <div class="mon-tiles" id="chipTiles_ddLcTank"></div>
+              <div class="mon-detail" id="chipDetail_ddLcTank" hidden></div>
+            </div>
+            <div class="mon-group">
+              <div class="mon-group-head"><span class="gi">🌀</span><span class="gt">Decker</span><span class="gs">4 ค่า · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
+              <div class="mon-tiles" id="chipTiles_ddDecker"></div>
+              <div class="mon-detail" id="chipDetail_ddDecker" hidden></div>
+            </div>
+            <div class="mon-group">
+              <div class="mon-group-head"><span class="gi">📥</span><span class="gt">Feed to Wet Lap (HD1)</span><span class="gs">3 ค่า · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
+              <div class="mon-tiles" id="chipTiles_ddFeedToWetLapHd1"></div>
+              <div class="mon-detail" id="chipDetail_ddFeedToWetLapHd1" hidden></div>
+            </div>
+            <div class="mon-group">
+              <div class="mon-group-head"><span class="gi">⚙️</span><span class="gt">Before Refiner</span><span class="gs">4 ค่า · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
+              <div class="mon-tiles" id="chipTiles_ddBeforeRefiner"></div>
+              <div class="mon-detail" id="chipDetail_ddBeforeRefiner" hidden></div>
+            </div>
+            <div class="mon-group">
+              <div class="mon-group-head"><span class="gi">💦</span><span class="gt">White water</span><span class="gs">2 ค่า · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
+              <div class="mon-tiles" id="chipTiles_ddWhiteWater"></div>
+              <div class="mon-detail" id="chipDetail_ddWhiteWater" hidden></div>
+            </div>
+            <div class="mon-group">
+              <div class="mon-group-head"><span class="gi">🛢️</span><span class="gt">HD1 Tank</span><span class="gs">1 ค่า · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
+              <div class="mon-tiles" id="chipTiles_ddHd1Tank"></div>
+              <div class="mon-detail" id="chipDetail_ddHd1Tank" hidden></div>
+            </div>
+            <div class="mon-group">
+              <div class="mon-group-head"><span class="gi">🛢️</span><span class="gt">HD2 Tank</span><span class="gs">1 ค่า · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
+              <div class="mon-tiles" id="chipTiles_ddHd2Tank"></div>
+              <div class="mon-detail" id="chipDetail_ddHd2Tank" hidden></div>
+            </div>
+            <div class="mon-group">
+              <div class="mon-group-head"><span class="gi">📜</span><span class="gt">Paper Mill</span><span class="gs">8 ค่า · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
+              <div class="mon-tiles" id="chipTiles_ddPaperMill"></div>
+              <div class="mon-detail" id="chipDetail_ddPaperMill" hidden></div>
+            </div>
+            <div class="mon-group">
+              <div class="mon-group-head"><span class="gi">🔬</span><span class="gt">Tested by PM</span><span class="gs">2 ค่า · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
+              <div class="mon-tiles" id="chipTiles_ddTestedByPm"></div>
+              <div class="mon-detail" id="chipDetail_ddTestedByPm" hidden></div>
+            </div>          </div>
         </section>
 
       </div>
@@ -5696,12 +5819,13 @@ const PAGE_META = {
   'process-cooking':{th:'Cooking', en:'Cooking', hasData:false},
   'process-brownstock':{th:'Brown stock', en:'Brown stock', hasData:false},
   'process-bleaching':{th:'Bleaching', en:'Bleaching', hasData:false},
+  'daily-data':{th:'Daily data', en:'Daily data', hasData:false},
 };
 
 const I18N = {
   th:{
     navProduction:'Production', navProductionPm1:'Pulp mill 1', navProductionPm2:'Pulp mill 2', navProductionPm12:'Pulp mill 1+2', navYield:'Yield', navYieldWeightScale:'Weight scale digester', navCostSensitivity:'Sensitivity', navHFactorTuning:'H-Factor Tuning Model', navDataAnalysis:'Data for analysis',
-    navProcessArea:'Process area', navProcessRawMaterial:'Raw material', navProcessCooking:'Cooking', navProcessBrownStock:'Brown stock', navProcessBleaching:'Bleaching',
+    navProcessArea:'Process area', navProcessRawMaterial:'Raw material', navProcessCooking:'Cooking', navProcessBrownStock:'Brown stock', navProcessBleaching:'Bleaching', navProcessDailyData:'Daily data',
     searchPlaceholder:'ค้นหา KPI (Search metrics)',
     lastDataAt:'ข้อมูลล่าสุด ณ', noDataYet:'ยังไม่เชื่อมต่อแหล่งข้อมูล',
     refreshTitle:'รีเฟรชข้อมูลล่าสุด (โหลดหน้าใหม่ — ดึงข้อมูลสดจาก Google Sheets ทันที)',
@@ -5717,7 +5841,7 @@ const I18N = {
   },
   en:{
     navProduction:'Production', navProductionPm1:'Pulp mill 1', navProductionPm2:'Pulp mill 2', navProductionPm12:'Pulp mill 1+2', navYield:'Yield', navYieldWeightScale:'Weight scale digester', navCostSensitivity:'Sensitivity', navHFactorTuning:'H-Factor Tuning Model', navDataAnalysis:'Data for analysis',
-    navProcessArea:'Process area', navProcessRawMaterial:'Raw material', navProcessCooking:'Cooking', navProcessBrownStock:'Brown stock', navProcessBleaching:'Bleaching',
+    navProcessArea:'Process area', navProcessRawMaterial:'Raw material', navProcessCooking:'Cooking', navProcessBrownStock:'Brown stock', navProcessBleaching:'Bleaching', navProcessDailyData:'Daily data',
     searchPlaceholder:'Search metrics',
     lastDataAt:'Latest data as of', noDataYet:'No data source connected yet',
     refreshTitle:'Refresh latest data (reloads the page — fetches live data directly from Google Sheets)',
@@ -6648,6 +6772,34 @@ const CHIP_MON_GROUPS = [
   {id:'blD1',          ico:'⚪', th:'D1 Stage', rail:'#2A8C6E', chartType:'line', page:'process-bleaching'},
   {id:'blSummary',     ico:'📊', th:'Summary / Totals', rail:'#455A64', chartType:'line', page:'process-bleaching'},
   {id:'blCodEffluent', ico:'🧪', th:'COD Effluent', rail:'#8E24AA', chartType:'line', page:'process-bleaching'},
+  /* Process area > Daily data -- one group per "Data for analysis" sheet-template group (23 of
+     them, same fixed order as DA_GROUP_ORDER/DA_FIELD_TUPLES), reusing the exact same column
+     mapping into the "Data" sheet (gid 530791002) that page already resolves -- see DD_GROUP_IDS
+     below for the shared src:'dataForAnalysis' assignment. Rail colors cycle the same 12-hue family
+     as that page's own row-tint palette, so the two pages feel like the same system. */
+  {id:'ddProduction', ico:'📦', th:'Production', rail:'#3069a6', chartType:'line', page:'daily-data'},
+  {id:'ddWoodhandling', ico:'🪵', th:'Woodhandling', rail:'#a64c30', chartType:'line', page:'daily-data'},
+  {id:'ddCooking', ico:'🔥', th:'Cooking', rail:'#a67930', chartType:'line', page:'daily-data'},
+  {id:'ddWashing', ico:'🧼', th:'Washing', rail:'#61a630', chartType:'line', page:'daily-data'},
+  {id:'ddOxygenDelignification', ico:'💨', th:'Oxygen Delignification', rail:'#30a675', chartType:'line', page:'daily-data'},
+  {id:'ddKnot', ico:'🪢', th:'Knot', rail:'#30a0a6', chartType:'line', page:'daily-data'},
+  {id:'ddWhite', ico:'⚪', th:'White', rail:'#4030a6', chartType:'line', page:'daily-data'},
+  {id:'ddEtp', ico:'💧', th:'ETP', rail:'#a63057', chartType:'line', page:'daily-data'},
+  {id:'ddClo2', ico:'🧪', th:'ClO2', rail:'#9a30a6', chartType:'line', page:'daily-data'},
+  {id:'ddPreBleaching', ico:'🌬️', th:'Pre Bleaching', rail:'#9ca630', chartType:'line', page:'daily-data'},
+  {id:'ddD0', ico:'💛', th:'D0', rail:'#30a630', chartType:'line', page:'daily-data'},
+  {id:'ddEop', ico:'🔵', th:'EOP', rail:'#a63085', chartType:'line', page:'daily-data'},
+  {id:'ddD1', ico:'⚪', th:'D1', rail:'#3069a6', chartType:'line', page:'daily-data'},
+  {id:'ddStageCleanerNo5', ico:'🧹', th:'Stage Cleaner No.5', rail:'#a64c30', chartType:'line', page:'daily-data'},
+  {id:'ddLcTank', ico:'🛢️', th:'LC tank', rail:'#a67930', chartType:'line', page:'daily-data'},
+  {id:'ddDecker', ico:'🌀', th:'Decker', rail:'#61a630', chartType:'line', page:'daily-data'},
+  {id:'ddFeedToWetLapHd1', ico:'📥', th:'Feed to Wet Lap (HD1)', rail:'#30a675', chartType:'line', page:'daily-data'},
+  {id:'ddBeforeRefiner', ico:'⚙️', th:'Before Refiner', rail:'#30a0a6', chartType:'line', page:'daily-data'},
+  {id:'ddWhiteWater', ico:'💦', th:'White water', rail:'#4030a6', chartType:'line', page:'daily-data'},
+  {id:'ddHd1Tank', ico:'🛢️', th:'HD1 Tank', rail:'#a63057', chartType:'line', page:'daily-data'},
+  {id:'ddHd2Tank', ico:'🛢️', th:'HD2 Tank', rail:'#9a30a6', chartType:'line', page:'daily-data'},
+  {id:'ddPaperMill', ico:'📜', th:'Paper Mill', rail:'#9ca630', chartType:'line', page:'daily-data'},
+  {id:'ddTestedByPm', ico:'🔬', th:'Tested by PM', rail:'#30a630', chartType:'line', page:'daily-data'},
 ];
 /* Cooking/Brown stock/Bleaching charts default to the latest single day, not the dashboard-wide
    14d default — a one-off for this round's instruction, scoped to these 3 pages only; any group
@@ -7366,7 +7518,224 @@ CHIP_MON_META.push(
 );
 const PLS_BLEACHING_GROUP_IDS = ['blBleach','blPreBleach','blD0','blEop','blD1','blSummary'];
 CHIP_MON_META.forEach(function(m){ if(PLS_BLEACHING_GROUP_IDS.indexOf(m.grp) >= 0) m.src = 'bleaching'; });
-const CHIP_MON_ROWS_BY_SRC = { main: CHIP_MON_ROWS, cooking: PLS_COOKING_ROWS, brownStock: PLS_BROWNSTOCK_ROWS, bleaching: PLS_BLEACHING_ROWS, morningLog: MORNING_ROWS };
+const CHIP_MON_ROWS_BY_SRC = { main: CHIP_MON_ROWS, cooking: PLS_COOKING_ROWS, brownStock: PLS_BROWNSTOCK_ROWS, bleaching: PLS_BLEACHING_ROWS, morningLog: MORNING_ROWS, dataForAnalysis: DA_ROWS_RAW };
+/* Process area > Daily data -- reuses DA_ROWS_RAW (the "Data" sheet's own daily rows, already
+   resolved by the "Data for analysis" page above) as a new CHIP_MON source, so every one of its
+   209 metrics (same column mapping as DA_FIELD_TUPLES) gets the exact same tile + click-to-expand
+   history chart treatment as Cooking/Brown stock/Bleaching above, with zero new rendering code. */
+CHIP_MON_META.push(
+  {key:'dd001EndProduction', col:1096, th:'End Production', unit:'Adt/day', dec:2, grp:'ddProduction', scored:false},
+  {key:'dd002BatchPerDay', col:558, th:'Batch per day', unit:'Adt/day', dec:2, grp:'ddProduction', scored:false},
+  {key:'dd003CookingProduction', col:559, th:'Cooking Production', unit:'Adt/day', dec:2, grp:'ddProduction', scored:false},
+  {key:'dd004BrownStockProduction', col:695, th:'Brown Stock Production', unit:'Adt/day', dec:2, grp:'ddProduction', scored:false},
+  {key:'dd005BleachingProduction', col:753, th:'Bleaching Production', unit:'Adt/day', dec:2, grp:'ddProduction', scored:false},
+  {key:'dd006Pulp1BulkDensity', col:1048, th:'Wood Chip – Pulp 1 Bulk density', unit:'', dec:2, grp:'ddWoodhandling', scored:false},
+  {key:'dd007Pulp1BulkDensityDryness', col:1049, th:'Wood Chip – Pulp 1 Bulk density *Dryness', unit:'', dec:2, grp:'ddWoodhandling', scored:false},
+  {key:'dd008Pulp1ChipDryness', col:1050, th:'Wood Chip – Pulp 1 Chip Dryness', unit:'', dec:2, grp:'ddWoodhandling', scored:false},
+  {key:'dd009Pulp1ChipMoistureLab', col:1051, th:'Wood Chip – Pulp 1 Chip Moisture (Lab)', unit:'', dec:2, grp:'ddWoodhandling', scored:false},
+  {key:'dd010Pulp1Fine48', col:1052, th:'Wood Chip – Pulp 1 Fine, <4.8', unit:'', dec:2, grp:'ddWoodhandling', scored:false},
+  {key:'dd011Pulp1Pin9548', col:1053, th:'Wood Chip – Pulp 1 Pin, 9.5-4.8', unit:'', dec:2, grp:'ddWoodhandling', scored:false},
+  {key:'dd012Pulp1Accept222295', col:1054, th:'Wood Chip – Pulp 1 Accept 2, 22.2-9.5', unit:'', dec:2, grp:'ddWoodhandling', scored:false},
+  {key:'dd013Pulp1Accept1286222', col:1055, th:'Wood Chip – Pulp 1 Accept 1, 28.6-22.2', unit:'', dec:2, grp:'ddWoodhandling', scored:false},
+  {key:'dd014Pulp1OverThick450286', col:1056, th:'Wood Chip – Pulp 1 Over Thick, 45.0-28.6', unit:'', dec:2, grp:'ddWoodhandling', scored:false},
+  {key:'dd015Pulp1OverSize450Mm', col:1057, th:'Wood Chip – Pulp 1 Over size >45.0 mm', unit:'', dec:2, grp:'ddWoodhandling', scored:false},
+  {key:'dd016Pulp1Acc12Pin28648', col:1058, th:'Wood Chip – Pulp 1 Acc1+2+Pin, 28.6-4.8', unit:'', dec:2, grp:'ddWoodhandling', scored:false},
+  {key:'dd017Pulp1Bark', col:1059, th:'Wood Chip – Pulp 1 Bark', unit:'', dec:2, grp:'ddWoodhandling', scored:false},
+  {key:'dd018ChipFlow', col:573, th:'Chip Filling – Chip flow', unit:'GT/min', dec:2, grp:'ddCooking', scored:false},
+  {key:'dd019PackingSteamRatio', col:569, th:'Chip Filling – Packing Steam ratio', unit:'', dec:2, grp:'ddCooking', scored:false},
+  {key:'dd020PressurePackingSteamCal', col:570, th:'Chip Filling – Pressure packing steam (Cal.)', unit:'bar', dec:2, grp:'ddCooking', scored:false},
+  {key:'dd021PresteamingTempTarget', col:582, th:'Pre Steaming & Pre Heating – Presteaming temp. target', unit:'C', dec:2, grp:'ddCooking', scored:false},
+  {key:'dd022PreheatingTempTarget', col:583, th:'Pre Steaming & Pre Heating – Preheating temp target', unit:'C', dec:2, grp:'ddCooking', scored:false},
+  {key:'dd023EaChargeSetPoint', col:586, th:'Hot Liquor Filling – EA charge Set point', unit:'ton EA/batch', dec:2, grp:'ddCooking', scored:false},
+  {key:'dd024EaChargeActual', col:587, th:'Hot Liquor Filling – EA charge Actual', unit:'%', dec:2, grp:'ddCooking', scored:false},
+  {key:'dd025Neu', col:588, th:'Hot Liquor Filling – NEU', unit:'%', dec:2, grp:'ddCooking', scored:false},
+  {key:'dd026WlTemp', col:592, th:'Hot Liquor Filling – WL Temp.', unit:'C', dec:2, grp:'ddCooking', scored:false},
+  {key:'dd027HwlAccTargetTemp', col:594, th:'Hot Liquor Filling – HWL. Acc. Target Temp', unit:'C', dec:2, grp:'ddCooking', scored:false},
+  {key:'dd028HwlAccTemp', col:595, th:'Hot Liquor Filling – HWL. Acc. Temp', unit:'C', dec:2, grp:'ddCooking', scored:false},
+  {key:'dd029HblAcc1TargetTemp', col:597, th:'Hot Liquor Filling – HBL. Acc. 1 Target Temp', unit:'C', dec:2, grp:'ddCooking', scored:false},
+  {key:'dd030HblAcc1Temp', col:598, th:'Hot Liquor Filling – HBL. Acc. 1 Temp', unit:'C', dec:2, grp:'ddCooking', scored:false},
+  {key:'dd031HwlNueTargetAmount', col:599, th:'Hot Liquor Filling – HWL Nue. target amount', unit:'m3/batch', dec:2, grp:'ddCooking', scored:false},
+  {key:'dd032HwlNueRealAmount', col:600, th:'Hot Liquor Filling – HWL Nue. real amount', unit:'m3/batch', dec:2, grp:'ddCooking', scored:false},
+  {key:'dd033HblHwlTargetAmount', col:601, th:'Hot Liquor Filling – HBL + HWL target amount', unit:'m3/batch', dec:2, grp:'ddCooking', scored:false},
+  {key:'dd034HblRealAmount', col:602, th:'Hot Liquor Filling – HBL real amount', unit:'m3/batch', dec:2, grp:'ddCooking', scored:false},
+  {key:'dd035LastHwlTargetAmount', col:603, th:'Hot Liquor Filling – Last HWL.target amount', unit:'m3/batch', dec:2, grp:'ddCooking', scored:false},
+  {key:'dd036LastHwlRealAmount', col:604, th:'Hot Liquor Filling – Last HWL.real amount', unit:'m3/batch', dec:2, grp:'ddCooking', scored:false},
+  {key:'dd037LastHwlRealAmount', col:605, th:'Hot Liquor Filling – Last HWL.real amount', unit:'m3/day', dec:2, grp:'ddCooking', scored:false},
+  {key:'dd038WlSplitChargeHblAcc1', col:606, th:'Hot Liquor Filling – WL Split Charge HBL ACC1', unit:'m3/day', dec:2, grp:'ddCooking', scored:false},
+  {key:'dd039WlSplitChargeP009', col:607, th:'Hot Liquor Filling – WL Split Charge  P009', unit:'m3/day', dec:2, grp:'ddCooking', scored:false},
+  {key:'dd040WlChargeToDigester', col:608, th:'Hot Liquor Filling – WL Charge to digester', unit:'m3/batch', dec:2, grp:'ddCooking', scored:false},
+  {key:'dd041WlChargeToDigester', col:609, th:'Hot Liquor Filling – WL Charge to digester', unit:'m3/day', dec:2, grp:'ddCooking', scored:false},
+  {key:'dd042WlChargeToDigester', col:610, th:'Hot Liquor Filling – WL Charge to digester', unit:'Ton EA/batch', dec:2, grp:'ddCooking', scored:false},
+  {key:'dd043WlChargeToDigester', col:611, th:'Hot Liquor Filling – WL Charge to digester', unit:'Ton EA/day', dec:2, grp:'ddCooking', scored:false},
+  {key:'dd044TotalWlConsump', col:612, th:'Hot Liquor Filling – Total WL Consump.', unit:'m3/day', dec:2, grp:'ddCooking', scored:false},
+  {key:'dd045TotalWlConsump', col:613, th:'Hot Liquor Filling – Total WL Consump.', unit:'Ton EA/day', dec:2, grp:'ddCooking', scored:false},
+  {key:'dd046WeightScaleAfterHlf', col:614, th:'Hot Liquor Filling – Weight Scale After HLF', unit:'ton/batch', dec:2, grp:'ddCooking', scored:false},
+  {key:'dd047TargetCookTemp', col:616, th:'Heat & Cook – Target cook temp.', unit:'C', dec:2, grp:'ddCooking', scored:false},
+  {key:'dd048TempAfterCirculationTemp', col:617, th:'Heat & Cook – Temp.after circulation. (Temp เริ่มต้น)', unit:'C', dec:2, grp:'ddCooking', scored:false},
+  {key:'dd049TempAfterCirculationTemp', col:618, th:'Heat & Cook – Temp.after circulation. (Temp สูงสุด)', unit:'C', dec:2, grp:'ddCooking', scored:false},
+  {key:'dd050MpSteamDirectCharge', col:619, th:'Heat & Cook – MP Steam direct charge', unit:'min', dec:2, grp:'ddCooking', scored:false},
+  {key:'dd051SetPointHFactorApc', col:620, th:'Heat & Cook – Set point H-factor(APC)', unit:'', dec:2, grp:'ddCooking', scored:false},
+  {key:'dd052TargetHFactor', col:621, th:'Heat & Cook – Target H-factor', unit:'', dec:2, grp:'ddCooking', scored:false},
+  {key:'dd053RealHFactor', col:622, th:'Heat & Cook – Real H-factor', unit:'', dec:2, grp:'ddCooking', scored:false},
+  {key:'dd054CirculationPumpLoading', col:623, th:'Heat & Cook – Circulation Pump Loading', unit:'%', dec:2, grp:'ddCooking', scored:false},
+  {key:'dd055HCScreenPressureDiff', col:624, th:'Heat & Cook – H&C Screen pressure Diff.', unit:'bar', dec:2, grp:'ddCooking', scored:false},
+  {key:'dd056HCScreenPressureDiff020Peak', col:625, th:'Heat & Cook – H&C Screen pressure Diff. (> +/- 0.20 Peak)', unit:'bar', dec:2, grp:'ddCooking', scored:false},
+  {key:'dd057HCScreenPressureDiff020', col:626, th:'Heat & Cook – H&C Screen pressure Diff. (+/- 0.20)', unit:'times', dec:2, grp:'ddCooking', scored:false},
+  {key:'dd058DisplacementAmount', col:629, th:'Displacement – Displacement amount', unit:'m3/batch', dec:2, grp:'ddCooking', scored:false},
+  {key:'dd059DplScreenPressureDiff', col:630, th:'Displacement – DPL Screen pressure Diff.', unit:'bar', dec:2, grp:'ddCooking', scored:false},
+  {key:'dd060DplScreenPressureDiff020Peak', col:631, th:'Displacement – DPL Screen pressure Diff. (> +/- 0.20 Peak)', unit:'bar', dec:2, grp:'ddCooking', scored:false},
+  {key:'dd061DplScreenPressureDiff020', col:632, th:'Displacement – DPL Screen pressure Diff. (+/- 0.20)', unit:'times', dec:2, grp:'ddCooking', scored:false},
+  {key:'dd062DisplacementFlow30Ton', col:633, th:'Displacement – Displacement flow (< 30 ton)', unit:'l/s', dec:2, grp:'ddCooking', scored:false},
+  {key:'dd063DisplacementFlow100Ton', col:634, th:'Displacement – Displacement flow (< 100 ton)', unit:'l/s', dec:2, grp:'ddCooking', scored:false},
+  {key:'dd064DisplacementFlow150Ton', col:635, th:'Displacement – Displacement flow (< 150 ton)', unit:'l/s', dec:2, grp:'ddCooking', scored:false},
+  {key:'dd065DisplacementFlow150Ton', col:636, th:'Displacement – Displacement flow (> 150 ton)', unit:'l/s', dec:2, grp:'ddCooking', scored:false},
+  {key:'dd066TempAfterCirculation', col:637, th:'Displacement – Temp.after circulation.', unit:'C', dec:2, grp:'ddCooking', scored:false},
+  {key:'dd067DischargeLevelBeforeDischarge', col:640, th:'Discharge – Discharge level before discharge', unit:'%', dec:2, grp:'ddCooking', scored:false},
+  {key:'dd068DilutionAmount', col:641, th:'Discharge – Dilution amount.', unit:'m3', dec:2, grp:'ddCooking', scored:false},
+  {key:'dd069AverageConsistency', col:642, th:'Discharge – Average Consistency', unit:'%', dec:2, grp:'ddCooking', scored:false},
+  {key:'dd070MaximumDischargeTemp', col:643, th:'Discharge – Maximum discharge temp.', unit:'C', dec:2, grp:'ddCooking', scored:false},
+  {key:'dd071EffectiveAlkali', col:841, th:'White Liquor – Effective alkali', unit:'g/L', dec:2, grp:'ddCooking', scored:false},
+  {key:'dd072EffectiveAlkaliOnline', col:842, th:'White Liquor – Effective alkali (Online)', unit:'g/L', dec:2, grp:'ddCooking', scored:false},
+  {key:'dd073SulfidityCe80', col:843, th:'White Liquor – Sulfidity @CE 80%', unit:'%', dec:2, grp:'ddCooking', scored:false},
+  {key:'dd074Sulfidity', col:844, th:'White Liquor – Sulfidity', unit:'%', dec:2, grp:'ddCooking', scored:false},
+  {key:'dd075CausticizingEfficiency', col:845, th:'White Liquor – Causticizing Efficiency', unit:'%', dec:2, grp:'ddCooking', scored:false},
+  {key:'dd076SuspendedSolids', col:846, th:'White Liquor – Suspended Solids', unit:'mg/L', dec:2, grp:'ddCooking', scored:false},
+  {key:'dd077ResidualAlkali', col:847, th:'Accumulated BL – Residual alkali', unit:'g/L', dec:2, grp:'ddCooking', scored:false},
+  {key:'dd078ResidualAlkaliOnline', col:848, th:'Accumulated BL – Residual alkali (Online)', unit:'g/L', dec:2, grp:'ddCooking', scored:false},
+  {key:'dd079FiberContent', col:849, th:'WBL to Evaporator – Fiber content', unit:'mg/L', dec:2, grp:'ddCooking', scored:false},
+  {key:'dd080DrySolidContent', col:850, th:'WBL to Evaporator – Dry solid content', unit:'%', dec:2, grp:'ddCooking', scored:false},
+  {key:'dd081ResidualAlkali', col:851, th:'WBL to Evaporator – Residual alkali', unit:'g/L', dec:2, grp:'ddCooking', scored:false},
+  {key:'dd082KappaNumber', col:853, th:'Discharged Pipe – Kappa number', unit:'', dec:2, grp:'ddCooking', scored:false},
+  {key:'dd083KappaNumberOnline', col:854, th:'Discharged Pipe – Kappa number (Online)', unit:'', dec:2, grp:'ddCooking', scored:false},
+  {key:'dd084DischargeLevel', col:640, th:'Discharge Tank – Discharge Level', unit:'%', dec:2, grp:'ddCooking', scored:false},
+  {key:'dd085ConsistencyOutWp1', col:855, th:'PreO2 Press – Consistency out WP1', unit:'%', dec:2, grp:'ddWashing', scored:false},
+  {key:'dd086RollTorque', col:701, th:'PreO2 Press – Roll Torque', unit:'kNm', dec:2, grp:'ddWashing', scored:false},
+  {key:'dd087FixVatPressure421pi146', col:702, th:'PreO2 Press – Fix Vat Pressure 421PI146', unit:'bar', dec:2, grp:'ddWashing', scored:false},
+  {key:'dd088MoveVatPressure421pi147', col:703, th:'PreO2 Press – Move Vat Pressure 421PI147', unit:'bar', dec:2, grp:'ddWashing', scored:false},
+  {key:'dd089Primary421pdi210', col:704, th:'PreO2 Press – Primary 421PDI210', unit:'bar', dec:2, grp:'ddWashing', scored:false},
+  {key:'dd090Secondary421pdi216', col:705, th:'PreO2 Press – Secondary 421PDI216', unit:'bar', dec:2, grp:'ddWashing', scored:false},
+  {key:'dd091Tertiary421pdi220', col:706, th:'PreO2 Press – Tertiary 421PDI220', unit:'bar', dec:2, grp:'ddWashing', scored:false},
+  {key:'dd092Consist421qc412', col:709, th:'PreO2 Press – Consist 421QC412', unit:'%', dec:2, grp:'ddWashing', scored:false},
+  {key:'dd093DfPreO2Press', col:712, th:'PreO2 Press – DF PRE O2 PRESS', unit:'', dec:2, grp:'ddWashing', scored:false},
+  {key:'dd094ConsistencyOutWp2', col:856, th:'PreO2 Press – Consistency out WP2', unit:'%', dec:2, grp:'ddWashing', scored:false},
+  {key:'dd095HydraulicPressure421pc324', col:716, th:'PreO2 Press – Hydraulic Pressure 421PC324', unit:'bar', dec:2, grp:'ddWashing', scored:false},
+  {key:'dd096FixVatPressure421pi346', col:717, th:'PreO2 Press – Fix Vat Pressure 421PI346', unit:'bar', dec:2, grp:'ddWashing', scored:false},
+  {key:'dd097MoveVatPressure421pi347', col:718, th:'PreO2 Press – Move Vat Pressure 421PI347', unit:'bar', dec:2, grp:'ddWashing', scored:false},
+  {key:'dd098Cod', col:857, th:'PreO2 Press – COD', unit:'kg/ADT', dec:2, grp:'ddWashing', scored:false},
+  {key:'dd099KappaNumber', col:858, th:'PreO2 Press – Kappa number', unit:'', dec:2, grp:'ddWashing', scored:false},
+  {key:'dd100KappaNumberOnline', col:859, th:'PreO2 Press – Kappa number (Online)', unit:'', dec:2, grp:'ddWashing', scored:false},
+  {key:'dd101Viscosity', col:860, th:'PreO2 Press – Viscosity', unit:'mL/g', dec:2, grp:'ddWashing', scored:false},
+  {key:'dd102WetBrightness', col:861, th:'PreO2 Press – Wet Brightness', unit:'%', dec:2, grp:'ddWashing', scored:false},
+  {key:'dd103O2Rxt1', col:724, th:'PostO2 Press – O2 rxt#1', unit:'kg/adt', dec:2, grp:'ddOxygenDelignification', scored:false},
+  {key:'dd104PressureTopO2Rxt1421pz426', col:746, th:'PostO2 Press – Pressure Top O2 rxt#1 421PZ426', unit:'Bar', dec:2, grp:'ddOxygenDelignification', scored:false},
+  {key:'dd105InletBeforeMix421e017ToR1421tc410', col:747, th:'PostO2 Press – Inlet before Mix 421E017 to R1 421TC410', unit:'C', dec:2, grp:'ddOxygenDelignification', scored:false},
+  {key:'dd106TempBottomReactor1421ti424', col:748, th:'PostO2 Press – Temp Bottom Reactor1 421TI424', unit:'C', dec:2, grp:'ddOxygenDelignification', scored:false},
+  {key:'dd107O2Rxt2', col:725, th:'PostO2 Press – O2 rxt#2', unit:'kg/adt', dec:2, grp:'ddOxygenDelignification', scored:false},
+  {key:'dd108PressureTopO2Rxt2421pc478', col:749, th:'PostO2 Press – Pressure Top O2 rxt#2 421PC478', unit:'Bar', dec:2, grp:'ddOxygenDelignification', scored:false},
+  {key:'dd109InletAfterMix421e030ToR2421tc473', col:750, th:'PostO2 Press – Inlet after Mix 421E030 to R2 421TC473', unit:'C', dec:2, grp:'ddOxygenDelignification', scored:false},
+  {key:'dd110TempBottomReactor2421ti474', col:751, th:'PostO2 Press – Temp Bottom Reactor 2 421TI474', unit:'C', dec:2, grp:'ddOxygenDelignification', scored:false},
+  {key:'dd111O2Purity', col:723, th:'PostO2 Press – O2 Purity', unit:'', dec:2, grp:'ddOxygenDelignification', scored:false},
+  {key:'dd112OwlNaoh', col:721, th:'PostO2 Press – OWL/NaOH', unit:'kg/ADT', dec:2, grp:'ddOxygenDelignification', scored:false},
+  {key:'dd113DfPostO2Press', col:737, th:'PostO2 Press – DF POST O2 PRESS', unit:'', dec:2, grp:'ddOxygenDelignification', scored:false},
+  {key:'dd114CodPulpToReactor1', col:862, th:'PostO2 Press – COD Pulp to Reactor 1', unit:'kg/ADT', dec:2, grp:'ddOxygenDelignification', scored:false},
+  {key:'dd115ConsistencyOutWp3', col:863, th:'PostO2 Press – Consistency out WP3', unit:'%', dec:2, grp:'ddOxygenDelignification', scored:false},
+  {key:'dd116KappaNumber', col:864, th:'PostO2 Press – Kappa number', unit:'', dec:2, grp:'ddOxygenDelignification', scored:false},
+  {key:'dd117KappaNumberOnline', col:865, th:'PostO2 Press – Kappa number (Online)', unit:'', dec:2, grp:'ddOxygenDelignification', scored:false},
+  {key:'dd118Delignification', col:866, th:'PostO2 Press – Delignification', unit:'%', dec:2, grp:'ddOxygenDelignification', scored:false},
+  {key:'dd119Viscosity', col:867, th:'PostO2 Press – Viscosity', unit:'mL/g', dec:2, grp:'ddOxygenDelignification', scored:false},
+  {key:'dd120WetBrightness', col:868, th:'PostO2 Press – Wet Brightness', unit:'%', dec:2, grp:'ddOxygenDelignification', scored:false},
+  {key:'dd121PhPosto2Filtrate', col:869, th:'pH PostO2 – pH PostO2 Filtrate', unit:'', dec:2, grp:'ddOxygenDelignification', scored:false},
+  {key:'dd122UnbleachLevel', col:696, th:'Unbleach Tank – Unbleach Level', unit:'%', dec:2, grp:'ddOxygenDelignification', scored:false},
+  {key:'dd123KnotReject', col:1085, th:'Knot Reject', unit:'kg/Adt', dec:2, grp:'ddKnot', scored:false},
+  {key:'dd124WhiteReject', col:1086, th:'White Reject', unit:'kg/Adt', dec:2, grp:'ddWhite', scored:false},
+  {key:'dd125Cod', col:870, th:'Fiberline Waste Water – COD', unit:'ppm', dec:2, grp:'ddEtp', scored:false},
+  {key:'dd126SuspendedSolids', col:871, th:'Fiberline Waste Water – Suspended Solids', unit:'mg/L', dec:2, grp:'ddEtp', scored:false},
+  {key:'dd127ActiveChlorine', col:872, th:'To BC – Active chlorine', unit:'g/L', dec:2, grp:'ddClo2', scored:false},
+  {key:'dd128DfPreBleach', col:762, th:'DF Pre Bleach', unit:'', dec:2, grp:'ddPreBleaching', scored:false},
+  {key:'dd129Consistency', col:763, th:'Consistency', unit:'%', dec:2, grp:'ddPreBleaching', scored:false},
+  {key:'dd130HydraulicPressure431pc016', col:765, th:'To Press – Hydraulic Pressure 431PC016', unit:'bar', dec:2, grp:'ddPreBleaching', scored:false},
+  {key:'dd131FixVatPressure431pi019', col:766, th:'To Press – Fix Vat Pressure 431PI019', unit:'bar', dec:2, grp:'ddPreBleaching', scored:false},
+  {key:'dd132MoveVatPressure431pi025', col:767, th:'To Press – Move Vat Pressure 431PI025', unit:'bar', dec:2, grp:'ddPreBleaching', scored:false},
+  {key:'dd133KappaNumber', col:874, th:'From Press – Kappa number', unit:'', dec:2, grp:'ddPreBleaching', scored:false},
+  {key:'dd134KappaNumberOnline', col:875, th:'From Press – Kappa number (Online)', unit:'', dec:2, grp:'ddPreBleaching', scored:false},
+  {key:'dd135Consistency', col:876, th:'From Press – Consistency', unit:'%', dec:2, grp:'ddPreBleaching', scored:false},
+  {key:'dd136WetBrightness', col:877, th:'From Press – Wet Brightness', unit:'%', dec:2, grp:'ddPreBleaching', scored:false},
+  {key:'dd137WetBrightnessOnline', col:878, th:'From Press – Wet Brightness (Online)', unit:'%', dec:2, grp:'ddPreBleaching', scored:false},
+  {key:'dd138Cod', col:879, th:'From Press – COD', unit:'kg/ADT', dec:2, grp:'ddPreBleaching', scored:false},
+  {key:'dd139CloD0', col:772, th:'To Press – ClO D0', unit:'kg/ADT', dec:2, grp:'ddD0', scored:false},
+  {key:'dd140ClFactor', col:773, th:'To Press – Cl Factor', unit:'kg/u', dec:2, grp:'ddD0', scored:false},
+  {key:'dd141EndPh', col:880, th:'To Press – End pH', unit:'', dec:2, grp:'ddD0', scored:false},
+  {key:'dd142H2so4', col:777, th:'To Press – H2SO4', unit:'l/s', dec:2, grp:'ddD0', scored:false},
+  {key:'dd143ResidualActiveCl', col:881, th:'To Press – Residual active Cl', unit:'g/L', dec:2, grp:'ddD0', scored:false},
+  {key:'dd144KappaNumber', col:882, th:'From Press – Kappa number', unit:'', dec:2, grp:'ddD0', scored:false},
+  {key:'dd145KappaNumberOnline', col:883, th:'From Press – Kappa number (Online)', unit:'', dec:2, grp:'ddD0', scored:false},
+  {key:'dd146Consistency', col:884, th:'From Press – Consistency', unit:'%', dec:2, grp:'ddD0', scored:false},
+  {key:'dd147HydraulicPressure431pc214', col:780, th:'From Press – Hydraulic Pressure 431PC214', unit:'bar', dec:2, grp:'ddD0', scored:false},
+  {key:'dd148FixVatPressure431pi216', col:781, th:'From Press – Fix Vat Pressure 431PI216', unit:'bar', dec:2, grp:'ddD0', scored:false},
+  {key:'dd149MoveVatPressure431pi221', col:782, th:'From Press – Move Vat Pressure 431PI221', unit:'bar', dec:2, grp:'ddD0', scored:false},
+  {key:'dd150WetBrightness', col:885, th:'From Press – Wet Brightness', unit:'%', dec:2, grp:'ddD0', scored:false},
+  {key:'dd151WetBrightnessOnline', col:886, th:'From Press – Wet Brightness (Online)', unit:'%', dec:2, grp:'ddD0', scored:false},
+  {key:'dd152Na2s', col:887, th:'OWL – Na2S', unit:'g/L', dec:2, grp:'ddEop', scored:false},
+  {key:'dd153Naoh', col:888, th:'OWL – NaOH', unit:'g/L', dec:2, grp:'ddEop', scored:false},
+  {key:'dd154Na2co3', col:889, th:'OWL – Na2CO3', unit:'g/L', dec:2, grp:'ddEop', scored:false},
+  {key:'dd155EndPh', col:890, th:'To Press – End  pH', unit:'', dec:2, grp:'ddEop', scored:false},
+  {key:'dd156Naoh', col:786, th:'To Press – NaOH', unit:'l/s', dec:2, grp:'ddEop', scored:false},
+  {key:'dd157H2o2', col:787, th:'To Press – H2O2', unit:'kg/ADT', dec:2, grp:'ddEop', scored:false},
+  {key:'dd158ResidualH2o2', col:891, th:'To Press – Residual H2O2', unit:'g/L', dec:2, grp:'ddEop', scored:false},
+  {key:'dd159O2Purity', col:789, th:'To Press – O2 Purity', unit:'%', dec:2, grp:'ddEop', scored:false},
+  {key:'dd160O2', col:790, th:'To Press – O2', unit:'kg/ADT', dec:2, grp:'ddEop', scored:false},
+  {key:'dd161NaohOwl', col:791, th:'To Press – NaoH+OWL', unit:'kg/ADT', dec:2, grp:'ddEop', scored:false},
+  {key:'dd162KappaNumber', col:892, th:'From Press – Kappa number', unit:'', dec:2, grp:'ddEop', scored:false},
+  {key:'dd163KappaNumberOnline', col:893, th:'From Press – Kappa number (Online)', unit:'', dec:2, grp:'ddEop', scored:false},
+  {key:'dd164Consistency', col:894, th:'From Press – Consistency', unit:'%', dec:2, grp:'ddEop', scored:false},
+  {key:'dd165HydraulicPressure431pc333', col:797, th:'From Press – Hydraulic Pressure 431PC333', unit:'bar', dec:2, grp:'ddEop', scored:false},
+  {key:'dd166VatPressure431pi330', col:798, th:'From Press – Vat Pressure 431PI330', unit:'bar', dec:2, grp:'ddEop', scored:false},
+  {key:'dd167WetBrightness', col:895, th:'From Press – Wet Brightness', unit:'%', dec:2, grp:'ddEop', scored:false},
+  {key:'dd168WetBrightnessOnline', col:896, th:'From Press – Wet Brightness (Online)', unit:'%', dec:2, grp:'ddEop', scored:false},
+  {key:'dd169CloD0', col:801, th:'ClO D0', unit:'kg/ADT', dec:2, grp:'ddD1', scored:false},
+  {key:'dd170ClFactor', col:802, th:'Cl Factor', unit:'kg/u', dec:2, grp:'ddD1', scored:false},
+  {key:'dd171EndPh', col:897, th:'To Press – End pH', unit:'', dec:2, grp:'ddD1', scored:false},
+  {key:'dd172H2so4', col:806, th:'To Press – H2SO4', unit:'l/s', dec:2, grp:'ddD1', scored:false},
+  {key:'dd173ResidualActiveCl', col:898, th:'To Press – Residual active Cl', unit:'g/L', dec:2, grp:'ddD1', scored:false},
+  {key:'dd174Consistency', col:899, th:'From Press – Consistency', unit:'%', dec:2, grp:'ddD1', scored:false},
+  {key:'dd175HydraulicPressure431pc429', col:809, th:'From Press – Hydraulic Pressure 431PC429', unit:'bar', dec:2, grp:'ddD1', scored:false},
+  {key:'dd176VatPressure431pi432', col:810, th:'From Press – Vat Pressure 431PI432', unit:'bar', dec:2, grp:'ddD1', scored:false},
+  {key:'dd177WetBrightness', col:900, th:'From Press – Wet Brightness', unit:'%', dec:2, grp:'ddD1', scored:false},
+  {key:'dd178WetBrightnessOnline', col:901, th:'From Press – Wet Brightness (Online)', unit:'%', dec:2, grp:'ddD1', scored:false},
+  {key:'dd179Viscosity', col:902, th:'From Press – Viscosity', unit:'mL/g', dec:2, grp:'ddD1', scored:false},
+  {key:'dd180TotalClo2', col:816, th:'Total – Total ClO2', unit:'kg/ADT', dec:2, grp:'ddD1', scored:false},
+  {key:'dd181ClFactor', col:817, th:'Total – Cl Factor', unit:'kg/u', dec:2, grp:'ddD1', scored:false},
+  {key:'dd182Consistency', col:903, th:'Consistency', unit:'%', dec:2, grp:'ddStageCleanerNo5', scored:false},
+  {key:'dd183Ph', col:904, th:'pH', unit:'', dec:2, grp:'ddLcTank', scored:false},
+  {key:'dd184Naoh', col:822, th:'NaOH', unit:'l/s', dec:2, grp:'ddLcTank', scored:false},
+  {key:'dd185WetBrightness', col:905, th:'Wet Brightness', unit:'%', dec:2, grp:'ddDecker', scored:false},
+  {key:'dd186Dirt', col:906, th:'Dirt', unit:'mm2/kg', dec:2, grp:'ddDecker', scored:false},
+  {key:'dd187Shives', col:907, th:'Shives', unit:'', dec:2, grp:'ddDecker', scored:false},
+  {key:'dd188DirtShives', col:908, th:'Dirt+Shives', unit:'', dec:2, grp:'ddDecker', scored:false},
+  {key:'dd189WetBrightness', col:909, th:'Wet Brightness', unit:'%', dec:2, grp:'ddFeedToWetLapHd1', scored:false},
+  {key:'dd190Consistency', col:910, th:'Consistency', unit:'%', dec:2, grp:'ddFeedToWetLapHd1', scored:false},
+  {key:'dd191Ph', col:911, th:'pH', unit:'', dec:2, grp:'ddFeedToWetLapHd1', scored:false},
+  {key:'dd192Freeness', col:912, th:'Freeness', unit:'mL', dec:2, grp:'ddBeforeRefiner', scored:false},
+  {key:'dd193DeltaFreeness', col:913, th:'Delta Freeness', unit:'mL', dec:2, grp:'ddBeforeRefiner', scored:false},
+  {key:'dd194FFactor', col:914, th:'F-Factor', unit:'', dec:2, grp:'ddBeforeRefiner', scored:false},
+  {key:'dd195Conductivity', col:915, th:'Conductivity', unit:'uS/cm', dec:2, grp:'ddBeforeRefiner', scored:false},
+  {key:'dd196ConductivityOnline', col:833, th:'Conductivity Online', unit:'uS/cm', dec:2, grp:'ddWhiteWater', scored:false},
+  {key:'dd197ConductivityBeforeRefiner', col:834, th:'Conductivity Before refiner', unit:'uS/cm', dec:2, grp:'ddWhiteWater', scored:false},
+  {key:'dd198Hd1Level', col:757, th:'HD1 Level', unit:'', dec:2, grp:'ddHd1Tank', scored:false},
+  {key:'dd199Hd2Level', col:758, th:'HD2 Level', unit:'', dec:2, grp:'ddHd2Tank', scored:false},
+  {key:'dd200FreenessLbkp1', col:916, th:'PM1 After Refiner – Freeness LBKP1', unit:'mL', dec:2, grp:'ddPaperMill', scored:false},
+  {key:'dd201FreenessLbkp2', col:917, th:'PM1 After Refiner – Freeness LBKP2', unit:'mL', dec:2, grp:'ddPaperMill', scored:false},
+  {key:'dd202FFactorLbkp1', col:918, th:'PM1 After Refiner – F-Factor LBKP1', unit:'', dec:2, grp:'ddPaperMill', scored:false},
+  {key:'dd203FFactorLbkp2', col:919, th:'PM1 After Refiner – F-Factor LBKP2', unit:'', dec:2, grp:'ddPaperMill', scored:false},
+  {key:'dd204FreenessLbkp1', col:920, th:'PM2 After Refiner – Freeness LBKP1', unit:'mL', dec:2, grp:'ddPaperMill', scored:false},
+  {key:'dd205FreenessLbkp2', col:921, th:'PM2 After Refiner – Freeness LBKP2', unit:'mL', dec:2, grp:'ddPaperMill', scored:false},
+  {key:'dd206FFactorLbkp1', col:922, th:'PM2 After Refiner – F-Factor LBKP1', unit:'', dec:2, grp:'ddPaperMill', scored:false},
+  {key:'dd207FFactorLbkp2', col:923, th:'PM2 After Refiner – F-Factor LBKP2', unit:'', dec:2, grp:'ddPaperMill', scored:false},
+  {key:'dd208Ph', col:924, th:'HD1 – pH', unit:'', dec:2, grp:'ddTestedByPm', scored:false},
+  {key:'dd209Ph', col:925, th:'Wet Lap to PM – pH', unit:'', dec:2, grp:'ddTestedByPm', scored:false},
+);
+const DD_GROUP_IDS = ['ddProduction','ddWoodhandling','ddCooking','ddWashing','ddOxygenDelignification','ddKnot','ddWhite','ddEtp','ddClo2','ddPreBleaching','ddD0','ddEop','ddD1','ddStageCleanerNo5','ddLcTank','ddDecker','ddFeedToWetLapHd1','ddBeforeRefiner','ddWhiteWater','ddHd1Tank','ddHd2Tank','ddPaperMill','ddTestedByPm'];
+CHIP_MON_META.forEach(function(m){ if(DD_GROUP_IDS.indexOf(m.grp) >= 0) m.src = 'dataForAnalysis'; });
 
 /* daily Pulp mill-1 production (ADt/day) by date, from the Daily (Act) sheet — for per-ADt ratios */
 const PROD_BY_DATE = {};
@@ -7423,7 +7792,9 @@ const chipMonCeil = (()=>{
    same "never show today" ceiling as main (chipMonYesterdayEnd) rather than chipMonNow — showing
    "today" here would either be blank or (per user request) is simply never wanted for this sheet. */
 const chipMonNow = Date.now();
-const CHIP_MON_CEIL_BY_SRC = { main: chipMonCeil, cooking: chipMonNow, brownStock: chipMonNow, bleaching: chipMonNow, morningLog: chipMonYesterdayEnd };
+// "Data" sheet (Daily data) is filled in once per calendar day, same shape as "main" / "Morning" --
+// never show "today" since the mill's own day isn't closed out yet.
+const CHIP_MON_CEIL_BY_SRC = { main: chipMonCeil, cooking: chipMonNow, brownStock: chipMonNow, bleaching: chipMonNow, morningLog: chipMonYesterdayEnd, dataForAnalysis: chipMonYesterdayEnd };
 const CHIP_MON_SERIES = {};
 CHIP_MON_META.forEach(m=> {
   const srcRows = CHIP_MON_ROWS_BY_SRC[m.src || 'main'];
@@ -12778,7 +13149,7 @@ function chipLayoutClearDropMarks(){
   document.querySelectorAll('.drop-before,.drop-after,.drop-empty,.dragging')
     .forEach(el=> el.classList.remove('drop-before','drop-after','drop-empty','dragging'));
 }
-const CHIP_LAYOUT_HOST_IDS = ['chipMonHost','chipCookingHost','chipBrownStockHost','chipBleachHost'];
+const CHIP_LAYOUT_HOST_IDS = ['chipMonHost','chipCookingHost','chipBrownStockHost','chipBleachHost','chipDailyDataHost'];
 function chipLayoutInitDnD(){
   // Pass 1: tag + add a grip to every direct-child group, once (this markup is static HTML,
   // never re-rendered). #rmMirrorBlock (Yield page only) is a special case: "Wood-chip basics"
@@ -14449,7 +14820,7 @@ function initChipMon(){
   // ทุกกลุ่มบน Yield page เดิมอยู่ใต้ chipMonHost เดียว — กลุ่มใหม่ของ Process area (Cooking/Brown
   // stock/Bleaching) อยู่คนละหน้า จึงต้อง delegate click/keydown ซ้ำที่ host ของแต่ละหน้าด้วย
   // handler ชุดเดียวกันนี้ แทนที่จะผูกกับ chipMonHost อย่างเดียว
-  ['chipMonHost','chipCookingHost','chipBrownStockHost','chipBleachHost','rmMirrorTarget'].forEach(hostId=> {
+  ['chipMonHost','chipCookingHost','chipBrownStockHost','chipBleachHost','chipDailyDataHost','rmMirrorTarget'].forEach(hostId=> {
     const host = document.getElementById(hostId);
     if(!host) return;
     host.addEventListener('click', (e)=> {
