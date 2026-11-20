@@ -6325,10 +6325,11 @@ if(document.getElementById('monthlySummaryBody1')){
 function chipColNorm(s){
   return String(s||'').trim().replace(/[‐-―−]/g, '-').replace(/\s+/g, ' ');
 }
-function resolveChipCol(label, fallback){
+function resolveChipCol(label, fallback, fromIndex){
   const headerRow = (typeof chipWoodRows !== 'undefined' && chipWoodRows[1]) || [];
   const target = chipColNorm(label);
-  const idx = headerRow.findIndex(function(h){ return chipColNorm(h) === target; });
+  const start = typeof fromIndex === 'number' ? fromIndex : 0;
+  const idx = headerRow.findIndex(function(h, i){ return i >= start && chipColNorm(h) === target; });
   return idx >= 0 ? idx : fallback;
 }
 /* "Morning" tab (gid 1162647187) — a separate day-level sheet (one row per day, date in column A)
@@ -6369,8 +6370,17 @@ const COL_MOIST_LAB = resolveChipCol('Pulp 1 Chip Moisture (Lab)', 9999);
 const COL_BULK_DENSITY = resolveChipCol('Pulp 1 Bulk density', 9999);
 const COL_BULK_DENSITY_DRY = resolveChipCol('Pulp 1 Bulk density *Dryness', 9999);
 const COL_DRYNESS = resolveChipCol('Pulp 1 Chip Dryness', 9999);
-const COL_FINE = resolveChipCol('Pulp 1 Fine <4.8', 9999);
-const COL_PIN = resolveChipCol('Pulp 1 Pin 9.5-4.8', 9999);
+/* The mill inserted two new Budget-block columns (sheet cols S,T) that were copy-pasted with this
+   exact header text ("Pulp 1 Fine <4.8" / "Pulp 1 Pin 9.5-4.8") instead of a "Budget "-prefixed name
+   -- they are really Budget Fine/Budget Pin (see COL_BUDGET_FINE/COL_BUDGET_PIN below), but their
+   literal text now collides with the real actual-value columns' own header text further right in
+   this same sheet. resolveChipCol's plain first-match search would silently resolve these two to
+   the new Budget-block duplicate instead. COL_BULK_DENSITY's own header text ("Pulp 1 Bulk density")
+   is never duplicated, so anchoring the search to start there skips past the Budget-block collision
+   and finds the real actual Pulp 1 Fine/Pin columns every time, including if the sheet gains more
+   columns later. */
+const COL_FINE = resolveChipCol('Pulp 1 Fine <4.8', 9999, COL_BULK_DENSITY);
+const COL_PIN = resolveChipCol('Pulp 1 Pin 9.5-4.8', 9999, COL_BULK_DENSITY);
 const COL_ACCEPT2 = resolveChipCol('Pulp 1 Accept 2 22.2-9.5', 9999);
 const COL_ACCEPT1 = resolveChipCol('Pulp 1 Accept 1 28.6-22.2', 9999); // the mill has since corrected this header from its old "Accept 2 28.6-22.2" mislabel to the correct "Accept 1 28.6-22.2" (confirmed against a current header-row screenshot) — the old search text silently fell back to 9999 (no data) once the sheet's own text changed
 const COL_OVER_THICK = resolveChipCol('Pulp 1 Over Thick 45.0-28.6', 9999);
@@ -6405,6 +6415,16 @@ const COL_TSS_ETP = resolveChipCol('Pulp 1 TSS to ETP', 9999);
    (left) match, i.e. the raw kg/day or m3/day column, so the "/ADT" ratio is derived the same way
    CHIP_MON_META already derives kwRejectAdt/volEtpAdt for Actual (divide by End Prod.) rather than
    trying to address the second, textually-indistinguishable column directly. */
+const COL_BUDGET_PIN_FINE = resolveChipCol('Budget Pin+Fine', 9999);
+/* These two new Budget-block columns (sheet cols S,T, inserted right after "Budget Pin+Fine")
+   were copy-pasted with the real actual-value columns' own header text ("Pulp 1 Fine <4.8" /
+   "Pulp 1 Pin 9.5-4.8") instead of a "Budget "-prefixed name. Confirmed these are genuinely the
+   Budget split-out of Pin+Fine (not a stray duplicate of the actual columns) because their values
+   sum to exactly "Budget Pin+Fine" on every sampled row. A plain resolveChipCol() search correctly
+   finds THESE as the first match (see the COL_FINE/COL_PIN fix above, which anchors past this point
+   to reach the real actual columns instead). */
+const COL_BUDGET_FINE = resolveChipCol('Pulp 1 Fine <4.8', 9999);
+const COL_BUDGET_PIN = resolveChipCol('Pulp 1 Pin 9.5-4.8', 9999);
 const COL_BUDGET_YIELD = resolveChipCol('Budget Yield', 9999);
 const COL_BUDGET_CHIP_WEIGHT_SCALE = resolveChipCol('Budget Chip (Weight scale)', 9999);
 const COL_BUDGET_CHIP_WEIGHT_SCALE_NET = resolveChipCol('Budget Chip (Weight scale หักลบเฉ่งกอง)', 9999);
@@ -7349,6 +7369,8 @@ CHIP_MON_META.forEach(m=> {
    sheet's own second "/ADT" column shares its left neighbour's exact header text, so it can't be
    addressed by name (see the COL_BUDGET_* comment above), and doesn't need to be. */
 const CHIP_MON_BUDGET_META = [
+  {key:'fine',               col:COL_BUDGET_FINE},
+  {key:'pin',                col:COL_BUDGET_PIN},
   {key:'chipWeightScale',    col:COL_BUDGET_CHIP_WEIGHT_SCALE},
   {key:'chipWeightScaleNet', col:COL_BUDGET_CHIP_WEIGHT_SCALE_NET},
   {key:'endProd',            col:COL_BUDGET_END_PROD},
