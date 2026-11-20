@@ -7081,7 +7081,7 @@ const HFT_WOOD_SERIES_BY_TS = {
    a DIFFERENT "Residual alkali" column (idx9, under "Accumulated BL") also exists on that sheet
    and must not be confused with this one. */
 const QC_LAB_FL1_RESID_BY_TS = new Map(QC_LAB_FL1_ROWS.map(x=> [x.ts, x.r[14]]));
-/* The 18 averaged columns, table display order. `get(cookDay, ts)` returns that day's own value
+/* The 21 averaged columns, table display order. `get(cookDay, ts)` returns that day's own value
    for the field (or null); cookDay is PLS_COOKING_ROWS' per-day record (r[] indexed by raw
    Cooking Logsheet column, see the column-index comment above PLS_COOKING_ROWS_RAW), ts is that
    same day's timestamp (used to look up the wood/moisture/QC maps, which are keyed separately
@@ -7089,6 +7089,9 @@ const QC_LAB_FL1_RESID_BY_TS = new Map(QC_LAB_FL1_ROWS.map(x=> [x.ts, x.r[14]]))
 const HFT_FIELDS = [
   {key:'targetHFactor', label:'Target H-factor', unit:'', dec:1, grp:'cook', get:function(c){ return c.r[76]; }},
   {key:'realHFactor', label:'Real H-factor', unit:'', dec:1, grp:'cook', get:function(c){ return c.r[77]; }},
+  {key:'loadBelt321c021', label:'Load Belt 321C021', unit:'%', dec:2, grp:'cook', get:function(c){ return c.r[24]; }},
+  {key:'chipFillingTime', label:'Chip filling time', unit:'min', dec:2, grp:'cook', get:function(c){ return c.r[130]; }},
+  {key:'chipFlow', label:'Chip flow', unit:'GT/min', dec:2, grp:'cook', get:function(c){ return c.r[25]; }},
   {key:'tempAfterCirc', label:'Temp.after circulation. (Temp เริ่มต้น)', unit:'C', dec:1, grp:'cook', get:function(c){ return c.r[72]; }},
   {key:'heatCookTime', label:'Heat&Cook time', unit:'min', dec:1, grp:'cook', get:function(c){ return c.r[138]; }},
   {key:'kappaOnline', label:'Kappa No. (Online)', unit:'', dec:2, grp:'cook', get:function(c){ return c.r[109]; }},
@@ -7201,7 +7204,7 @@ function hftRefRange(days){
    tables line up for a direct visual comparison. `rows` is an array of {col1, col2, ref, ...field
    keys}; col1Header/col2Header let each table use different first-two-column labels (bin/n vs.
    exact value/period vs. month/n); `ref` is each row's own real contributing-date-range string (see
-   hftRefRange). `fields` defaults to HFT_FIELDS (the bin/current-condition tables' own 18 columns);
+   hftRefRange). `fields` defaults to HFT_FIELDS (the bin/current-condition tables' own 21 columns);
    the monthly table passes HFT_MONTHLY_FIELDS instead, which prepends a Set Point H-factor (APC)
    column since month, not Set Point, is that table's own grouping key. */
 function hftBuildTableHtml(rows, col1Header, col2Header, extraClass, fields){
@@ -7285,7 +7288,7 @@ function initHftNToggle(){
   });
 }
 /* One record per cook day (PLS_COOKING_ROWS is already day-aggregated) that has a real Set point
-   H-factor(APC) value, each pre-computed with its own setPoint + all 18 HFT_FIELDS values -- shared
+   H-factor(APC) value, each pre-computed with its own setPoint + all 21 HFT_FIELDS values -- shared
    by the "Condition ปัจจุบัน" period picker below. NOT restricted to year 2026 (unlike
    computeHFactorTuningBuckets) since a user picking an earlier year/week/month here should never be
    silently blocked by a filter this list doesn't need. Stays in PLS_COOKING_ROWS' own ts-ascending
