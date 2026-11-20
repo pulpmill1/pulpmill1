@@ -718,14 +718,22 @@
   .da-add-btn{font:inherit;font-size:12px;font-weight:700;color:var(--accent-ink);background:var(--accent-soft);border:1px solid var(--accent);border-radius:20px;padding:6px 14px;cursor:pointer;}
   .da-add-btn:hover{filter:brightness(0.97);}
   .da-wrap{overflow-x:auto;overflow-y:auto;border:1px solid var(--border);border-radius:10px;max-height:76vh;}
-  table.da-table{width:100%;min-width:900px;border-collapse:collapse;font-size:12px;}
+  /* table-layout:fixed + an explicit <colgroup> (widths read from DA_COL_WIDTHS, drag-resizable via
+     .da-resize-handle) is what makes per-column resize possible and stick; columns 1-3 (กลุ่ม/
+     กลุ่มย่อย/รายการ) are also frozen (position:sticky;left, offsets computed from those same widths)
+     so they stay visible while scrolling through however many snapshot columns exist. */
+  table.da-table{width:100%;min-width:900px;border-collapse:collapse;font-size:12px;table-layout:fixed;}
   table.da-table thead{position:sticky;top:0;z-index:3;}
-  table.da-table th,table.da-table td{padding:6px 7px;border:1px solid var(--border);}
-  table.da-table th.da-fixed-h{background:var(--accent-soft);color:var(--accent-ink);font-size:11px;font-weight:700;text-align:center;white-space:normal;min-width:100px;}
+  table.da-table th,table.da-table td{padding:6px 7px;border:1px solid var(--border);position:relative;}
+  table.da-table th.da-fixed-h{background:var(--accent-soft);color:var(--accent-ink);font-size:11px;font-weight:700;text-align:center;white-space:normal;}
   table.da-table td.da-fixed{text-align:left;color:var(--ink);font-size:11.5px;white-space:normal;overflow-wrap:break-word;word-break:break-word;background:var(--surface);}
   table.da-table td.da-fixed-grp{font-weight:700;}
   table.da-table td.da-val{text-align:right;font-family:"IBM Plex Mono",monospace;color:var(--ink-3);white-space:nowrap;}
-  table.da-table th.da-col-head-cell{min-width:190px;max-width:190px;width:190px;background:var(--surface-2);vertical-align:top;padding:8px;}
+  table.da-table th.da-col-head-cell{background:var(--surface-2);vertical-align:top;padding:8px;}
+  table.da-table th.da-fixed-h,table.da-table td.da-fixed{position:sticky;z-index:1;}
+  table.da-table thead th.da-fixed-h{z-index:4;}
+  .da-resize-handle{position:absolute;top:0;right:-3px;width:6px;height:100%;cursor:col-resize;z-index:5;touch-action:none;}
+  .da-resize-handle:hover,.da-resize-handle.resizing{background:var(--accent);opacity:.5;}
   .da-col-head{display:flex;flex-direction:column;gap:6px;align-items:stretch;}
   .da-col-label{font-size:12px;font-weight:800;color:var(--ink);text-align:center;min-height:16px;}
   .da-col-unsaved{font-size:10px;font-weight:700;color:#a15c00;background:rgba(255,166,0,.14);border-radius:12px;padding:2px 8px;text-align:center;}
@@ -13900,6 +13908,32 @@ function initYaCardCollapse(){
 }
 let DA_COLUMNS = [];
 let DA_NEXT_ID = 1;
+/* Per-column widths for the Data for analysis table -- grp/sub/label are the 3 frozen columns,
+   "snapshot" applies to every date-range/production-filter column uniformly (there can be any
+   number of them, added/removed freely, so one remembered width covers all of them rather than
+   trying to track each one's own id forever). Remembered per-browser in localStorage (this is a
+   personal viewing preference, unlike the shared/pinned column configs themselves) -- resizing
+   always overwrites with the LATEST size, per request, there is no history of past sizes. */
+const DA_COL_WIDTHS_KEY = 'pm1_da_col_widths';
+const DA_COL_WIDTHS_DEFAULT = { grp:120, sub:130, label:220, snapshot:190 };
+const DA_COL_WIDTHS_MIN = { grp:60, sub:60, label:100, snapshot:120 };
+function daLoadColWidths(){
+  try{
+    const raw = localStorage.getItem(DA_COL_WIDTHS_KEY);
+    const parsed = raw ? JSON.parse(raw) : null;
+    const out = Object.assign({}, DA_COL_WIDTHS_DEFAULT);
+    if(parsed && typeof parsed === 'object'){
+      ['grp','sub','label','snapshot'].forEach(function(k){
+        if(typeof parsed[k] === 'number' && parsed[k] >= DA_COL_WIDTHS_MIN[k]) out[k] = parsed[k];
+      });
+    }
+    return out;
+  }catch(e){ return Object.assign({}, DA_COL_WIDTHS_DEFAULT); }
+}
+let DA_COL_WIDTHS = daLoadColWidths();
+function daSaveColWidths(){
+  try{ localStorage.setItem(DA_COL_WIDTHS_KEY, JSON.stringify(DA_COL_WIDTHS)); }catch(e){}
+}
 function daColumnHeaderLabel(col){ return yaHeaderLabel({mode:col.mode, value:col.value}); }
 function daSpanCount(fields, startIdx, kind, grpFilter){
   let n = 0;
@@ -13945,24 +13979,40 @@ function daRenderColHeadInner(col){
       + '<button type="button" class="da-del">✕</button>'
     + '</div>';
 }
+/* Sticky-left offsets for the 3 frozen columns (กลุ่ม/กลุ่มย่อย/รายการ) must be computed from
+   DA_COL_WIDTHS since they're resizable -- a static CSS "left" can't track a width someone just
+   dragged. leftSub sits right after grp; leftLabel sits after grp+sub. */
+function daColLeft(key){
+  if(key === 'grp') return 0;
+  if(key === 'sub') return DA_COL_WIDTHS.grp;
+  return DA_COL_WIDTHS.grp + DA_COL_WIDTHS.sub; // 'label'
+}
+function daResizeHandle(key){ return '<span class="da-resize-handle" data-resize-col="'+key+'"></span>'; }
 function daRenderTable(){
   const wrap = document.getElementById('daTableWrap');
   if(!wrap) return;
   if(!DA_ROWS_RAW.length){ wrap.innerHTML = '<div class="hft-empty">ไม่มีข้อมูล</div>'; return; }
   const colDaySets = DA_COLUMNS.map(function(col){ return daQualifyingDays(col); });
-  let html = '<table class="da-table"><thead><tr>'
-    + '<th class="da-fixed-h">กลุ่ม</th><th class="da-fixed-h">กลุ่มย่อย</th><th class="da-fixed-h">รายการ</th>';
+  let html = '<table class="da-table"><colgroup>'
+    + '<col data-col="grp" style="width:'+DA_COL_WIDTHS.grp+'px">'
+    + '<col data-col="sub" style="width:'+DA_COL_WIDTHS.sub+'px">'
+    + '<col data-col="label" style="width:'+DA_COL_WIDTHS.label+'px">'
+    + DA_COLUMNS.map(function(){ return '<col data-col="snapshot" style="width:'+DA_COL_WIDTHS.snapshot+'px">'; }).join('')
+    + '</colgroup><thead><tr>'
+    + '<th class="da-fixed-h da-fixed-grp" style="left:'+daColLeft('grp')+'px">กลุ่ม'+daResizeHandle('grp')+'</th>'
+    + '<th class="da-fixed-h da-fixed-sub" style="left:'+daColLeft('sub')+'px">กลุ่มย่อย'+daResizeHandle('sub')+'</th>'
+    + '<th class="da-fixed-h da-fixed-label" style="left:'+daColLeft('label')+'px">รายการ'+daResizeHandle('label')+'</th>';
   DA_COLUMNS.forEach(function(col){
-    html += '<th class="da-col-head-cell" data-col-id="'+col.id+'"><div class="da-col-head">'+daRenderColHeadInner(col)+'</div></th>';
+    html += '<th class="da-col-head-cell" data-col-id="'+col.id+'"><div class="da-col-head">'+daRenderColHeadInner(col)+'</div>'+daResizeHandle('snapshot')+'</th>';
   });
   html += '</tr></thead><tbody>';
   DA_FIELDS.forEach(function(f, i){
     const grpSpan = (i===0 || DA_FIELDS[i-1].grp!==f.grp) ? daSpanCount(DA_FIELDS, i, 'grp') : 0;
     const subSpan = (i===0 || DA_FIELDS[i-1].grp!==f.grp || DA_FIELDS[i-1].sub!==f.sub) ? daSpanCount(DA_FIELDS, i, 'sub', f.grp) : 0;
     html += '<tr>';
-    if(grpSpan) html += '<td class="da-fixed da-fixed-grp" rowspan="'+grpSpan+'">'+f.grp+'</td>';
-    if(subSpan) html += '<td class="da-fixed" rowspan="'+subSpan+'">'+(f.sub||'')+'</td>';
-    html += '<td class="da-fixed">'+f.label+'</td>';
+    if(grpSpan) html += '<td class="da-fixed da-fixed-grp" rowspan="'+grpSpan+'" style="left:'+daColLeft('grp')+'px">'+f.grp+'</td>';
+    if(subSpan) html += '<td class="da-fixed da-fixed-sub" rowspan="'+subSpan+'" style="left:'+daColLeft('sub')+'px">'+(f.sub||'')+'</td>';
+    html += '<td class="da-fixed da-fixed-label" style="left:'+daColLeft('label')+'px">'+f.label+'</td>';
     colDaySets.forEach(function(days){
       const v = daFieldAverage(f, days);
       html += '<td class="da-val">'+(v==null?'—':hftFmt(v,2))+'</td>';
@@ -13971,6 +14021,47 @@ function daRenderTable(){
   });
   html += '</tbody></table>';
   wrap.innerHTML = html;
+}
+/* Live width updates while dragging (no full daRenderTable() re-render mid-drag, so it stays smooth):
+   push the new width onto every <col> that shares this resize key, plus the sticky-left offset of
+   whichever frozen columns sit after it. "snapshot" covers every snapshot column uniformly since
+   there's one remembered size for all of them, not a per-column one. */
+function daApplyColWidths(wrap){
+  const table = wrap.querySelector('table.da-table');
+  if(!table) return;
+  table.querySelectorAll('col[data-col="grp"]').forEach(function(c){ c.style.width = DA_COL_WIDTHS.grp+'px'; });
+  table.querySelectorAll('col[data-col="sub"]').forEach(function(c){ c.style.width = DA_COL_WIDTHS.sub+'px'; });
+  table.querySelectorAll('col[data-col="label"]').forEach(function(c){ c.style.width = DA_COL_WIDTHS.label+'px'; });
+  table.querySelectorAll('col[data-col="snapshot"]').forEach(function(c){ c.style.width = DA_COL_WIDTHS.snapshot+'px'; });
+  table.querySelectorAll('.da-fixed-sub').forEach(function(el){ el.style.left = daColLeft('sub')+'px'; });
+  table.querySelectorAll('.da-fixed-label').forEach(function(el){ el.style.left = daColLeft('label')+'px'; });
+}
+let DA_RESIZE_DRAG = null;
+function daBindColumnResize(wrap){
+  wrap.addEventListener('mousedown', function(e){
+    const handle = e.target.closest('.da-resize-handle');
+    if(!handle) return;
+    e.preventDefault();
+    const key = handle.dataset.resizeCol;
+    DA_RESIZE_DRAG = { key:key, startX:e.clientX, startWidth:DA_COL_WIDTHS[key], wrap:wrap };
+    handle.classList.add('resizing');
+  });
+  if(!daBindColumnResize._globalBound){
+    daBindColumnResize._globalBound = true;
+    document.addEventListener('mousemove', function(e){
+      if(!DA_RESIZE_DRAG) return;
+      const dx = e.clientX - DA_RESIZE_DRAG.startX;
+      const min = DA_COL_WIDTHS_MIN[DA_RESIZE_DRAG.key] || 60;
+      DA_COL_WIDTHS[DA_RESIZE_DRAG.key] = Math.max(min, DA_RESIZE_DRAG.startWidth + dx);
+      daApplyColWidths(DA_RESIZE_DRAG.wrap);
+    });
+    document.addEventListener('mouseup', function(){
+      if(!DA_RESIZE_DRAG) return;
+      DA_RESIZE_DRAG = null;
+      document.querySelectorAll('.da-resize-handle.resizing').forEach(function(h){ h.classList.remove('resizing'); });
+      daSaveColWidths();
+    });
+  }
 }
 /* Every add/delete/edit/pin is synced here -- not just explicitly-"pinned" columns -- so whatever
    the table currently looks like (the latest activity, whoever did it) is what every viewer sees,
@@ -13987,6 +14078,7 @@ function daBindControls(){
   const wrap = document.getElementById('daTableWrap');
   const addBtn = document.getElementById('daAddColBtn');
   if(wrap){
+    daBindColumnResize(wrap);
     wrap.addEventListener('change', function(e){
       const th = e.target.closest('[data-col-id]');
       if(!th) return;
