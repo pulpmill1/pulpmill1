@@ -763,16 +763,19 @@
      as a single addressable unit (the fork's 2-3 branches); the shared trunk/bar segments above a
      fork are each their own addressable .fea-seg so the whole path can light up together. */
   .fea-connector{position:relative;width:100%;}
-  /* "Normal" (not-matching-the-live-condition) lines stay thin and muted -- var(--ink-3), the
-     app's existing faint/recessive ink tone -- so only the one path that truly matches the live
-     recommendation (teal, thicker, animated) reads as prominent; nothing should look "alive"
-     except that single active path. */
+  /* "Normal" (not-matching-the-live-condition) lines stay muted -- var(--ink-3), the app's existing
+     faint/recessive ink tone -- so only the one path that truly matches the live recommendation
+     (teal, animated) reads as prominent; nothing should look "alive" except that single active
+     path. Active and inactive segments share the exact same thickness (line width/height and
+     arrowhead size) -- ONLY color/animation/glow differ -- so every joint where one segment meets
+     another (trunk into bar, bar into leg, leg into arrowhead) lines up exactly regardless of
+     which side is active, with no mismatched step or gap at the seam. */
   .fea-seg{position:absolute;background:var(--ink-3);}
   .fea-ln-v{width:2px;left:50%;transform:translateX(-50%);}
   .fea-ln-h{height:2px;}
   .fea-arrowhead-v{position:absolute;left:50%;transform:translateX(-50%);width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-top:6px solid var(--ink-3);}
   .fea-leg{position:absolute;top:0;left:50%;transform:translateX(-50%);width:0;height:100%;}
-  .fea-ln-v.active,.fea-leg.active .fea-ln-v{width:4px;background-color:transparent;background-image:repeating-linear-gradient(180deg,#12a7b5 0 6px,rgba(18,167,181,.3) 6px 12px);background-size:100% 24px;animation:feaFlowV .7s linear infinite;box-shadow:0 0 6px rgba(18,167,181,.45);}
+  .fea-ln-v.active,.fea-leg.active .fea-ln-v{background-color:transparent;background-image:repeating-linear-gradient(180deg,#12a7b5 0 6px,rgba(18,167,181,.3) 6px 12px);background-size:100% 24px;animation:feaFlowV .7s linear infinite;box-shadow:0 0 6px rgba(18,167,181,.45);}
   /* A shared trunk/bar fork point only ever sends the flow one way at a time (toward whichever
      leg actually matches the live condition) -- so each horizontal bar is split in markup into a
      left-half and a right-half (.fea-flow-left / .fea-flow-right), and only the half that's
@@ -780,18 +783,23 @@
      animated "normal" line even when its sibling half lights up. The flow animation's direction
      also matches which way that half leads (left half flows left, right half flows right) so the
      motion visually points toward the destination instead of a generic one-way slide. */
-  .fea-ln-h.active,.fea-leg.active .fea-ln-h{height:4px;background-color:transparent;background-image:repeating-linear-gradient(90deg,#12a7b5 0 6px,rgba(18,167,181,.3) 6px 12px);background-size:24px 100%;box-shadow:0 0 6px rgba(18,167,181,.45);}
+  .fea-ln-h.active,.fea-leg.active .fea-ln-h{background-color:transparent;background-image:repeating-linear-gradient(90deg,#12a7b5 0 6px,rgba(18,167,181,.3) 6px 12px);background-size:24px 100%;box-shadow:0 0 6px rgba(18,167,181,.45);}
   .fea-ln-h.fea-flow-left.active{animation:feaFlowHLeft .7s linear infinite;}
   .fea-ln-h.fea-flow-right.active{animation:feaFlowHRight .7s linear infinite;}
   @keyframes feaFlowHLeft{ to{ background-position-x:-24px; } }
   @keyframes feaFlowHRight{ to{ background-position-x:24px; } }
-  .fea-arrowhead-v.active,.fea-leg.active .fea-arrowhead-v{border-left-width:6px;border-right-width:6px;border-top-width:9px;border-top-color:#12a7b5;filter:drop-shadow(0 0 4px rgba(18,167,181,.6));}
+  .fea-arrowhead-v.active,.fea-leg.active .fea-arrowhead-v{border-top-color:#12a7b5;filter:drop-shadow(0 0 4px rgba(18,167,181,.6));}
   @keyframes feaFlowV{ to{ background-position-y:-24px; } }
   .fea-connector-fork2{height:36px;margin:0 20px;width:calc(100% - 40px);}
   .fea-connector-single{height:28px;}
   .fea-connector-fork3{height:26px;}
   .fea-branch > .fea-connector-mobile-single{display:none;height:24px;}
-  .fea-leaves > .fea-connector-mobile-single{display:none;height:20px;}
+  /* This one sits as a SIBLING immediately before its .fea-leaf inside the .fea-leaves grid (not
+     nested inside the leaf's own padding -- that would render the arrow INSIDE the card instead of
+     above it, pointing in). Grid row-gap (10px) would otherwise leave a visible gap between the
+     connector and the leaf it points to; a matching negative bottom margin cancels exactly that
+     gutter so the arrowhead still touches the card's real top border with nothing left over. */
+  .fea-leaves > .fea-connector-mobile-single{display:none;height:20px;margin-bottom:-10px;}
   @media (max-width:900px){
     .fea-branches{grid-template-columns:1fr;}
     .fea-connector-fork2{display:none;}
@@ -2707,22 +2715,22 @@
               <i class="fea-seg fea-ln-v" id="feaForkKappaTrunk" style="top:0;height:12px;"></i>
               <i class="fea-seg fea-ln-h fea-flow-left" id="feaForkKappaBarLeft" style="top:12px;left:25%;width:25%;"></i>
               <i class="fea-seg fea-ln-h fea-flow-right" id="feaForkKappaBarRight" style="top:12px;left:50%;width:25%;"></i>
-              <span class="fea-leg" id="feaArrowBranchBelow" style="left:25%;"><i class="fea-seg fea-ln-v" style="top:15px;height:14px;"></i><i class="fea-arrowhead-v" style="top:29px;"></i></span>
-              <span class="fea-leg" id="feaArrowBranchAbove" style="left:75%;"><i class="fea-seg fea-ln-v" style="top:15px;height:14px;"></i><i class="fea-arrowhead-v" style="top:29px;"></i></span>
+              <span class="fea-leg" id="feaArrowBranchBelow" style="left:25%;"><i class="fea-seg fea-ln-v" style="top:14px;height:16px;"></i><i class="fea-arrowhead-v" style="top:30px;"></i></span>
+              <span class="fea-leg" id="feaArrowBranchAbove" style="left:75%;"><i class="fea-seg fea-ln-v" style="top:14px;height:16px;"></i><i class="fea-arrowhead-v" style="top:30px;"></i></span>
             </div>
             <div class="fea-branches">
               <div class="fea-branch" id="feaBranchBelow" data-branch="below">
-                <div class="fea-connector fea-connector-mobile-single" aria-hidden="true"><span class="fea-leg" id="feaArrowBranchBelowM" style="left:50%;"><i class="fea-seg fea-ln-v" style="top:0;height:17px;"></i><i class="fea-arrowhead-v" style="top:17px;"></i></span></div>
+                <div class="fea-connector fea-connector-mobile-single" aria-hidden="true"><span class="fea-leg" id="feaArrowBranchBelowM" style="left:50%;"><i class="fea-seg fea-ln-v" style="top:0;height:18px;"></i><i class="fea-arrowhead-v" style="top:18px;"></i></span></div>
                 <div class="fea-branch-head fea-below"><span class="fea-branch-ico">📉</span>Kappa ต่ำกว่า Target</div>
-                <div class="fea-connector fea-connector-single" aria-hidden="true"><span class="fea-leg" id="feaArrowToDiamondBelow" style="left:50%;"><i class="fea-seg fea-ln-v" style="top:0;height:21px;"></i><i class="fea-arrowhead-v" style="top:21px;"></i></span></div>
+                <div class="fea-connector fea-connector-single" aria-hidden="true"><span class="fea-leg" id="feaArrowToDiamondBelow" style="left:50%;"><i class="fea-seg fea-ln-v" style="top:0;height:22px;"></i><i class="fea-arrowhead-v" style="top:22px;"></i></span></div>
                 <div class="fea-diamond fea-below">Residual HBL Acc.1<br>เทียบกับ Target<br><b><span id="feaDiamondTxtBelow">20 ±1 g/L</span></b></div>
                 <div class="fea-connector fea-connector-fork3" aria-hidden="true">
                   <i class="fea-seg fea-ln-v" id="feaForkLeafTrunkBelow" style="top:0;height:8px;"></i>
                   <i class="fea-seg fea-ln-h fea-flow-left" id="feaForkLeafBarBelowLeft" style="top:8px;left:16.67%;width:33.33%;"></i>
                   <i class="fea-seg fea-ln-h fea-flow-right" id="feaForkLeafBarBelowRight" style="top:8px;left:50%;width:33.33%;"></i>
-                  <span class="fea-leg" id="feaArrowLeaf_below_onTarget" style="left:16.67%;"><i class="fea-seg fea-ln-v" style="top:11px;height:9px;"></i><i class="fea-arrowhead-v" style="top:20px;"></i></span>
-                  <span class="fea-leg" id="feaArrowLeaf_below_above" style="left:50%;"><i class="fea-seg fea-ln-v" style="top:11px;height:9px;"></i><i class="fea-arrowhead-v" style="top:20px;"></i></span>
-                  <span class="fea-leg" id="feaArrowLeaf_below_below" style="left:83.33%;"><i class="fea-seg fea-ln-v" style="top:11px;height:9px;"></i><i class="fea-arrowhead-v" style="top:20px;"></i></span>
+                  <span class="fea-leg" id="feaArrowLeaf_below_onTarget" style="left:16.67%;"><i class="fea-seg fea-ln-v" style="top:10px;height:10px;"></i><i class="fea-arrowhead-v" style="top:20px;"></i></span>
+                  <span class="fea-leg" id="feaArrowLeaf_below_above" style="left:50%;"><i class="fea-seg fea-ln-v" style="top:10px;height:10px;"></i><i class="fea-arrowhead-v" style="top:20px;"></i></span>
+                  <span class="fea-leg" id="feaArrowLeaf_below_below" style="left:83.33%;"><i class="fea-seg fea-ln-v" style="top:10px;height:10px;"></i><i class="fea-arrowhead-v" style="top:20px;"></i></span>
                 </div>
                 <div class="fea-leaves">
                   <div class="fea-connector fea-connector-mobile-single" aria-hidden="true"><span class="fea-leg" id="feaArrowLeaf_below_onTargetM" style="left:50%;"><i class="fea-seg fea-ln-v" style="top:0;height:14px;"></i><i class="fea-arrowhead-v" style="top:14px;"></i></span></div>
@@ -2746,17 +2754,17 @@
                 </div>
               </div>
               <div class="fea-branch" id="feaBranchAbove" data-branch="above">
-                <div class="fea-connector fea-connector-mobile-single" aria-hidden="true"><span class="fea-leg" id="feaArrowBranchAboveM" style="left:50%;"><i class="fea-seg fea-ln-v" style="top:0;height:17px;"></i><i class="fea-arrowhead-v" style="top:17px;"></i></span></div>
+                <div class="fea-connector fea-connector-mobile-single" aria-hidden="true"><span class="fea-leg" id="feaArrowBranchAboveM" style="left:50%;"><i class="fea-seg fea-ln-v" style="top:0;height:18px;"></i><i class="fea-arrowhead-v" style="top:18px;"></i></span></div>
                 <div class="fea-branch-head fea-above"><span class="fea-branch-ico">📈</span>Kappa สูงกว่า Target</div>
-                <div class="fea-connector fea-connector-single" aria-hidden="true"><span class="fea-leg" id="feaArrowToDiamondAbove" style="left:50%;"><i class="fea-seg fea-ln-v" style="top:0;height:21px;"></i><i class="fea-arrowhead-v" style="top:21px;"></i></span></div>
+                <div class="fea-connector fea-connector-single" aria-hidden="true"><span class="fea-leg" id="feaArrowToDiamondAbove" style="left:50%;"><i class="fea-seg fea-ln-v" style="top:0;height:22px;"></i><i class="fea-arrowhead-v" style="top:22px;"></i></span></div>
                 <div class="fea-diamond fea-above">Residual HBL Acc.1<br>เทียบกับ Target<br><b><span id="feaDiamondTxtAbove">20 ±1 g/L</span></b></div>
                 <div class="fea-connector fea-connector-fork3" aria-hidden="true">
                   <i class="fea-seg fea-ln-v" id="feaForkLeafTrunkAbove" style="top:0;height:8px;"></i>
                   <i class="fea-seg fea-ln-h fea-flow-left" id="feaForkLeafBarAboveLeft" style="top:8px;left:16.67%;width:33.33%;"></i>
                   <i class="fea-seg fea-ln-h fea-flow-right" id="feaForkLeafBarAboveRight" style="top:8px;left:50%;width:33.33%;"></i>
-                  <span class="fea-leg" id="feaArrowLeaf_above_onTarget" style="left:16.67%;"><i class="fea-seg fea-ln-v" style="top:11px;height:9px;"></i><i class="fea-arrowhead-v" style="top:20px;"></i></span>
-                  <span class="fea-leg" id="feaArrowLeaf_above_above" style="left:50%;"><i class="fea-seg fea-ln-v" style="top:11px;height:9px;"></i><i class="fea-arrowhead-v" style="top:20px;"></i></span>
-                  <span class="fea-leg" id="feaArrowLeaf_above_below" style="left:83.33%;"><i class="fea-seg fea-ln-v" style="top:11px;height:9px;"></i><i class="fea-arrowhead-v" style="top:20px;"></i></span>
+                  <span class="fea-leg" id="feaArrowLeaf_above_onTarget" style="left:16.67%;"><i class="fea-seg fea-ln-v" style="top:10px;height:10px;"></i><i class="fea-arrowhead-v" style="top:20px;"></i></span>
+                  <span class="fea-leg" id="feaArrowLeaf_above_above" style="left:50%;"><i class="fea-seg fea-ln-v" style="top:10px;height:10px;"></i><i class="fea-arrowhead-v" style="top:20px;"></i></span>
+                  <span class="fea-leg" id="feaArrowLeaf_above_below" style="left:83.33%;"><i class="fea-seg fea-ln-v" style="top:10px;height:10px;"></i><i class="fea-arrowhead-v" style="top:20px;"></i></span>
                 </div>
                 <div class="fea-leaves">
                   <div class="fea-connector fea-connector-mobile-single" aria-hidden="true"><span class="fea-leg" id="feaArrowLeaf_above_onTargetM" style="left:50%;"><i class="fea-seg fea-ln-v" style="top:0;height:14px;"></i><i class="fea-arrowhead-v" style="top:14px;"></i></span></div>
