@@ -660,19 +660,30 @@
   section[data-page="opt-fix-ea-charge"] .hft-head p,
   section[data-page="h-factor-tuning"] .hft-head p,
   section[data-page="daily-data"] .hft-head p{max-width:none;}
-  /* The Fix Ton EA Charge page's own little wood-chip mascot -- a quiet, happy companion beside
-     the title, built as inline SVG so it can breathe/blink/wave with plain CSS keyframes rather
-     than a video or GIF. Every loop below runs on its own period (3.6s-5.6s, none a simple multiple
-     of another) so the parts drift in and out of phase instead of visibly resetting in lockstep,
-     and nothing ever sits perfectly still while the mascot is on screen. */
-  section[data-page="opt-fix-ea-charge"] .hft-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;}
-  .hft-head-text{flex:1 1 auto;min-width:0;}
-  .fea-mascot{flex:0 0 auto;width:64px;margin-bottom:-6px;}
-  .fea-mascot svg{display:block;width:100%;height:auto;overflow:visible;}
-  @media (max-width:900px){ .fea-mascot{display:none;} }
+  /* The Fix Ton EA Charge page's own little wood-chip mascot now runs laps around the flow-
+     diagram's own content border (inside .fea-flow-body, which needs position:relative for
+     this), deliberately excluding the navy title bar above it so the mascot can never cover the
+     page title -- never leaving the content area's bounds -- left/top are driven in % of that
+     area's own current size via calc(), so this holds regardless of how tall the card gets once
+     branches/leaves expand, with a small 3px inset so the rounded corners never clip it. The run
+     cycle (legs + body bounce)
+     shares one period by mechanical necessity (a leg swing and its matching body bounce must stay
+     locked together to read as a real stride); every other loop (sway, sprout, arms, face) keeps
+     its own distinct period so nothing else resets in visible lockstep. */
+  .fea-mascot-runner{position:absolute;width:48px;z-index:5;pointer-events:none;animation:feaMascotRunPath 14s linear infinite;}
+  .fea-mascot-runner svg{display:block;width:100%;height:auto;overflow:visible;}
+  @keyframes feaMascotRunPath{
+    0%{ left:3px; top:3px; transform:scaleX(1); }
+    25%{ left:calc(100% - 51px); top:3px; transform:scaleX(1); }
+    50%{ left:calc(100% - 51px); top:calc(100% - 75px); transform:scaleX(1); }
+    50.01%{ left:calc(100% - 51px); top:calc(100% - 75px); transform:scaleX(-1); }
+    75%{ left:3px; top:calc(100% - 75px); transform:scaleX(-1); }
+    100%{ left:3px; top:3px; transform:scaleX(-1); }
+  }
   .fea-mascot-upper{transform-box:fill-box;transform-origin:bottom center;animation:feaMascotSway 4.8s ease-in-out infinite;}
-  .fea-mascot-breathe{transform-box:fill-box;transform-origin:bottom center;animation:feaMascotBreathe 3.6s ease-in-out infinite;}
-  .fea-mascot-legs{transform-box:fill-box;transform-origin:top center;animation:feaMascotLegSway 4.2s ease-in-out infinite;}
+  .fea-mascot-breathe{transform-box:fill-box;transform-origin:bottom center;animation:feaMascotRunBounce 0.42s ease-in-out infinite;}
+  .fea-mascot-leg{transform-box:view-box;animation:feaMascotRunLeg 0.42s ease-in-out infinite;}
+  .fea-mascot-leg-r{animation-delay:-0.21s;}
   .fea-mascot-sprout{transform-box:fill-box;transform-origin:bottom center;animation:feaMascotSproutSway 5.6s ease-in-out infinite;}
   .fea-mascot-arm{transform-box:view-box;}
   .fea-mascot-arm-rest{animation:feaMascotArmRestSway 4.4s ease-in-out infinite;}
@@ -682,8 +693,8 @@
   .fea-mascot-cheek{animation:feaMascotCheekPulse 5s ease-in-out infinite;}
   .fea-mascot-mouth{transform-box:view-box;animation:feaMascotMouthPulse 5s ease-in-out infinite;}
   @keyframes feaMascotSway{ 0%,100%{transform:rotate(-2.5deg);} 50%{transform:rotate(2.5deg);} }
-  @keyframes feaMascotBreathe{ 0%,100%{transform:translateY(0);} 50%{transform:translateY(-4px);} }
-  @keyframes feaMascotLegSway{ 0%,100%{transform:rotate(-1deg);} 50%{transform:rotate(1deg);} }
+  @keyframes feaMascotRunBounce{ 0%,100%{transform:translateY(0);} 50%{transform:translateY(-5px);} }
+  @keyframes feaMascotRunLeg{ 0%,100%{transform:rotate(-20deg);} 50%{transform:rotate(20deg);} }
   @keyframes feaMascotSproutSway{ 0%,100%{transform:rotate(-2.5deg);} 50%{transform:rotate(2.5deg);} }
   @keyframes feaMascotArmRestSway{ 0%,100%{transform:rotate(-3deg);} 50%{transform:rotate(3deg);} }
   /* The waving arm rests most of the cycle, then gives a short, cheerful wave burst (~1.7s out of
@@ -779,15 +790,19 @@
      is self-contained, same pattern as .hft-reco-value's fixed accent pill -- the leaf CARDS
      (the actual content) still sit on var(--surface)/var(--ink) so they read correctly in dark mode. */
   .fea-flow{margin-top:14px;border-radius:16px;overflow:hidden;box-shadow:var(--shadow);background:var(--surface);border:1px solid var(--border);}
+  .fea-flow-body{position:relative;}
   .fea-title-bar{background:linear-gradient(135deg,#1b3a6b 0%,#0f2847 100%);color:#fff;font-size:18px;font-weight:800;text-align:center;padding:16px 20px;}
   /* The live baseline numbers (Kappa Cooking avg, Set point H-factor avg, Residual latest) and
      their two editable Target controls now live INSIDE the diagram card itself, right under the
      title bar, instead of in a separate box above it -- same margin rhythm as the other banners. */
-  .fea-baseline{margin:14px 20px 18px;}
   .fea-baseline-controls{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:10px 20px 0;}
   .fea-principle,.fea-compare,.fea-goal,.fea-instruction{display:flex;align-items:center;justify-content:center;gap:10px;text-align:center;font-size:13.5px;padding:12px 20px;margin:14px 20px 0;border-radius:12px;}
   .fea-principle{background:#fdf0cf;color:#6b4a00;border:1px solid #f0cf7a;font-weight:700;}
   .fea-compare{background:var(--surface-2);color:var(--ink);border:1px solid var(--border);font-weight:700;}
+  /* Edge-case status messages (no Target Kappa set yet, Kappa already on target, no Residual data
+     yet) used to live inside the now-removed baseline box; this small banner takes over that job,
+     sitting right under the compare banner so it's still seen before the branches/diamond below. */
+  #feaStatusNote{margin:10px 20px 0;padding:10px 14px;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;font-size:12px;color:var(--ink-2);line-height:1.6;}
   .fea-goal{background:#fdf0cf;color:#6b4a00;border:1px solid #f0cf7a;font-weight:700;margin-top:18px;}
   .fea-instruction{background:var(--surface-2);color:var(--ink-2);margin-top:10px;margin-bottom:18px;font-size:12px;}
   .fea-banner-ico{font-size:16px;flex:0 0 auto;}
@@ -859,7 +874,7 @@
     .fea-branch > .fea-connector-mobile-single{display:block;}
   }
   @media (max-width:640px){
-    .fea-leaves{grid-template-columns:1fr;} .fea-principle,.fea-compare,.fea-goal,.fea-instruction,.fea-baseline,.fea-baseline-controls{margin-left:12px;margin-right:12px;} .fea-branches{padding-left:12px;padding-right:12px;}
+    .fea-leaves{grid-template-columns:1fr;} .fea-principle,.fea-compare,.fea-goal,.fea-instruction,.fea-baseline-controls,#feaStatusNote{margin-left:12px;margin-right:12px;} .fea-branches{padding-left:12px;padding-right:12px;}
     .fea-connector-fork3{display:none;}
     .fea-leaves > .fea-connector-mobile-single{display:block;}
   }
@@ -2740,15 +2755,20 @@
         </section>
         <section class="page" data-page="opt-fix-ea-charge" hidden>
           <div class="hft-head">
-            <div class="hft-head-text">
-              <h2>Fix Ton EA Charge</h2>
-              <p>Fix Ton EA Charge: เพื่อควบคุม Residual Alkaline Acc. ให้ได้ตามเป้าหมาย ด้วยวิธีการปรับแบบ Fix Ton EA Charge</p>
-            </div>
-            <div class="fea-mascot" aria-hidden="true">
+            <h2>Fix Ton EA Charge</h2>
+            <p>Fix Ton EA Charge: เพื่อควบคุม Residual Alkaline Acc. ให้ได้ตามเป้าหมาย ด้วยวิธีการปรับแบบ Fix Ton EA Charge</p>
+          </div>
+
+          <div class="fea-flow" id="feaFlowDiagram">
+            <div class="fea-title-bar">แนวทางการปรับสารเคมีกรณี Fix Ton EA Charge</div>
+            <div class="fea-flow-body">
+            <div class="fea-mascot-runner" aria-hidden="true">
               <svg viewBox="0 0 200 300" xmlns="http://www.w3.org/2000/svg">
                 <ellipse class="fea-mascot-shadow" cx="100" cy="286" rx="42" ry="8" fill="#000" opacity="0.1"/>
-                <g class="fea-mascot-legs">
+                <g class="fea-mascot-leg fea-mascot-leg-l" style="transform-origin:70px 212px;">
                   <path d="M70,210 C60,214 55,228 55,245 C55,258 57,270 62,279 C65,284 78,284 81,279 C86,266 87,248 85,232 C84,221 78,213 70,210 Z" fill="#D9B06C"/>
+                </g>
+                <g class="fea-mascot-leg fea-mascot-leg-r" style="transform-origin:130px 212px;">
                   <path d="M130,210 C140,214 145,228 145,245 C145,258 143,270 138,279 C135,284 122,284 119,279 C114,266 113,248 115,232 C116,221 122,213 130,210 Z" fill="#D9B06C"/>
                 </g>
                 <g class="fea-mascot-upper">
@@ -2790,10 +2810,6 @@
                 </g>
               </svg>
             </div>
-          </div>
-
-          <div class="fea-flow" id="feaFlowDiagram">
-            <div class="fea-title-bar">แนวทางการปรับสารเคมีกรณี Fix Ton EA Charge</div>
             <div class="fea-baseline-controls">
               <div class="md-target" id="feaTargetKappaRow">
                 <span class="fld">Target Kappa <input type="number" id="feaTargetKappaInput" step="0.01" min="0" value="13.50"></span>
@@ -2807,7 +2823,8 @@
               </div>
             </div>
             <div class="fea-principle"><span class="fea-banner-ico">🎯</span><span><b>หลักการสำคัญ:</b> ตรวจสอบ Residual HBL Acc.1 เป็นอันดับแรก</span></div>
-            <div class="fea-compare"><span class="fea-banner-ico">📈</span><span>เปรียบเทียบ Kappa Cooking กับ Target</span></div>
+            <div class="fea-compare"><span class="fea-banner-ico">📈</span><span>เปรียบเทียบ Kappa Cooking (แสดงค่า <span class="hft-reco-value" id="feaCompareKappaVal">—</span>) กับ Target Kappa (แสดงค่า <span class="hft-reco-value" id="feaCompareTargetVal">—</span>)</span></div>
+            <p class="hft-kappa-note" id="feaStatusNote" hidden></p>
             <div class="fea-connector fea-connector-fork2" aria-hidden="true">
               <i class="fea-seg fea-ln-v" id="feaForkKappaTrunk" style="top:0;height:12px;"></i>
               <i class="fea-seg fea-ln-h fea-flow-left" id="feaForkKappaBarLeft" style="top:12px;left:25%;width:25%;"></i>
@@ -2887,7 +2904,7 @@
             </div>
             <div class="fea-goal"><span class="fea-banner-ico">🎯</span><span><b>เป้าหมาย:</b> ควบคุม Kappa เข้าสู่ Target พร้อมรักษา Residual HBL Acc.1 ที่ 20 ±1 g/L</span></div>
             <div class="fea-instruction"><span class="fea-banner-ico">⚙️</span><span>ปรับครั้งละ 1 Parameter → รอผลตาม Batch / Retention Time → ตรวจยืนยัน Kappa และ Residual ก่อนปรับซ้ำ</span></div>
-            <div class="fea-baseline hft-note hft-reco-box" id="feaBaselineBox"></div>
+            </div>
           </div>
         </section>
         <section class="page" data-page="data-analysis" hidden>
@@ -9012,12 +9029,46 @@ function initFeaTargetKappaInput(){
     }
   });
 }
-function feaSyncDiamondTargetText(){
-  const txt = hftFmt(FEA_RESIDUAL_CENTER,0)+' ±1 g/L';
+function feaSyncDiamondTargetText(residual){
+  residual = residual === undefined ? feaLatestResidualAcc() : residual;
+  const bandTxt = hftFmt(FEA_RESIDUAL_CENTER,0)+' ±1 g/L';
+  const txt = bandTxt + (residual ? ' (ค่าล่าสุด '+hftFmt(residual.value,2)+' g/L)' : '');
   ['feaDiamondTxtBelow','feaDiamondTxtAbove'].forEach(function(id){
     const el = document.getElementById(id);
     if(el) el.textContent = txt;
   });
+}
+/* The compare banner shows the live Kappa Cooking average and current Target Kappa right in its
+   own text (per explicit request), with the 3-batch breakdown that used to sit in a separate box
+   now available as a hover tooltip on the Kappa value instead. */
+function feaSyncCompareBanner(r){
+  const kEl = document.getElementById('feaCompareKappaVal');
+  const tEl = document.getElementById('feaCompareTargetVal');
+  if(kEl){
+    if(r.k){
+      kEl.textContent = hftFmt(r.k.avg,2);
+      const batchList = r.k.batches.map(function(b){
+        return 'Cook #'+(b.cookNo!=null?b.cookNo:'—')+' ('+b.d+' '+MONTH_ABBR_TH[b.mi]+' '+b.y+') = '+hftFmt(b.kappa,2);
+      }).join(', ');
+      kEl.title = 'Kappa Cooking เฉลี่ย 3 Batch ล่าสุด: '+batchList+' เฉลี่ยได้ '+hftFmt(r.k.avg,2);
+    } else {
+      kEl.textContent = '—';
+      kEl.title = '';
+    }
+  }
+  if(tEl) tEl.textContent = FEA_TARGET_KAPPA!=null ? hftFmt(FEA_TARGET_KAPPA,2) : '—';
+}
+function feaSetStatusNote(text){
+  const el = document.getElementById('feaStatusNote');
+  if(!el) return;
+  el.textContent = text;
+  el.hidden = false;
+}
+function feaClearStatusNote(){
+  const el = document.getElementById('feaStatusNote');
+  if(!el) return;
+  el.hidden = true;
+  el.textContent = '';
 }
 function initFeaResidualTargetInput(){
   const input = document.getElementById('feaResidualTargetInput');
@@ -9049,42 +9100,27 @@ function feaSetArrowActive(id, isActive){
   el.classList.toggle('active', !!isActive);
 }
 function renderFeaPage(){
-  const box = document.getElementById('feaBaselineBox');
-  if(!box) return;
+  if(!document.getElementById('feaCompareKappaVal')) return;
   const r = computeFeaRecommendation();
   document.querySelectorAll('#feaFlowDiagram .fea-leaf').forEach(function(el){ el.classList.remove('active'); });
   document.querySelectorAll('#feaFlowDiagram .fea-leaf-calc').forEach(function(el){ el.innerHTML = ''; });
   document.querySelectorAll('#feaFlowDiagram .fea-branch-head').forEach(function(el){ el.classList.remove('active-branch'); });
   document.querySelectorAll('#feaFlowDiagram .fea-seg, #feaFlowDiagram .fea-leg').forEach(function(el){ el.classList.remove('active'); });
+  feaSyncCompareBanner(r);
+  feaSyncDiamondTargetText(r.residual !== undefined ? r.residual : feaLatestResidualAcc());
+  feaClearStatusNote();
 
   if(r.status === 'insufficient-history'){
-    box.innerHTML = '<p>ข้อมูล Kappa No. (Online) จาก Cooking Logsheet ยังมีไม่ครบ 3 Batch (มีข้อมูลอยู่ '+r.n+' Batch) จึงยังไม่สามารถคำนวณค่าตั้งต้นได้</p>';
+    feaSetStatusNote('ข้อมูล Kappa No. (Online) จาก Cooking Logsheet ยังมีไม่ครบ 3 Batch (มีข้อมูลอยู่ '+r.n+' Batch) จึงยังไม่สามารถคำนวณค่าตั้งต้นได้');
     return;
   }
   const k = r.k;
-  const batchList = k.batches.map(function(b){
-    return 'Cook #'+(b.cookNo!=null?b.cookNo:'—')+' ('+b.d+' '+MONTH_ABBR_TH[b.mi]+' '+b.y+') = '+hftFmt(b.kappa,2);
-  }).join(', ');
-  const residualTxt = r.residual
-    ? '<span class="hft-reco-value">'+hftFmt(r.residual.value,2)+'</span> g/L ('+r.residual.d+' '+MONTH_ABBR_TH[r.residual.mi]+' '+r.residual.y+')'
-    : 'ไม่มีข้อมูล';
-  let html = '<p><b>Kappa Cooking เฉลี่ย 3 Batch ล่าสุด:</b> '+batchList+' เฉลี่ยได้ <span class="hft-reco-value">'+hftFmt(k.avg,2)+'</span></p>'
-    + '<p><b>Set point H-factor เฉลี่ย 3 Batch ล่าสุด (ชุดเดียวกัน):</b> '+(r.avgSetPoint!=null ? '<span class="hft-reco-value">'+hftFmt(r.avgSetPoint,0)+'</span>' : 'ไม่มีข้อมูล')+'</p>'
-    + '<p><b>Residual HBL Acc.1 (QC Lab FL1, ล่าสุด):</b> '+residualTxt+'</p>';
-  box.innerHTML = html;
-
   if(r.status === 'no-target'){
-    const note = document.createElement('p');
-    note.className = 'hft-kappa-note';
-    note.textContent = 'กรุณาระบุค่า Target Kappa ที่ต้องการเดินให้ถูกต้อง (ตัวเลขมากกว่า 0) เพื่อดูคำแนะนำ';
-    box.appendChild(note);
+    feaSetStatusNote('กรุณาระบุค่า Target Kappa ที่ต้องการเดินให้ถูกต้อง (ตัวเลขมากกว่า 0) เพื่อดูคำแนะนำ');
     return;
   }
   if(r.kappaBranch === 'onTarget'){
-    const note = document.createElement('p');
-    note.className = 'hft-kappa-note';
-    note.textContent = 'Kappa Cooking ('+hftFmt(k.avg,2)+') ใกล้เคียงกับ Target ('+hftFmt(FEA_TARGET_KAPPA,2)+') อยู่แล้ว จึงไม่จำเป็นต้องปรับสารเคมี';
-    box.appendChild(note);
+    feaSetStatusNote('Kappa Cooking ('+hftFmt(k.avg,2)+') ใกล้เคียงกับ Target ('+hftFmt(FEA_TARGET_KAPPA,2)+') อยู่แล้ว จึงไม่จำเป็นต้องปรับสารเคมี');
     return;
   }
   const branchEl = document.getElementById(r.kappaBranch==='above' ? 'feaBranchAbove' : 'feaBranchBelow');
@@ -9100,10 +9136,7 @@ function renderFeaPage(){
   feaSetArrowActive('feaArrowToDiamond'+branchSuffix, true);
   feaSetArrowActive('feaForkLeafTrunk'+branchSuffix, true);
   if(!r.residualBranch){
-    const note = document.createElement('p');
-    note.className = 'hft-kappa-note';
-    note.textContent = 'ยังไม่มีข้อมูล Residual HBL Acc.1 ล่าสุดจากชีท QC Lab FL1 จึงยังไม่สามารถระบุบล็อคที่แนะนำได้ (ดูเฉพาะทิศทาง Kappa ด้านบน)';
-    box.appendChild(note);
+    feaSetStatusNote('ยังไม่มีข้อมูล Residual HBL Acc.1 ล่าสุดจากชีท QC Lab FL1 จึงยังไม่สามารถระบุบล็อคที่แนะนำได้ (ดูเฉพาะทิศทาง Kappa ด้านบน)');
     return;
   }
   const leafKey = r.kappaBranch+'_'+r.residualBranch;
@@ -9117,8 +9150,9 @@ function renderFeaPage(){
   feaSetArrowActive('feaArrowLeaf_'+leafKey+'M', true);
   if(calcEl && action){
     if(action.type === 'hfactor'){
-      const newTxt = r.newSetPoint!=null ? ' (เป็น '+hftFmt(r.newSetPoint,0)+')' : '';
-      calcEl.innerHTML = 'แนะนำปรับจริง: '+action.dir+' <span class="hft-reco-value">'+r.hFactorDelta+' หน่วย</span>'+newTxt;
+      const fromTxt = r.avgSetPoint!=null ? 'จาก '+hftFmt(r.avgSetPoint,0)+' ' : '';
+      const newTxt = r.newSetPoint!=null ? fromTxt+'เป็น '+hftFmt(r.newSetPoint,0) : '';
+      calcEl.innerHTML = 'แนะนำปรับจริง: '+action.dir+' <span class="hft-reco-value">'+r.hFactorDelta+' หน่วย</span>'+(newTxt ? ' ('+newTxt+')' : '');
     } else {
       calcEl.innerHTML = 'แนะนำปรับจริง: '+action.dir+' <span class="hft-reco-value">'+hftFmt(r.eaDelta,2)+' ton</span>';
     }
