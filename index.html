@@ -657,68 +657,8 @@
      rather than wrapping at a fixed 72-character cap -- dropping the cap here only (not globally,
      since other pages' descriptions still want to wrap at a readable line length); still wraps
      normally if the viewport is too narrow to fit on one line. */
-  section[data-page="opt-fix-ea-charge"] .hft-head p,
   section[data-page="h-factor-tuning"] .hft-head p,
   section[data-page="daily-data"] .hft-head p{max-width:none;}
-  /* The Fix Ton EA Charge page's own little wood-chip mascot now runs laps around the flow-
-     diagram's own content border (inside .fea-flow-body, which needs position:relative for
-     this), deliberately excluding the navy title bar above it so the mascot can never cover the
-     page title -- never leaving the content area's bounds -- left/top are driven in % of that
-     area's own current size via calc(), so this holds regardless of how tall the card gets once
-     branches/leaves expand, with a small 3px inset so the rounded corners never clip it. The run
-     cycle (legs + body bounce)
-     shares one period by mechanical necessity (a leg swing and its matching body bounce must stay
-     locked together to read as a real stride); every other loop (sway, sprout, arms, face) keeps
-     its own distinct period so nothing else resets in visible lockstep. */
-  .fea-mascot-runner{position:absolute;width:32px;z-index:5;pointer-events:none;animation:feaMascotRunPath 14s linear infinite;}
-  .fea-mascot-runner svg{display:block;width:100%;height:auto;overflow:visible;}
-  @keyframes feaMascotRunPath{
-    0%{ left:3px; top:3px; transform:scaleX(1); }
-    25%{ left:calc(100% - 35px); top:3px; transform:scaleX(1); }
-    50%{ left:calc(100% - 35px); top:calc(100% - 51px); transform:scaleX(1); }
-    50.01%{ left:calc(100% - 35px); top:calc(100% - 51px); transform:scaleX(-1); }
-    75%{ left:3px; top:calc(100% - 51px); transform:scaleX(-1); }
-    100%{ left:3px; top:3px; transform:scaleX(-1); }
-  }
-  .fea-mascot-upper{transform-box:fill-box;transform-origin:bottom center;animation:feaMascotSway 4.8s ease-in-out infinite;}
-  .fea-mascot-breathe{transform-box:fill-box;transform-origin:bottom center;animation:feaMascotRunBounce 0.42s ease-in-out infinite;}
-  .fea-mascot-leg{transform-box:view-box;animation:feaMascotRunLeg 0.42s ease-in-out infinite;}
-  .fea-mascot-leg-r{animation-delay:-0.21s;}
-  .fea-mascot-sprout{transform-box:fill-box;transform-origin:bottom center;animation:feaMascotSproutSway 5.6s ease-in-out infinite;}
-  .fea-mascot-arm{transform-box:view-box;}
-  .fea-mascot-arm-rest{animation:feaMascotArmRestSway 4.4s ease-in-out infinite;}
-  .fea-mascot-arm-wave{animation:feaMascotWave 5s ease-in-out infinite;}
-  .fea-mascot-pupil{animation:feaMascotGaze 5.2s ease-in-out infinite;}
-  .fea-mascot-lid{transform-box:view-box;transform:scaleY(0);animation:feaMascotBlink 4s ease-in-out infinite;}
-  .fea-mascot-cheek{animation:feaMascotCheekPulse 5s ease-in-out infinite;}
-  .fea-mascot-mouth{transform-box:view-box;animation:feaMascotMouthPulse 5s ease-in-out infinite;}
-  @keyframes feaMascotSway{ 0%,100%{transform:rotate(-2.5deg);} 50%{transform:rotate(2.5deg);} }
-  @keyframes feaMascotRunBounce{ 0%,100%{transform:translateY(0);} 50%{transform:translateY(-5px);} }
-  @keyframes feaMascotRunLeg{ 0%,100%{transform:rotate(-20deg);} 50%{transform:rotate(20deg);} }
-  @keyframes feaMascotSproutSway{ 0%,100%{transform:rotate(-2.5deg);} 50%{transform:rotate(2.5deg);} }
-  @keyframes feaMascotArmRestSway{ 0%,100%{transform:rotate(-3deg);} 50%{transform:rotate(3deg);} }
-  /* The waving arm rests most of the cycle, then gives a short, cheerful wave burst (~1.7s out of
-     every 5s) rather than waving nonstop -- a quiet mascot, not a busy one. */
-  @keyframes feaMascotWave{
-    0%,35%{transform:rotate(8deg);}
-    42%{transform:rotate(-8deg);}
-    49%{transform:rotate(22deg);}
-    56%{transform:rotate(-4deg);}
-    63%{transform:rotate(18deg);}
-    70%,100%{transform:rotate(8deg);}
-  }
-  @keyframes feaMascotGaze{ 0%,100%{transform:translateX(0);} 50%{transform:translateX(1.5px);} }
-  /* Eyelid closes faster than it reopens (closing+hold ~160ms, reopening ~440ms of the 4s loop). */
-  @keyframes feaMascotBlink{
-    0%,82%{transform:scaleY(0);}
-    85%{transform:scaleY(1);}
-    89%{transform:scaleY(1);}
-    92%{transform:scaleY(0.6);}
-    96%{transform:scaleY(0.15);}
-    100%{transform:scaleY(0);}
-  }
-  @keyframes feaMascotCheekPulse{ 0%,30%,75%,100%{opacity:0.55;} 45%,60%{opacity:0.9;} }
-  @keyframes feaMascotMouthPulse{ 0%,30%,75%,100%{transform:scaleY(1);} 45%,60%{transform:scaleY(1.15);} }
   .hft-note{background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin:14px 0 18px;font-size:12px;color:var(--ink-2);line-height:1.7;}
   .hft-note b{color:var(--ink);font-weight:700;}
   .hft-wrap{overflow-x:auto;overflow-y:auto;border:1px solid var(--border);border-radius:10px;max-height:70vh;}
@@ -789,9 +729,9 @@
      colors are fixed (not theme-tokens) since they're decorative dividers whose own text contrast
      is self-contained, same pattern as .hft-reco-value's fixed accent pill -- the leaf CARDS
      (the actual content) still sit on var(--surface)/var(--ink) so they read correctly in dark mode. */
-  .fea-flow{margin-top:14px;border-radius:16px;overflow:hidden;box-shadow:var(--shadow);background:var(--surface);border:1px solid var(--border);}
-  .fea-flow-body{position:relative;}
+  .fea-flow{position:relative;margin-top:14px;border-radius:16px;overflow:hidden;box-shadow:var(--shadow);background:var(--surface);border:1px solid var(--border);}
   .fea-title-bar{background:linear-gradient(135deg,#1b3a6b 0%,#0f2847 100%);color:#fff;font-size:18px;font-weight:800;text-align:center;padding:16px 20px;}
+  .fea-title-sub{font-size:12.5px;font-weight:400;color:rgba(255,255,255,.72);margin-top:6px;}
   /* The live baseline numbers (Kappa Cooking avg, Set point H-factor avg, Residual latest) and
      their two editable Target controls now live INSIDE the diagram card itself, right under the
      title bar, instead of in a separate box above it -- same margin rhythm as the other banners. */
@@ -1138,6 +1078,132 @@
   .sens-summary-text .net-line{font-weight:800;font-size:1.12em;color:var(--ink);margin-top:3px;}
 
   .sens-dash-footer{display:flex;justify-content:space-between;align-items:center;gap:12px;font-size:11px;color:var(--ink-3);font-family:"IBM Plex Mono",monospace;flex-wrap:wrap;}
+
+  /* The dashboard's own wood-chip mascot (initDashMascot(), near the end of the main script) --
+     a single instance mounted once as the last child of <body>, position:fixed so it floats over
+     the whole viewport rather than any one page's content. Every page in this app is really just
+     one of several sibling <section class="page"> elements toggled via the `hidden` attribute
+     (see showPage()); since this element lives outside all of them, it is never hidden by a page
+     switch and keeps running across every navigation -- "roams the dashboard", not bound to any
+     one screen. JS drives two kinds of state via data-action on the root .dash-mascot: "run"
+     (walking to a new random spot, legs/breathe animate) and a held gesture -- wave, clap,
+     raiseOne, raiseTwo or jump -- picked at random once each walk ends. Left/top (not transform)
+     carry the walk itself so a plain CSS transition can animate it without fighting the inner
+     keyframe animations (sway, breathe, blink, etc.) that run on nested groups the whole time;
+     only the facing flip (scaleX, read from --face) is instant/un-transitioned, since a character
+     turning around is naturally a snap, not a gradual mirror. z-index sits above ordinary page
+     content but below the sidebar drawer (210), overlay (200) and any modal (9000+), and
+     pointer-events stay off throughout so it can never block a click underneath it. */
+  /* left/top are clamped against the viewport's OWN current size right here in CSS (not just in
+     the JS resize handler) so a sudden viewport shrink can never leave the mascot sitting past the
+     new right/bottom edge -- which position:fixed content otherwise still drags into the page's
+     scrollable area -- for even one frame before JS catches up. */
+  .dash-mascot{position:fixed;width:48px;z-index:80;pointer-events:none;will-change:left,top;left:min(var(--mx,14px),calc(100vw - 62px));top:min(var(--my,64px),calc(100vh - 86px));}
+  .dash-mascot svg{display:block;width:100%;height:auto;overflow:visible;transform:scaleX(var(--face,1));filter:drop-shadow(0 6px 10px rgba(0,0,0,.3));}
+  .dash-mascot-shadow{animation:dmShadowIdle 3.2s ease-in-out infinite;transform-box:fill-box;transform-origin:center;}
+  .dash-mascot[data-action="run"] .dash-mascot-shadow{animation:none;opacity:.14;}
+  .dash-mascot[data-action="jump"] .dash-mascot-shadow{animation:dmShadowJump .9s ease-in-out 2;}
+  @keyframes dmShadowIdle{ 0%,100%{opacity:.14;transform:scale(1);} 50%{opacity:.1;transform:scale(0.92);} }
+  @keyframes dmShadowJump{ 0%,100%{opacity:.14;transform:scale(1);} 60%{opacity:.07;transform:scale(0.6);} }
+
+  .dash-mascot-upper{transform-box:fill-box;transform-origin:bottom center;animation:dmSway 4.8s ease-in-out infinite;}
+  .dash-mascot-breathe{transform-box:fill-box;transform-origin:bottom center;animation:dmIdleBreathe 3.2s ease-in-out infinite;}
+  .dash-mascot[data-action="run"] .dash-mascot-breathe{animation:dmRunBounce 0.42s ease-in-out infinite;}
+  .dash-mascot[data-action="jump"] .dash-mascot-breathe{animation:dmJumpBounce 0.9s ease-in-out 2;}
+  .dash-mascot-leg{transform-box:view-box;animation:dmIdleLeg 3.6s ease-in-out infinite;}
+  .dash-mascot-leg-r{animation-delay:-1.8s;}
+  .dash-mascot[data-action="run"] .dash-mascot-leg{animation:dmRunLeg 0.42s ease-in-out infinite;}
+  .dash-mascot[data-action="run"] .dash-mascot-leg-r{animation-delay:-0.21s;}
+  .dash-mascot[data-action="jump"] .dash-mascot-leg{animation:dmJumpLeg 0.9s ease-in-out 2;}
+  .dash-mascot[data-action="jump"] .dash-mascot-leg-r{animation-delay:0s;}
+  .dash-mascot-sprout{transform-box:fill-box;transform-origin:bottom center;animation:dmSproutSway 5.6s ease-in-out infinite;}
+  .dash-mascot-arm{transform-box:view-box;}
+  .dash-mascot-arm-right{animation:dmArmRightIdle 4.4s ease-in-out infinite;}
+  .dash-mascot-arm-left{animation:dmArmLeftIdle 5s ease-in-out infinite;}
+  .dash-mascot[data-action="wave"] .dash-mascot-arm-left{animation:dmWave 0.7s ease-in-out infinite;}
+  .dash-mascot[data-action="clap"] .dash-mascot-arm-right{animation:dmClapRight 0.5s ease-in-out infinite;}
+  .dash-mascot[data-action="clap"] .dash-mascot-arm-left{animation:dmClapLeft 0.5s ease-in-out infinite;}
+  .dash-mascot[data-action="raiseOne"] .dash-mascot-arm-right{animation:dmRaiseOne 1.6s ease-in-out infinite;}
+  .dash-mascot[data-action="raiseTwo"] .dash-mascot-arm-right{animation:dmRaiseTwoRight 1.1s ease-in-out infinite;}
+  .dash-mascot[data-action="raiseTwo"] .dash-mascot-arm-left{animation:dmRaiseTwoLeft 1.1s ease-in-out infinite;}
+  .dash-mascot-pupil{animation:dmGaze 5.2s ease-in-out infinite;}
+  .dash-mascot-lid{transform-box:view-box;transform:scaleY(0);animation:dmBlink 4s ease-in-out infinite;}
+  .dash-mascot-cheek{animation:dmCheekPulse 5s ease-in-out infinite;}
+  .dash-mascot-mouth{transform-box:view-box;animation:dmMouthPulse 5s ease-in-out infinite;}
+
+  @keyframes dmSway{ 0%,100%{transform:rotate(-2.5deg);} 50%{transform:rotate(2.5deg);} }
+  @keyframes dmIdleBreathe{ 0%,100%{transform:translateY(0);} 50%{transform:translateY(-2px);} }
+  @keyframes dmRunBounce{ 0%,100%{transform:translateY(0);} 50%{transform:translateY(-5px);} }
+  @keyframes dmJumpBounce{
+    0%,100%{transform:translateY(0) scaleY(1);}
+    25%{transform:translateY(2px) scaleY(0.94);}
+    55%{transform:translateY(-18px) scaleY(1.06);}
+    80%{transform:translateY(0) scaleY(0.96);}
+  }
+  @keyframes dmIdleLeg{ 0%,100%{transform:rotate(-2.5deg);} 50%{transform:rotate(2.5deg);} }
+  @keyframes dmRunLeg{ 0%,100%{transform:rotate(-20deg);} 50%{transform:rotate(20deg);} }
+  @keyframes dmJumpLeg{
+    0%,100%{transform:rotate(0deg);}
+    25%{transform:rotate(6deg);}
+    55%{transform:rotate(-14deg);}
+    80%{transform:rotate(4deg);}
+  }
+  @keyframes dmSproutSway{ 0%,100%{transform:rotate(-2.5deg);} 50%{transform:rotate(2.5deg);} }
+  @keyframes dmArmRightIdle{ 0%,100%{transform:rotate(-3deg);} 50%{transform:rotate(3deg);} }
+  @keyframes dmArmLeftIdle{ 0%,100%{transform:rotate(-4deg);} 50%{transform:rotate(4deg);} }
+  /* A short, cheerful wave burst, same "mostly still, briefly lively" shape as the mascot's other
+     idle gestures elsewhere in this file. */
+  @keyframes dmWave{
+    0%,20%{transform:rotate(8deg);}
+    35%{transform:rotate(-10deg);}
+    50%{transform:rotate(24deg);}
+    65%{transform:rotate(-6deg);}
+    80%,100%{transform:rotate(14deg);}
+  }
+  /* Clap: each arm swings in toward the chest and back; the two are phase-opposite (one arm's
+     "in" is the other's "out") so they read as hands meeting in the middle and parting again. */
+  @keyframes dmClapRight{ 0%,100%{transform:rotate(-8deg);} 50%{transform:rotate(-48deg);} }
+  @keyframes dmClapLeft{ 0%,100%{transform:rotate(8deg);} 50%{transform:rotate(-30deg);} }
+  /* Raise one hand: the hanging (right) arm swings up overhead and holds, with a small wobble
+     while held, then eases back down -- the left arm stays on its own idle sway throughout. */
+  @keyframes dmRaiseOne{
+    0%{transform:rotate(-3deg);}
+    20%{transform:rotate(-170deg);}
+    50%{transform:rotate(-166deg);}
+    80%{transform:rotate(-170deg);}
+    100%{transform:rotate(-3deg);}
+  }
+  /* Raise two hands: both arms go up together for a cheer/victory pose, with a synchronized hold
+     wobble; the already-raised left arm needs a smaller swing than the hanging right arm to reach
+     the same overhead position. */
+  @keyframes dmRaiseTwoRight{
+    0%{transform:rotate(-3deg);}
+    20%{transform:rotate(-172deg);}
+    50%{transform:rotate(-168deg);}
+    80%{transform:rotate(-172deg);}
+    100%{transform:rotate(-3deg);}
+  }
+  @keyframes dmRaiseTwoLeft{
+    0%{transform:rotate(-4deg);}
+    20%{transform:rotate(-55deg);}
+    50%{transform:rotate(-51deg);}
+    80%{transform:rotate(-55deg);}
+    100%{transform:rotate(-4deg);}
+  }
+  @keyframes dmGaze{ 0%,100%{transform:translateX(0);} 50%{transform:translateX(1.5px);} }
+  @keyframes dmBlink{
+    0%,82%{transform:scaleY(0);}
+    85%{transform:scaleY(1);}
+    89%{transform:scaleY(1);}
+    92%{transform:scaleY(0.6);}
+    96%{transform:scaleY(0.15);}
+    100%{transform:scaleY(0);}
+  }
+  @keyframes dmCheekPulse{ 0%,30%,75%,100%{opacity:0.55;} 45%,60%{opacity:0.9;} }
+  @keyframes dmMouthPulse{ 0%,30%,75%,100%{transform:scaleY(1);} 45%,60%{transform:scaleY(1.15);} }
+  @media (prefers-reduced-motion:reduce){
+    .dash-mascot,.dash-mascot *{animation:none!important;transition:none!important;}
+  }
 </style>
 
 <div class="app">
@@ -1179,7 +1245,7 @@
         <div class="nav-parent"><span class="nav-ico">🧪</span><span class="nav-label" data-i18n-nav="navOptTuning">OPT Tuning</span></div>
         <div class="nav-children">
           <button class="nav-item" data-page="h-factor-tuning"><span class="nav-label" data-i18n-nav="navHFactorTuning">Set point H Factor</span></button>
-          <button class="nav-item" data-page="opt-fix-ea-charge"><span class="nav-label" data-i18n-nav="navOptFixEaCharge">Fix Ton EA Charge</span></button>
+          <button class="nav-item" data-page="opt-fix-ea-charge"><span class="nav-label" data-i18n-nav="navOptFixEaCharge">Res. Acc (Fix Ton EA)</span></button>
         </div>
       </div>
       <button class="nav-item" data-page="data-analysis"><span style="display:flex; align-items:center; min-width:0;"><span class="nav-ico">📊</span><span class="nav-label" data-i18n-nav="navDataAnalysis">Data for analysis</span></span></button>
@@ -2754,62 +2820,8 @@
           </details>
         </section>
         <section class="page" data-page="opt-fix-ea-charge" hidden>
-          <div class="hft-head">
-            <h2>Fix Ton EA Charge</h2>
-            <p>Fix Ton EA Charge: เพื่อควบคุม Residual Alkaline Acc. ให้ได้ตามเป้าหมาย ด้วยวิธีการปรับแบบ Fix Ton EA Charge</p>
-          </div>
-
           <div class="fea-flow" id="feaFlowDiagram">
-            <div class="fea-title-bar">แนวทางการปรับสารเคมีกรณี Fix Ton EA Charge</div>
-            <div class="fea-flow-body">
-            <div class="fea-mascot-runner" aria-hidden="true">
-              <svg viewBox="0 0 200 300" xmlns="http://www.w3.org/2000/svg">
-                <ellipse class="fea-mascot-shadow" cx="100" cy="286" rx="42" ry="8" fill="#000" opacity="0.1"/>
-                <g class="fea-mascot-leg fea-mascot-leg-l" style="transform-origin:70px 212px;">
-                  <path d="M70,210 C60,214 55,228 55,245 C55,258 57,270 62,279 C65,284 78,284 81,279 C86,266 87,248 85,232 C84,221 78,213 70,210 Z" fill="#D9B06C"/>
-                </g>
-                <g class="fea-mascot-leg fea-mascot-leg-r" style="transform-origin:130px 212px;">
-                  <path d="M130,210 C140,214 145,228 145,245 C145,258 143,270 138,279 C135,284 122,284 119,279 C114,266 113,248 115,232 C116,221 122,213 130,210 Z" fill="#D9B06C"/>
-                </g>
-                <g class="fea-mascot-upper">
-                  <g class="fea-mascot-breathe">
-                    <path class="fea-mascot-body" d="M100,55 C129,96 144,146 141,196 C140,209 134,220 125,227 L75,227 C66,220 60,209 59,196 C56,146 71,96 100,55 Z" fill="#EAC98A"/>
-                    <path d="M100,60 C92,96 86,140 88,190 C89,205 93,217 99,226 L75,227 C66,220 60,209 59,196 C56,146 71,96 100,55 C100,57 100,58 100,60 Z" fill="#D9B06C" opacity="0.45"/>
-                    <g class="fea-mascot-sprout">
-                      <path d="M100,55 C97,40 94,24 90,10" stroke="#8a6a3a" stroke-width="4" fill="none" stroke-linecap="round"/>
-                      <path d="M90,22 C78,16 64,14 54,20 C48,24 48,32 56,34 C70,38 84,32 90,22 Z" fill="#6FAE4C"/>
-                      <path d="M91,13 C92,-1 98,-14 110,-22 C117,-26 124,-21 121,-13 C115,-1 102,8 91,13 Z" fill="#D9C65C"/>
-                      <path d="M90,18 C100,10 112,6 124,9 C131,11 132,19 124,22 C112,27 98,25 90,18 Z" fill="#CFC25A"/>
-                    </g>
-                    <g class="fea-mascot-arm fea-mascot-arm-rest" style="transform-origin:128px 140px;">
-                      <path d="M128,138 C140,140 150,150 153,165 C156,178 155,190 148,198 C144,203 134,203 130,198 C125,190 123,175 124,160 C125,150 126,143 128,138 Z" fill="#EAC98A"/>
-                    </g>
-                    <g class="fea-mascot-arm fea-mascot-arm-wave" style="transform-origin:72px 138px;">
-                      <path d="M72,138 C60,135 48,128 42,112 C38,102 40,92 48,88 C54,85 62,88 66,96 C70,105 70,118 70,130 C70,133 71,136 72,138 Z" fill="#EAC98A"/>
-                    </g>
-                    <g class="fea-mascot-face">
-                      <path d="M70,116 Q82,106 96,115" stroke="#6B4A28" stroke-width="3" fill="none" stroke-linecap="round"/>
-                      <path d="M104,115 Q118,106 130,116" stroke="#6B4A28" stroke-width="3" fill="none" stroke-linecap="round"/>
-                      <g class="fea-mascot-eye">
-                        <ellipse cx="82" cy="135" rx="14" ry="16" fill="#fff"/>
-                        <circle class="fea-mascot-pupil" cx="83" cy="138" r="7" fill="#3a2a1a"/>
-                        <circle cx="86" cy="134" r="2.2" fill="#fff"/>
-                        <path class="fea-mascot-lid" d="M68,119 Q82,113 96,119 L96,135 Q82,141 68,135 Z" fill="#EAC98A" style="transform-origin:82px 119px;"/>
-                      </g>
-                      <g class="fea-mascot-eye">
-                        <ellipse cx="118" cy="135" rx="14" ry="16" fill="#fff"/>
-                        <circle class="fea-mascot-pupil" cx="117" cy="138" r="7" fill="#3a2a1a"/>
-                        <circle cx="121" cy="134" r="2.2" fill="#fff"/>
-                        <path class="fea-mascot-lid" d="M104,119 Q118,113 132,119 L132,135 Q118,141 104,135 Z" fill="#EAC98A" style="transform-origin:118px 119px;"/>
-                      </g>
-                      <circle class="fea-mascot-cheek" cx="68" cy="153" r="6" fill="#ff9e9e" opacity="0.55"/>
-                      <circle class="fea-mascot-cheek" cx="132" cy="153" r="6" fill="#ff9e9e" opacity="0.55"/>
-                      <path class="fea-mascot-mouth" d="M82,158 Q100,180 118,158 Q100,169 82,158 Z" fill="#7a3b2e" style="transform-origin:100px 165px;"/>
-                    </g>
-                  </g>
-                </g>
-              </svg>
-            </div>
+            <div class="fea-title-bar">แนวทางการ Control Residual Alkaline Acc. กรณีใช้วิธีการ Fix Ton EA Charge<div class="fea-title-sub">เพื่อควบคุม Residual Alkaline Acc. ให้ได้ตามเป้าหมาย ด้วยวิธีการปรับแบบ Fix Ton EA Charge</div></div>
             <div class="fea-baseline-controls">
               <div class="md-target" id="feaTargetKappaRow">
                 <span class="fld">Target Kappa <input type="number" id="feaTargetKappaInput" step="0.01" min="0" value="13.50"></span>
@@ -2837,7 +2849,7 @@
                 <div class="fea-connector fea-connector-mobile-single" aria-hidden="true"><span class="fea-leg" id="feaArrowBranchBelowM" style="left:50%;"><i class="fea-seg fea-ln-v" style="top:0;height:18px;"></i><i class="fea-arrowhead-v" style="top:18px;"></i></span></div>
                 <div class="fea-branch-head fea-below"><span class="fea-branch-ico">📉</span>Kappa ต่ำกว่า Target</div>
                 <div class="fea-connector fea-connector-single" aria-hidden="true"><span class="fea-leg" id="feaArrowToDiamondBelow" style="left:50%;"><i class="fea-seg fea-ln-v" style="top:0;height:22px;"></i><i class="fea-arrowhead-v" style="top:22px;"></i></span></div>
-                <div class="fea-diamond fea-below">Residual HBL Acc.1<br>เทียบกับ Target<br><b><span id="feaDiamondTxtBelow">20 ±1 g/L</span></b></div>
+                <div class="fea-diamond fea-below">Residual HBL Acc.1<br>เทียบกับ Target <b><span id="feaDiamondTxtBelow">20 ±1 g/L</span></b><br><span id="feaDiamondLatestBelow"></span></div>
                 <div class="fea-connector fea-connector-fork3" aria-hidden="true">
                   <i class="fea-seg fea-ln-v" id="feaForkLeafTrunkBelow" style="top:0;height:8px;"></i>
                   <i class="fea-seg fea-ln-h fea-flow-left" id="feaForkLeafBarBelowLeft" style="top:8px;left:16.67%;width:33.33%;"></i>
@@ -2871,7 +2883,7 @@
                 <div class="fea-connector fea-connector-mobile-single" aria-hidden="true"><span class="fea-leg" id="feaArrowBranchAboveM" style="left:50%;"><i class="fea-seg fea-ln-v" style="top:0;height:18px;"></i><i class="fea-arrowhead-v" style="top:18px;"></i></span></div>
                 <div class="fea-branch-head fea-above"><span class="fea-branch-ico">📈</span>Kappa สูงกว่า Target</div>
                 <div class="fea-connector fea-connector-single" aria-hidden="true"><span class="fea-leg" id="feaArrowToDiamondAbove" style="left:50%;"><i class="fea-seg fea-ln-v" style="top:0;height:22px;"></i><i class="fea-arrowhead-v" style="top:22px;"></i></span></div>
-                <div class="fea-diamond fea-above">Residual HBL Acc.1<br>เทียบกับ Target<br><b><span id="feaDiamondTxtAbove">20 ±1 g/L</span></b></div>
+                <div class="fea-diamond fea-above">Residual HBL Acc.1<br>เทียบกับ Target <b><span id="feaDiamondTxtAbove">20 ±1 g/L</span></b><br><span id="feaDiamondLatestAbove"></span></div>
                 <div class="fea-connector fea-connector-fork3" aria-hidden="true">
                   <i class="fea-seg fea-ln-v" id="feaForkLeafTrunkAbove" style="top:0;height:8px;"></i>
                   <i class="fea-seg fea-ln-h fea-flow-left" id="feaForkLeafBarAboveLeft" style="top:8px;left:16.67%;width:33.33%;"></i>
@@ -2902,9 +2914,8 @@
                 </div>
               </div>
             </div>
-            <div class="fea-goal"><span class="fea-banner-ico">🎯</span><span><b>เป้าหมาย:</b> ควบคุม Kappa เข้าสู่ Target พร้อมรักษา Residual HBL Acc.1 ที่ 20 ±1 g/L</span></div>
+            <div class="fea-goal"><span class="fea-banner-ico">🎯</span><span><b>เป้าหมาย:</b> ควบคุม Kappa เข้าสู่ Target พร้อมรักษา Residual HBL Acc.1 ที่ <span class="hft-reco-value" id="feaGoalBandTxt">20 ±1 g/L</span></span></div>
             <div class="fea-instruction"><span class="fea-banner-ico">⚙️</span><span>ปรับครั้งละ 1 Parameter → รอผลตาม Batch / Retention Time → ตรวจยืนยัน Kappa และ Residual ก่อนปรับซ้ำ</span></div>
-            </div>
           </div>
         </section>
         <section class="page" data-page="data-analysis" hidden>
@@ -3322,6 +3333,74 @@
   </div>
 </div>
 
+<div class="dash-mascot" id="dashMascot" aria-hidden="true">
+  <svg viewBox="0 0 200 300" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="dmBodyGrad" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#F8E4B8"/>
+        <stop offset="0.55" stop-color="#EAC98A"/>
+        <stop offset="1" stop-color="#C2944F"/>
+      </linearGradient>
+      <linearGradient id="dmLimbGrad" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#EAC98A"/>
+        <stop offset="1" stop-color="#B9893F"/>
+      </linearGradient>
+      <linearGradient id="dmLeafGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#8BC96A"/>
+        <stop offset="1" stop-color="#5C9A3E"/>
+      </linearGradient>
+      <linearGradient id="dmPetalGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#EBDD84"/>
+        <stop offset="1" stop-color="#C7B646"/>
+      </linearGradient>
+    </defs>
+    <ellipse class="dash-mascot-shadow" cx="100" cy="286" rx="42" ry="8" fill="#000" opacity="0.14"/>
+    <g class="dash-mascot-leg dash-mascot-leg-l" style="transform-origin:70px 212px;">
+      <path d="M70,210 C60,214 55,228 55,245 C55,258 57,270 62,279 C65,284 78,284 81,279 C86,266 87,248 85,232 C84,221 78,213 70,210 Z" fill="url(#dmLimbGrad)"/>
+    </g>
+    <g class="dash-mascot-leg dash-mascot-leg-r" style="transform-origin:130px 212px;">
+      <path d="M130,210 C140,214 145,228 145,245 C145,258 143,270 138,279 C135,284 122,284 119,279 C114,266 113,248 115,232 C116,221 122,213 130,210 Z" fill="url(#dmLimbGrad)"/>
+    </g>
+    <g class="dash-mascot-upper">
+      <g class="dash-mascot-breathe">
+        <path class="dash-mascot-body" d="M100,55 C129,96 144,146 141,196 C140,209 134,220 125,227 L75,227 C66,220 60,209 59,196 C56,146 71,96 100,55 Z" fill="url(#dmBodyGrad)"/>
+        <ellipse cx="78" cy="78" rx="17" ry="10" fill="#fff" opacity="0.3" transform="rotate(-20 78 78)"/>
+        <g class="dash-mascot-sprout">
+          <path d="M100,55 C97,40 94,24 90,10" stroke="#8a6a3a" stroke-width="4" fill="none" stroke-linecap="round"/>
+          <path d="M90,22 C78,16 64,14 54,20 C48,24 48,32 56,34 C70,38 84,32 90,22 Z" fill="url(#dmLeafGrad)"/>
+          <path d="M91,13 C92,-1 98,-14 110,-22 C117,-26 124,-21 121,-13 C115,-1 102,8 91,13 Z" fill="url(#dmPetalGrad)"/>
+          <path d="M90,18 C100,10 112,6 124,9 C131,11 132,19 124,22 C112,27 98,25 90,18 Z" fill="url(#dmPetalGrad)"/>
+        </g>
+        <g class="dash-mascot-arm dash-mascot-arm-right" style="transform-origin:128px 140px;">
+          <path d="M128,138 C140,140 150,150 153,165 C156,178 155,190 148,198 C144,203 134,203 130,198 C125,190 123,175 124,160 C125,150 126,143 128,138 Z" fill="url(#dmLimbGrad)"/>
+        </g>
+        <g class="dash-mascot-arm dash-mascot-arm-left" style="transform-origin:72px 138px;">
+          <path d="M72,138 C60,135 48,128 42,112 C38,102 40,92 48,88 C54,85 62,88 66,96 C70,105 70,118 70,130 C70,133 71,136 72,138 Z" fill="url(#dmLimbGrad)"/>
+        </g>
+        <g class="dash-mascot-face">
+          <path d="M70,116 Q82,106 96,115" stroke="#6B4A28" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <path d="M104,115 Q118,106 130,116" stroke="#6B4A28" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <g class="dash-mascot-eye">
+            <ellipse cx="82" cy="135" rx="14" ry="16" fill="#fff"/>
+            <circle class="dash-mascot-pupil" cx="83" cy="138" r="7" fill="#3a2a1a"/>
+            <circle cx="86" cy="134" r="2.2" fill="#fff"/>
+            <path class="dash-mascot-lid" d="M68,119 Q82,113 96,119 L96,135 Q82,141 68,135 Z" fill="#EAC98A" style="transform-origin:82px 119px;"/>
+          </g>
+          <g class="dash-mascot-eye">
+            <ellipse cx="118" cy="135" rx="14" ry="16" fill="#fff"/>
+            <circle class="dash-mascot-pupil" cx="117" cy="138" r="7" fill="#3a2a1a"/>
+            <circle cx="121" cy="134" r="2.2" fill="#fff"/>
+            <path class="dash-mascot-lid" d="M104,119 Q118,113 132,119 L132,135 Q118,141 104,135 Z" fill="#EAC98A" style="transform-origin:118px 119px;"/>
+          </g>
+          <circle class="dash-mascot-cheek" cx="68" cy="153" r="6" fill="#ff9e9e" opacity="0.55"/>
+          <circle class="dash-mascot-cheek" cx="132" cy="153" r="6" fill="#ff9e9e" opacity="0.55"/>
+          <path class="dash-mascot-mouth" d="M82,158 Q100,180 118,158 Q100,169 82,158 Z" fill="#7a3b2e" style="transform-origin:100px 165px;"/>
+        </g>
+      </g>
+    </g>
+  </svg>
+</div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.5.1/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
 <script>
@@ -3369,6 +3448,73 @@ function showPage(pageId){
 document.querySelectorAll('.nav-item[data-page]').forEach(btn=>{
   btn.addEventListener('click', ()=> showPage(btn.dataset.page));
 });
+/* The dashboard mascot (markup + most of its CSS/animations live outside any one page -- see the
+   .dash-mascot rules and the comment above them). It walks to a random spot in the viewport, then
+   stops to perform one random gesture (wave / clap / raiseOne / raiseTwo / jump), then walks
+   somewhere else, forever, independent of whatever page happens to be open. Runs unconditionally
+   at script-eval time, same as the sidebar drawer init right below it. */
+function initDashMascot(){
+  const el = document.getElementById('dashMascot');
+  if(!el) return;
+  if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const W = 48, H = 72, MARGIN = 14, TOP_MARGIN = 64;
+  const GESTURES = ['wave','clap','raiseOne','raiseTwo','jump'];
+  const GESTURE_HOLD_MS = { wave:1900, clap:1600, raiseOne:2000, raiseTwo:2200, jump:1900 };
+  let x = Math.max(MARGIN, window.innerWidth/2 - W/2);
+  let y = Math.max(TOP_MARGIN, window.innerHeight/2 - H/2);
+  let facing = 1;
+  let timer = null;
+  el.style.setProperty('--mx', x+'px');
+  el.style.setProperty('--my', y+'px');
+  el.style.setProperty('--face', facing);
+
+  function bounds(){
+    return {
+      minX: MARGIN, maxX: Math.max(MARGIN, window.innerWidth - W - MARGIN),
+      minY: TOP_MARGIN, maxY: Math.max(TOP_MARGIN, window.innerHeight - H - MARGIN)
+    };
+  }
+  function pickTarget(){
+    const b = bounds();
+    return { x: b.minX + Math.random()*(b.maxX-b.minX), y: b.minY + Math.random()*(b.maxY-b.minY) };
+  }
+  function clampToBounds(){
+    const b = bounds();
+    x = Math.min(Math.max(x, b.minX), b.maxX);
+    y = Math.min(Math.max(y, b.minY), b.maxY);
+    el.style.setProperty('--mx', x+'px');
+    el.style.setProperty('--my', y+'px');
+  }
+  function runTo(target){
+    el.dataset.action = 'run';
+    if(Math.abs(target.x - x) > 2){
+      facing = target.x < x ? -1 : 1;
+      el.style.setProperty('--face', facing);
+    }
+    const dist = Math.hypot(target.x - x, target.y - y);
+    const dur = Math.max(1.1, Math.min(4.2, dist / 85));
+    el.style.transition = 'left '+dur.toFixed(2)+'s linear, top '+dur.toFixed(2)+'s linear';
+    void el.offsetWidth; // force a reflow so the browser locks in the current left/top as the
+                          // transition's starting point before the target values below apply --
+                          // without this, both changes land in the same style recalc and the
+                          // element jumps straight to the target instead of walking there. The
+                          // transition is declared on left/top (standard animatable properties),
+                          // not on --mx/--my themselves, so it animates smoothly even though
+                          // left/top's own value is computed from those variables.
+    x = target.x; y = target.y;
+    el.style.setProperty('--mx', x+'px');
+    el.style.setProperty('--my', y+'px');
+    timer = setTimeout(doGesture, dur*1000);
+  }
+  function doGesture(){
+    const g = GESTURES[Math.floor(Math.random()*GESTURES.length)];
+    el.dataset.action = g;
+    timer = setTimeout(()=> runTo(pickTarget()), GESTURE_HOLD_MS[g] || 1800);
+  }
+  window.addEventListener('resize', clampToBounds);
+  runTo(pickTarget());
+}
+initDashMascot();
 /* Mobile off-canvas sidebar drawer (see the max-width:760px rules above .main/.shell) -- the
    sidebar/overlay/toggle button all exist in the DOM at every width, this just drives the
    .sb-open class that the CSS keys off of. Runs unconditionally at script-eval time (not inside
@@ -6133,7 +6279,7 @@ const PAGE_META = {
   yield:{th:'Yield', en:'Yield', hasData:true},
   'yield-weightscale':{th:'Weight scale digester', en:'Weight scale digester', hasData:false},
   'h-factor-tuning':{th:'Set point H Factor', en:'Set point H Factor', hasData:true},
-  'opt-fix-ea-charge':{th:'Fix Ton EA Charge', en:'Fix Ton EA Charge', hasData:true},
+  'opt-fix-ea-charge':{th:'Res. Acc (Fix Ton EA)', en:'Res. Acc (Fix Ton EA)', hasData:true},
   'data-analysis':{th:'Data for analysis', en:'Data for analysis', hasData:true},
   'cost-sensitivity':{th:'Sensitivity', en:'Sensitivity', hasData:true},
   'process-rawmaterial':{th:'Raw material', en:'Raw material', hasData:false},
@@ -6145,7 +6291,7 @@ const PAGE_META = {
 
 const I18N = {
   th:{
-    navProduction:'Production', navProductionPm1:'Pulp mill 1', navProductionPm2:'Pulp mill 2', navProductionPm12:'Pulp mill 1+2', navYield:'Yield', navYieldWeightScale:'Weight scale digester', navCostSensitivity:'Sensitivity', navOptTuning:'OPT Tuning', navHFactorTuning:'Set point H Factor', navOptFixEaCharge:'Fix Ton EA Charge', navDataAnalysis:'Data for analysis',
+    navProduction:'Production', navProductionPm1:'Pulp mill 1', navProductionPm2:'Pulp mill 2', navProductionPm12:'Pulp mill 1+2', navYield:'Yield', navYieldWeightScale:'Weight scale digester', navCostSensitivity:'Sensitivity', navOptTuning:'OPT Tuning', navHFactorTuning:'Set point H Factor', navOptFixEaCharge:'Res. Acc (Fix Ton EA)', navDataAnalysis:'Data for analysis',
     navProcessArea:'Process area', navProcessRawMaterial:'Raw material', navProcessCooking:'Cooking', navProcessBrownStock:'Brown stock', navProcessBleaching:'Bleaching', navProcessDailyData:'Daily data',
     searchPlaceholder:'ค้นหา KPI (Search metrics)',
     lastDataAt:'ข้อมูลล่าสุด ณ', noDataYet:'ยังไม่เชื่อมต่อแหล่งข้อมูล',
@@ -6161,7 +6307,7 @@ const I18N = {
     avg7Label:'ค่าเฉลี่ย 7 วันย้อนหลัง (Adt/day)', daysUnit:'วัน',
   },
   en:{
-    navProduction:'Production', navProductionPm1:'Pulp mill 1', navProductionPm2:'Pulp mill 2', navProductionPm12:'Pulp mill 1+2', navYield:'Yield', navYieldWeightScale:'Weight scale digester', navCostSensitivity:'Sensitivity', navOptTuning:'OPT Tuning', navHFactorTuning:'Set point H Factor', navOptFixEaCharge:'Fix Ton EA Charge', navDataAnalysis:'Data for analysis',
+    navProduction:'Production', navProductionPm1:'Pulp mill 1', navProductionPm2:'Pulp mill 2', navProductionPm12:'Pulp mill 1+2', navYield:'Yield', navYieldWeightScale:'Weight scale digester', navCostSensitivity:'Sensitivity', navOptTuning:'OPT Tuning', navHFactorTuning:'Set point H Factor', navOptFixEaCharge:'Res. Acc (Fix Ton EA)', navDataAnalysis:'Data for analysis',
     navProcessArea:'Process area', navProcessRawMaterial:'Raw material', navProcessCooking:'Cooking', navProcessBrownStock:'Brown stock', navProcessBleaching:'Bleaching', navProcessDailyData:'Daily data',
     searchPlaceholder:'Search metrics',
     lastDataAt:'Latest data as of', noDataYet:'No data source connected yet',
@@ -9032,11 +9178,17 @@ function initFeaTargetKappaInput(){
 function feaSyncDiamondTargetText(residual){
   residual = residual === undefined ? feaLatestResidualAcc() : residual;
   const bandTxt = hftFmt(FEA_RESIDUAL_CENTER,0)+' ±1 g/L';
-  const txt = bandTxt + (residual ? ' (ค่าล่าสุด '+hftFmt(residual.value,2)+' g/L)' : '');
+  const latestTxt = residual ? '(ค่าล่าสุด <span class="hft-reco-value">'+hftFmt(residual.value,2)+' g/L</span>)' : '';
   ['feaDiamondTxtBelow','feaDiamondTxtAbove'].forEach(function(id){
     const el = document.getElementById(id);
-    if(el) el.textContent = txt;
+    if(el) el.textContent = bandTxt;
   });
+  ['feaDiamondLatestBelow','feaDiamondLatestAbove'].forEach(function(id){
+    const el = document.getElementById(id);
+    if(el) el.innerHTML = latestTxt;
+  });
+  const goalEl = document.getElementById('feaGoalBandTxt');
+  if(goalEl) goalEl.textContent = bandTxt;
 }
 /* The compare banner shows the live Kappa Cooking average and current Target Kappa right in its
    own text (per explicit request), with the 3-batch breakdown that used to sit in a separate box
