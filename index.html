@@ -653,6 +653,10 @@
   .hft-head{margin-bottom:4px;}
   .hft-head h2{margin:0 0 4px;font-size:18px;color:var(--ink);}
   .hft-head p{margin:0;color:var(--ink-2);font-size:12.5px;max-width:72ch;}
+  /* Fix Ton EA Charge's own description is short enough to read better as one line on any normal
+     desktop width -- dropping the 72ch cap here only (not globally, since other pages' longer
+     descriptions still want to wrap); still wraps normally if the viewport is too narrow to fit it. */
+  section[data-page="opt-fix-ea-charge"] .hft-head p{max-width:none;}
   .hft-note{background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin:14px 0 18px;font-size:12px;color:var(--ink-2);line-height:1.7;}
   .hft-note b{color:var(--ink);font-weight:700;}
   .hft-wrap{overflow-x:auto;overflow-y:auto;border:1px solid var(--border);border-radius:10px;max-height:70vh;}
@@ -748,8 +752,39 @@
   .fea-leaf.active{box-shadow:0 0 0 2.5px var(--accent),0 8px 18px rgba(0,0,0,.14);transform:translateY(-2px);background:var(--accent-soft);}
   .fea-leaf.active .fea-leaf-calc{font-weight:800;color:var(--accent-ink);}
   .fea-branch-head.active-branch{box-shadow:0 0 0 3px rgba(255,255,255,.55);}
-  @media (max-width:900px){ .fea-branches{grid-template-columns:1fr;} }
-  @media (max-width:640px){ .fea-leaves{grid-template-columns:1fr;} .fea-principle,.fea-compare,.fea-goal,.fea-instruction{margin-left:12px;margin-right:12px;} .fea-branches{padding-left:12px;padding-right:12px;} }
+  /* Flow-diagram connector arrows -- built from plain absolutely-positioned divs (not SVG: a
+     percentage-stretched viewBox distorts stroke width/arrowhead shape on non-uniform scaling,
+     which plain CSS width/height/background never does), navy by default and teal/"flowing
+     dashes" animated once renderFeaPage() calls feaSetArrowActive() to mark the branch/diamond/leaf
+     group that matches the live computed recommendation. .fea-leg wraps one line + one arrowhead
+     as a single addressable unit (the fork's 2-3 branches); the shared trunk/bar segments above a
+     fork are each their own addressable .fea-seg so the whole path can light up together. */
+  .fea-connector{position:relative;width:100%;}
+  .fea-seg{position:absolute;background:#1b3a6b;}
+  .fea-ln-v{width:3px;left:50%;transform:translateX(-50%);}
+  .fea-ln-h{height:3px;}
+  .fea-arrowhead-v{position:absolute;left:50%;transform:translateX(-50%);width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:7px solid #1b3a6b;}
+  .fea-leg{position:absolute;top:0;left:50%;transform:translateX(-50%);width:0;height:100%;}
+  .fea-ln-v.active,.fea-leg.active .fea-ln-v{background-color:transparent;background-image:repeating-linear-gradient(180deg,#12a7b5 0 6px,rgba(18,167,181,.3) 6px 12px);background-size:100% 24px;animation:feaFlowV .7s linear infinite;box-shadow:0 0 6px rgba(18,167,181,.45);}
+  .fea-ln-h.active,.fea-leg.active .fea-ln-h{background-color:transparent;background-image:repeating-linear-gradient(90deg,#12a7b5 0 6px,rgba(18,167,181,.3) 6px 12px);background-size:24px 100%;animation:feaFlowH .7s linear infinite;box-shadow:0 0 6px rgba(18,167,181,.45);}
+  .fea-arrowhead-v.active,.fea-leg.active .fea-arrowhead-v{border-top-color:#12a7b5;filter:drop-shadow(0 0 4px rgba(18,167,181,.6));}
+  @keyframes feaFlowV{ to{ background-position-y:-24px; } }
+  @keyframes feaFlowH{ to{ background-position-x:-24px; } }
+  .fea-connector-fork2{height:36px;}
+  .fea-connector-single{height:28px;}
+  .fea-connector-fork3{height:26px;}
+  .fea-branch > .fea-connector-mobile-single{display:none;height:24px;}
+  .fea-leaf > .fea-connector-mobile-single{display:none;height:20px;}
+  @media (max-width:900px){
+    .fea-branches{grid-template-columns:1fr;}
+    .fea-connector-fork2{display:none;}
+    .fea-branch > .fea-connector-mobile-single{display:block;}
+  }
+  @media (max-width:640px){
+    .fea-leaves{grid-template-columns:1fr;} .fea-principle,.fea-compare,.fea-goal,.fea-instruction{margin-left:12px;margin-right:12px;} .fea-branches{padding-left:12px;padding-right:12px;}
+    .fea-connector-fork3{display:none;}
+    .fea-leaf > .fea-connector-mobile-single{display:block;}
+  }
   /* max-width:100% (not a fixed px cap) lets this fit entirely on a normal desktop screen, where the
      3-column table is usually narrower than its container anyway -- overflow-x:auto only kicks in
      as a safety net if the table's own content still doesn't fit (e.g. a narrow mobile viewport). */
@@ -2652,22 +2687,40 @@
             <div class="fea-title-bar">แนวทางการปรับสารเคมีกรณี Fix Ton EA Charge</div>
             <div class="fea-principle"><span class="fea-banner-ico">🎯</span><span><b>หลักการสำคัญ:</b> ตรวจสอบ Residual HBL Acc.1 เป็นอันดับแรก</span></div>
             <div class="fea-compare"><span class="fea-banner-ico">📈</span><span>เปรียบเทียบ Kappa Cooking กับ Target</span></div>
+            <div class="fea-connector fea-connector-fork2" aria-hidden="true">
+              <i class="fea-seg fea-ln-v" id="feaForkKappaTrunk" style="top:0;height:12px;"></i>
+              <i class="fea-seg fea-ln-h" id="feaForkKappaBar" style="top:12px;height:3px;left:25%;width:50%;"></i>
+              <span class="fea-leg" id="feaArrowBranchBelow" style="left:25%;"><i class="fea-seg fea-ln-v" style="top:15px;height:14px;"></i><i class="fea-arrowhead-v" style="top:29px;"></i></span>
+              <span class="fea-leg" id="feaArrowBranchAbove" style="left:75%;"><i class="fea-seg fea-ln-v" style="top:15px;height:14px;"></i><i class="fea-arrowhead-v" style="top:29px;"></i></span>
+            </div>
             <div class="fea-branches">
               <div class="fea-branch" id="feaBranchBelow" data-branch="below">
+                <div class="fea-connector fea-connector-mobile-single" aria-hidden="true"><span class="fea-leg" id="feaArrowBranchBelowM" style="left:50%;"><i class="fea-seg fea-ln-v" style="top:0;height:17px;"></i><i class="fea-arrowhead-v" style="top:17px;"></i></span></div>
                 <div class="fea-branch-head fea-below"><span class="fea-branch-ico">📉</span>Kappa ต่ำกว่า Target</div>
+                <div class="fea-connector fea-connector-single" aria-hidden="true"><span class="fea-leg" id="feaArrowToDiamondBelow" style="left:50%;"><i class="fea-seg fea-ln-v" style="top:0;height:21px;"></i><i class="fea-arrowhead-v" style="top:21px;"></i></span></div>
                 <div class="fea-diamond fea-below">Residual HBL Acc.1<br>เทียบกับ Target<br><b><span id="feaDiamondTxtBelow">20 ±1 g/L</span></b></div>
+                <div class="fea-connector fea-connector-fork3" aria-hidden="true">
+                  <i class="fea-seg fea-ln-v" id="feaForkLeafTrunkBelow" style="top:0;height:8px;"></i>
+                  <i class="fea-seg fea-ln-h" id="feaForkLeafBarBelow" style="top:8px;height:3px;left:16.67%;width:66.66%;"></i>
+                  <span class="fea-leg" id="feaArrowLeaf_below_onTarget" style="left:16.67%;"><i class="fea-seg fea-ln-v" style="top:11px;height:9px;"></i><i class="fea-arrowhead-v" style="top:20px;"></i></span>
+                  <span class="fea-leg" id="feaArrowLeaf_below_above" style="left:50%;"><i class="fea-seg fea-ln-v" style="top:11px;height:9px;"></i><i class="fea-arrowhead-v" style="top:20px;"></i></span>
+                  <span class="fea-leg" id="feaArrowLeaf_below_below" style="left:83.33%;"><i class="fea-seg fea-ln-v" style="top:11px;height:9px;"></i><i class="fea-arrowhead-v" style="top:20px;"></i></span>
+                </div>
                 <div class="fea-leaves">
                   <div class="fea-leaf fea-below" id="feaLeaf_below_onTarget" data-leaf="below_onTarget">
+                    <div class="fea-connector fea-connector-mobile-single" aria-hidden="true"><span class="fea-leg" id="feaArrowLeaf_below_onTargetM" style="left:50%;"><i class="fea-seg fea-ln-v" style="top:0;height:14px;"></i><i class="fea-arrowhead-v" style="top:14px;"></i></span></div>
                     <div class="fea-leaf-head">อยู่ใน Target</div>
                     <div class="fea-leaf-body"><span class="fea-leaf-ico">↓</span><span class="fea-leaf-text">ลด <b>H-factor 30 หน่วย</b> ต่อ Kappa 1 หน่วย</span></div>
                     <div class="fea-leaf-calc" id="feaCalc_below_onTarget"></div>
                   </div>
                   <div class="fea-leaf fea-below" id="feaLeaf_below_above" data-leaf="below_above">
+                    <div class="fea-connector fea-connector-mobile-single" aria-hidden="true"><span class="fea-leg" id="feaArrowLeaf_below_aboveM" style="left:50%;"><i class="fea-seg fea-ln-v" style="top:0;height:14px;"></i><i class="fea-arrowhead-v" style="top:14px;"></i></span></div>
                     <div class="fea-leaf-head">สูงกว่า Target</div>
                     <div class="fea-leaf-body"><span class="fea-leaf-ico">↓</span><span class="fea-leaf-text">ลด <b>Ton EA Charge 0.3 ton</b> ต่อ Kappa 1 หน่วย</span></div>
                     <div class="fea-leaf-calc" id="feaCalc_below_above"></div>
                   </div>
                   <div class="fea-leaf fea-below" id="feaLeaf_below_below" data-leaf="below_below">
+                    <div class="fea-connector fea-connector-mobile-single" aria-hidden="true"><span class="fea-leg" id="feaArrowLeaf_below_belowM" style="left:50%;"><i class="fea-seg fea-ln-v" style="top:0;height:14px;"></i><i class="fea-arrowhead-v" style="top:14px;"></i></span></div>
                     <div class="fea-leaf-head">ต่ำกว่า Target</div>
                     <div class="fea-leaf-body"><span class="fea-leaf-ico">↓</span><span class="fea-leaf-text">ลด <b>H-factor 30 หน่วย</b> ต่อ Kappa 1 หน่วย</span></div>
                     <div class="fea-leaf-calc" id="feaCalc_below_below"></div>
@@ -2675,20 +2728,32 @@
                 </div>
               </div>
               <div class="fea-branch" id="feaBranchAbove" data-branch="above">
+                <div class="fea-connector fea-connector-mobile-single" aria-hidden="true"><span class="fea-leg" id="feaArrowBranchAboveM" style="left:50%;"><i class="fea-seg fea-ln-v" style="top:0;height:17px;"></i><i class="fea-arrowhead-v" style="top:17px;"></i></span></div>
                 <div class="fea-branch-head fea-above"><span class="fea-branch-ico">📈</span>Kappa สูงกว่า Target</div>
+                <div class="fea-connector fea-connector-single" aria-hidden="true"><span class="fea-leg" id="feaArrowToDiamondAbove" style="left:50%;"><i class="fea-seg fea-ln-v" style="top:0;height:21px;"></i><i class="fea-arrowhead-v" style="top:21px;"></i></span></div>
                 <div class="fea-diamond fea-above">Residual HBL Acc.1<br>เทียบกับ Target<br><b><span id="feaDiamondTxtAbove">20 ±1 g/L</span></b></div>
+                <div class="fea-connector fea-connector-fork3" aria-hidden="true">
+                  <i class="fea-seg fea-ln-v" id="feaForkLeafTrunkAbove" style="top:0;height:8px;"></i>
+                  <i class="fea-seg fea-ln-h" id="feaForkLeafBarAbove" style="top:8px;height:3px;left:16.67%;width:66.66%;"></i>
+                  <span class="fea-leg" id="feaArrowLeaf_above_onTarget" style="left:16.67%;"><i class="fea-seg fea-ln-v" style="top:11px;height:9px;"></i><i class="fea-arrowhead-v" style="top:20px;"></i></span>
+                  <span class="fea-leg" id="feaArrowLeaf_above_above" style="left:50%;"><i class="fea-seg fea-ln-v" style="top:11px;height:9px;"></i><i class="fea-arrowhead-v" style="top:20px;"></i></span>
+                  <span class="fea-leg" id="feaArrowLeaf_above_below" style="left:83.33%;"><i class="fea-seg fea-ln-v" style="top:11px;height:9px;"></i><i class="fea-arrowhead-v" style="top:20px;"></i></span>
+                </div>
                 <div class="fea-leaves">
                   <div class="fea-leaf fea-above" id="feaLeaf_above_onTarget" data-leaf="above_onTarget">
+                    <div class="fea-connector fea-connector-mobile-single" aria-hidden="true"><span class="fea-leg" id="feaArrowLeaf_above_onTargetM" style="left:50%;"><i class="fea-seg fea-ln-v" style="top:0;height:14px;"></i><i class="fea-arrowhead-v" style="top:14px;"></i></span></div>
                     <div class="fea-leaf-head">อยู่ใน Target</div>
                     <div class="fea-leaf-body"><span class="fea-leaf-ico">↑</span><span class="fea-leaf-text">เพิ่ม <b>H-factor 30 หน่วย</b> ต่อ Kappa 1 หน่วย</span></div>
                     <div class="fea-leaf-calc" id="feaCalc_above_onTarget"></div>
                   </div>
                   <div class="fea-leaf fea-above" id="feaLeaf_above_above" data-leaf="above_above">
+                    <div class="fea-connector fea-connector-mobile-single" aria-hidden="true"><span class="fea-leg" id="feaArrowLeaf_above_aboveM" style="left:50%;"><i class="fea-seg fea-ln-v" style="top:0;height:14px;"></i><i class="fea-arrowhead-v" style="top:14px;"></i></span></div>
                     <div class="fea-leaf-head">สูงกว่า Target</div>
                     <div class="fea-leaf-body"><span class="fea-leaf-ico">↑</span><span class="fea-leaf-text">เพิ่ม <b>H-factor 30 หน่วย</b> ต่อ Kappa 1 หน่วย</span></div>
                     <div class="fea-leaf-calc" id="feaCalc_above_above"></div>
                   </div>
                   <div class="fea-leaf fea-above" id="feaLeaf_above_below" data-leaf="above_below">
+                    <div class="fea-connector fea-connector-mobile-single" aria-hidden="true"><span class="fea-leg" id="feaArrowLeaf_above_belowM" style="left:50%;"><i class="fea-seg fea-ln-v" style="top:0;height:14px;"></i><i class="fea-arrowhead-v" style="top:14px;"></i></span></div>
                     <div class="fea-leaf-head">ต่ำกว่า Target</div>
                     <div class="fea-leaf-body"><span class="fea-leaf-ico">↑</span><span class="fea-leaf-text">เพิ่ม <b>Ton EA Charge 0.3 ton</b> ต่อ Kappa 1 หน่วย</span></div>
                     <div class="fea-leaf-calc" id="feaCalc_above_below"></div>
@@ -8831,6 +8896,11 @@ function initFeaResidualTargetInput(){
     }
   });
 }
+function feaSetArrowActive(id, isActive){
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.classList.toggle('active', !!isActive);
+}
 function renderFeaPage(){
   const box = document.getElementById('feaBaselineBox');
   if(!box) return;
@@ -8838,6 +8908,7 @@ function renderFeaPage(){
   document.querySelectorAll('#feaFlowDiagram .fea-leaf').forEach(function(el){ el.classList.remove('active'); });
   document.querySelectorAll('#feaFlowDiagram .fea-leaf-calc').forEach(function(el){ el.innerHTML = ''; });
   document.querySelectorAll('#feaFlowDiagram .fea-branch-head').forEach(function(el){ el.classList.remove('active-branch'); });
+  document.querySelectorAll('#feaFlowDiagram .fea-seg, #feaFlowDiagram .fea-leg').forEach(function(el){ el.classList.remove('active'); });
 
   if(r.status === 'insufficient-history'){
     box.innerHTML = '<p>ข้อมูล Kappa No. (Online) จาก Cooking Logsheet ยังมีไม่ครบ 3 Batch (มีข้อมูลอยู่ '+r.n+' Batch) จึงยังไม่สามารถคำนวณค่าตั้งต้นได้</p>';
@@ -8874,6 +8945,14 @@ function renderFeaPage(){
     const head = branchEl.querySelector('.fea-branch-head');
     if(head) head.classList.add('active-branch');
   }
+  const branchSuffix = r.kappaBranch === 'above' ? 'Above' : 'Below';
+  feaSetArrowActive('feaForkKappaTrunk', true);
+  feaSetArrowActive('feaForkKappaBar', true);
+  feaSetArrowActive('feaArrowBranch'+branchSuffix, true);
+  feaSetArrowActive('feaArrowBranch'+branchSuffix+'M', true);
+  feaSetArrowActive('feaArrowToDiamond'+branchSuffix, true);
+  feaSetArrowActive('feaForkLeafTrunk'+branchSuffix, true);
+  feaSetArrowActive('feaForkLeafBar'+branchSuffix, true);
   if(!r.residualBranch){
     const note = document.createElement('p');
     note.className = 'hft-kappa-note';
@@ -8886,6 +8965,8 @@ function renderFeaPage(){
   const leafEl = document.getElementById('feaLeaf_'+leafKey);
   const calcEl = document.getElementById('feaCalc_'+leafKey);
   if(leafEl) leafEl.classList.add('active');
+  feaSetArrowActive('feaArrowLeaf_'+leafKey, true);
+  feaSetArrowActive('feaArrowLeaf_'+leafKey+'M', true);
   if(calcEl && action){
     if(action.type === 'hfactor'){
       const newTxt = r.newSetPoint!=null ? ' (เป็น '+hftFmt(r.newSetPoint,0)+')' : '';
