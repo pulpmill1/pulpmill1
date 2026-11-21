@@ -2566,7 +2566,7 @@
         <section class="page" data-page="h-factor-tuning" hidden>
           <div class="hft-head">
             <h2>Set point H Factor</h2>
-            <p>สรุปผลการเดินเครื่องจริงในแต่ละช่วง Set Point H-factor (APC) เพื่อใช้เป็นแนวทางเลือกค่า Set Point ที่เหมาะสม</p>
+            <p>Set point H Factor: เพื่อทำนาย H-Factor จากข้อมูลสายพันธุ์ไม้ที่เข้าผลิต/ ความชื้นไม้สับ (Chip Moisture)/ Temp.after circulation (Temp เริ่มต้น) และ Heat&amp;Cook time และแนะนำการปรับ Set point H-Factor ตาม Target Kappa ที่ต้องการ รวมถึงการปรับ Set point H-Factor กรณีทราบผลข้อมูล Kappa เฉลี่ย 3 Batch ล่าสุด</p>
           </div>
           <div class="hft-note">
             <b>วิธีจัดกลุ่มข้อมูล:</b> แต่ละวัน<span id="hftHistoryRangeNote"></span>จะถูกจัดเข้ากลุ่มตามค่าเฉลี่ย "Set point H-factor(APC)" ของวันนั้น (เฉลี่ยทุกครั้งต้มในวันเดียวกันก่อน เนื่องจาก Cooking Logsheet บันทึกรายครั้งต้ม) แล้วปัดเข้ากลุ่มที่ใกล้ที่สุด ห่างกันทีละ 20 — ช่วงที่แสดงมาจากข้อมูลจริงที่เคยเดินเท่านั้น ไม่ได้กำหนดตายตัว ข้อมูลไม้สับ/ความชื้น (RM Wood-Yield) และ Residual alkali WBL→Evaporator (QC Lab FL1) จับคู่ด้วยวันที่เดียวกัน แล้วหาค่าเฉลี่ยรวมในแต่ละกลุ่ม — <b>n</b> คือจำนวนวันที่มีข้อมูลในกลุ่มนั้น
@@ -2629,7 +2629,7 @@
         <section class="page" data-page="opt-fix-ea-charge" hidden>
           <div class="hft-head">
             <h2>Fix Ton EA Charge</h2>
-            <p>แนวทางการปรับสารเคมีกรณี Fix Ton EA Charge — คำนวณจากค่าเฉลี่ย Kappa Cooking และ Set point H-factor ของ 3 Batch ล่าสุด (Cooking Logsheet) และ Residual HBL Acc.1 ล่าสุด (QC Lab FL1)</p>
+            <p>Fix Ton EA Charge: เพื่อควบคุม Residual Alkaline Acc. ให้ได้ตามเป้าหมาย ด้วยวิธีการปรับแบบ Fix Ton EA Charge</p>
           </div>
 
           <div class="hft-section-head">
@@ -2641,6 +2641,13 @@
           </div>
           <div class="hft-note hft-reco-box" id="feaBaselineBox"></div>
 
+          <div class="md-target" id="feaResidualTargetRow">
+            <span class="lbl">Target Residual HBL Acc.1</span>
+            <span class="fld">Target <input type="number" step="any" id="feaResidualTargetInput" value="20"> g/L (±1)</span>
+            <button type="button" class="save-btn" id="feaResidualTargetSave">บันทึก Target</button>
+            <span class="save-msg" id="feaResidualTargetMsg" hidden>✓ บันทึกแล้ว — ทุกคนเห็นค่านี้</span>
+          </div>
+
           <div class="fea-flow" id="feaFlowDiagram">
             <div class="fea-title-bar">แนวทางการปรับสารเคมีกรณี Fix Ton EA Charge</div>
             <div class="fea-principle"><span class="fea-banner-ico">🎯</span><span><b>หลักการสำคัญ:</b> ตรวจสอบ Residual HBL Acc.1 เป็นอันดับแรก</span></div>
@@ -2648,7 +2655,7 @@
             <div class="fea-branches">
               <div class="fea-branch" id="feaBranchBelow" data-branch="below">
                 <div class="fea-branch-head fea-below"><span class="fea-branch-ico">📉</span>Kappa ต่ำกว่า Target</div>
-                <div class="fea-diamond fea-below">Residual HBL Acc.1<br>เทียบกับ Target<br><b>20 ±1 g/L</b></div>
+                <div class="fea-diamond fea-below">Residual HBL Acc.1<br>เทียบกับ Target<br><b><span id="feaDiamondTxtBelow">20 ±1 g/L</span></b></div>
                 <div class="fea-leaves">
                   <div class="fea-leaf fea-below" id="feaLeaf_below_onTarget" data-leaf="below_onTarget">
                     <div class="fea-leaf-head">อยู่ใน Target</div>
@@ -2669,7 +2676,7 @@
               </div>
               <div class="fea-branch" id="feaBranchAbove" data-branch="above">
                 <div class="fea-branch-head fea-above"><span class="fea-branch-ico">📈</span>Kappa สูงกว่า Target</div>
-                <div class="fea-diamond fea-above">Residual HBL Acc.1<br>เทียบกับ Target<br><b>20 ±1 g/L</b></div>
+                <div class="fea-diamond fea-above">Residual HBL Acc.1<br>เทียบกับ Target<br><b><span id="feaDiamondTxtAbove">20 ±1 g/L</span></b></div>
                 <div class="fea-leaves">
                   <div class="fea-leaf fea-above" id="feaLeaf_above_onTarget" data-leaf="above_onTarget">
                     <div class="fea-leaf-head">อยู่ใน Target</div>
@@ -8738,7 +8745,11 @@ function renderHFactorLast3Recommendation(){
    the AVERAGE Set point across those 3 batches (not just the latest one) -- Cooking Logsheet column
    BX, r[75] -- and Residual HBL Acc.1 is the latest day's own average from "QC Lab FL1" (col idx9,
    under "Accumulated BL" -- see QC_LAB_FL1_ROWS' own comment for why idx9, not idx14). */
-const FEA_RESIDUAL_LO = 19, FEA_RESIDUAL_HI = 21; // target band: 20 ± 1 g/L
+/* Residual HBL Acc.1's target CENTER is editable (±1 g/L band stays fixed around it) -- starts at
+   20 and, once saved, is remembered via the same shared CHIP_TARGETS_REMOTE/api/targets store every
+   other KPI Card target already uses (chipMonTarget/chipMonSetTarget), so every viewer sees the
+   latest saved value, not just this browser. */
+let FEA_RESIDUAL_CENTER = 20;
 let FEA_TARGET_KAPPA = 13.50;
 function feaAvgSetPoint(batches){
   const vals = batches.map(function(b){ return b.setPoint; }).filter(function(v){ return v!=null; });
@@ -8759,7 +8770,8 @@ function computeFeaRecommendation(){
   if(FEA_TARGET_KAPPA == null) return { status:'no-target', k:k, avgSetPoint:avgSetPoint, residual:residual };
   const diff = k.avg - FEA_TARGET_KAPPA;
   const kappaBranch = Math.abs(diff) < 0.005 ? 'onTarget' : (diff > 0 ? 'above' : 'below');
-  const residualBranch = residual==null ? null : (residual.value < FEA_RESIDUAL_LO ? 'below' : residual.value > FEA_RESIDUAL_HI ? 'above' : 'onTarget');
+  const residualLo = FEA_RESIDUAL_CENTER - 1, residualHi = FEA_RESIDUAL_CENTER + 1;
+  const residualBranch = residual==null ? null : (residual.value < residualLo ? 'below' : residual.value > residualHi ? 'above' : 'onTarget');
   const hFactorDelta = Math.round(HFT_KAPPA_TO_SETPOINT_RATIO * Math.abs(diff));
   const eaDelta = Math.round(0.3 * Math.abs(diff) * 100) / 100;
   const newSetPoint = avgSetPoint!=null ? Math.round(avgSetPoint + HFT_KAPPA_TO_SETPOINT_RATIO*diff) : null;
@@ -8788,6 +8800,37 @@ function initFeaTargetKappaInput(){
     renderFeaPage();
   });
 }
+function feaSyncDiamondTargetText(){
+  const txt = hftFmt(FEA_RESIDUAL_CENTER,0)+' ±1 g/L';
+  ['feaDiamondTxtBelow','feaDiamondTxtAbove'].forEach(function(id){
+    const el = document.getElementById(id);
+    if(el) el.textContent = txt;
+  });
+}
+function initFeaResidualTargetInput(){
+  const input = document.getElementById('feaResidualTargetInput');
+  const saveBtn = document.getElementById('feaResidualTargetSave');
+  const msg = document.getElementById('feaResidualTargetMsg');
+  if(!input || !saveBtn) return;
+  const saved = chipMonTarget('feaResidualCenter').lo;
+  FEA_RESIDUAL_CENTER = saved!=null ? saved : 20;
+  input.value = FEA_RESIDUAL_CENTER;
+  feaSyncDiamondTargetText();
+  let msgTimer = null;
+  saveBtn.addEventListener('click', function(){
+    const v = Number(input.value);
+    FEA_RESIDUAL_CENTER = isFinite(v) ? v : 20;
+    input.value = FEA_RESIDUAL_CENTER;
+    chipMonSetTarget('feaResidualCenter', FEA_RESIDUAL_CENTER, null);
+    feaSyncDiamondTargetText();
+    renderFeaPage();
+    if(msg){
+      msg.hidden = false;
+      if(msgTimer) clearTimeout(msgTimer);
+      msgTimer = setTimeout(function(){ msg.hidden = true; }, 2500);
+    }
+  });
+}
 function renderFeaPage(){
   const box = document.getElementById('feaBaselineBox');
   if(!box) return;
@@ -8805,7 +8848,7 @@ function renderFeaPage(){
     return 'Cook #'+(b.cookNo!=null?b.cookNo:'—')+' ('+b.d+' '+MONTH_ABBR_TH[b.mi]+' '+b.y+') = '+hftFmt(b.kappa,2);
   }).join(', ');
   const residualTxt = r.residual
-    ? hftFmt(r.residual.value,2)+' g/L ('+r.residual.d+' '+MONTH_ABBR_TH[r.residual.mi]+' '+r.residual.y+')'
+    ? '<span class="hft-reco-value">'+hftFmt(r.residual.value,2)+'</span> g/L ('+r.residual.d+' '+MONTH_ABBR_TH[r.residual.mi]+' '+r.residual.y+')'
     : 'ไม่มีข้อมูล';
   let html = '<p><b>Kappa Cooking เฉลี่ย 3 Batch ล่าสุด:</b> '+batchList+' เฉลี่ยได้ <span class="hft-reco-value">'+hftFmt(k.avg,2)+'</span></p>'
     + '<p><b>Set point H-factor เฉลี่ย 3 Batch ล่าสุด (ชุดเดียวกัน):</b> '+(r.avgSetPoint!=null ? '<span class="hft-reco-value">'+hftFmt(r.avgSetPoint,0)+'</span>' : 'ไม่มีข้อมูล')+'</p>'
@@ -15015,6 +15058,7 @@ function initChipMon(){
   initHftLast3TargetKappaInput();
   renderHFactorLast3Recommendation();
   initFeaTargetKappaInput();
+  initFeaResidualTargetInput();
   renderFeaPage();
   initHFactorConditionControls();
   initDataAnalysisPage();
