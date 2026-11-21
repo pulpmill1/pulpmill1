@@ -660,6 +660,54 @@
   section[data-page="opt-fix-ea-charge"] .hft-head p,
   section[data-page="h-factor-tuning"] .hft-head p,
   section[data-page="daily-data"] .hft-head p{max-width:none;}
+  /* The Fix Ton EA Charge page's own little wood-chip mascot -- a quiet, happy companion beside
+     the title, built as inline SVG so it can breathe/blink/wave with plain CSS keyframes rather
+     than a video or GIF. Every loop below runs on its own period (3.6s-5.6s, none a simple multiple
+     of another) so the parts drift in and out of phase instead of visibly resetting in lockstep,
+     and nothing ever sits perfectly still while the mascot is on screen. */
+  section[data-page="opt-fix-ea-charge"] .hft-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;}
+  .hft-head-text{flex:1 1 auto;min-width:0;}
+  .fea-mascot{flex:0 0 auto;width:64px;margin-bottom:-6px;}
+  .fea-mascot svg{display:block;width:100%;height:auto;overflow:visible;}
+  @media (max-width:900px){ .fea-mascot{display:none;} }
+  .fea-mascot-upper{transform-box:fill-box;transform-origin:bottom center;animation:feaMascotSway 4.8s ease-in-out infinite;}
+  .fea-mascot-breathe{transform-box:fill-box;transform-origin:bottom center;animation:feaMascotBreathe 3.6s ease-in-out infinite;}
+  .fea-mascot-legs{transform-box:fill-box;transform-origin:top center;animation:feaMascotLegSway 4.2s ease-in-out infinite;}
+  .fea-mascot-sprout{transform-box:fill-box;transform-origin:bottom center;animation:feaMascotSproutSway 5.6s ease-in-out infinite;}
+  .fea-mascot-arm{transform-box:view-box;}
+  .fea-mascot-arm-rest{animation:feaMascotArmRestSway 4.4s ease-in-out infinite;}
+  .fea-mascot-arm-wave{animation:feaMascotWave 5s ease-in-out infinite;}
+  .fea-mascot-pupil{animation:feaMascotGaze 5.2s ease-in-out infinite;}
+  .fea-mascot-lid{transform-box:view-box;transform:scaleY(0);animation:feaMascotBlink 4s ease-in-out infinite;}
+  .fea-mascot-cheek{animation:feaMascotCheekPulse 5s ease-in-out infinite;}
+  .fea-mascot-mouth{transform-box:view-box;animation:feaMascotMouthPulse 5s ease-in-out infinite;}
+  @keyframes feaMascotSway{ 0%,100%{transform:rotate(-2.5deg);} 50%{transform:rotate(2.5deg);} }
+  @keyframes feaMascotBreathe{ 0%,100%{transform:translateY(0);} 50%{transform:translateY(-4px);} }
+  @keyframes feaMascotLegSway{ 0%,100%{transform:rotate(-1deg);} 50%{transform:rotate(1deg);} }
+  @keyframes feaMascotSproutSway{ 0%,100%{transform:rotate(-2.5deg);} 50%{transform:rotate(2.5deg);} }
+  @keyframes feaMascotArmRestSway{ 0%,100%{transform:rotate(-3deg);} 50%{transform:rotate(3deg);} }
+  /* The waving arm rests most of the cycle, then gives a short, cheerful wave burst (~1.7s out of
+     every 5s) rather than waving nonstop -- a quiet mascot, not a busy one. */
+  @keyframes feaMascotWave{
+    0%,35%{transform:rotate(8deg);}
+    42%{transform:rotate(-8deg);}
+    49%{transform:rotate(22deg);}
+    56%{transform:rotate(-4deg);}
+    63%{transform:rotate(18deg);}
+    70%,100%{transform:rotate(8deg);}
+  }
+  @keyframes feaMascotGaze{ 0%,100%{transform:translateX(0);} 50%{transform:translateX(1.5px);} }
+  /* Eyelid closes faster than it reopens (closing+hold ~160ms, reopening ~440ms of the 4s loop). */
+  @keyframes feaMascotBlink{
+    0%,82%{transform:scaleY(0);}
+    85%{transform:scaleY(1);}
+    89%{transform:scaleY(1);}
+    92%{transform:scaleY(0.6);}
+    96%{transform:scaleY(0.15);}
+    100%{transform:scaleY(0);}
+  }
+  @keyframes feaMascotCheekPulse{ 0%,30%,75%,100%{opacity:0.55;} 45%,60%{opacity:0.9;} }
+  @keyframes feaMascotMouthPulse{ 0%,30%,75%,100%{transform:scaleY(1);} 45%,60%{transform:scaleY(1.15);} }
   .hft-note{background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin:14px 0 18px;font-size:12px;color:var(--ink-2);line-height:1.7;}
   .hft-note b{color:var(--ink);font-weight:700;}
   .hft-wrap{overflow-x:auto;overflow-y:auto;border:1px solid var(--border);border-radius:10px;max-height:70vh;}
@@ -735,7 +783,7 @@
   /* The live baseline numbers (Kappa Cooking avg, Set point H-factor avg, Residual latest) and
      their two editable Target controls now live INSIDE the diagram card itself, right under the
      title bar, instead of in a separate box above it -- same margin rhythm as the other banners. */
-  .fea-baseline{margin:14px 20px 0;}
+  .fea-baseline{margin:14px 20px 18px;}
   .fea-baseline-controls{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:10px 20px 0;}
   .fea-principle,.fea-compare,.fea-goal,.fea-instruction{display:flex;align-items:center;justify-content:center;gap:10px;text-align:center;font-size:13.5px;padding:12px 20px;margin:14px 20px 0;border-radius:12px;}
   .fea-principle{background:#fdf0cf;color:#6b4a00;border:1px solid #f0cf7a;font-weight:700;}
@@ -780,12 +828,6 @@
   .fea-ln-h{height:2px;}
   .fea-arrowhead-v{position:absolute;left:50%;transform:translateX(-50%);width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-top:6px solid var(--ink-3);}
   .fea-leg{position:absolute;top:0;left:50%;transform:translateX(-50%);width:0;height:100%;}
-  /* A small round cap at each bar-to-leg elbow (where a horizontal segment turns 90° into a
-     vertical one) masks the seam between two abutting rectangles that otherwise reads as a small
-     notch/break even when their edges measure numerically flush -- same color/active rules as the
-     segments it joins, so it reads as one continuous flowing line rather than two crossing ones. */
-  .fea-joint{position:absolute;width:6px;height:6px;border-radius:50%;background:var(--ink-3);transform:translate(-50%,-50%);}
-  .fea-joint.active{background:#12a7b5;box-shadow:0 0 6px rgba(18,167,181,.45);}
   .fea-ln-v.active,.fea-leg.active .fea-ln-v{background-color:transparent;background-image:repeating-linear-gradient(180deg,#12a7b5 0 6px,rgba(18,167,181,.3) 6px 12px);background-size:100% 24px;background-position-y:0px;animation:feaFlowV .7s linear infinite;box-shadow:0 0 6px rgba(18,167,181,.45);}
   /* A shared trunk/bar fork point only ever sends the flow one way at a time (toward whichever
      leg actually matches the live condition) -- so each horizontal bar is split in markup into a
@@ -2698,17 +2740,65 @@
         </section>
         <section class="page" data-page="opt-fix-ea-charge" hidden>
           <div class="hft-head">
-            <h2>Fix Ton EA Charge</h2>
-            <p>Fix Ton EA Charge: เพื่อควบคุม Residual Alkaline Acc. ให้ได้ตามเป้าหมาย ด้วยวิธีการปรับแบบ Fix Ton EA Charge</p>
+            <div class="hft-head-text">
+              <h2>Fix Ton EA Charge</h2>
+              <p>Fix Ton EA Charge: เพื่อควบคุม Residual Alkaline Acc. ให้ได้ตามเป้าหมาย ด้วยวิธีการปรับแบบ Fix Ton EA Charge</p>
+            </div>
+            <div class="fea-mascot" aria-hidden="true">
+              <svg viewBox="0 0 200 300" xmlns="http://www.w3.org/2000/svg">
+                <ellipse class="fea-mascot-shadow" cx="100" cy="286" rx="42" ry="8" fill="#000" opacity="0.1"/>
+                <g class="fea-mascot-legs">
+                  <path d="M70,210 C60,214 55,228 55,245 C55,258 57,270 62,279 C65,284 78,284 81,279 C86,266 87,248 85,232 C84,221 78,213 70,210 Z" fill="#D9B06C"/>
+                  <path d="M130,210 C140,214 145,228 145,245 C145,258 143,270 138,279 C135,284 122,284 119,279 C114,266 113,248 115,232 C116,221 122,213 130,210 Z" fill="#D9B06C"/>
+                </g>
+                <g class="fea-mascot-upper">
+                  <g class="fea-mascot-breathe">
+                    <path class="fea-mascot-body" d="M100,55 C129,96 144,146 141,196 C140,209 134,220 125,227 L75,227 C66,220 60,209 59,196 C56,146 71,96 100,55 Z" fill="#EAC98A"/>
+                    <path d="M100,60 C92,96 86,140 88,190 C89,205 93,217 99,226 L75,227 C66,220 60,209 59,196 C56,146 71,96 100,55 C100,57 100,58 100,60 Z" fill="#D9B06C" opacity="0.45"/>
+                    <g class="fea-mascot-sprout">
+                      <path d="M100,55 C97,40 94,24 90,10" stroke="#8a6a3a" stroke-width="4" fill="none" stroke-linecap="round"/>
+                      <path d="M90,22 C78,16 64,14 54,20 C48,24 48,32 56,34 C70,38 84,32 90,22 Z" fill="#6FAE4C"/>
+                      <path d="M91,13 C92,-1 98,-14 110,-22 C117,-26 124,-21 121,-13 C115,-1 102,8 91,13 Z" fill="#D9C65C"/>
+                      <path d="M90,18 C100,10 112,6 124,9 C131,11 132,19 124,22 C112,27 98,25 90,18 Z" fill="#CFC25A"/>
+                    </g>
+                    <g class="fea-mascot-arm fea-mascot-arm-rest" style="transform-origin:128px 140px;">
+                      <path d="M128,138 C140,140 150,150 153,165 C156,178 155,190 148,198 C144,203 134,203 130,198 C125,190 123,175 124,160 C125,150 126,143 128,138 Z" fill="#EAC98A"/>
+                    </g>
+                    <g class="fea-mascot-arm fea-mascot-arm-wave" style="transform-origin:72px 138px;">
+                      <path d="M72,138 C60,135 48,128 42,112 C38,102 40,92 48,88 C54,85 62,88 66,96 C70,105 70,118 70,130 C70,133 71,136 72,138 Z" fill="#EAC98A"/>
+                    </g>
+                    <g class="fea-mascot-face">
+                      <path d="M70,116 Q82,106 96,115" stroke="#6B4A28" stroke-width="3" fill="none" stroke-linecap="round"/>
+                      <path d="M104,115 Q118,106 130,116" stroke="#6B4A28" stroke-width="3" fill="none" stroke-linecap="round"/>
+                      <g class="fea-mascot-eye">
+                        <ellipse cx="82" cy="135" rx="14" ry="16" fill="#fff"/>
+                        <circle class="fea-mascot-pupil" cx="83" cy="138" r="7" fill="#3a2a1a"/>
+                        <circle cx="86" cy="134" r="2.2" fill="#fff"/>
+                        <path class="fea-mascot-lid" d="M68,119 Q82,113 96,119 L96,135 Q82,141 68,135 Z" fill="#EAC98A" style="transform-origin:82px 119px;"/>
+                      </g>
+                      <g class="fea-mascot-eye">
+                        <ellipse cx="118" cy="135" rx="14" ry="16" fill="#fff"/>
+                        <circle class="fea-mascot-pupil" cx="117" cy="138" r="7" fill="#3a2a1a"/>
+                        <circle cx="121" cy="134" r="2.2" fill="#fff"/>
+                        <path class="fea-mascot-lid" d="M104,119 Q118,113 132,119 L132,135 Q118,141 104,135 Z" fill="#EAC98A" style="transform-origin:118px 119px;"/>
+                      </g>
+                      <circle class="fea-mascot-cheek" cx="68" cy="153" r="6" fill="#ff9e9e" opacity="0.55"/>
+                      <circle class="fea-mascot-cheek" cx="132" cy="153" r="6" fill="#ff9e9e" opacity="0.55"/>
+                      <path class="fea-mascot-mouth" d="M82,158 Q100,180 118,158 Q100,169 82,158 Z" fill="#7a3b2e" style="transform-origin:100px 165px;"/>
+                    </g>
+                  </g>
+                </g>
+              </svg>
+            </div>
           </div>
 
           <div class="fea-flow" id="feaFlowDiagram">
             <div class="fea-title-bar">แนวทางการปรับสารเคมีกรณี Fix Ton EA Charge</div>
-            <div class="fea-baseline hft-note hft-reco-box" id="feaBaselineBox"></div>
             <div class="fea-baseline-controls">
-              <div class="hft-kappa-target">
-                <label for="feaTargetKappaInput">Target Kappa</label>
-                <input type="number" id="feaTargetKappaInput" step="0.01" min="0" value="13.50">
+              <div class="md-target" id="feaTargetKappaRow">
+                <span class="fld">Target Kappa <input type="number" id="feaTargetKappaInput" step="0.01" min="0" value="13.50"></span>
+                <button type="button" class="save-btn" id="feaTargetKappaSave">บันทึก Target</button>
+                <span class="save-msg" id="feaTargetKappaMsg" hidden>✓ บันทึกแล้ว — ทุกคนเห็นค่านี้</span>
               </div>
               <div class="md-target" id="feaResidualTargetRow">
                 <span class="fld">Target Residual HBL Acc.1 <input type="number" step="any" id="feaResidualTargetInput" value="20"> g/L (±1)</span>
@@ -2722,10 +2812,8 @@
               <i class="fea-seg fea-ln-v" id="feaForkKappaTrunk" style="top:0;height:12px;"></i>
               <i class="fea-seg fea-ln-h fea-flow-left" id="feaForkKappaBarLeft" style="top:12px;left:25%;width:25%;"></i>
               <i class="fea-seg fea-ln-h fea-flow-right" id="feaForkKappaBarRight" style="top:12px;left:50%;width:25%;"></i>
-              <i class="fea-joint" id="feaJointKappaBelow" style="top:13px;left:25%;"></i>
-              <i class="fea-joint" id="feaJointKappaAbove" style="top:13px;left:75%;"></i>
-              <span class="fea-leg" id="feaArrowBranchBelow" style="left:25%;"><i class="fea-seg fea-ln-v" style="top:14px;height:16px;"></i><i class="fea-arrowhead-v" style="top:30px;"></i></span>
-              <span class="fea-leg" id="feaArrowBranchAbove" style="left:75%;"><i class="fea-seg fea-ln-v" style="top:14px;height:16px;"></i><i class="fea-arrowhead-v" style="top:30px;"></i></span>
+              <span class="fea-leg" id="feaArrowBranchBelow" style="left:25%;"><i class="fea-seg fea-ln-v" style="top:12px;height:18px;"></i><i class="fea-arrowhead-v" style="top:30px;"></i></span>
+              <span class="fea-leg" id="feaArrowBranchAbove" style="left:75%;"><i class="fea-seg fea-ln-v" style="top:12px;height:18px;"></i><i class="fea-arrowhead-v" style="top:30px;"></i></span>
             </div>
             <div class="fea-branches">
               <div class="fea-branch" id="feaBranchBelow" data-branch="below">
@@ -2737,11 +2825,9 @@
                   <i class="fea-seg fea-ln-v" id="feaForkLeafTrunkBelow" style="top:0;height:8px;"></i>
                   <i class="fea-seg fea-ln-h fea-flow-left" id="feaForkLeafBarBelowLeft" style="top:8px;left:16.67%;width:33.33%;"></i>
                   <i class="fea-seg fea-ln-h fea-flow-right" id="feaForkLeafBarBelowRight" style="top:8px;left:50%;width:33.33%;"></i>
-                  <i class="fea-joint" id="feaJointLeafBelowLeft" style="top:9px;left:16.67%;"></i>
-                  <i class="fea-joint" id="feaJointLeafBelowRight" style="top:9px;left:83.33%;"></i>
-                  <span class="fea-leg" id="feaArrowLeaf_below_onTarget" style="left:16.67%;"><i class="fea-seg fea-ln-v" style="top:10px;height:10px;"></i><i class="fea-arrowhead-v" style="top:20px;"></i></span>
-                  <span class="fea-leg" id="feaArrowLeaf_below_above" style="left:50%;"><i class="fea-seg fea-ln-v" style="top:10px;height:10px;"></i><i class="fea-arrowhead-v" style="top:20px;"></i></span>
-                  <span class="fea-leg" id="feaArrowLeaf_below_below" style="left:83.33%;"><i class="fea-seg fea-ln-v" style="top:10px;height:10px;"></i><i class="fea-arrowhead-v" style="top:20px;"></i></span>
+                  <span class="fea-leg" id="feaArrowLeaf_below_onTarget" style="left:16.67%;"><i class="fea-seg fea-ln-v" style="top:8px;height:12px;"></i><i class="fea-arrowhead-v" style="top:20px;"></i></span>
+                  <span class="fea-leg" id="feaArrowLeaf_below_above" style="left:50%;"><i class="fea-seg fea-ln-v" style="top:8px;height:12px;"></i><i class="fea-arrowhead-v" style="top:20px;"></i></span>
+                  <span class="fea-leg" id="feaArrowLeaf_below_below" style="left:83.33%;"><i class="fea-seg fea-ln-v" style="top:8px;height:12px;"></i><i class="fea-arrowhead-v" style="top:20px;"></i></span>
                 </div>
                 <div class="fea-leaves">
                   <div class="fea-connector fea-connector-mobile-single" aria-hidden="true"><span class="fea-leg" id="feaArrowLeaf_below_onTargetM" style="left:50%;"><i class="fea-seg fea-ln-v" style="top:0;height:14px;"></i><i class="fea-arrowhead-v" style="top:14px;"></i></span></div>
@@ -2773,11 +2859,9 @@
                   <i class="fea-seg fea-ln-v" id="feaForkLeafTrunkAbove" style="top:0;height:8px;"></i>
                   <i class="fea-seg fea-ln-h fea-flow-left" id="feaForkLeafBarAboveLeft" style="top:8px;left:16.67%;width:33.33%;"></i>
                   <i class="fea-seg fea-ln-h fea-flow-right" id="feaForkLeafBarAboveRight" style="top:8px;left:50%;width:33.33%;"></i>
-                  <i class="fea-joint" id="feaJointLeafAboveLeft" style="top:9px;left:16.67%;"></i>
-                  <i class="fea-joint" id="feaJointLeafAboveRight" style="top:9px;left:83.33%;"></i>
-                  <span class="fea-leg" id="feaArrowLeaf_above_onTarget" style="left:16.67%;"><i class="fea-seg fea-ln-v" style="top:10px;height:10px;"></i><i class="fea-arrowhead-v" style="top:20px;"></i></span>
-                  <span class="fea-leg" id="feaArrowLeaf_above_above" style="left:50%;"><i class="fea-seg fea-ln-v" style="top:10px;height:10px;"></i><i class="fea-arrowhead-v" style="top:20px;"></i></span>
-                  <span class="fea-leg" id="feaArrowLeaf_above_below" style="left:83.33%;"><i class="fea-seg fea-ln-v" style="top:10px;height:10px;"></i><i class="fea-arrowhead-v" style="top:20px;"></i></span>
+                  <span class="fea-leg" id="feaArrowLeaf_above_onTarget" style="left:16.67%;"><i class="fea-seg fea-ln-v" style="top:8px;height:12px;"></i><i class="fea-arrowhead-v" style="top:20px;"></i></span>
+                  <span class="fea-leg" id="feaArrowLeaf_above_above" style="left:50%;"><i class="fea-seg fea-ln-v" style="top:8px;height:12px;"></i><i class="fea-arrowhead-v" style="top:20px;"></i></span>
+                  <span class="fea-leg" id="feaArrowLeaf_above_below" style="left:83.33%;"><i class="fea-seg fea-ln-v" style="top:8px;height:12px;"></i><i class="fea-arrowhead-v" style="top:20px;"></i></span>
                 </div>
                 <div class="fea-leaves">
                   <div class="fea-connector fea-connector-mobile-single" aria-hidden="true"><span class="fea-leg" id="feaArrowLeaf_above_onTargetM" style="left:50%;"><i class="fea-seg fea-ln-v" style="top:0;height:14px;"></i><i class="fea-arrowhead-v" style="top:14px;"></i></span></div>
@@ -2803,6 +2887,7 @@
             </div>
             <div class="fea-goal"><span class="fea-banner-ico">🎯</span><span><b>เป้าหมาย:</b> ควบคุม Kappa เข้าสู่ Target พร้อมรักษา Residual HBL Acc.1 ที่ 20 ±1 g/L</span></div>
             <div class="fea-instruction"><span class="fea-banner-ico">⚙️</span><span>ปรับครั้งละ 1 Parameter → รอผลตาม Batch / Retention Time → ตรวจยืนยัน Kappa และ Residual ก่อนปรับซ้ำ</span></div>
+            <div class="fea-baseline hft-note hft-reco-box" id="feaBaselineBox"></div>
           </div>
         </section>
         <section class="page" data-page="data-analysis" hidden>
@@ -8901,12 +8986,30 @@ const FEA_LEAF_ACTIONS = {
 const FEA_LEAF_BAR_SIDE = { onTarget:'Left', above:null, below:'Right' };
 function initFeaTargetKappaInput(){
   const input = document.getElementById('feaTargetKappaInput');
+  const saveBtn = document.getElementById('feaTargetKappaSave');
+  const msg = document.getElementById('feaTargetKappaMsg');
   if(!input) return;
-  FEA_TARGET_KAPPA = Number(input.value) || 13.50;
+  const saved = chipMonTarget('feaTargetKappa').lo;
+  FEA_TARGET_KAPPA = saved!=null ? saved : 13.50;
+  input.value = FEA_TARGET_KAPPA;
   input.addEventListener('input', function(){
     const v = Number(input.value);
     FEA_TARGET_KAPPA = (isFinite(v) && v > 0) ? v : null;
     renderFeaPage();
+  });
+  if(!saveBtn) return;
+  let msgTimer = null;
+  saveBtn.addEventListener('click', function(){
+    const v = Number(input.value);
+    FEA_TARGET_KAPPA = (isFinite(v) && v > 0) ? v : 13.50;
+    input.value = FEA_TARGET_KAPPA;
+    chipMonSetTarget('feaTargetKappa', FEA_TARGET_KAPPA, null);
+    renderFeaPage();
+    if(msg){
+      msg.hidden = false;
+      if(msgTimer) clearTimeout(msgTimer);
+      msgTimer = setTimeout(function(){ msg.hidden = true; }, 2500);
+    }
   });
 }
 function feaSyncDiamondTargetText(){
@@ -8952,7 +9055,7 @@ function renderFeaPage(){
   document.querySelectorAll('#feaFlowDiagram .fea-leaf').forEach(function(el){ el.classList.remove('active'); });
   document.querySelectorAll('#feaFlowDiagram .fea-leaf-calc').forEach(function(el){ el.innerHTML = ''; });
   document.querySelectorAll('#feaFlowDiagram .fea-branch-head').forEach(function(el){ el.classList.remove('active-branch'); });
-  document.querySelectorAll('#feaFlowDiagram .fea-seg, #feaFlowDiagram .fea-leg, #feaFlowDiagram .fea-joint').forEach(function(el){ el.classList.remove('active'); });
+  document.querySelectorAll('#feaFlowDiagram .fea-seg, #feaFlowDiagram .fea-leg').forEach(function(el){ el.classList.remove('active'); });
 
   if(r.status === 'insufficient-history'){
     box.innerHTML = '<p>ข้อมูล Kappa No. (Online) จาก Cooking Logsheet ยังมีไม่ครบ 3 Batch (มีข้อมูลอยู่ '+r.n+' Batch) จึงยังไม่สามารถคำนวณค่าตั้งต้นได้</p>';
@@ -8992,7 +9095,6 @@ function renderFeaPage(){
   const branchSuffix = r.kappaBranch === 'above' ? 'Above' : 'Below';
   feaSetArrowActive('feaForkKappaTrunk', true);
   feaSetArrowActive(branchSuffix === 'Below' ? 'feaForkKappaBarLeft' : 'feaForkKappaBarRight', true);
-  feaSetArrowActive('feaJointKappa'+branchSuffix, true);
   feaSetArrowActive('feaArrowBranch'+branchSuffix, true);
   feaSetArrowActive('feaArrowBranch'+branchSuffix+'M', true);
   feaSetArrowActive('feaArrowToDiamond'+branchSuffix, true);
@@ -9010,10 +9112,7 @@ function renderFeaPage(){
   const calcEl = document.getElementById('feaCalc_'+leafKey);
   if(leafEl) leafEl.classList.add('active');
   const leafBarSide = FEA_LEAF_BAR_SIDE[r.residualBranch];
-  if(leafBarSide){
-    feaSetArrowActive('feaForkLeafBar'+branchSuffix+leafBarSide, true);
-    feaSetArrowActive('feaJointLeaf'+branchSuffix+leafBarSide, true);
-  }
+  if(leafBarSide) feaSetArrowActive('feaForkLeafBar'+branchSuffix+leafBarSide, true);
   feaSetArrowActive('feaArrowLeaf_'+leafKey, true);
   feaSetArrowActive('feaArrowLeaf_'+leafKey+'M', true);
   if(calcEl && action){
