@@ -1244,8 +1244,8 @@
       <div class="nav-group" data-group="opt-tuning">
         <div class="nav-parent"><span class="nav-ico">🧪</span><span class="nav-label" data-i18n-nav="navOptTuning">OPT Tuning</span></div>
         <div class="nav-children">
-          <button class="nav-item" data-page="h-factor-tuning"><span class="nav-label" data-i18n-nav="navHFactorTuning">Set point H Factor</span></button>
           <button class="nav-item" data-page="opt-fix-ea-charge"><span class="nav-label" data-i18n-nav="navOptFixEaCharge">Res. Acc (Fix Ton EA)</span></button>
+          <button class="nav-item" data-page="h-factor-tuning"><span class="nav-label" data-i18n-nav="navHFactorTuning">Set point H Factor</span></button>
         </div>
       </div>
       <button class="nav-item" data-page="data-analysis"><span style="display:flex; align-items:center; min-width:0;"><span class="nav-ico">📊</span><span class="nav-label" data-i18n-nav="navDataAnalysis">Data for analysis</span></span></button>
@@ -3186,9 +3186,39 @@
               <div class="mon-detail" id="chipDetail_ddWoodhandling" hidden></div>
             </div>
             <div class="mon-group">
-              <div class="mon-group-head"><span class="gi">🔥</span><span class="gt">Cooking</span><span class="gs">67 ค่า · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
-              <div class="mon-tiles" id="chipTiles_ddCooking"></div>
-              <div class="mon-detail" id="chipDetail_ddCooking" hidden></div>
+              <div class="mon-group-head"><span class="gi">🪵</span><span class="gt">Cooking: Chip filling</span><span class="gs">3 ค่า · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
+              <div class="mon-tiles" id="chipTiles_ddCookChipFill"></div>
+              <div class="mon-detail" id="chipDetail_ddCookChipFill" hidden></div>
+            </div>
+            <div class="mon-group">
+              <div class="mon-group-head"><span class="gi">♨️</span><span class="gt">Cooking: Pre Steaming & Pre Heating</span><span class="gs">2 ค่า · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
+              <div class="mon-tiles" id="chipTiles_ddCookPresteam"></div>
+              <div class="mon-detail" id="chipDetail_ddCookPresteam" hidden></div>
+            </div>
+            <div class="mon-group">
+              <div class="mon-group-head"><span class="gi">💧</span><span class="gt">Cooking: Hot Liquor Filling</span><span class="gs">24 ค่า · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
+              <div class="mon-tiles" id="chipTiles_ddCookHlf"></div>
+              <div class="mon-detail" id="chipDetail_ddCookHlf" hidden></div>
+            </div>
+            <div class="mon-group">
+              <div class="mon-group-head"><span class="gi">🔥</span><span class="gt">Cooking: Heat & Cook</span><span class="gs">11 ค่า · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
+              <div class="mon-tiles" id="chipTiles_ddCookHeatCook"></div>
+              <div class="mon-detail" id="chipDetail_ddCookHeatCook" hidden></div>
+            </div>
+            <div class="mon-group">
+              <div class="mon-group-head"><span class="gi">🔄</span><span class="gt">Cooking: Displacement</span><span class="gs">9 ค่า · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
+              <div class="mon-tiles" id="chipTiles_ddCookDisplace"></div>
+              <div class="mon-detail" id="chipDetail_ddCookDisplace" hidden></div>
+            </div>
+            <div class="mon-group">
+              <div class="mon-group-head"><span class="gi">📤</span><span class="gt">Cooking: Discharge</span><span class="gs">7 ค่า · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
+              <div class="mon-tiles" id="chipTiles_ddCookDischarge"></div>
+              <div class="mon-detail" id="chipDetail_ddCookDischarge" hidden></div>
+            </div>
+            <div class="mon-group">
+              <div class="mon-group-head"><span class="gi">🧪</span><span class="gt">Cooking: Liquor</span><span class="gs">11 ค่า · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
+              <div class="mon-tiles" id="chipTiles_ddCookLiquor"></div>
+              <div class="mon-detail" id="chipDetail_ddCookLiquor" hidden></div>
             </div>
             <div class="mon-group">
               <div class="mon-group-head"><span class="gi">🧼</span><span class="gt">Washing</span><span class="gs">18 ค่า · คลิกที่บล็อกเพื่อดูประวัติ</span></div>
@@ -7246,7 +7276,13 @@ const CHIP_MON_GROUPS = [
      as that page's own row-tint palette, so the two pages feel like the same system. */
   {id:'ddProduction', ico:'📦', th:'Production', rail:'#3069a6', chartType:'line', page:'daily-data'},
   {id:'ddWoodhandling', ico:'🪵', th:'Woodhandling', rail:'#a64c30', chartType:'line', page:'daily-data'},
-  {id:'ddCooking', ico:'🔥', th:'Cooking', rail:'#a67930', chartType:'line', page:'daily-data'},
+  {id:'ddCookChipFill', ico:'🪵', th:'Cooking: Chip filling', rail:'#8C5B2A', chartType:'line', page:'daily-data'},
+  {id:'ddCookPresteam', ico:'♨️', th:'Cooking: Pre Steaming & Pre Heating', rail:'#B2702E', chartType:'line', page:'daily-data'},
+  {id:'ddCookHlf', ico:'💧', th:'Cooking: Hot Liquor Filling', rail:'#0E7C86', chartType:'line', page:'daily-data'},
+  {id:'ddCookHeatCook', ico:'🔥', th:'Cooking: Heat & Cook', rail:'#C9342C', chartType:'line', page:'daily-data'},
+  {id:'ddCookDisplace', ico:'🔄', th:'Cooking: Displacement', rail:'#5B6B8C', chartType:'line', page:'daily-data'},
+  {id:'ddCookDischarge', ico:'📤', th:'Cooking: Discharge', rail:'#7C4DFF', chartType:'line', page:'daily-data'},
+  {id:'ddCookLiquor', ico:'🧪', th:'Cooking: Liquor', rail:'#2A8C6E', chartType:'line', page:'daily-data'},
   {id:'ddWashing', ico:'🧼', th:'Washing', rail:'#61a630', chartType:'line', page:'daily-data'},
   {id:'ddOxygenDelignification', ico:'💨', th:'Oxygen Delignification', rail:'#30a675', chartType:'line', page:'daily-data'},
   {id:'ddKnot', ico:'🪢', th:'Knot', rail:'#30a0a6', chartType:'line', page:'daily-data'},
@@ -8008,73 +8044,73 @@ CHIP_MON_META.push(
   {key:'dd015Pulp1OverSize450Mm', col:1057, th:'Wood Chip – Pulp 1 Over size >45.0 mm', unit:'', dec:2, grp:'ddWoodhandling', scored:false},
   {key:'dd016Pulp1Acc12Pin28648', col:1058, th:'Wood Chip – Pulp 1 Acc1+2+Pin, 28.6-4.8', unit:'', dec:2, grp:'ddWoodhandling', scored:false},
   {key:'dd017Pulp1Bark', col:1059, th:'Wood Chip – Pulp 1 Bark', unit:'', dec:2, grp:'ddWoodhandling', scored:false},
-  {key:'dd018ChipFlow', col:573, th:'Chip Filling – Chip flow', unit:'GT/min', dec:2, grp:'ddCooking', scored:false},
-  {key:'dd019PackingSteamRatio', col:569, th:'Chip Filling – Packing Steam ratio', unit:'', dec:2, grp:'ddCooking', scored:false},
-  {key:'dd020PressurePackingSteamCal', col:570, th:'Chip Filling – Pressure packing steam (Cal.)', unit:'bar', dec:2, grp:'ddCooking', scored:false},
-  {key:'dd021PresteamingTempTarget', col:582, th:'Pre Steaming & Pre Heating – Presteaming temp. target', unit:'C', dec:2, grp:'ddCooking', scored:false},
-  {key:'dd022PreheatingTempTarget', col:583, th:'Pre Steaming & Pre Heating – Preheating temp target', unit:'C', dec:2, grp:'ddCooking', scored:false},
-  {key:'dd023EaChargeSetPoint', col:586, th:'Hot Liquor Filling – EA charge Set point', unit:'ton EA/batch', dec:2, grp:'ddCooking', scored:false},
-  {key:'dd024EaChargeActual', col:587, th:'Hot Liquor Filling – EA charge Actual', unit:'%', dec:2, grp:'ddCooking', scored:false},
-  {key:'dd025Neu', col:588, th:'Hot Liquor Filling – NEU', unit:'%', dec:2, grp:'ddCooking', scored:false},
-  {key:'dd026WlTemp', col:592, th:'Hot Liquor Filling – WL Temp.', unit:'C', dec:2, grp:'ddCooking', scored:false},
-  {key:'dd027HwlAccTargetTemp', col:594, th:'Hot Liquor Filling – HWL. Acc. Target Temp', unit:'C', dec:2, grp:'ddCooking', scored:false},
-  {key:'dd028HwlAccTemp', col:595, th:'Hot Liquor Filling – HWL. Acc. Temp', unit:'C', dec:2, grp:'ddCooking', scored:false},
-  {key:'dd029HblAcc1TargetTemp', col:597, th:'Hot Liquor Filling – HBL. Acc. 1 Target Temp', unit:'C', dec:2, grp:'ddCooking', scored:false},
-  {key:'dd030HblAcc1Temp', col:598, th:'Hot Liquor Filling – HBL. Acc. 1 Temp', unit:'C', dec:2, grp:'ddCooking', scored:false},
-  {key:'dd031HwlNueTargetAmount', col:599, th:'Hot Liquor Filling – HWL Nue. target amount', unit:'m3/batch', dec:2, grp:'ddCooking', scored:false},
-  {key:'dd032HwlNueRealAmount', col:600, th:'Hot Liquor Filling – HWL Nue. real amount', unit:'m3/batch', dec:2, grp:'ddCooking', scored:false},
-  {key:'dd033HblHwlTargetAmount', col:601, th:'Hot Liquor Filling – HBL + HWL target amount', unit:'m3/batch', dec:2, grp:'ddCooking', scored:false},
-  {key:'dd034HblRealAmount', col:602, th:'Hot Liquor Filling – HBL real amount', unit:'m3/batch', dec:2, grp:'ddCooking', scored:false},
-  {key:'dd035LastHwlTargetAmount', col:603, th:'Hot Liquor Filling – Last HWL.target amount', unit:'m3/batch', dec:2, grp:'ddCooking', scored:false},
-  {key:'dd036LastHwlRealAmount', col:604, th:'Hot Liquor Filling – Last HWL.real amount', unit:'m3/batch', dec:2, grp:'ddCooking', scored:false},
-  {key:'dd037LastHwlRealAmount', col:605, th:'Hot Liquor Filling – Last HWL.real amount', unit:'m3/day', dec:2, grp:'ddCooking', scored:false},
-  {key:'dd038WlSplitChargeHblAcc1', col:606, th:'Hot Liquor Filling – WL Split Charge HBL ACC1', unit:'m3/day', dec:2, grp:'ddCooking', scored:false},
-  {key:'dd039WlSplitChargeP009', col:607, th:'Hot Liquor Filling – WL Split Charge  P009', unit:'m3/day', dec:2, grp:'ddCooking', scored:false},
-  {key:'dd040WlChargeToDigester', col:608, th:'Hot Liquor Filling – WL Charge to digester', unit:'m3/batch', dec:2, grp:'ddCooking', scored:false},
-  {key:'dd041WlChargeToDigester', col:609, th:'Hot Liquor Filling – WL Charge to digester', unit:'m3/day', dec:2, grp:'ddCooking', scored:false},
-  {key:'dd042WlChargeToDigester', col:610, th:'Hot Liquor Filling – WL Charge to digester', unit:'Ton EA/batch', dec:2, grp:'ddCooking', scored:false},
-  {key:'dd043WlChargeToDigester', col:611, th:'Hot Liquor Filling – WL Charge to digester', unit:'Ton EA/day', dec:2, grp:'ddCooking', scored:false},
-  {key:'dd044TotalWlConsump', col:612, th:'Hot Liquor Filling – Total WL Consump.', unit:'m3/day', dec:2, grp:'ddCooking', scored:false},
-  {key:'dd045TotalWlConsump', col:613, th:'Hot Liquor Filling – Total WL Consump.', unit:'Ton EA/day', dec:2, grp:'ddCooking', scored:false},
-  {key:'dd046WeightScaleAfterHlf', col:614, th:'Hot Liquor Filling – Weight Scale After HLF', unit:'ton/batch', dec:2, grp:'ddCooking', scored:false},
-  {key:'dd047TargetCookTemp', col:616, th:'Heat & Cook – Target cook temp.', unit:'C', dec:2, grp:'ddCooking', scored:false},
-  {key:'dd048TempAfterCirculationTemp', col:617, th:'Heat & Cook – Temp.after circulation. (Temp เริ่มต้น)', unit:'C', dec:2, grp:'ddCooking', scored:false},
-  {key:'dd049TempAfterCirculationTemp', col:618, th:'Heat & Cook – Temp.after circulation. (Temp สูงสุด)', unit:'C', dec:2, grp:'ddCooking', scored:false},
-  {key:'dd050MpSteamDirectCharge', col:619, th:'Heat & Cook – MP Steam direct charge', unit:'min', dec:2, grp:'ddCooking', scored:false},
-  {key:'dd051SetPointHFactorApc', col:620, th:'Heat & Cook – Set point H-factor(APC)', unit:'', dec:2, grp:'ddCooking', scored:false},
-  {key:'dd052TargetHFactor', col:621, th:'Heat & Cook – Target H-factor', unit:'', dec:2, grp:'ddCooking', scored:false},
-  {key:'dd053RealHFactor', col:622, th:'Heat & Cook – Real H-factor', unit:'', dec:2, grp:'ddCooking', scored:false},
-  {key:'dd054CirculationPumpLoading', col:623, th:'Heat & Cook – Circulation Pump Loading', unit:'%', dec:2, grp:'ddCooking', scored:false},
-  {key:'dd055HCScreenPressureDiff', col:624, th:'Heat & Cook – H&C Screen pressure Diff.', unit:'bar', dec:2, grp:'ddCooking', scored:false},
-  {key:'dd056HCScreenPressureDiff020Peak', col:625, th:'Heat & Cook – H&C Screen pressure Diff. (> +/- 0.20 Peak)', unit:'bar', dec:2, grp:'ddCooking', scored:false},
-  {key:'dd057HCScreenPressureDiff020', col:626, th:'Heat & Cook – H&C Screen pressure Diff. (+/- 0.20)', unit:'times', dec:2, grp:'ddCooking', scored:false},
-  {key:'dd058DisplacementAmount', col:629, th:'Displacement – Displacement amount', unit:'m3/batch', dec:2, grp:'ddCooking', scored:false},
-  {key:'dd059DplScreenPressureDiff', col:630, th:'Displacement – DPL Screen pressure Diff.', unit:'bar', dec:2, grp:'ddCooking', scored:false},
-  {key:'dd060DplScreenPressureDiff020Peak', col:631, th:'Displacement – DPL Screen pressure Diff. (> +/- 0.20 Peak)', unit:'bar', dec:2, grp:'ddCooking', scored:false},
-  {key:'dd061DplScreenPressureDiff020', col:632, th:'Displacement – DPL Screen pressure Diff. (+/- 0.20)', unit:'times', dec:2, grp:'ddCooking', scored:false},
-  {key:'dd062DisplacementFlow30Ton', col:633, th:'Displacement – Displacement flow (< 30 ton)', unit:'l/s', dec:2, grp:'ddCooking', scored:false},
-  {key:'dd063DisplacementFlow100Ton', col:634, th:'Displacement – Displacement flow (< 100 ton)', unit:'l/s', dec:2, grp:'ddCooking', scored:false},
-  {key:'dd064DisplacementFlow150Ton', col:635, th:'Displacement – Displacement flow (< 150 ton)', unit:'l/s', dec:2, grp:'ddCooking', scored:false},
-  {key:'dd065DisplacementFlow150Ton', col:636, th:'Displacement – Displacement flow (> 150 ton)', unit:'l/s', dec:2, grp:'ddCooking', scored:false},
-  {key:'dd066TempAfterCirculation', col:637, th:'Displacement – Temp.after circulation.', unit:'C', dec:2, grp:'ddCooking', scored:false},
-  {key:'dd067DischargeLevelBeforeDischarge', col:640, th:'Discharge – Discharge level before discharge', unit:'%', dec:2, grp:'ddCooking', scored:false},
-  {key:'dd068DilutionAmount', col:641, th:'Discharge – Dilution amount.', unit:'m3', dec:2, grp:'ddCooking', scored:false},
-  {key:'dd069AverageConsistency', col:642, th:'Discharge – Average Consistency', unit:'%', dec:2, grp:'ddCooking', scored:false},
-  {key:'dd070MaximumDischargeTemp', col:643, th:'Discharge – Maximum discharge temp.', unit:'C', dec:2, grp:'ddCooking', scored:false},
-  {key:'dd071EffectiveAlkali', col:841, th:'White Liquor – Effective alkali', unit:'g/L', dec:2, grp:'ddCooking', scored:false},
-  {key:'dd072EffectiveAlkaliOnline', col:842, th:'White Liquor – Effective alkali (Online)', unit:'g/L', dec:2, grp:'ddCooking', scored:false},
-  {key:'dd073SulfidityCe80', col:843, th:'White Liquor – Sulfidity @CE 80%', unit:'%', dec:2, grp:'ddCooking', scored:false},
-  {key:'dd074Sulfidity', col:844, th:'White Liquor – Sulfidity', unit:'%', dec:2, grp:'ddCooking', scored:false},
-  {key:'dd075CausticizingEfficiency', col:845, th:'White Liquor – Causticizing Efficiency', unit:'%', dec:2, grp:'ddCooking', scored:false},
-  {key:'dd076SuspendedSolids', col:846, th:'White Liquor – Suspended Solids', unit:'mg/L', dec:2, grp:'ddCooking', scored:false},
-  {key:'dd077ResidualAlkali', col:847, th:'Accumulated BL – Residual alkali', unit:'g/L', dec:2, grp:'ddCooking', scored:false},
-  {key:'dd078ResidualAlkaliOnline', col:848, th:'Accumulated BL – Residual alkali (Online)', unit:'g/L', dec:2, grp:'ddCooking', scored:false},
-  {key:'dd079FiberContent', col:849, th:'WBL to Evaporator – Fiber content', unit:'mg/L', dec:2, grp:'ddCooking', scored:false},
-  {key:'dd080DrySolidContent', col:850, th:'WBL to Evaporator – Dry solid content', unit:'%', dec:2, grp:'ddCooking', scored:false},
-  {key:'dd081ResidualAlkali', col:851, th:'WBL to Evaporator – Residual alkali', unit:'g/L', dec:2, grp:'ddCooking', scored:false},
-  {key:'dd082KappaNumber', col:853, th:'Discharged Pipe – Kappa number', unit:'', dec:2, grp:'ddCooking', scored:false},
-  {key:'dd083KappaNumberOnline', col:854, th:'Discharged Pipe – Kappa number (Online)', unit:'', dec:2, grp:'ddCooking', scored:false},
-  {key:'dd084DischargeLevel', col:640, th:'Discharge Tank – Discharge Level', unit:'%', dec:2, grp:'ddCooking', scored:false},
+  {key:'dd018ChipFlow', col:573, th:'Chip flow', unit:'GT/min', dec:2, grp:'ddCookChipFill', scored:false},
+  {key:'dd019PackingSteamRatio', col:569, th:'Packing Steam ratio', unit:'', dec:2, grp:'ddCookChipFill', scored:false},
+  {key:'dd020PressurePackingSteamCal', col:570, th:'Pressure packing steam (Cal.)', unit:'bar', dec:2, grp:'ddCookChipFill', scored:false},
+  {key:'dd021PresteamingTempTarget', col:582, th:'Presteaming temp. target', unit:'C', dec:2, grp:'ddCookPresteam', scored:false},
+  {key:'dd022PreheatingTempTarget', col:583, th:'Preheating temp target', unit:'C', dec:2, grp:'ddCookPresteam', scored:false},
+  {key:'dd023EaChargeSetPoint', col:586, th:'EA charge Set point', unit:'ton EA/batch', dec:2, grp:'ddCookHlf', scored:false},
+  {key:'dd024EaChargeActual', col:587, th:'EA charge Actual', unit:'%', dec:2, grp:'ddCookHlf', scored:false},
+  {key:'dd025Neu', col:588, th:'NEU', unit:'%', dec:2, grp:'ddCookHlf', scored:false},
+  {key:'dd026WlTemp', col:592, th:'WL Temp.', unit:'C', dec:2, grp:'ddCookHlf', scored:false},
+  {key:'dd027HwlAccTargetTemp', col:594, th:'HWL. Acc. Target Temp', unit:'C', dec:2, grp:'ddCookHlf', scored:false},
+  {key:'dd028HwlAccTemp', col:595, th:'HWL. Acc. Temp', unit:'C', dec:2, grp:'ddCookHlf', scored:false},
+  {key:'dd029HblAcc1TargetTemp', col:597, th:'HBL. Acc. 1 Target Temp', unit:'C', dec:2, grp:'ddCookHlf', scored:false},
+  {key:'dd030HblAcc1Temp', col:598, th:'HBL. Acc. 1 Temp', unit:'C', dec:2, grp:'ddCookHlf', scored:false},
+  {key:'dd031HwlNueTargetAmount', col:599, th:'HWL Nue. target amount', unit:'m3/batch', dec:2, grp:'ddCookHlf', scored:false},
+  {key:'dd032HwlNueRealAmount', col:600, th:'HWL Nue. real amount', unit:'m3/batch', dec:2, grp:'ddCookHlf', scored:false},
+  {key:'dd033HblHwlTargetAmount', col:601, th:'HBL + HWL target amount', unit:'m3/batch', dec:2, grp:'ddCookHlf', scored:false},
+  {key:'dd034HblRealAmount', col:602, th:'HBL real amount', unit:'m3/batch', dec:2, grp:'ddCookHlf', scored:false},
+  {key:'dd035LastHwlTargetAmount', col:603, th:'Last HWL.target amount', unit:'m3/batch', dec:2, grp:'ddCookHlf', scored:false},
+  {key:'dd036LastHwlRealAmount', col:604, th:'Last HWL.real amount', unit:'m3/batch', dec:2, grp:'ddCookHlf', scored:false},
+  {key:'dd037LastHwlRealAmount', col:605, th:'Last HWL.real amount', unit:'m3/day', dec:2, grp:'ddCookHlf', scored:false},
+  {key:'dd038WlSplitChargeHblAcc1', col:606, th:'WL Split Charge HBL ACC1', unit:'m3/day', dec:2, grp:'ddCookHlf', scored:false},
+  {key:'dd039WlSplitChargeP009', col:607, th:'WL Split Charge  P009', unit:'m3/day', dec:2, grp:'ddCookHlf', scored:false},
+  {key:'dd040WlChargeToDigester', col:608, th:'WL Charge to digester', unit:'m3/batch', dec:2, grp:'ddCookHlf', scored:false},
+  {key:'dd041WlChargeToDigester', col:609, th:'WL Charge to digester', unit:'m3/day', dec:2, grp:'ddCookHlf', scored:false},
+  {key:'dd042WlChargeToDigester', col:610, th:'WL Charge to digester', unit:'Ton EA/batch', dec:2, grp:'ddCookHlf', scored:false},
+  {key:'dd043WlChargeToDigester', col:611, th:'WL Charge to digester', unit:'Ton EA/day', dec:2, grp:'ddCookHlf', scored:false},
+  {key:'dd044TotalWlConsump', col:612, th:'Total WL Consump.', unit:'m3/day', dec:2, grp:'ddCookHlf', scored:false},
+  {key:'dd045TotalWlConsump', col:613, th:'Total WL Consump.', unit:'Ton EA/day', dec:2, grp:'ddCookHlf', scored:false},
+  {key:'dd046WeightScaleAfterHlf', col:614, th:'Weight Scale After HLF', unit:'ton/batch', dec:2, grp:'ddCookHlf', scored:false},
+  {key:'dd047TargetCookTemp', col:616, th:'Target cook temp.', unit:'C', dec:2, grp:'ddCookHeatCook', scored:false},
+  {key:'dd048TempAfterCirculationTemp', col:617, th:'Temp.after circulation. (Temp เริ่มต้น)', unit:'C', dec:2, grp:'ddCookHeatCook', scored:false},
+  {key:'dd049TempAfterCirculationTemp', col:618, th:'Temp.after circulation. (Temp สูงสุด)', unit:'C', dec:2, grp:'ddCookHeatCook', scored:false},
+  {key:'dd050MpSteamDirectCharge', col:619, th:'MP Steam direct charge', unit:'min', dec:2, grp:'ddCookHeatCook', scored:false},
+  {key:'dd051SetPointHFactorApc', col:620, th:'Set point H-factor(APC)', unit:'', dec:2, grp:'ddCookHeatCook', scored:false},
+  {key:'dd052TargetHFactor', col:621, th:'Target H-factor', unit:'', dec:2, grp:'ddCookHeatCook', scored:false},
+  {key:'dd053RealHFactor', col:622, th:'Real H-factor', unit:'', dec:2, grp:'ddCookHeatCook', scored:false},
+  {key:'dd054CirculationPumpLoading', col:623, th:'Circulation Pump Loading', unit:'%', dec:2, grp:'ddCookHeatCook', scored:false},
+  {key:'dd055HCScreenPressureDiff', col:624, th:'H&C Screen pressure Diff.', unit:'bar', dec:2, grp:'ddCookHeatCook', scored:false},
+  {key:'dd056HCScreenPressureDiff020Peak', col:625, th:'H&C Screen pressure Diff. (> +/- 0.20 Peak)', unit:'bar', dec:2, grp:'ddCookHeatCook', scored:false},
+  {key:'dd057HCScreenPressureDiff020', col:626, th:'H&C Screen pressure Diff. (+/- 0.20)', unit:'times', dec:2, grp:'ddCookHeatCook', scored:false},
+  {key:'dd058DisplacementAmount', col:629, th:'Displacement amount', unit:'m3/batch', dec:2, grp:'ddCookDisplace', scored:false},
+  {key:'dd059DplScreenPressureDiff', col:630, th:'DPL Screen pressure Diff.', unit:'bar', dec:2, grp:'ddCookDisplace', scored:false},
+  {key:'dd060DplScreenPressureDiff020Peak', col:631, th:'DPL Screen pressure Diff. (> +/- 0.20 Peak)', unit:'bar', dec:2, grp:'ddCookDisplace', scored:false},
+  {key:'dd061DplScreenPressureDiff020', col:632, th:'DPL Screen pressure Diff. (+/- 0.20)', unit:'times', dec:2, grp:'ddCookDisplace', scored:false},
+  {key:'dd062DisplacementFlow30Ton', col:633, th:'Displacement flow (< 30 ton)', unit:'l/s', dec:2, grp:'ddCookDisplace', scored:false},
+  {key:'dd063DisplacementFlow100Ton', col:634, th:'Displacement flow (< 100 ton)', unit:'l/s', dec:2, grp:'ddCookDisplace', scored:false},
+  {key:'dd064DisplacementFlow150Ton', col:635, th:'Displacement flow (< 150 ton)', unit:'l/s', dec:2, grp:'ddCookDisplace', scored:false},
+  {key:'dd065DisplacementFlow150Ton', col:636, th:'Displacement flow (> 150 ton)', unit:'l/s', dec:2, grp:'ddCookDisplace', scored:false},
+  {key:'dd066TempAfterCirculation', col:637, th:'Temp.after circulation.', unit:'C', dec:2, grp:'ddCookDisplace', scored:false},
+  {key:'dd067DischargeLevelBeforeDischarge', col:640, th:'Discharge level before discharge', unit:'%', dec:2, grp:'ddCookDischarge', scored:false},
+  {key:'dd068DilutionAmount', col:641, th:'Dilution amount.', unit:'m3', dec:2, grp:'ddCookDischarge', scored:false},
+  {key:'dd069AverageConsistency', col:642, th:'Average Consistency', unit:'%', dec:2, grp:'ddCookDischarge', scored:false},
+  {key:'dd070MaximumDischargeTemp', col:643, th:'Maximum discharge temp.', unit:'C', dec:2, grp:'ddCookDischarge', scored:false},
+  {key:'dd071EffectiveAlkali', col:841, th:'White Liquor – Effective alkali', unit:'g/L', dec:2, grp:'ddCookLiquor', scored:false},
+  {key:'dd072EffectiveAlkaliOnline', col:842, th:'White Liquor – Effective alkali (Online)', unit:'g/L', dec:2, grp:'ddCookLiquor', scored:false},
+  {key:'dd073SulfidityCe80', col:843, th:'White Liquor – Sulfidity @CE 80%', unit:'%', dec:2, grp:'ddCookLiquor', scored:false},
+  {key:'dd074Sulfidity', col:844, th:'White Liquor – Sulfidity', unit:'%', dec:2, grp:'ddCookLiquor', scored:false},
+  {key:'dd075CausticizingEfficiency', col:845, th:'White Liquor – Causticizing Efficiency', unit:'%', dec:2, grp:'ddCookLiquor', scored:false},
+  {key:'dd076SuspendedSolids', col:846, th:'White Liquor – Suspended Solids', unit:'mg/L', dec:2, grp:'ddCookLiquor', scored:false},
+  {key:'dd077ResidualAlkali', col:847, th:'Accumulated BL – Residual alkali', unit:'g/L', dec:2, grp:'ddCookLiquor', scored:false},
+  {key:'dd078ResidualAlkaliOnline', col:848, th:'Accumulated BL – Residual alkali (Online)', unit:'g/L', dec:2, grp:'ddCookLiquor', scored:false},
+  {key:'dd079FiberContent', col:849, th:'WBL to Evaporator – Fiber content', unit:'mg/L', dec:2, grp:'ddCookLiquor', scored:false},
+  {key:'dd080DrySolidContent', col:850, th:'WBL to Evaporator – Dry solid content', unit:'%', dec:2, grp:'ddCookLiquor', scored:false},
+  {key:'dd081ResidualAlkali', col:851, th:'WBL to Evaporator – Residual alkali', unit:'g/L', dec:2, grp:'ddCookLiquor', scored:false},
+  {key:'dd082KappaNumber', col:853, th:'Discharged Pipe – Kappa number', unit:'', dec:2, grp:'ddCookDischarge', scored:false},
+  {key:'dd083KappaNumberOnline', col:854, th:'Discharged Pipe – Kappa number (Online)', unit:'', dec:2, grp:'ddCookDischarge', scored:false},
+  {key:'dd084DischargeLevel', col:640, th:'Discharge Tank – Discharge Level', unit:'%', dec:2, grp:'ddCookDischarge', scored:false},
   {key:'dd085ConsistencyOutWp1', col:855, th:'PreO2 Press – Consistency out WP1', unit:'%', dec:2, grp:'ddWashing', scored:false},
   {key:'dd086RollTorque', col:701, th:'PreO2 Press – Roll Torque', unit:'kNm', dec:2, grp:'ddWashing', scored:false},
   {key:'dd087FixVatPressure421pi146', col:702, th:'PreO2 Press – Fix Vat Pressure 421PI146', unit:'bar', dec:2, grp:'ddWashing', scored:false},
@@ -8201,7 +8237,7 @@ CHIP_MON_META.push(
   {key:'dd208Ph', col:924, th:'HD1 – pH', unit:'', dec:2, grp:'ddTestedByPm', scored:false},
   {key:'dd209Ph', col:925, th:'Wet Lap to PM – pH', unit:'', dec:2, grp:'ddTestedByPm', scored:false},
 );
-const DD_GROUP_IDS = ['ddProduction','ddWoodhandling','ddCooking','ddWashing','ddOxygenDelignification','ddKnot','ddWhite','ddEtp','ddClo2','ddPreBleaching','ddD0','ddEop','ddD1','ddStageCleanerNo5','ddLcTank','ddDecker','ddFeedToWetLapHd1','ddBeforeRefiner','ddWhiteWater','ddHd1Tank','ddHd2Tank','ddPaperMill','ddTestedByPm'];
+const DD_GROUP_IDS = ['ddProduction','ddWoodhandling','ddCookChipFill','ddCookPresteam','ddCookHlf','ddCookHeatCook','ddCookDisplace','ddCookDischarge','ddCookLiquor','ddWashing','ddOxygenDelignification','ddKnot','ddWhite','ddEtp','ddClo2','ddPreBleaching','ddD0','ddEop','ddD1','ddStageCleanerNo5','ddLcTank','ddDecker','ddFeedToWetLapHd1','ddBeforeRefiner','ddWhiteWater','ddHd1Tank','ddHd2Tank','ddPaperMill','ddTestedByPm'];
 CHIP_MON_META.forEach(function(m){ if(DD_GROUP_IDS.indexOf(m.grp) >= 0) m.src = 'dataForAnalysis'; });
 
 /* daily Pulp mill-1 production (ADt/day) by date, from the Daily (Act) sheet — for per-ADt ratios */
