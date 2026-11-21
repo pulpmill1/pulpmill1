@@ -717,6 +717,39 @@
   .hft-kappa-target input{width:64px;border:1px solid var(--border);border-radius:6px;padding:3px 6px;font-size:12px;font-family:"IBM Plex Mono",monospace;background:var(--surface);color:var(--ink);}
   .hft-kappa-note{margin-top:10px;}
   .hft-kappa-warn{display:block;margin-top:8px;color:#a15c00;background:rgba(255,166,0,.12);border:1px solid rgba(255,166,0,.35);border-radius:8px;padding:8px 10px;font-size:11.5px;}
+  /* Fix Ton EA Charge -- flow-diagram style recommendation (mirrors the reference infographic's
+     navy title / amber principle banner / teal-vs-green branch split / diamond decision points /
+     bordered leaf blocks), modernized with rounded corners + soft shadows. Banner/branch/diamond
+     colors are fixed (not theme-tokens) since they're decorative dividers whose own text contrast
+     is self-contained, same pattern as .hft-reco-value's fixed accent pill -- the leaf CARDS
+     (the actual content) still sit on var(--surface)/var(--ink) so they read correctly in dark mode. */
+  .fea-flow{margin-top:14px;border-radius:16px;overflow:hidden;box-shadow:var(--shadow);background:var(--surface);border:1px solid var(--border);}
+  .fea-title-bar{background:linear-gradient(135deg,#1b3a6b 0%,#0f2847 100%);color:#fff;font-size:18px;font-weight:800;text-align:center;padding:16px 20px;}
+  .fea-principle,.fea-compare,.fea-goal,.fea-instruction{display:flex;align-items:center;justify-content:center;gap:10px;text-align:center;font-size:13.5px;padding:12px 20px;margin:14px 20px 0;border-radius:12px;}
+  .fea-principle{background:#fdf0cf;color:#6b4a00;border:1px solid #f0cf7a;font-weight:700;}
+  .fea-compare{background:var(--surface-2);color:var(--ink);border:1px solid var(--border);font-weight:700;}
+  .fea-goal{background:#fdf0cf;color:#6b4a00;border:1px solid #f0cf7a;font-weight:700;margin-top:18px;}
+  .fea-instruction{background:var(--surface-2);color:var(--ink-2);margin-top:10px;margin-bottom:18px;font-size:12px;}
+  .fea-banner-ico{font-size:16px;flex:0 0 auto;}
+  .fea-branches{display:grid;grid-template-columns:1fr 1fr;gap:18px;padding:16px 20px 0;}
+  .fea-branch-head{display:flex;align-items:center;justify-content:center;gap:8px;border-radius:20px;padding:9px 14px;font-weight:800;font-size:14px;color:#fff;}
+  .fea-branch-head.fea-below{background:#0e8f9e;}
+  .fea-branch-head.fea-above{background:#2e8c4a;}
+  .fea-branch-ico{font-size:15px;}
+  .fea-diamond{margin:14px auto;max-width:230px;background:#fdd9a0;color:#6b3a00;border:1px solid #e8a94a;border-radius:12px;padding:12px 16px;text-align:center;font-size:12px;font-weight:600;line-height:1.5;}
+  .fea-leaves{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+  .fea-leaf{border-radius:10px;border:1px solid var(--border);background:var(--surface);padding:10px 11px;transition:transform .15s ease,box-shadow .15s ease;}
+  .fea-leaf.fea-below{border-left:4px solid #0e8f9e;}
+  .fea-leaf.fea-above{border-left:4px solid #2e8c4a;}
+  .fea-leaf-head{font-size:11px;font-weight:700;color:var(--ink-2);text-transform:uppercase;letter-spacing:.02em;margin-bottom:6px;}
+  .fea-leaf-body{display:flex;align-items:flex-start;gap:6px;font-size:12px;color:var(--ink);line-height:1.5;}
+  .fea-leaf-ico{font-size:13px;flex:0 0 auto;}
+  .fea-leaf-calc{margin-top:8px;font-size:12px;}
+  .fea-leaf.active{box-shadow:0 0 0 2.5px var(--accent),0 8px 18px rgba(0,0,0,.14);transform:translateY(-2px);background:var(--accent-soft);}
+  .fea-leaf.active .fea-leaf-calc{font-weight:800;color:var(--accent-ink);}
+  .fea-branch-head.active-branch{box-shadow:0 0 0 3px rgba(255,255,255,.55);}
+  @media (max-width:900px){ .fea-branches{grid-template-columns:1fr;} }
+  @media (max-width:640px){ .fea-leaves{grid-template-columns:1fr;} .fea-principle,.fea-compare,.fea-goal,.fea-instruction{margin-left:12px;margin-right:12px;} .fea-branches{padding-left:12px;padding-right:12px;} }
   /* max-width:100% (not a fixed px cap) lets this fit entirely on a normal desktop screen, where the
      3-column table is usually narrower than its container anyway -- overflow-x:auto only kicks in
      as a safety net if the table's own content still doesn't fit (e.g. a narrow mobile viewport). */
@@ -1014,7 +1047,13 @@
           <button class="nav-item" data-page="daily-data"><span class="nav-label" data-i18n-nav="navProcessDailyData">Daily data</span></button>
         </div>
       </div>
-      <button class="nav-item" data-page="h-factor-tuning"><span style="display:flex; align-items:center; min-width:0;"><span class="nav-ico">🧪</span><span class="nav-label" data-i18n-nav="navHFactorTuning">H-Factor Tuning Model</span></span></button>
+      <div class="nav-group" data-group="opt-tuning">
+        <div class="nav-parent"><span class="nav-ico">🧪</span><span class="nav-label" data-i18n-nav="navOptTuning">OPT Tuning</span></div>
+        <div class="nav-children">
+          <button class="nav-item" data-page="h-factor-tuning"><span class="nav-label" data-i18n-nav="navHFactorTuning">Set point H Factor</span></button>
+          <button class="nav-item" data-page="opt-fix-ea-charge"><span class="nav-label" data-i18n-nav="navOptFixEaCharge">Fix Ton EA Charge</span></button>
+        </div>
+      </div>
       <button class="nav-item" data-page="data-analysis"><span style="display:flex; align-items:center; min-width:0;"><span class="nav-ico">📊</span><span class="nav-label" data-i18n-nav="navDataAnalysis">Data for analysis</span></span></button>
       <button class="nav-item" data-page="cost-sensitivity"><span style="display:flex; align-items:center; min-width:0;"><span class="nav-ico">🎯</span><span class="nav-label" data-i18n-nav="navCostSensitivity">Sensitivity</span></span></button>
     </nav>
@@ -2526,7 +2565,7 @@
 
         <section class="page" data-page="h-factor-tuning" hidden>
           <div class="hft-head">
-            <h2>H-Factor Tuning Model</h2>
+            <h2>Set point H Factor</h2>
             <p>สรุปผลการเดินเครื่องจริงในแต่ละช่วง Set Point H-factor (APC) เพื่อใช้เป็นแนวทางเลือกค่า Set Point ที่เหมาะสม</p>
           </div>
           <div class="hft-note">
@@ -2586,6 +2625,73 @@
             </div>
             <div class="hft-note hft-reco-box" id="hftRecoBox"></div>
           </details>
+        </section>
+        <section class="page" data-page="opt-fix-ea-charge" hidden>
+          <div class="hft-head">
+            <h2>Fix Ton EA Charge</h2>
+            <p>แนวทางการปรับสารเคมีกรณี Fix Ton EA Charge — คำนวณจากค่าเฉลี่ย Kappa Cooking และ Set point H-factor ของ 3 Batch ล่าสุด (Cooking Logsheet) และ Residual HBL Acc.1 ล่าสุด (QC Lab FL1)</p>
+          </div>
+
+          <div class="hft-section-head">
+            <h3>ค่าตั้งต้นก่อนปรับ</h3>
+            <div class="hft-kappa-target">
+              <label for="feaTargetKappaInput">Target Kappa ที่ต้องการเดิน</label>
+              <input type="number" id="feaTargetKappaInput" step="0.01" min="0" value="13.50">
+            </div>
+          </div>
+          <div class="hft-note hft-reco-box" id="feaBaselineBox"></div>
+
+          <div class="fea-flow" id="feaFlowDiagram">
+            <div class="fea-title-bar">แนวทางการปรับสารเคมีกรณี Fix Ton EA Charge</div>
+            <div class="fea-principle"><span class="fea-banner-ico">🎯</span><span><b>หลักการสำคัญ:</b> ตรวจสอบ Residual HBL Acc.1 เป็นอันดับแรก</span></div>
+            <div class="fea-compare"><span class="fea-banner-ico">📈</span><span>เปรียบเทียบ Kappa Cooking กับ Target</span></div>
+            <div class="fea-branches">
+              <div class="fea-branch" id="feaBranchBelow" data-branch="below">
+                <div class="fea-branch-head fea-below"><span class="fea-branch-ico">📉</span>Kappa ต่ำกว่า Target</div>
+                <div class="fea-diamond fea-below">Residual HBL Acc.1<br>เทียบกับ Target<br><b>20 ±1 g/L</b></div>
+                <div class="fea-leaves">
+                  <div class="fea-leaf fea-below" id="feaLeaf_below_onTarget" data-leaf="below_onTarget">
+                    <div class="fea-leaf-head">อยู่ใน Target</div>
+                    <div class="fea-leaf-body"><span class="fea-leaf-ico">↓</span><span class="fea-leaf-text">ลด <b>H-factor 30 หน่วย</b> ต่อ Kappa 1 หน่วย</span></div>
+                    <div class="fea-leaf-calc" id="feaCalc_below_onTarget"></div>
+                  </div>
+                  <div class="fea-leaf fea-below" id="feaLeaf_below_above" data-leaf="below_above">
+                    <div class="fea-leaf-head">สูงกว่า Target</div>
+                    <div class="fea-leaf-body"><span class="fea-leaf-ico">↓</span><span class="fea-leaf-text">ลด <b>Ton EA Charge 0.3 ton</b> ต่อ Kappa 1 หน่วย</span></div>
+                    <div class="fea-leaf-calc" id="feaCalc_below_above"></div>
+                  </div>
+                  <div class="fea-leaf fea-below" id="feaLeaf_below_below" data-leaf="below_below">
+                    <div class="fea-leaf-head">ต่ำกว่า Target</div>
+                    <div class="fea-leaf-body"><span class="fea-leaf-ico">↓</span><span class="fea-leaf-text">ลด <b>H-factor 30 หน่วย</b> ต่อ Kappa 1 หน่วย</span></div>
+                    <div class="fea-leaf-calc" id="feaCalc_below_below"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="fea-branch" id="feaBranchAbove" data-branch="above">
+                <div class="fea-branch-head fea-above"><span class="fea-branch-ico">📈</span>Kappa สูงกว่า Target</div>
+                <div class="fea-diamond fea-above">Residual HBL Acc.1<br>เทียบกับ Target<br><b>20 ±1 g/L</b></div>
+                <div class="fea-leaves">
+                  <div class="fea-leaf fea-above" id="feaLeaf_above_onTarget" data-leaf="above_onTarget">
+                    <div class="fea-leaf-head">อยู่ใน Target</div>
+                    <div class="fea-leaf-body"><span class="fea-leaf-ico">↑</span><span class="fea-leaf-text">เพิ่ม <b>H-factor 30 หน่วย</b> ต่อ Kappa 1 หน่วย</span></div>
+                    <div class="fea-leaf-calc" id="feaCalc_above_onTarget"></div>
+                  </div>
+                  <div class="fea-leaf fea-above" id="feaLeaf_above_above" data-leaf="above_above">
+                    <div class="fea-leaf-head">สูงกว่า Target</div>
+                    <div class="fea-leaf-body"><span class="fea-leaf-ico">↑</span><span class="fea-leaf-text">เพิ่ม <b>H-factor 30 หน่วย</b> ต่อ Kappa 1 หน่วย</span></div>
+                    <div class="fea-leaf-calc" id="feaCalc_above_above"></div>
+                  </div>
+                  <div class="fea-leaf fea-above" id="feaLeaf_above_below" data-leaf="above_below">
+                    <div class="fea-leaf-head">ต่ำกว่า Target</div>
+                    <div class="fea-leaf-body"><span class="fea-leaf-ico">↑</span><span class="fea-leaf-text">เพิ่ม <b>Ton EA Charge 0.3 ton</b> ต่อ Kappa 1 หน่วย</span></div>
+                    <div class="fea-leaf-calc" id="feaCalc_above_below"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="fea-goal"><span class="fea-banner-ico">🎯</span><span><b>เป้าหมาย:</b> ควบคุม Kappa เข้าสู่ Target พร้อมรักษา Residual HBL Acc.1 ที่ 20 ±1 g/L</span></div>
+            <div class="fea-instruction"><span class="fea-banner-ico">⚙️</span><span>ปรับครั้งละ 1 Parameter → รอผลตาม Batch / Retention Time → ตรวจยืนยัน Kappa และ Residual ก่อนปรับซ้ำ</span></div>
+          </div>
         </section>
         <section class="page" data-page="data-analysis" hidden>
           <div class="hft-head">
@@ -5812,7 +5918,8 @@ const PAGE_META = {
   'production-pm12':{th:'Pulp mill 1+2', en:'Pulp mill 1+2', hasData:true},
   yield:{th:'Yield', en:'Yield', hasData:true},
   'yield-weightscale':{th:'Weight scale digester', en:'Weight scale digester', hasData:false},
-  'h-factor-tuning':{th:'H-Factor Tuning Model', en:'H-Factor Tuning Model', hasData:true},
+  'h-factor-tuning':{th:'Set point H Factor', en:'Set point H Factor', hasData:true},
+  'opt-fix-ea-charge':{th:'Fix Ton EA Charge', en:'Fix Ton EA Charge', hasData:true},
   'data-analysis':{th:'Data for analysis', en:'Data for analysis', hasData:true},
   'cost-sensitivity':{th:'Sensitivity', en:'Sensitivity', hasData:true},
   'process-rawmaterial':{th:'Raw material', en:'Raw material', hasData:false},
@@ -5824,7 +5931,7 @@ const PAGE_META = {
 
 const I18N = {
   th:{
-    navProduction:'Production', navProductionPm1:'Pulp mill 1', navProductionPm2:'Pulp mill 2', navProductionPm12:'Pulp mill 1+2', navYield:'Yield', navYieldWeightScale:'Weight scale digester', navCostSensitivity:'Sensitivity', navHFactorTuning:'H-Factor Tuning Model', navDataAnalysis:'Data for analysis',
+    navProduction:'Production', navProductionPm1:'Pulp mill 1', navProductionPm2:'Pulp mill 2', navProductionPm12:'Pulp mill 1+2', navYield:'Yield', navYieldWeightScale:'Weight scale digester', navCostSensitivity:'Sensitivity', navOptTuning:'OPT Tuning', navHFactorTuning:'Set point H Factor', navOptFixEaCharge:'Fix Ton EA Charge', navDataAnalysis:'Data for analysis',
     navProcessArea:'Process area', navProcessRawMaterial:'Raw material', navProcessCooking:'Cooking', navProcessBrownStock:'Brown stock', navProcessBleaching:'Bleaching', navProcessDailyData:'Daily data',
     searchPlaceholder:'ค้นหา KPI (Search metrics)',
     lastDataAt:'ข้อมูลล่าสุด ณ', noDataYet:'ยังไม่เชื่อมต่อแหล่งข้อมูล',
@@ -5840,7 +5947,7 @@ const I18N = {
     avg7Label:'ค่าเฉลี่ย 7 วันย้อนหลัง (Adt/day)', daysUnit:'วัน',
   },
   en:{
-    navProduction:'Production', navProductionPm1:'Pulp mill 1', navProductionPm2:'Pulp mill 2', navProductionPm12:'Pulp mill 1+2', navYield:'Yield', navYieldWeightScale:'Weight scale digester', navCostSensitivity:'Sensitivity', navHFactorTuning:'H-Factor Tuning Model', navDataAnalysis:'Data for analysis',
+    navProduction:'Production', navProductionPm1:'Pulp mill 1', navProductionPm2:'Pulp mill 2', navProductionPm12:'Pulp mill 1+2', navYield:'Yield', navYieldWeightScale:'Weight scale digester', navCostSensitivity:'Sensitivity', navOptTuning:'OPT Tuning', navHFactorTuning:'Set point H Factor', navOptFixEaCharge:'Fix Ton EA Charge', navDataAnalysis:'Data for analysis',
     navProcessArea:'Process area', navProcessRawMaterial:'Raw material', navProcessCooking:'Cooking', navProcessBrownStock:'Brown stock', navProcessBleaching:'Bleaching', navProcessDailyData:'Daily data',
     searchPlaceholder:'Search metrics',
     lastDataAt:'Latest data as of', noDataYet:'No data source connected yet',
@@ -8623,6 +8730,127 @@ function renderHFactorLast3Recommendation(){
     }
   }
   el.innerHTML = html;
+}
+/* ===================== OPT Tuning > Fix Ton EA Charge =====================
+   Flow-diagram recommendation mirroring the reference infographic: starting values reuse the SAME
+   latest-3-batch Kappa average (Cooking Logsheet column DF, r[109]) that Set point H Factor's own
+   last-3-batch box already computes (computeHFactorLast3KappaAvg), but here the H-factor baseline is
+   the AVERAGE Set point across those 3 batches (not just the latest one) -- Cooking Logsheet column
+   BX, r[75] -- and Residual HBL Acc.1 is the latest day's own average from "QC Lab FL1" (col idx9,
+   under "Accumulated BL" -- see QC_LAB_FL1_ROWS' own comment for why idx9, not idx14). */
+const FEA_RESIDUAL_LO = 19, FEA_RESIDUAL_HI = 21; // target band: 20 ± 1 g/L
+let FEA_TARGET_KAPPA = 13.50;
+function feaAvgSetPoint(batches){
+  const vals = batches.map(function(b){ return b.setPoint; }).filter(function(v){ return v!=null; });
+  return vals.length ? vals.reduce(function(s,v){ return s+v; }, 0)/vals.length : null;
+}
+function feaLatestResidualAcc(){
+  for(let i=QC_LAB_FL1_ROWS.length-1; i>=0; i--){
+    const rec = QC_LAB_FL1_ROWS[i];
+    if(rec.r[9]!=null) return { value:rec.r[9], y:rec.y, mi:rec.mi, d:rec.d };
+  }
+  return null;
+}
+function computeFeaRecommendation(){
+  const k = computeHFactorLast3KappaAvg();
+  if(k.status !== 'ok') return { status:'insufficient-history', n:k.n };
+  const avgSetPoint = feaAvgSetPoint(k.batches);
+  const residual = feaLatestResidualAcc();
+  if(FEA_TARGET_KAPPA == null) return { status:'no-target', k:k, avgSetPoint:avgSetPoint, residual:residual };
+  const diff = k.avg - FEA_TARGET_KAPPA;
+  const kappaBranch = Math.abs(diff) < 0.005 ? 'onTarget' : (diff > 0 ? 'above' : 'below');
+  const residualBranch = residual==null ? null : (residual.value < FEA_RESIDUAL_LO ? 'below' : residual.value > FEA_RESIDUAL_HI ? 'above' : 'onTarget');
+  const hFactorDelta = Math.round(HFT_KAPPA_TO_SETPOINT_RATIO * Math.abs(diff));
+  const eaDelta = Math.round(0.3 * Math.abs(diff) * 100) / 100;
+  const newSetPoint = avgSetPoint!=null ? Math.round(avgSetPoint + HFT_KAPPA_TO_SETPOINT_RATIO*diff) : null;
+  return { status:'ok', k:k, avgSetPoint:avgSetPoint, residual:residual, diff:diff, kappaBranch:kappaBranch, residualBranch:residualBranch, hFactorDelta:hFactorDelta, eaDelta:eaDelta, newSetPoint:newSetPoint };
+}
+/* Which of the 6 flow-diagram leaves applies for a given (kappaBranch, residualBranch) pair, and
+   what kind of adjustment it recommends -- matches the reference infographic's own block contents
+   exactly (lower Kappa -> lower H-factor to raise it back up, except when Residual is already high,
+   where cutting EA charge instead raises Kappa without pushing Residual higher still; mirror logic
+   for Kappa running high). */
+const FEA_LEAF_ACTIONS = {
+  below_onTarget:{ type:'hfactor', dir:'ลด' },
+  below_above:   { type:'ea',      dir:'ลด' },
+  below_below:   { type:'hfactor', dir:'ลด' },
+  above_onTarget:{ type:'hfactor', dir:'เพิ่ม' },
+  above_above:   { type:'hfactor', dir:'เพิ่ม' },
+  above_below:   { type:'ea',      dir:'เพิ่ม' },
+};
+function initFeaTargetKappaInput(){
+  const input = document.getElementById('feaTargetKappaInput');
+  if(!input) return;
+  FEA_TARGET_KAPPA = Number(input.value) || 13.50;
+  input.addEventListener('input', function(){
+    const v = Number(input.value);
+    FEA_TARGET_KAPPA = (isFinite(v) && v > 0) ? v : null;
+    renderFeaPage();
+  });
+}
+function renderFeaPage(){
+  const box = document.getElementById('feaBaselineBox');
+  if(!box) return;
+  const r = computeFeaRecommendation();
+  document.querySelectorAll('#feaFlowDiagram .fea-leaf').forEach(function(el){ el.classList.remove('active'); });
+  document.querySelectorAll('#feaFlowDiagram .fea-leaf-calc').forEach(function(el){ el.innerHTML = ''; });
+  document.querySelectorAll('#feaFlowDiagram .fea-branch-head').forEach(function(el){ el.classList.remove('active-branch'); });
+
+  if(r.status === 'insufficient-history'){
+    box.innerHTML = '<p>ข้อมูล Kappa No. (Online) จาก Cooking Logsheet ยังมีไม่ครบ 3 Batch (มีข้อมูลอยู่ '+r.n+' Batch) จึงยังไม่สามารถคำนวณค่าตั้งต้นได้</p>';
+    return;
+  }
+  const k = r.k;
+  const batchList = k.batches.map(function(b){
+    return 'Cook #'+(b.cookNo!=null?b.cookNo:'—')+' ('+b.d+' '+MONTH_ABBR_TH[b.mi]+' '+b.y+') = '+hftFmt(b.kappa,2);
+  }).join(', ');
+  const residualTxt = r.residual
+    ? hftFmt(r.residual.value,2)+' g/L ('+r.residual.d+' '+MONTH_ABBR_TH[r.residual.mi]+' '+r.residual.y+')'
+    : 'ไม่มีข้อมูล';
+  let html = '<p><b>Kappa Cooking เฉลี่ย 3 Batch ล่าสุด:</b> '+batchList+' เฉลี่ยได้ <span class="hft-reco-value">'+hftFmt(k.avg,2)+'</span></p>'
+    + '<p><b>Set point H-factor เฉลี่ย 3 Batch ล่าสุด (ชุดเดียวกัน):</b> '+(r.avgSetPoint!=null ? '<span class="hft-reco-value">'+hftFmt(r.avgSetPoint,0)+'</span>' : 'ไม่มีข้อมูล')+'</p>'
+    + '<p><b>Residual HBL Acc.1 (QC Lab FL1, ล่าสุด):</b> '+residualTxt+'</p>';
+  box.innerHTML = html;
+
+  if(r.status === 'no-target'){
+    const note = document.createElement('p');
+    note.className = 'hft-kappa-note';
+    note.textContent = 'กรุณาระบุค่า Target Kappa ที่ต้องการเดินให้ถูกต้อง (ตัวเลขมากกว่า 0) เพื่อดูคำแนะนำ';
+    box.appendChild(note);
+    return;
+  }
+  if(r.kappaBranch === 'onTarget'){
+    const note = document.createElement('p');
+    note.className = 'hft-kappa-note';
+    note.textContent = 'Kappa Cooking ('+hftFmt(k.avg,2)+') ใกล้เคียงกับ Target ('+hftFmt(FEA_TARGET_KAPPA,2)+') อยู่แล้ว จึงไม่จำเป็นต้องปรับสารเคมี';
+    box.appendChild(note);
+    return;
+  }
+  const branchEl = document.getElementById(r.kappaBranch==='above' ? 'feaBranchAbove' : 'feaBranchBelow');
+  if(branchEl){
+    const head = branchEl.querySelector('.fea-branch-head');
+    if(head) head.classList.add('active-branch');
+  }
+  if(!r.residualBranch){
+    const note = document.createElement('p');
+    note.className = 'hft-kappa-note';
+    note.textContent = 'ยังไม่มีข้อมูล Residual HBL Acc.1 ล่าสุดจากชีท QC Lab FL1 จึงยังไม่สามารถระบุบล็อคที่แนะนำได้ (ดูเฉพาะทิศทาง Kappa ด้านบน)';
+    box.appendChild(note);
+    return;
+  }
+  const leafKey = r.kappaBranch+'_'+r.residualBranch;
+  const action = FEA_LEAF_ACTIONS[leafKey];
+  const leafEl = document.getElementById('feaLeaf_'+leafKey);
+  const calcEl = document.getElementById('feaCalc_'+leafKey);
+  if(leafEl) leafEl.classList.add('active');
+  if(calcEl && action){
+    if(action.type === 'hfactor'){
+      const newTxt = r.newSetPoint!=null ? ' (เป็น '+hftFmt(r.newSetPoint,0)+')' : '';
+      calcEl.innerHTML = 'แนะนำปรับจริง: '+action.dir+' <span class="hft-reco-value">'+r.hFactorDelta+' หน่วย</span>'+newTxt;
+    } else {
+      calcEl.innerHTML = 'แนะนำปรับจริง: '+action.dir+' <span class="hft-reco-value">'+hftFmt(r.eaDelta,2)+' ton</span>';
+    }
+  }
 }
 /* Consolidates all 3 Set Point recommendations above into one quick-reference table, in the same
    order they appear on the page: (1) the primary monthly profile-match, (2) that same month's own
@@ -14786,6 +15014,8 @@ function initChipMon(){
   initHftMonthlyTargetKappaInput();
   initHftLast3TargetKappaInput();
   renderHFactorLast3Recommendation();
+  initFeaTargetKappaInput();
+  renderFeaPage();
   initHFactorConditionControls();
   initDataAnalysisPage();
   initYaCardCollapse();
