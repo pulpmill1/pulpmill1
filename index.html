@@ -2603,10 +2603,6 @@
             <h2>Set point H Factor</h2>
             <p>Set point H Factor: เพื่อทำนาย H-Factor จากข้อมูลสายพันธุ์ไม้ที่เข้าผลิต/ ความชื้นไม้สับ (Chip Moisture)/ Temp.after circulation (Temp เริ่มต้น) และ Heat&amp;Cook time และแนะนำการปรับ Set point H-Factor ตาม Target Kappa ที่ต้องการ รวมถึงการปรับ Set point H-Factor กรณีทราบผลข้อมูล Kappa เฉลี่ย 3 Batch ล่าสุด</p>
           </div>
-          <div class="hft-note">
-            <b>วิธีจัดกลุ่มข้อมูล:</b> แต่ละวัน<span id="hftHistoryRangeNote"></span>จะถูกจัดเข้ากลุ่มตามค่าเฉลี่ย "Set point H-factor(APC)" ของวันนั้น (เฉลี่ยทุกครั้งต้มในวันเดียวกันก่อน เนื่องจาก Cooking Logsheet บันทึกรายครั้งต้ม) แล้วปัดเข้ากลุ่มที่ใกล้ที่สุด ห่างกันทีละ 20 — ช่วงที่แสดงมาจากข้อมูลจริงที่เคยเดินเท่านั้น ไม่ได้กำหนดตายตัว ข้อมูลไม้สับ/ความชื้น (RM Wood-Yield) และ Residual alkali WBL→Evaporator (QC Lab FL1) จับคู่ด้วยวันที่เดียวกัน แล้วหาค่าเฉลี่ยรวมในแต่ละกลุ่ม — <b>n</b> คือจำนวนวันที่มีข้อมูลในกลุ่มนั้น
-          </div>
-
           <div class="hft-section-head">
             <h3>Condition ปัจจุบัน</h3>
             <span class="hft-current-badge" id="hftCurrentBadge">CURRENT</span>
@@ -2654,6 +2650,9 @@
           <details class="dtable hft-bin-details" id="hftBinSectionDetails">
             <summary><span class="dtable-label">ประวัติแยกตามช่วง Set Point H-factor (APC) และคำแนะนำ</span></summary>
             <div class="hft-wrap" id="hftTableWrap"></div>
+            <div class="hft-note">
+              <b>วิธีจัดกลุ่มข้อมูล:</b> แต่ละวัน<span id="hftHistoryRangeNote"></span>จะถูกจัดเข้ากลุ่มตามค่าเฉลี่ย "Set point H-factor(APC)" ของวันนั้น (เฉลี่ยทุกครั้งต้มในวันเดียวกันก่อน เนื่องจาก Cooking Logsheet บันทึกรายครั้งต้ม) แล้วปัดเข้ากลุ่มที่ใกล้ที่สุด ห่างกันทีละ 20 — ช่วงที่แสดงมาจากข้อมูลจริงที่เคยเดินเท่านั้น ไม่ได้กำหนดตายตัว ข้อมูลไม้สับ/ความชื้น (RM Wood-Yield) และ Residual alkali WBL→Evaporator (QC Lab FL1) จับคู่ด้วยวันที่เดียวกัน แล้วหาค่าเฉลี่ยรวมในแต่ละกลุ่ม — <b>n</b> คือจำนวนวันที่มีข้อมูลในกลุ่มนั้น
+            </div>
 
             <div class="hft-section-head">
               <h3>คำแนะนำ Set Point H-factor ตามประวัติแยกตามช่วง Set Point H-factor (APC)</h3>
