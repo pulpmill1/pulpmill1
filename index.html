@@ -653,10 +653,13 @@
   .hft-head{margin-bottom:4px;}
   .hft-head h2{margin:0 0 4px;font-size:18px;color:var(--ink);}
   .hft-head p{margin:0;color:var(--ink-2);font-size:12.5px;max-width:72ch;}
-  /* Fix Ton EA Charge's own description is short enough to read better as one line on any normal
-     desktop width -- dropping the 72ch cap here only (not globally, since other pages' longer
-     descriptions still want to wrap); still wraps normally if the viewport is too narrow to fit it. */
-  section[data-page="opt-fix-ea-charge"] .hft-head p{max-width:none;}
+  /* These pages' own descriptions read better using the full available width on a desktop screen
+     rather than wrapping at a fixed 72-character cap -- dropping the cap here only (not globally,
+     since other pages' descriptions still want to wrap at a readable line length); still wraps
+     normally if the viewport is too narrow to fit on one line. */
+  section[data-page="opt-fix-ea-charge"] .hft-head p,
+  section[data-page="h-factor-tuning"] .hft-head p,
+  section[data-page="daily-data"] .hft-head p{max-width:none;}
   .hft-note{background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin:14px 0 18px;font-size:12px;color:var(--ink-2);line-height:1.7;}
   .hft-note b{color:var(--ink);font-weight:700;}
   .hft-wrap{overflow-x:auto;overflow-y:auto;border:1px solid var(--border);border-radius:10px;max-height:70vh;}
@@ -735,12 +738,12 @@
   .fea-goal{background:#fdf0cf;color:#6b4a00;border:1px solid #f0cf7a;font-weight:700;margin-top:18px;}
   .fea-instruction{background:var(--surface-2);color:var(--ink-2);margin-top:10px;margin-bottom:18px;font-size:12px;}
   .fea-banner-ico{font-size:16px;flex:0 0 auto;}
-  .fea-branches{display:grid;grid-template-columns:1fr 1fr;gap:18px;padding:16px 20px 0;}
+  .fea-branches{display:grid;grid-template-columns:1fr 1fr;gap:18px;padding:0 20px 0;}
   .fea-branch-head{display:flex;align-items:center;justify-content:center;gap:8px;border-radius:20px;padding:9px 14px;font-weight:800;font-size:14px;color:#fff;}
   .fea-branch-head.fea-below{background:#0e8f9e;}
   .fea-branch-head.fea-above{background:#2e8c4a;}
   .fea-branch-ico{font-size:15px;}
-  .fea-diamond{margin:14px auto;max-width:230px;background:#fdd9a0;color:#6b3a00;border:1px solid #e8a94a;border-radius:12px;padding:12px 16px;text-align:center;font-size:12px;font-weight:600;line-height:1.5;}
+  .fea-diamond{margin:0 auto;max-width:230px;background:#fdd9a0;color:#6b3a00;border:1px solid #e8a94a;border-radius:12px;padding:12px 16px;text-align:center;font-size:12px;font-weight:600;line-height:1.5;}
   .fea-leaves{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
   .fea-leaf{border-radius:10px;border:1px solid var(--border);background:var(--surface);padding:10px 11px;transition:transform .15s ease,box-shadow .15s ease;}
   .fea-leaf.fea-below{border-left:4px solid #0e8f9e;}
@@ -760,21 +763,25 @@
      as a single addressable unit (the fork's 2-3 branches); the shared trunk/bar segments above a
      fork are each their own addressable .fea-seg so the whole path can light up together. */
   .fea-connector{position:relative;width:100%;}
-  .fea-seg{position:absolute;background:#1b3a6b;}
-  .fea-ln-v{width:3px;left:50%;transform:translateX(-50%);}
-  .fea-ln-h{height:3px;}
-  .fea-arrowhead-v{position:absolute;left:50%;transform:translateX(-50%);width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:7px solid #1b3a6b;}
+  /* "Normal" (not-matching-the-live-condition) lines stay thin and muted -- var(--ink-3), the
+     app's existing faint/recessive ink tone -- so only the one path that truly matches the live
+     recommendation (teal, thicker, animated) reads as prominent; nothing should look "alive"
+     except that single active path. */
+  .fea-seg{position:absolute;background:var(--ink-3);}
+  .fea-ln-v{width:2px;left:50%;transform:translateX(-50%);}
+  .fea-ln-h{height:2px;}
+  .fea-arrowhead-v{position:absolute;left:50%;transform:translateX(-50%);width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-top:6px solid var(--ink-3);}
   .fea-leg{position:absolute;top:0;left:50%;transform:translateX(-50%);width:0;height:100%;}
-  .fea-ln-v.active,.fea-leg.active .fea-ln-v{background-color:transparent;background-image:repeating-linear-gradient(180deg,#12a7b5 0 6px,rgba(18,167,181,.3) 6px 12px);background-size:100% 24px;animation:feaFlowV .7s linear infinite;box-shadow:0 0 6px rgba(18,167,181,.45);}
-  .fea-ln-h.active,.fea-leg.active .fea-ln-h{background-color:transparent;background-image:repeating-linear-gradient(90deg,#12a7b5 0 6px,rgba(18,167,181,.3) 6px 12px);background-size:24px 100%;animation:feaFlowH .7s linear infinite;box-shadow:0 0 6px rgba(18,167,181,.45);}
-  .fea-arrowhead-v.active,.fea-leg.active .fea-arrowhead-v{border-top-color:#12a7b5;filter:drop-shadow(0 0 4px rgba(18,167,181,.6));}
+  .fea-ln-v.active,.fea-leg.active .fea-ln-v{width:4px;background-color:transparent;background-image:repeating-linear-gradient(180deg,#12a7b5 0 6px,rgba(18,167,181,.3) 6px 12px);background-size:100% 24px;animation:feaFlowV .7s linear infinite;box-shadow:0 0 6px rgba(18,167,181,.45);}
+  .fea-ln-h.active,.fea-leg.active .fea-ln-h{height:4px;background-color:transparent;background-image:repeating-linear-gradient(90deg,#12a7b5 0 6px,rgba(18,167,181,.3) 6px 12px);background-size:24px 100%;animation:feaFlowH .7s linear infinite;box-shadow:0 0 6px rgba(18,167,181,.45);}
+  .fea-arrowhead-v.active,.fea-leg.active .fea-arrowhead-v{border-left-width:6px;border-right-width:6px;border-top-width:9px;border-top-color:#12a7b5;filter:drop-shadow(0 0 4px rgba(18,167,181,.6));}
   @keyframes feaFlowV{ to{ background-position-y:-24px; } }
   @keyframes feaFlowH{ to{ background-position-x:-24px; } }
-  .fea-connector-fork2{height:36px;}
+  .fea-connector-fork2{height:36px;margin:0 20px;width:calc(100% - 40px);}
   .fea-connector-single{height:28px;}
   .fea-connector-fork3{height:26px;}
   .fea-branch > .fea-connector-mobile-single{display:none;height:24px;}
-  .fea-leaf > .fea-connector-mobile-single{display:none;height:20px;}
+  .fea-leaves > .fea-connector-mobile-single{display:none;height:20px;}
   @media (max-width:900px){
     .fea-branches{grid-template-columns:1fr;}
     .fea-connector-fork2{display:none;}
@@ -783,7 +790,7 @@
   @media (max-width:640px){
     .fea-leaves{grid-template-columns:1fr;} .fea-principle,.fea-compare,.fea-goal,.fea-instruction{margin-left:12px;margin-right:12px;} .fea-branches{padding-left:12px;padding-right:12px;}
     .fea-connector-fork3{display:none;}
-    .fea-leaf > .fea-connector-mobile-single{display:block;}
+    .fea-leaves > .fea-connector-mobile-single{display:block;}
   }
   /* max-width:100% (not a fixed px cap) lets this fit entirely on a normal desktop screen, where the
      3-column table is usually narrower than its container anyway -- overflow-x:auto only kicks in
@@ -2706,20 +2713,20 @@
                   <span class="fea-leg" id="feaArrowLeaf_below_below" style="left:83.33%;"><i class="fea-seg fea-ln-v" style="top:11px;height:9px;"></i><i class="fea-arrowhead-v" style="top:20px;"></i></span>
                 </div>
                 <div class="fea-leaves">
+                  <div class="fea-connector fea-connector-mobile-single" aria-hidden="true"><span class="fea-leg" id="feaArrowLeaf_below_onTargetM" style="left:50%;"><i class="fea-seg fea-ln-v" style="top:0;height:14px;"></i><i class="fea-arrowhead-v" style="top:14px;"></i></span></div>
                   <div class="fea-leaf fea-below" id="feaLeaf_below_onTarget" data-leaf="below_onTarget">
-                    <div class="fea-connector fea-connector-mobile-single" aria-hidden="true"><span class="fea-leg" id="feaArrowLeaf_below_onTargetM" style="left:50%;"><i class="fea-seg fea-ln-v" style="top:0;height:14px;"></i><i class="fea-arrowhead-v" style="top:14px;"></i></span></div>
                     <div class="fea-leaf-head">อยู่ใน Target</div>
                     <div class="fea-leaf-body"><span class="fea-leaf-ico">↓</span><span class="fea-leaf-text">ลด <b>H-factor 30 หน่วย</b> ต่อ Kappa 1 หน่วย</span></div>
                     <div class="fea-leaf-calc" id="feaCalc_below_onTarget"></div>
                   </div>
+                  <div class="fea-connector fea-connector-mobile-single" aria-hidden="true"><span class="fea-leg" id="feaArrowLeaf_below_aboveM" style="left:50%;"><i class="fea-seg fea-ln-v" style="top:0;height:14px;"></i><i class="fea-arrowhead-v" style="top:14px;"></i></span></div>
                   <div class="fea-leaf fea-below" id="feaLeaf_below_above" data-leaf="below_above">
-                    <div class="fea-connector fea-connector-mobile-single" aria-hidden="true"><span class="fea-leg" id="feaArrowLeaf_below_aboveM" style="left:50%;"><i class="fea-seg fea-ln-v" style="top:0;height:14px;"></i><i class="fea-arrowhead-v" style="top:14px;"></i></span></div>
                     <div class="fea-leaf-head">สูงกว่า Target</div>
                     <div class="fea-leaf-body"><span class="fea-leaf-ico">↓</span><span class="fea-leaf-text">ลด <b>Ton EA Charge 0.3 ton</b> ต่อ Kappa 1 หน่วย</span></div>
                     <div class="fea-leaf-calc" id="feaCalc_below_above"></div>
                   </div>
+                  <div class="fea-connector fea-connector-mobile-single" aria-hidden="true"><span class="fea-leg" id="feaArrowLeaf_below_belowM" style="left:50%;"><i class="fea-seg fea-ln-v" style="top:0;height:14px;"></i><i class="fea-arrowhead-v" style="top:14px;"></i></span></div>
                   <div class="fea-leaf fea-below" id="feaLeaf_below_below" data-leaf="below_below">
-                    <div class="fea-connector fea-connector-mobile-single" aria-hidden="true"><span class="fea-leg" id="feaArrowLeaf_below_belowM" style="left:50%;"><i class="fea-seg fea-ln-v" style="top:0;height:14px;"></i><i class="fea-arrowhead-v" style="top:14px;"></i></span></div>
                     <div class="fea-leaf-head">ต่ำกว่า Target</div>
                     <div class="fea-leaf-body"><span class="fea-leaf-ico">↓</span><span class="fea-leaf-text">ลด <b>H-factor 30 หน่วย</b> ต่อ Kappa 1 หน่วย</span></div>
                     <div class="fea-leaf-calc" id="feaCalc_below_below"></div>
@@ -2739,20 +2746,20 @@
                   <span class="fea-leg" id="feaArrowLeaf_above_below" style="left:83.33%;"><i class="fea-seg fea-ln-v" style="top:11px;height:9px;"></i><i class="fea-arrowhead-v" style="top:20px;"></i></span>
                 </div>
                 <div class="fea-leaves">
+                  <div class="fea-connector fea-connector-mobile-single" aria-hidden="true"><span class="fea-leg" id="feaArrowLeaf_above_onTargetM" style="left:50%;"><i class="fea-seg fea-ln-v" style="top:0;height:14px;"></i><i class="fea-arrowhead-v" style="top:14px;"></i></span></div>
                   <div class="fea-leaf fea-above" id="feaLeaf_above_onTarget" data-leaf="above_onTarget">
-                    <div class="fea-connector fea-connector-mobile-single" aria-hidden="true"><span class="fea-leg" id="feaArrowLeaf_above_onTargetM" style="left:50%;"><i class="fea-seg fea-ln-v" style="top:0;height:14px;"></i><i class="fea-arrowhead-v" style="top:14px;"></i></span></div>
                     <div class="fea-leaf-head">อยู่ใน Target</div>
                     <div class="fea-leaf-body"><span class="fea-leaf-ico">↑</span><span class="fea-leaf-text">เพิ่ม <b>H-factor 30 หน่วย</b> ต่อ Kappa 1 หน่วย</span></div>
                     <div class="fea-leaf-calc" id="feaCalc_above_onTarget"></div>
                   </div>
+                  <div class="fea-connector fea-connector-mobile-single" aria-hidden="true"><span class="fea-leg" id="feaArrowLeaf_above_aboveM" style="left:50%;"><i class="fea-seg fea-ln-v" style="top:0;height:14px;"></i><i class="fea-arrowhead-v" style="top:14px;"></i></span></div>
                   <div class="fea-leaf fea-above" id="feaLeaf_above_above" data-leaf="above_above">
-                    <div class="fea-connector fea-connector-mobile-single" aria-hidden="true"><span class="fea-leg" id="feaArrowLeaf_above_aboveM" style="left:50%;"><i class="fea-seg fea-ln-v" style="top:0;height:14px;"></i><i class="fea-arrowhead-v" style="top:14px;"></i></span></div>
                     <div class="fea-leaf-head">สูงกว่า Target</div>
                     <div class="fea-leaf-body"><span class="fea-leaf-ico">↑</span><span class="fea-leaf-text">เพิ่ม <b>H-factor 30 หน่วย</b> ต่อ Kappa 1 หน่วย</span></div>
                     <div class="fea-leaf-calc" id="feaCalc_above_above"></div>
                   </div>
+                  <div class="fea-connector fea-connector-mobile-single" aria-hidden="true"><span class="fea-leg" id="feaArrowLeaf_above_belowM" style="left:50%;"><i class="fea-seg fea-ln-v" style="top:0;height:14px;"></i><i class="fea-arrowhead-v" style="top:14px;"></i></span></div>
                   <div class="fea-leaf fea-above" id="feaLeaf_above_below" data-leaf="above_below">
-                    <div class="fea-connector fea-connector-mobile-single" aria-hidden="true"><span class="fea-leg" id="feaArrowLeaf_above_belowM" style="left:50%;"><i class="fea-seg fea-ln-v" style="top:0;height:14px;"></i><i class="fea-arrowhead-v" style="top:14px;"></i></span></div>
                     <div class="fea-leaf-head">ต่ำกว่า Target</div>
                     <div class="fea-leaf-body"><span class="fea-leaf-ico">↑</span><span class="fea-leaf-text">เพิ่ม <b>Ton EA Charge 0.3 ton</b> ต่อ Kappa 1 หน่วย</span></div>
                     <div class="fea-leaf-calc" id="feaCalc_above_below"></div>
