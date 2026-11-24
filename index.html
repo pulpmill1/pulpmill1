@@ -582,6 +582,7 @@
   .md-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:2px;}
   .md-title{font-size:15px;font-weight:800;color:var(--ink);}
   .md-title .u{color:var(--ink-2);font-weight:600;}
+  .md-statpick{display:inline-flex;align-items:center;gap:5px;}
   .md-pills{margin-left:auto;display:flex;gap:6px;flex-wrap:wrap;min-width:0;max-width:100%;}
   .md-pill{font-size:10.5px;font-weight:600;color:var(--ink-2);background:var(--surface-2);border:1px solid var(--border);border-radius:20px;padding:4px 10px;}
   .md-range{font:inherit;font-size:10.5px;font-weight:600;color:var(--ink);background:var(--surface-2);border:1px solid var(--border);border-radius:20px;padding:4px 24px 4px 10px;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6'><path d='M0 0L5 6L10 0Z' fill='%2384949A'/></svg>");background-repeat:no-repeat;background-position:right 9px center;}
@@ -1275,21 +1276,22 @@
       <div class="tb-title">
         <div class="tb-title-mascot" aria-hidden="true">
           <svg viewBox="0 0 200 300" xmlns="http://www.w3.org/2000/svg">
-            <g class="dash-mascot-leg dash-mascot-leg-l" style="transform-origin:70px 212px;">
-              <path d="M70,210 C60,214 55,228 55,245 C55,258 57,270 62,279 C65,284 78,284 81,279 C86,266 87,248 85,232 C84,221 78,213 70,210 Z" fill="url(#dmLimbGrad)"/>
+            <g class="dash-mascot-leg dash-mascot-leg-l" style="transform-origin:80px 232px;">
+              <path d="M80,226 C70,230 67,246 68,262 C69,272 71,280 75,283 C80,287 91,286 93,280 C96,268 96,250 94,236 C93,229 87,226 80,226 Z" fill="url(#dmLimbGrad)"/>
             </g>
-            <g class="dash-mascot-leg dash-mascot-leg-r" style="transform-origin:130px 212px;">
-              <path d="M130,210 C140,214 145,228 145,245 C145,258 143,270 138,279 C135,284 122,284 119,279 C114,266 113,248 115,232 C116,221 122,213 130,210 Z" fill="url(#dmLimbGrad)"/>
+            <g class="dash-mascot-leg dash-mascot-leg-r" style="transform-origin:120px 232px;">
+              <path d="M120,226 C130,230 133,246 132,262 C131,272 129,280 125,283 C120,287 109,286 107,280 C104,268 104,250 106,236 C107,229 113,226 120,226 Z" fill="url(#dmLimbGrad)"/>
             </g>
             <g class="dash-mascot-upper">
               <g class="dash-mascot-breathe">
-                <path class="dash-mascot-body" d="M100,55 C114,110 128,180 132,227 L68,227 C72,180 86,110 100,55 Z" fill="url(#dmBodyGrad)"/>
-                <ellipse cx="93" cy="120" rx="6" ry="14" fill="#fff" opacity="0.3" transform="rotate(-12 93 120)"/>
+                <path class="dash-mascot-body" d="M118,50 C113,78 99,106 88,132 C76,160 64,190 64,214 C64,238 80,252 100,252 C122,252 138,238 137,214 C136,186 129,154 125,126 C122,100 121,74 118,50 Z" fill="url(#dmBodyGrad)"/>
+                <ellipse cx="108" cy="112" rx="4.5" ry="16" fill="#fff" opacity="0.3" transform="rotate(12 108 112)"/>
                 <g class="dash-mascot-sprout">
-                  <path d="M100,55 C97,40 94,24 90,10" stroke="#8a6a3a" stroke-width="4" fill="none" stroke-linecap="round"/>
-                  <path d="M90,22 C78,16 64,14 54,20 C48,24 48,32 56,34 C70,38 84,32 90,22 Z" fill="url(#dmLeafGrad)"/>
-                  <path d="M91,13 C92,-1 98,-14 110,-22 C117,-26 124,-21 121,-13 C115,-1 102,8 91,13 Z" fill="url(#dmPetalGrad)"/>
-                  <path d="M90,18 C100,10 112,6 124,9 C131,11 132,19 124,22 C112,27 98,25 90,18 Z" fill="url(#dmPetalGrad)"/>
+                  <path d="M118,52 C120,44 123,30 124,18 C125,8 127,-2 128,-10" stroke="#9a7440" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+                  <path d="M120,46 C128,30 148,26 166,34 C152,50 132,54 120,46 Z" fill="url(#dmLeafR)"/>
+                  <path d="M123,33 C110,12 88,6 68,12 C80,30 104,40 123,33 Z" fill="url(#dmLeafL)"/>
+                  <path d="M125,12 C132,-2 148,-4 162,2 C150,14 136,18 125,12 Z" fill="url(#dmLeafR)"/>
+                  <path d="M128,-8 C116,-20 114,-38 120,-52 C134,-42 138,-22 128,-8 Z" fill="url(#dmLeafU)"/>
                 </g>
                 <g class="dash-mascot-arm dash-mascot-arm-right" style="transform-origin:122px 145px;">
                   <path d="M122,143 C134,145 144,155 147,170 C150,183 149,195 142,203 C138,208 128,208 124,203 C119,195 117,180 118,165 C119,155 120,148 122,143 Z" fill="url(#dmLimbGrad)"/>
@@ -3439,27 +3441,31 @@
         <stop offset="0" stop-color="#8BC96A"/>
         <stop offset="1" stop-color="#5C9A3E"/>
       </linearGradient>
+      <linearGradient id="dmLeafR" x1="0" y1="0.5" x2="1" y2="0.5"><stop offset="0" stop-color="#6FAE3C"/><stop offset="0.6" stop-color="#9CC94A"/><stop offset="1" stop-color="#E2B743"/></linearGradient>
+      <linearGradient id="dmLeafL" x1="1" y1="0.5" x2="0" y2="0.5"><stop offset="0" stop-color="#6FAE3C"/><stop offset="0.6" stop-color="#9CC94A"/><stop offset="1" stop-color="#E2B743"/></linearGradient>
+      <linearGradient id="dmLeafU" x1="0.5" y1="1" x2="0.5" y2="0"><stop offset="0" stop-color="#6FAE3C"/><stop offset="0.6" stop-color="#9CC94A"/><stop offset="1" stop-color="#E2B743"/></linearGradient>
       <linearGradient id="dmPetalGrad" x1="0" y1="0" x2="0" y2="1">
         <stop offset="0" stop-color="#EBDD84"/>
         <stop offset="1" stop-color="#C7B646"/>
       </linearGradient>
     </defs>
     <ellipse class="dash-mascot-shadow" cx="100" cy="286" rx="42" ry="8" fill="#000" opacity="0.14"/>
-    <g class="dash-mascot-leg dash-mascot-leg-l" style="transform-origin:70px 212px;">
-      <path d="M70,210 C60,214 55,228 55,245 C55,258 57,270 62,279 C65,284 78,284 81,279 C86,266 87,248 85,232 C84,221 78,213 70,210 Z" fill="url(#dmLimbGrad)"/>
+    <g class="dash-mascot-leg dash-mascot-leg-l" style="transform-origin:80px 232px;">
+      <path d="M80,226 C70,230 67,246 68,262 C69,272 71,280 75,283 C80,287 91,286 93,280 C96,268 96,250 94,236 C93,229 87,226 80,226 Z" fill="url(#dmLimbGrad)"/>
     </g>
-    <g class="dash-mascot-leg dash-mascot-leg-r" style="transform-origin:130px 212px;">
-      <path d="M130,210 C140,214 145,228 145,245 C145,258 143,270 138,279 C135,284 122,284 119,279 C114,266 113,248 115,232 C116,221 122,213 130,210 Z" fill="url(#dmLimbGrad)"/>
+    <g class="dash-mascot-leg dash-mascot-leg-r" style="transform-origin:120px 232px;">
+      <path d="M120,226 C130,230 133,246 132,262 C131,272 129,280 125,283 C120,287 109,286 107,280 C104,268 104,250 106,236 C107,229 113,226 120,226 Z" fill="url(#dmLimbGrad)"/>
     </g>
     <g class="dash-mascot-upper">
       <g class="dash-mascot-breathe">
-        <path class="dash-mascot-body" d="M100,55 C114,110 128,180 132,227 L68,227 C72,180 86,110 100,55 Z" fill="url(#dmBodyGrad)"/>
-        <ellipse cx="93" cy="120" rx="6" ry="14" fill="#fff" opacity="0.3" transform="rotate(-12 93 120)"/>
+        <path class="dash-mascot-body" d="M118,50 C113,78 99,106 88,132 C76,160 64,190 64,214 C64,238 80,252 100,252 C122,252 138,238 137,214 C136,186 129,154 125,126 C122,100 121,74 118,50 Z" fill="url(#dmBodyGrad)"/>
+        <ellipse cx="108" cy="112" rx="4.5" ry="16" fill="#fff" opacity="0.3" transform="rotate(12 108 112)"/>
         <g class="dash-mascot-sprout">
-          <path d="M100,55 C97,40 94,24 90,10" stroke="#8a6a3a" stroke-width="4" fill="none" stroke-linecap="round"/>
-          <path d="M90,22 C78,16 64,14 54,20 C48,24 48,32 56,34 C70,38 84,32 90,22 Z" fill="url(#dmLeafGrad)"/>
-          <path d="M91,13 C92,-1 98,-14 110,-22 C117,-26 124,-21 121,-13 C115,-1 102,8 91,13 Z" fill="url(#dmPetalGrad)"/>
-          <path d="M90,18 C100,10 112,6 124,9 C131,11 132,19 124,22 C112,27 98,25 90,18 Z" fill="url(#dmPetalGrad)"/>
+          <path d="M118,52 C120,44 123,30 124,18 C125,8 127,-2 128,-10" stroke="#9a7440" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+          <path d="M120,46 C128,30 148,26 166,34 C152,50 132,54 120,46 Z" fill="url(#dmLeafR)"/>
+          <path d="M123,33 C110,12 88,6 68,12 C80,30 104,40 123,33 Z" fill="url(#dmLeafL)"/>
+          <path d="M125,12 C132,-2 148,-4 162,2 C150,14 136,18 125,12 Z" fill="url(#dmLeafR)"/>
+          <path d="M128,-8 C116,-20 114,-38 120,-52 C134,-42 138,-22 128,-8 Z" fill="url(#dmLeafU)"/>
         </g>
         <g class="dash-mascot-arm dash-mascot-arm-right" style="transform-origin:122px 145px;">
           <path d="M122,143 C134,145 144,155 147,170 C150,183 149,195 142,203 C138,208 128,208 124,203 C119,195 117,180 118,165 C119,155 120,148 122,143 Z" fill="url(#dmLimbGrad)"/>
@@ -9488,6 +9494,10 @@ function chipMonSetTarget(key, lo, hi){
 /* ---- Y-axis range override (per metric, browser-local) — distinct from the target lines above:
    this sets the chart's own scales.y.min/max directly, not a reference line drawn on it. Leaving
    either blank keeps that bound auto-fit to the data. */
+function chipMonYScaleKey(grpId, key){
+  const mode = (CHIP_MON_STAT[grpId] && CHIP_MON_STAT[grpId].mode) || 'values';
+  return mode==='values' ? key : key+'::'+mode;   // SD / %CV axes have their own units, so their own override
+}
 function chipMonYScale(key){
   try{ const raw = JSON.parse(localStorage.getItem('fl1_chip_yscale_'+key) || '{}'); return {lo:raw.lo??null, hi:raw.hi??null}; }
   catch(e){ return {lo:null, hi:null}; }
@@ -9593,6 +9603,59 @@ function rpkWire(instId, state, onApply){
 const CHIP_MON_STATE = { bulk:null, screen:null };       // selected metric key per group
 const CHIP_MON_RANGE = {}; // detail-chart window per group: {preset, custom:{start,end}}
 const CHIP_MON_VIEW = {};  // detail body per group: 'chart' or 'table'
+/* Detail chart "display" mode per group: 'values' (the raw series, default) or a dispersion view —
+   'sd' (STDEV per bucket, bars), 'cv' (%CV = SD / Average × 100 per bucket, bars), or 'sdcv' (SD bars
+   on the left axis + %CV line on the right axis). bucket = 'day' | 'week' | 'month' | null (auto). */
+const CHIP_MON_STAT = {};
+// Target Low / High share one colour and each carries its own "Low x" / "High y" label on the chart.
+const CHIP_MON_LIMIT_COL = '#d4342c';
+const chipMonLimitLabelPlugin = {
+  id:'chipMonLimitLabel',
+  afterDatasetsDraw(chart){
+    const {ctx, chartArea, scales} = chart;
+    if(!scales.y) return;
+    chart.data.datasets.forEach((ds, i)=> {
+      if(!ds._limitLabel || !chart.isDatasetVisible(i)) return;
+      const y = scales.y.getPixelForValue(ds._limitValue);
+      if(y < chartArea.top - 1 || y > chartArea.bottom + 1) return;
+      ctx.save();
+      ctx.font = '600 10.5px "IBM Plex Mono", monospace';
+      ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
+      ctx.lineWidth = 3; ctx.strokeStyle = cssVar('--surface') || '#fff'; ctx.lineJoin = 'round';
+      ctx.strokeText(ds._limitLabel, chartArea.left + 6, y - 3);
+      ctx.fillStyle = ds.borderColor;
+      ctx.fillText(ds._limitLabel, chartArea.left + 6, y - 3);
+      ctx.restore();
+    });
+  }
+};
+function chipMonStatDefaultBucket(rows){
+  const nDays = new Set(rows.map(x=> x.y+'-'+x.mi+'-'+x.d)).size;
+  if(rows.length > nDays) return 'day';          // several logged rows per day (per cook / per hour)
+  return nDays > 62 ? 'month' : 'week';
+}
+// STDEV (sample, same as Excel STDEV) / Average / %CV per day, week (Mon-start) or month bucket.
+function chipMonStatBuckets(rows, bucket){
+  const EN = currentLang==='en';
+  const map = new Map();
+  rows.forEach(x=> {
+    if(x.v==null || !isFinite(x.v)) return;
+    let k, lbl, sortTs;
+    if(bucket==='month'){ k = x.y+'-'+x.mi; lbl = chipMonMonthLabel(x.mi, x.y); sortTs = new Date(x.y, x.mi, 1).getTime(); }
+    else if(bucket==='week'){
+      const dt = new Date(x.y, x.mi, x.d); dt.setDate(dt.getDate() - ((dt.getDay()+6)%7));
+      k = 'w'+dt.getTime(); lbl = (EN?'Wk ':'สป. ')+dt.getDate()+'/'+(dt.getMonth()+1); sortTs = dt.getTime();
+    } else { k = x.y+'-'+x.mi+'-'+x.d; lbl = x.d+'/'+(x.mi+1); sortTs = new Date(x.y, x.mi, x.d).getTime(); }
+    if(!map.has(k)) map.set(k, {lbl, sortTs, vals:[]});
+    map.get(k).vals.push(x.v);
+  });
+  return [...map.values()].sort((p,q)=> p.sortTs-q.sortTs).map(b=> {
+    const n = b.vals.length, avg = b.vals.reduce((s,v)=> s+v, 0)/n;
+    const sd = n>=2 ? Math.sqrt(b.vals.reduce((s,v)=> s+(v-avg)*(v-avg), 0)/(n-1)) : null;
+    const cv = sd!=null && avg!==0 ? Math.abs(sd/avg)*100 : null;
+    return {lbl:b.lbl, n, avg, sd, cv};
+  });
+}
 const chipMonCharts = {};                                 // detail chart per group
 const chipMonSparks = {};                                 // sparkline chart per tile key
 const chipMonYearlyCharts = {};                           // year-over-year monthly trend chart per group
@@ -14137,8 +14200,30 @@ function chipMonRenderDetail(grpId){
   if(!a){ panel.innerHTML = `<div class="md-sub">ยังไม่มีข้อมูลของค่านี้ในชีต</div>`; return; }
 
   const tgt = chipMonTarget(key);
-  const yScale = chipMonYScale(key);
-  const showYScaleCtl = CHIP_MON_YAXIS_FIT_GROUPS.includes(grpId);
+  const stat = CHIP_MON_STAT[grpId] || {mode:'values', bucket:null};
+  const statMode = stat.mode || 'values';
+  const yScale = chipMonYScale(chipMonYScaleKey(grpId, key));
+  const showYScaleCtl = true;   // Y-axis Min/Max is available on every detail chart
+  const yUnit = statMode==='cv' ? '%' : m.unit;
+  const yAxisLbl = statMode==='values' ? 'แกน Y (Y-axis)' : statMode==='cv' ? 'แกน Y (%CV)' : 'แกน Y (SD)';
+  const statBucketDefault = chipMonStatDefaultBucket(chipMonDetailRows(grpId, m, a));
+  const statBucket = stat.bucket || statBucketDefault;
+  const EN_ = currentLang==='en';
+  const statSelHtml = `
+        <span class="md-statpick">
+          <span class="md-avglbl">${EN_?'Show':'แสดง'}</span>
+          <select class="md-range" id="chipStat_${grpId}">
+            <option value="values"${statMode==='values'?' selected':''}>Values</option>
+            <option value="sd"${statMode==='sd'?' selected':''}>SD</option>
+            <option value="cv"${statMode==='cv'?' selected':''}>%CV</option>
+            <option value="sdcv"${statMode==='sdcv'?' selected':''}>SD &amp; %CV</option>
+          </select>
+          <select class="md-range" id="chipStatBucket_${grpId}"${statMode==='values'?' hidden':''} title="${EN_?'Compute SD / %CV per':'คำนวณ SD / %CV ต่อ'}">
+            <option value="day"${statBucket==='day'?' selected':''}>${EN_?'per day':'ต่อวัน'}</option>
+            <option value="week"${statBucket==='week'?' selected':''}>${EN_?'per week':'ต่อสัปดาห์'}</option>
+            <option value="month"${statBucket==='month'?' selected':''}>${EN_?'per month':'ต่อเดือน'}</option>
+          </select>
+        </span>`;
   const anchorDate = `${a.anchor.d} ${MONTH_ABBR_TH[a.anchor.mi]} ${a.anchor.y}`;
   const curLbl = chipMonMonthLabel(a.anchor.mi, a.anchor.y);
   const prevLbl = chipMonMonthLabel(a.pmi, a.py);
@@ -14201,7 +14286,7 @@ function chipMonRenderDetail(grpId){
       <span class="md-pills">
         ${rpkBarHtml('chipRange_'+grpId, CHIP_MON_RANGE[grpId])}
         <button type="button" class="md-viewbtn" data-view="chart">${currentLang==='en'?'Chart':'กราฟ'}</button>
-        <button type="button" class="md-viewbtn" data-view="table">${currentLang==='en'?'Table':'ตาราง'}</button>
+        <button type="button" class="md-viewbtn" data-view="table">${currentLang==='en'?'Table':'ตาราง'}</button>${statSelHtml}
         <span class="md-avgpick" id="mdAvgPick_${grpId}">
           <span class="md-avglbl">${currentLang==='en'?'Average':'ค่าเฉลี่ย'}</span>
           <select id="chipAvgMode_${grpId}">
@@ -14231,10 +14316,10 @@ function chipMonRenderDetail(grpId){
     </div>
     ${showYScaleCtl ? `
     <div class="md-target">
-      <span class="lbl">แกน Y (Y-axis)</span>
-      <span class="fld">MIN <input type="number" step="any" id="chipYLo_${grpId}" value="${yScale.lo??''}" placeholder="auto"> ${m.unit}</span>
-      <span class="fld">MAX <input type="number" step="any" id="chipYHi_${grpId}" value="${yScale.hi??''}" placeholder="auto"> ${m.unit}</span>
-      <span class="note">ค่าเริ่มต้นปรับอัตโนมัติให้พอดีกับข้อมูล (ไม่เริ่มที่ 0) เว้นว่างไว้เพื่อกลับไปใช้ค่าอัตโนมัติ</span>
+      <span class="lbl">${yAxisLbl}</span>
+      <span class="fld">MIN <input type="number" step="any" id="chipYLo_${grpId}" value="${yScale.lo??''}" placeholder="auto"> ${yUnit}</span>
+      <span class="fld">MAX <input type="number" step="any" id="chipYHi_${grpId}" value="${yScale.hi??''}" placeholder="auto"> ${yUnit}</span>
+      <span class="note">ปรับ Scale แกน Y ของกราฟนี้ (เก็บไว้ในเบราว์เซอร์นี้ แยกตามโหมด Values / SD / %CV) · เว้นว่างไว้เพื่อใช้ค่าอัตโนมัติ${statMode==='sdcv' ? ' · ใช้กับแกนซ้าย (SD) แกนขวา (%CV) ปรับอัตโนมัติ' : ''}</span>
     </div>` : ''}
 
     <div class="md-strip">
@@ -14275,12 +14360,15 @@ function chipMonRenderDetail(grpId){
     const onYScale = () => {
       const lo = yLoEl.value.trim()==='' ? null : +yLoEl.value;
       const hi = yHiEl.value.trim()==='' ? null : +yHiEl.value;
-      chipMonSetYScale(key, lo, hi);
+      chipMonSetYScale(chipMonYScaleKey(grpId, key), lo, hi);
       chipMonRenderDetailBody(grpId, m, a, chipMonTarget(key));
     };
     yLoEl.addEventListener('change', onYScale);
     yHiEl.addEventListener('change', onYScale);
   }
+  const statSel = document.getElementById('chipStat_'+grpId), bucketSel = document.getElementById('chipStatBucket_'+grpId);
+  statSel.addEventListener('change', ()=> { CHIP_MON_STAT[grpId] = {mode:statSel.value, bucket:(CHIP_MON_STAT[grpId]||{}).bucket||null}; chipMonRenderDetail(grpId); });
+  bucketSel.addEventListener('change', ()=> { CHIP_MON_STAT[grpId] = {mode:statSel.value, bucket:bucketSel.value}; chipMonRenderDetailBody(grpId, m, a, chipMonTarget(key)); });
   rpkWire('chipRange_'+grpId, CHIP_MON_RANGE[grpId], (next)=>{ CHIP_MON_RANGE[grpId] = next; chipMonRenderDetail(grpId); });
   panel.querySelectorAll('.md-viewbtn').forEach(b=> b.addEventListener('click', ()=>{ CHIP_MON_VIEW[grpId] = b.dataset.view; chipMonRenderDetailBody(grpId, m, a, chipMonTarget(key)); }));
   initChipMonAvgPick(grpId, key, m);
@@ -15097,6 +15185,18 @@ function chipMonRenderDetailBody(grpId, m, a, tgt){
   if(chipMonCharts[grpId]){ chipMonCharts[grpId].destroy(); chipMonCharts[grpId] = null; }
   const rows = chipMonDetailRows(grpId, m, a);
   const rangeNote = '<div class="md-rangenote">'+chipMonRangeLabel(rows)+'</div>';
+  const stat = CHIP_MON_STAT[grpId] || {mode:'values'};
+  if(view === 'table' && stat.mode && stat.mode !== 'values'){
+    const EN = currentLang==='en';
+    const bucket = stat.bucket || chipMonStatDefaultBucket(rows);
+    const bk = chipMonStatBuckets(rows, bucket);
+    const f = (v, d) => v==null ? '—' : v.toLocaleString('en-US', {minimumFractionDigits:d, maximumFractionDigits:d});
+    const sdDec = Math.max(m.dec, 2);
+    body.innerHTML = '<div class="md-tablewrap"><table class="md-table"><thead><tr><th>'+(EN?'Period':'ช่วง')+'</th><th>n</th><th>Average'+(m.unit?' ('+m.unit+')':'')+'</th><th>SD'+(m.unit?' ('+m.unit+')':'')+'</th><th>%CV</th></tr></thead><tbody>'
+      + bk.map(b=> '<tr><td>'+b.lbl+'</td><td class="num">'+b.n+'</td><td class="num">'+f(b.avg, m.dec)+'</td><td class="num">'+f(b.sd, sdDec)+'</td><td class="num">'+f(b.cv, 2)+'</td></tr>').join('')
+      + '</tbody></table></div>' + rangeNote;
+    return;
+  }
   if(view === 'table'){
     const f = v => v==null ? '—' : v.toLocaleString('en-US', {minimumFractionDigits:m.dec, maximumFractionDigits:m.dec});
     const dcol = currentLang==='en' ? 'Date' : 'วันที่';
@@ -15108,7 +15208,80 @@ function chipMonRenderDetailBody(grpId, m, a, tgt){
     chipMonDrawDetailChart(grpId, m, a, tgt);
   }
 }
+/* SD / %CV / SD & %CV view of the same rows the Values chart shows — STDEV, Average and %CV
+   (SD ÷ Average × 100) per day / week / month bucket (chipMonStatBuckets). SD and %CV draw as bars;
+   in the combined view SD stays bars on the left axis and %CV becomes a line on the right axis.
+   Target Low/High aren't drawn here since they're in the metric's own units, not SD/%CV. */
+function chipMonDrawStatChart(grpId, m, a, mode){
+  const grp = CHIP_MON_GROUPS.find(g=> g.id===grpId);
+  const rows = chipMonDetailRows(grpId, m, a);
+  const stat = CHIP_MON_STAT[grpId] || {};
+  const bucket = stat.bucket || chipMonStatDefaultBucket(rows);
+  const bk = chipMonStatBuckets(rows, bucket);
+  const labels = bk.map(b=> b.lbl);
+  const c = { ink2:cssVar('--ink-2'), grid:cssVar('--grid'), surface:cssVar('--surface'), border:cssVar('--border'), ink:cssVar('--ink') };
+  const sdDec = Math.max(m.dec, 2);
+  const cvCol = '#E07A1F';
+  const fmt = (v, d) => v==null ? '' : v.toLocaleString('en-US', {minimumFractionDigits:d, maximumFractionDigits:d});
+  const dense = bk.length > 14;
+  const barLabels = (d)=> ({ display:(x)=> bk.length<=40 && x.dataset.data[x.dataIndex]!=null, anchor:'end', align:'end', offset:2,
+    rotation: dense ? -90 : 0, color:c.ink2, font:{family:'IBM Plex Mono', size:10.5, weight:'600'}, formatter:(v)=> fmt(v, d) });
+  const sdVals = bk.map(b=> b.sd), cvVals = bk.map(b=> b.cv);
+  const niceMax = (arr)=> { const mx = Math.max(0, ...arr.filter(v=> v!=null)); if(!mx) return 1;
+    const raw = mx*1.2, p = Math.pow(10, Math.floor(Math.log10(raw))), n = raw/p;
+    return (n<=1?1:n<=2?2:n<=2.5?2.5:n<=5?5:10)*p; };
+  const leftVals = mode==='cv' ? cvVals : sdVals;
+  const yScale = chipMonYScale(chipMonYScaleKey(grpId, m.key));
+  const yMin = yScale.lo!=null ? yScale.lo : 0;
+  const yMax = yScale.hi!=null ? yScale.hi : niceMax(leftVals);
+  const sdUnit = m.unit ? ' '+m.unit : '';
+  const datasets = [];
+  if(mode==='sd' || mode==='sdcv') datasets.push({ type:'bar', label:'SD', data:sdVals, backgroundColor:grp.rail, borderColor:c.surface, borderWidth:0.5,
+    borderRadius:2, barPercentage:0.8, categoryPercentage:0.85, order:2, yAxisID:'y', datalabels:barLabels(sdDec) });
+  if(mode==='cv') datasets.push({ type:'bar', label:'%CV', data:cvVals, backgroundColor:cvCol, borderColor:c.surface, borderWidth:0.5,
+    borderRadius:2, barPercentage:0.8, categoryPercentage:0.85, order:2, yAxisID:'y', datalabels:barLabels(2) });
+  if(mode==='sdcv') datasets.push({ type:'line', label:'%CV', data:cvVals, borderColor:cvCol, backgroundColor:cvCol, borderWidth:2,
+    pointRadius: bk.length>60 ? 0 : 3, pointBackgroundColor:cvCol, tension:.2, spanGaps:true, order:1, yAxisID:'y1',
+    datalabels:{ display:(x)=> bk.length<=30 && x.dataset.data[x.dataIndex]!=null, align:'top', anchor:'end', offset:4, color:cvCol,
+      backgroundColor:c.surface, borderRadius:3, padding:{top:1, bottom:1, left:3, right:3},
+      font:{family:'IBM Plex Mono', size:10.5, weight:'600'}, formatter:(v)=> v==null ? '' : fmt(v, 2)+'%' } });
+  const tickFont = {family:'IBM Plex Mono', size:10.5};
+  const scales = {
+    x:{ grid:{display:false}, ticks:{color:c.ink2, font:{family:'IBM Plex Mono', size:10}, maxRotation:45, minRotation:0, autoSkip:true, maxTicksLimit:24} },
+    y:{ min:yMin, max:yMax, position:'left', grid:{color:c.grid}, title:{display:true, text: mode==='cv' ? '%CV' : 'SD'+sdUnit, color:c.ink2, font:tickFont},
+        ticks:{color:c.ink2, font:tickFont, callback:(v)=> v.toLocaleString('en-US') } }
+  };
+  if(mode==='sdcv') scales.y1 = { min:0, max:niceMax(cvVals), position:'right', grid:{drawOnChartArea:false},
+    title:{display:true, text:'%CV', color:cvCol, font:tickFont}, ticks:{color:cvCol, font:tickFont, callback:(v)=> v.toLocaleString('en-US')+'%' } };
+  const cfg = {
+    data:{ labels, datasets },
+    options:{ responsive:true, maintainAspectRatio:false, layout:{padding:{top: dense ? 34 : 18}},
+      interaction:{mode:'index', intersect:false}, scales,
+      plugins:{ legend:{display:false},
+        tooltip:{ position:'cursorOffset', backgroundColor:c.surface, titleColor:c.ink, bodyColor:c.ink2, borderColor:c.border, borderWidth:1, padding:9,
+          callbacks:{
+            label:(x)=> x.dataset.label==='SD' ? `SD: ${x.parsed.y==null?'—':fmt(x.parsed.y, sdDec)}${sdUnit}` : `%CV: ${x.parsed.y==null?'—':fmt(x.parsed.y, 2)}%`,
+            afterBody:(items)=> { const b = bk[items[0].dataIndex]; return b ? [`Average: ${fmt(b.avg, m.dec)}${sdUnit}`, `n = ${b.n}`] : []; } } } } }
+  };
+  const cv = document.getElementById('chipDetailChart_'+grpId);
+  if(!cv) return;
+  if(chipMonCharts[grpId]){ chipMonCharts[grpId].destroy(); }
+  chipMonCharts[grpId] = new Chart(cv.getContext('2d'), cfg);
+  const leg = document.getElementById('chipDetailLegend_'+grpId);
+  if(leg){
+    const EN = currentLang==='en';
+    const bName = bucket==='day' ? (EN?'per day':'ต่อวัน') : bucket==='week' ? (EN?'per week':'ต่อสัปดาห์') : (EN?'per month':'ต่อเดือน');
+    const items = [];
+    if(mode==='sd' || mode==='sdcv') items.push(`<span class="item"><span class="box" style="background:${grp.rail}"></span>SD (STDEV ${bName})</span>`);
+    if(mode==='cv') items.push(`<span class="item"><span class="box" style="background:${cvCol}"></span>%CV = SD ÷ Average × 100 (${bName})</span>`);
+    if(mode==='sdcv') items.push(`<span class="item"><span class="sw" style="border-color:${cvCol}"></span>%CV = SD ÷ Average × 100</span>`);
+    if(bk.some(b=> b.n<2)) items.push(`<span class="item" style="opacity:.75">${EN?'Periods with fewer than 2 values have no SD':'ช่วงที่มีข้อมูลน้อยกว่า 2 ค่าไม่มี SD'}</span>`);
+    leg.innerHTML = items.join('');
+  }
+}
 function chipMonDrawDetailChart(grpId, m, a, tgt){
+  const statMode = (CHIP_MON_STAT[grpId] && CHIP_MON_STAT[grpId].mode) || 'values';
+  if(statMode !== 'values') return chipMonDrawStatChart(grpId, m, a, statMode);
   const grp = CHIP_MON_GROUPS.find(g=> g.id===grpId);
   const rows = chipMonDetailRows(grpId, m, a);
   const labels = rows.map(x=> chipMonRowLabel(x, false));
@@ -15151,8 +15324,10 @@ function chipMonDrawDetailChart(grpId, m, a, tgt){
     : {display:false};
   if(yieldExtra) refs.push({ type:'line', label:pairLbl, data:yieldExtra, borderColor:pairCol, backgroundColor:pairCol,
     borderWidth:1.8, pointRadius:2, pointBackgroundColor:pairCol, tension:.25, fill:false, spanGaps:true, order:1, datalabels:yieldExtraLabels });
-  if(tgt.lo!=null) refs.push(flat(tgt.lo, '#12a150', `Target Low ${tgt.lo}`));
-  if(tgt.hi!=null) refs.push(flat(tgt.hi, '#d4342c', `Target High ${tgt.hi}`));
+  // Low and High limits share one colour; chipMonLimitLabelPlugin writes "Low x" / "High y" at the
+  // left end of each line, just above it.
+  if(tgt.lo!=null) refs.push(Object.assign(flat(tgt.lo, CHIP_MON_LIMIT_COL, `Target Low ${tgt.lo}`), {_limitLabel:`Low ${tgt.lo}`, _limitValue:tgt.lo}));
+  if(tgt.hi!=null) refs.push(Object.assign(flat(tgt.hi, CHIP_MON_LIMIT_COL, `Target High ${tgt.hi}`), {_limitLabel:`High ${tgt.hi}`, _limitValue:tgt.hi}));
 
   const allVals = yieldExtra ? vals.concat(yieldExtra) : vals;
   const scaleVals = allVals.concat(refs.flatMap(r=> r.data)).filter(v=> v!=null);
@@ -15165,7 +15340,7 @@ function chipMonDrawDetailChart(grpId, m, a, tgt){
   if(lo > 0 && !allVals.some(v=> v!=null && v<0) && !CHIP_MON_YAXIS_FIT_GROUPS.includes(grpId)) lo = 0;
   hi = Math.ceil((hi+pad)/step)*step;
   // manual Y-axis override (per metric) always wins over either auto-fit behavior above
-  const yScale = chipMonYScale(m.key);
+  const yScale = chipMonYScale(chipMonYScaleKey(grpId, m.key));
   if(yScale.lo!=null) lo = yScale.lo;
   if(yScale.hi!=null) hi = yScale.hi;
 
@@ -15194,6 +15369,7 @@ function chipMonDrawDetailChart(grpId, m, a, tgt){
           font:{ family:'IBM Plex Mono', size:10.5, weight:'600' },
           formatter:(v)=> v==null ? '' : v.toLocaleString('en-US', {minimumFractionDigits:0, maximumFractionDigits:m.dec}) } };
   const cfg = {
+    plugins:[chipMonLimitLabelPlugin],
     data:{ labels, datasets:[
       primaryDs,
       ...refs
@@ -15218,8 +15394,8 @@ function chipMonDrawDetailChart(grpId, m, a, tgt){
   if(leg){
     const items = [`<span class="item"><span class="box" style="background:${grp.rail}"></span>${actualLbl}</span>`];
     if(yieldExtra) items.push(`<span class="item"><span class="box" style="background:${pairCol}"></span>${pairLbl}</span>`);
-    if(tgt.lo!=null) items.push(`<span class="item"><span class="sw dashed" style="border-color:#12a150"></span>Target Low ${tgt.lo}</span>`);
-    if(tgt.hi!=null) items.push(`<span class="item"><span class="sw dashed" style="border-color:#d4342c"></span>Target High ${tgt.hi}</span>`);
+    if(tgt.lo!=null) items.push(`<span class="item"><span class="sw dashed" style="border-color:${CHIP_MON_LIMIT_COL}"></span>Target Low ${tgt.lo}</span>`);
+    if(tgt.hi!=null) items.push(`<span class="item"><span class="sw dashed" style="border-color:${CHIP_MON_LIMIT_COL}"></span>Target High ${tgt.hi}</span>`);
     leg.innerHTML = items.join('');
   }
 }
