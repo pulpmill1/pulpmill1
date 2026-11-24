@@ -378,7 +378,7 @@
      trigger: this one just stands and breathes beside the page title, exactly as asked ("no need
      for it to run"). It also skips position:fixed entirely, sitting in the toolbar's own normal
      flex flow instead of floating over the page. */
-  .tb-title-mascot{flex:0 0 auto; width:20px;}
+  .tb-title-mascot{flex:0 0 auto; width:28px;}
   .tb-title-mascot svg{display:block; width:100%; height:auto; overflow:visible;}
   .tb-title-sub .dot{width:5px; height:5px; border-radius:50%; background:var(--good); display:inline-block; margin-right:5px;}
   .tb-live-badge{display:inline-flex; align-items:center; gap:4px; background:rgba(0,169,39,.14); color:#0a8a26;
@@ -595,9 +595,9 @@
   .rpk-custom{display:inline-flex;align-items:center;gap:5px;margin-left:6px;}
   .rpk-custom input{font:inherit;font-size:10.5px;color:var(--ink);background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:3px 5px;}
   .rpk-custom .sep{color:var(--ink-3);font-size:10.5px;}
-  .md-viewbtn{font:inherit;font-size:10.5px;font-weight:700;color:var(--ink-2);background:var(--surface-2);border:1px solid var(--border);border-radius:20px;padding:4px 11px;cursor:pointer;}
+  .md-viewbtn,.md-valuesbtn{font:inherit;font-size:10.5px;font-weight:700;color:var(--ink-2);background:var(--surface-2);border:1px solid var(--border);border-radius:20px;padding:4px 11px;cursor:pointer;}
   .md-viewbtn.on{background:var(--accent-soft);color:var(--accent-ink);border-color:var(--accent-soft);}
-  .md-viewbtn:focus-visible{outline:2px solid var(--accent);outline-offset:1px;}
+  .md-viewbtn:focus-visible,.md-valuesbtn:focus-visible{outline:2px solid var(--accent);outline-offset:1px;}
   .md-avgpick{display:flex;align-items:center;gap:5px;flex-wrap:wrap;min-width:0;max-width:100%;background:var(--surface-2);border:1px solid var(--border);border-radius:20px;padding:3px 10px;}
   .md-avglbl{font-size:10.5px;font-weight:700;color:var(--ink-2);white-space:nowrap;}
   .md-avgpick select,.md-avgpick input{font:inherit;font-size:10.5px;color:var(--ink);background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:2px 7px;cursor:pointer;}
@@ -1275,47 +1275,48 @@
       <div class="tb-title">
         <div class="tb-title-mascot" aria-hidden="true">
           <svg viewBox="0 0 200 300" xmlns="http://www.w3.org/2000/svg">
-            <g class="dash-mascot-leg dash-mascot-leg-l" style="transform-origin:70px 212px;">
-              <path d="M70,210 C60,214 55,228 55,245 C55,258 57,270 62,279 C65,284 78,284 81,279 C86,266 87,248 85,232 C84,221 78,213 70,210 Z" fill="url(#dmLimbGrad)"/>
+            <g class="dash-mascot-leg dash-mascot-leg-l" style="transform-origin:70px 246px;">
+              <path d="M70,244 C62,246 58,254 58,264 C58,273 60,280 64,284 C67,287 76,287 79,284 C83,280 84,273 83,264 C82,255 78,247 70,244 Z" fill="url(#dmLimbGrad)"/>
             </g>
-            <g class="dash-mascot-leg dash-mascot-leg-r" style="transform-origin:130px 212px;">
-              <path d="M130,210 C140,214 145,228 145,245 C145,258 143,270 138,279 C135,284 122,284 119,279 C114,266 113,248 115,232 C116,221 122,213 130,210 Z" fill="url(#dmLimbGrad)"/>
+            <g class="dash-mascot-leg dash-mascot-leg-r" style="transform-origin:130px 246px;">
+              <path d="M130,244 C138,246 142,254 142,264 C142,273 140,280 136,284 C133,287 124,287 121,284 C117,280 116,273 117,264 C118,255 122,247 130,244 Z" fill="url(#dmLimbGrad)"/>
             </g>
             <g class="dash-mascot-upper">
               <g class="dash-mascot-breathe">
-                <path class="dash-mascot-body" d="M100,55 C114,110 128,180 132,227 L68,227 C72,180 86,110 100,55 Z" fill="url(#dmBodyGrad)"/>
-                <ellipse cx="93" cy="120" rx="6" ry="14" fill="#fff" opacity="0.3" transform="rotate(-12 93 120)"/>
+                <path class="dash-mascot-body" d="M100,69 C114,126 128,199 132,248 L68,248 C72,199 86,126 100,69 Z" fill="url(#dmBodyGrad)"/>
+                <ellipse cx="93" cy="135" rx="6" ry="14" fill="#fff" opacity="0.3" transform="rotate(-12 93 135)"/>
                 <g class="dash-mascot-sprout">
-                  <path d="M100,55 C97,40 94,24 90,10" stroke="#8a6a3a" stroke-width="4" fill="none" stroke-linecap="round"/>
+                  <path d="M100,69 C97,49 93,30 90,10" stroke="#8a6a3a" stroke-width="4" fill="none" stroke-linecap="round"/>
                   <path d="M90,22 C78,16 64,14 54,20 C48,24 48,32 56,34 C70,38 84,32 90,22 Z" fill="url(#dmLeafGrad)"/>
-                  <path d="M91,13 C92,-1 98,-14 110,-22 C117,-26 124,-21 121,-13 C115,-1 102,8 91,13 Z" fill="url(#dmPetalGrad)"/>
-                  <path d="M90,18 C100,10 112,6 124,9 C131,11 132,19 124,22 C112,27 98,25 90,18 Z" fill="url(#dmPetalGrad)"/>
+                  <path d="M93,19 C104,25 114,34 117,44 C119,51 115,56 108,53 C98,48 89,37 87,27 C86,22 89,19 93,19 Z" fill="url(#dmLeafGrad)"/>
+                  <path d="M91,13 C92,-1 98,-14 110,-22 C117,-26 124,-21 121,-13 C115,-1 102,8 91,13 Z" fill="url(#dmLeafGrad)"/>
+                  <path d="M90,18 C100,10 112,6 124,9 C131,11 132,19 124,22 C112,27 98,25 90,18 Z" fill="url(#dmLeafGrad)"/>
                 </g>
-                <g class="dash-mascot-arm dash-mascot-arm-right" style="transform-origin:122px 145px;">
-                  <path d="M122,143 C134,145 144,155 147,170 C150,183 149,195 142,203 C138,208 128,208 124,203 C119,195 117,180 118,165 C119,155 120,148 122,143 Z" fill="url(#dmLimbGrad)"/>
+                <g class="dash-mascot-arm dash-mascot-arm-right" style="transform-origin:122px 160px;">
+                  <path d="M122,158 C134,160 144,170 147,185 C150,198 149,210 142,218 C138,223 128,223 124,218 C119,210 117,195 118,180 C119,170 120,163 122,158 Z" fill="url(#dmLimbGrad)"/>
                 </g>
-                <g class="dash-mascot-arm dash-mascot-arm-left" style="transform-origin:78px 143px;">
-                  <path d="M78,143 C66,140 54,133 48,117 C44,107 46,97 54,93 C60,90 68,93 72,101 C76,110 76,123 76,135 C76,138 77,141 78,143 Z" fill="url(#dmLimbGrad)"/>
+                <g class="dash-mascot-arm dash-mascot-arm-left" style="transform-origin:78px 158px;">
+                  <path d="M78,158 C66,155 54,148 48,132 C44,122 46,112 54,108 C60,105 68,108 72,116 C76,125 76,138 76,150 C76,153 77,156 78,158 Z" fill="url(#dmLimbGrad)"/>
                 </g>
                 <g class="dash-mascot-face">
-                  <path d="M80,148 Q90,142 98,147" stroke="#6B4A28" stroke-width="3" fill="none" stroke-linecap="round"/>
-                  <path d="M102,147 Q110,142 120,148" stroke="#6B4A28" stroke-width="3" fill="none" stroke-linecap="round"/>
+                  <path d="M80,163 Q90,157 98,162" stroke="#6B4A28" stroke-width="3" fill="none" stroke-linecap="round"/>
+                  <path d="M102,162 Q110,157 120,163" stroke="#6B4A28" stroke-width="3" fill="none" stroke-linecap="round"/>
                   <g class="dash-mascot-eye">
-                    <ellipse cx="88" cy="163" rx="11" ry="13" fill="#fff"/>
-                    <circle class="dash-mascot-pupil" cx="89" cy="166" r="5.5" fill="#3a2a1a"/>
-                    <circle cx="91" cy="161" r="1.8" fill="#fff"/>
-                    <path class="dash-mascot-lid" d="M77,151 Q88,146 99,151 L99,163 Q88,168 77,163 Z" fill="#EAC98A" style="transform-origin:88px 151px;"/>
+                    <ellipse cx="88" cy="178" rx="11" ry="13" fill="#fff"/>
+                    <circle class="dash-mascot-pupil" cx="89" cy="181" r="5.5" fill="#3a2a1a"/>
+                    <circle cx="91" cy="176" r="1.8" fill="#fff"/>
+                    <path class="dash-mascot-lid" d="M77,166 Q88,161 99,166 L99,178 Q88,183 77,178 Z" fill="#EAC98A" style="transform-origin:88px 166px;"/>
                   </g>
                   <g class="dash-mascot-eye">
-                    <ellipse cx="112" cy="163" rx="11" ry="13" fill="#fff"/>
-                    <circle class="dash-mascot-pupil" cx="111" cy="166" r="5.5" fill="#3a2a1a"/>
-                    <circle cx="114" cy="161" r="1.8" fill="#fff"/>
-                    <path class="dash-mascot-lid" d="M101,151 Q112,146 123,151 L123,163 Q112,168 101,163 Z" fill="#EAC98A" style="transform-origin:112px 151px;"/>
+                    <ellipse cx="112" cy="178" rx="11" ry="13" fill="#fff"/>
+                    <circle class="dash-mascot-pupil" cx="111" cy="181" r="5.5" fill="#3a2a1a"/>
+                    <circle cx="114" cy="176" r="1.8" fill="#fff"/>
+                    <path class="dash-mascot-lid" d="M101,166 Q112,161 123,166 L123,178 Q112,183 101,178 Z" fill="#EAC98A" style="transform-origin:112px 166px;"/>
                   </g>
-                  <circle class="dash-mascot-cheek" cx="74" cy="183" r="5" fill="#ff9e9e" opacity="0.55"/>
-                  <circle class="dash-mascot-cheek" cx="126" cy="183" r="5" fill="#ff9e9e" opacity="0.55"/>
-                  <path class="dash-mascot-mouth" d="M82,192 Q100,188 118,192 Q117,206 100,210 Q83,206 82,192 Z" fill="#7a3b2e" style="transform-origin:100px 199px;"/>
-                  <ellipse cx="100" cy="202" rx="9" ry="5" fill="#ff8a8a"/>
+                  <circle class="dash-mascot-cheek" cx="74" cy="198" r="5" fill="#ff9e9e" opacity="0.55"/>
+                  <circle class="dash-mascot-cheek" cx="126" cy="198" r="5" fill="#ff9e9e" opacity="0.55"/>
+                  <path class="dash-mascot-mouth" d="M82,207 Q100,203 118,207 Q117,221 100,225 Q83,221 82,207 Z" fill="#7a3b2e" style="transform-origin:100px 214px;"/>
+                  <ellipse cx="100" cy="217" rx="9" ry="5" fill="#ff8a8a"/>
                 </g>
               </g>
             </g>
@@ -3436,56 +3437,53 @@
         <stop offset="1" stop-color="#B9893F"/>
       </linearGradient>
       <linearGradient id="dmLeafGrad" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stop-color="#8BC96A"/>
-        <stop offset="1" stop-color="#5C9A3E"/>
-      </linearGradient>
-      <linearGradient id="dmPetalGrad" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stop-color="#EBDD84"/>
-        <stop offset="1" stop-color="#C7B646"/>
+        <stop offset="0" stop-color="#9DCB6E"/>
+        <stop offset="1" stop-color="#C9B84A"/>
       </linearGradient>
     </defs>
     <ellipse class="dash-mascot-shadow" cx="100" cy="286" rx="42" ry="8" fill="#000" opacity="0.14"/>
-    <g class="dash-mascot-leg dash-mascot-leg-l" style="transform-origin:70px 212px;">
-      <path d="M70,210 C60,214 55,228 55,245 C55,258 57,270 62,279 C65,284 78,284 81,279 C86,266 87,248 85,232 C84,221 78,213 70,210 Z" fill="url(#dmLimbGrad)"/>
+    <g class="dash-mascot-leg dash-mascot-leg-l" style="transform-origin:70px 246px;">
+      <path d="M70,244 C62,246 58,254 58,264 C58,273 60,280 64,284 C67,287 76,287 79,284 C83,280 84,273 83,264 C82,255 78,247 70,244 Z" fill="url(#dmLimbGrad)"/>
     </g>
-    <g class="dash-mascot-leg dash-mascot-leg-r" style="transform-origin:130px 212px;">
-      <path d="M130,210 C140,214 145,228 145,245 C145,258 143,270 138,279 C135,284 122,284 119,279 C114,266 113,248 115,232 C116,221 122,213 130,210 Z" fill="url(#dmLimbGrad)"/>
+    <g class="dash-mascot-leg dash-mascot-leg-r" style="transform-origin:130px 246px;">
+      <path d="M130,244 C138,246 142,254 142,264 C142,273 140,280 136,284 C133,287 124,287 121,284 C117,280 116,273 117,264 C118,255 122,247 130,244 Z" fill="url(#dmLimbGrad)"/>
     </g>
     <g class="dash-mascot-upper">
       <g class="dash-mascot-breathe">
-        <path class="dash-mascot-body" d="M100,55 C114,110 128,180 132,227 L68,227 C72,180 86,110 100,55 Z" fill="url(#dmBodyGrad)"/>
-        <ellipse cx="93" cy="120" rx="6" ry="14" fill="#fff" opacity="0.3" transform="rotate(-12 93 120)"/>
+        <path class="dash-mascot-body" d="M100,69 C114,126 128,199 132,248 L68,248 C72,199 86,126 100,69 Z" fill="url(#dmBodyGrad)"/>
+        <ellipse cx="93" cy="135" rx="6" ry="14" fill="#fff" opacity="0.3" transform="rotate(-12 93 135)"/>
         <g class="dash-mascot-sprout">
-          <path d="M100,55 C97,40 94,24 90,10" stroke="#8a6a3a" stroke-width="4" fill="none" stroke-linecap="round"/>
+          <path d="M100,69 C97,49 93,30 90,10" stroke="#8a6a3a" stroke-width="4" fill="none" stroke-linecap="round"/>
           <path d="M90,22 C78,16 64,14 54,20 C48,24 48,32 56,34 C70,38 84,32 90,22 Z" fill="url(#dmLeafGrad)"/>
-          <path d="M91,13 C92,-1 98,-14 110,-22 C117,-26 124,-21 121,-13 C115,-1 102,8 91,13 Z" fill="url(#dmPetalGrad)"/>
-          <path d="M90,18 C100,10 112,6 124,9 C131,11 132,19 124,22 C112,27 98,25 90,18 Z" fill="url(#dmPetalGrad)"/>
+          <path d="M93,19 C104,25 114,34 117,44 C119,51 115,56 108,53 C98,48 89,37 87,27 C86,22 89,19 93,19 Z" fill="url(#dmLeafGrad)"/>
+          <path d="M91,13 C92,-1 98,-14 110,-22 C117,-26 124,-21 121,-13 C115,-1 102,8 91,13 Z" fill="url(#dmLeafGrad)"/>
+          <path d="M90,18 C100,10 112,6 124,9 C131,11 132,19 124,22 C112,27 98,25 90,18 Z" fill="url(#dmLeafGrad)"/>
         </g>
-        <g class="dash-mascot-arm dash-mascot-arm-right" style="transform-origin:122px 145px;">
-          <path d="M122,143 C134,145 144,155 147,170 C150,183 149,195 142,203 C138,208 128,208 124,203 C119,195 117,180 118,165 C119,155 120,148 122,143 Z" fill="url(#dmLimbGrad)"/>
+        <g class="dash-mascot-arm dash-mascot-arm-right" style="transform-origin:122px 160px;">
+          <path d="M122,158 C134,160 144,170 147,185 C150,198 149,210 142,218 C138,223 128,223 124,218 C119,210 117,195 118,180 C119,170 120,163 122,158 Z" fill="url(#dmLimbGrad)"/>
         </g>
-        <g class="dash-mascot-arm dash-mascot-arm-left" style="transform-origin:78px 143px;">
-          <path d="M78,143 C66,140 54,133 48,117 C44,107 46,97 54,93 C60,90 68,93 72,101 C76,110 76,123 76,135 C76,138 77,141 78,143 Z" fill="url(#dmLimbGrad)"/>
+        <g class="dash-mascot-arm dash-mascot-arm-left" style="transform-origin:78px 158px;">
+          <path d="M78,158 C66,155 54,148 48,132 C44,122 46,112 54,108 C60,105 68,108 72,116 C76,125 76,138 76,150 C76,153 77,156 78,158 Z" fill="url(#dmLimbGrad)"/>
         </g>
         <g class="dash-mascot-face">
-          <path d="M80,148 Q90,142 98,147" stroke="#6B4A28" stroke-width="3" fill="none" stroke-linecap="round"/>
-          <path d="M102,147 Q110,142 120,148" stroke="#6B4A28" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <path d="M80,163 Q90,157 98,162" stroke="#6B4A28" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <path d="M102,162 Q110,157 120,163" stroke="#6B4A28" stroke-width="3" fill="none" stroke-linecap="round"/>
           <g class="dash-mascot-eye">
-            <ellipse cx="88" cy="163" rx="11" ry="13" fill="#fff"/>
-            <circle class="dash-mascot-pupil" cx="89" cy="166" r="5.5" fill="#3a2a1a"/>
-            <circle cx="91" cy="161" r="1.8" fill="#fff"/>
-            <path class="dash-mascot-lid" d="M77,151 Q88,146 99,151 L99,163 Q88,168 77,163 Z" fill="#EAC98A" style="transform-origin:88px 151px;"/>
+            <ellipse cx="88" cy="178" rx="11" ry="13" fill="#fff"/>
+            <circle class="dash-mascot-pupil" cx="89" cy="181" r="5.5" fill="#3a2a1a"/>
+            <circle cx="91" cy="176" r="1.8" fill="#fff"/>
+            <path class="dash-mascot-lid" d="M77,166 Q88,161 99,166 L99,178 Q88,183 77,178 Z" fill="#EAC98A" style="transform-origin:88px 166px;"/>
           </g>
           <g class="dash-mascot-eye">
-            <ellipse cx="112" cy="163" rx="11" ry="13" fill="#fff"/>
-            <circle class="dash-mascot-pupil" cx="111" cy="166" r="5.5" fill="#3a2a1a"/>
-            <circle cx="114" cy="161" r="1.8" fill="#fff"/>
-            <path class="dash-mascot-lid" d="M101,151 Q112,146 123,151 L123,163 Q112,168 101,163 Z" fill="#EAC98A" style="transform-origin:112px 151px;"/>
+            <ellipse cx="112" cy="178" rx="11" ry="13" fill="#fff"/>
+            <circle class="dash-mascot-pupil" cx="111" cy="181" r="5.5" fill="#3a2a1a"/>
+            <circle cx="114" cy="176" r="1.8" fill="#fff"/>
+            <path class="dash-mascot-lid" d="M101,166 Q112,161 123,166 L123,178 Q112,183 101,178 Z" fill="#EAC98A" style="transform-origin:112px 166px;"/>
           </g>
-          <circle class="dash-mascot-cheek" cx="74" cy="183" r="5" fill="#ff9e9e" opacity="0.55"/>
-          <circle class="dash-mascot-cheek" cx="126" cy="183" r="5" fill="#ff9e9e" opacity="0.55"/>
-          <path class="dash-mascot-mouth" d="M82,192 Q100,188 118,192 Q117,206 100,210 Q83,206 82,192 Z" fill="#7a3b2e" style="transform-origin:100px 199px;"/>
-          <ellipse cx="100" cy="202" rx="9" ry="5" fill="#ff8a8a"/>
+          <circle class="dash-mascot-cheek" cx="74" cy="198" r="5" fill="#ff9e9e" opacity="0.55"/>
+          <circle class="dash-mascot-cheek" cx="126" cy="198" r="5" fill="#ff9e9e" opacity="0.55"/>
+          <path class="dash-mascot-mouth" d="M82,207 Q100,203 118,207 Q117,221 100,225 Q83,221 82,207 Z" fill="#7a3b2e" style="transform-origin:100px 214px;"/>
+          <ellipse cx="100" cy="217" rx="9" ry="5" fill="#ff8a8a"/>
         </g>
       </g>
     </g>
@@ -8093,18 +8091,18 @@ CHIP_MON_META.push(
   {key:'dd003CookingProduction', col:559, th:'Cooking Production', unit:'Adt/day', dec:2, grp:'ddProduction', scored:false},
   {key:'dd004BrownStockProduction', col:695, th:'Brown Stock Production', unit:'Adt/day', dec:2, grp:'ddProduction', scored:false},
   {key:'dd005BleachingProduction', col:753, th:'Bleaching Production', unit:'Adt/day', dec:2, grp:'ddProduction', scored:false},
-  {key:'dd006Pulp1BulkDensity', col:1048, th:'Wood Chip – Pulp 1 Bulk density', unit:'', dec:2, grp:'ddWoodhandling', scored:false},
-  {key:'dd007Pulp1BulkDensityDryness', col:1049, th:'Wood Chip – Pulp 1 Bulk density *Dryness', unit:'', dec:2, grp:'ddWoodhandling', scored:false},
-  {key:'dd008Pulp1ChipDryness', col:1050, th:'Wood Chip – Pulp 1 Chip Dryness', unit:'', dec:2, grp:'ddWoodhandling', scored:false},
-  {key:'dd009Pulp1ChipMoistureLab', col:1051, th:'Wood Chip – Pulp 1 Chip Moisture (Lab)', unit:'', dec:2, grp:'ddWoodhandling', scored:false},
-  {key:'dd010Pulp1Fine48', col:1052, th:'Wood Chip – Pulp 1 Fine, <4.8', unit:'', dec:2, grp:'ddWoodhandling', scored:false},
-  {key:'dd011Pulp1Pin9548', col:1053, th:'Wood Chip – Pulp 1 Pin, 9.5-4.8', unit:'', dec:2, grp:'ddWoodhandling', scored:false},
-  {key:'dd012Pulp1Accept222295', col:1054, th:'Wood Chip – Pulp 1 Accept 2, 22.2-9.5', unit:'', dec:2, grp:'ddWoodhandling', scored:false},
-  {key:'dd013Pulp1Accept1286222', col:1055, th:'Wood Chip – Pulp 1 Accept 1, 28.6-22.2', unit:'', dec:2, grp:'ddWoodhandling', scored:false},
-  {key:'dd014Pulp1OverThick450286', col:1056, th:'Wood Chip – Pulp 1 Over Thick, 45.0-28.6', unit:'', dec:2, grp:'ddWoodhandling', scored:false},
-  {key:'dd015Pulp1OverSize450Mm', col:1057, th:'Wood Chip – Pulp 1 Over size >45.0 mm', unit:'', dec:2, grp:'ddWoodhandling', scored:false},
-  {key:'dd016Pulp1Acc12Pin28648', col:1058, th:'Wood Chip – Pulp 1 Acc1+2+Pin, 28.6-4.8', unit:'', dec:2, grp:'ddWoodhandling', scored:false},
-  {key:'dd017Pulp1Bark', col:1059, th:'Wood Chip – Pulp 1 Bark', unit:'', dec:2, grp:'ddWoodhandling', scored:false},
+  {key:'dd006Pulp1BulkDensity', col:1048, th:'Pulp 1 Bulk density', unit:'', dec:2, grp:'ddWoodhandling', scored:false},
+  {key:'dd007Pulp1BulkDensityDryness', col:1049, th:'Pulp 1 Bulk density *Dryness', unit:'', dec:2, grp:'ddWoodhandling', scored:false},
+  {key:'dd008Pulp1ChipDryness', col:1050, th:'Pulp 1 Chip Dryness', unit:'', dec:2, grp:'ddWoodhandling', scored:false},
+  {key:'dd009Pulp1ChipMoistureLab', col:1051, th:'Pulp 1 Chip Moisture (Lab)', unit:'', dec:2, grp:'ddWoodhandling', scored:false},
+  {key:'dd010Pulp1Fine48', col:1052, th:'Pulp 1 Fine, <4.8', unit:'', dec:2, grp:'ddWoodhandling', scored:false},
+  {key:'dd011Pulp1Pin9548', col:1053, th:'Pulp 1 Pin, 9.5-4.8', unit:'', dec:2, grp:'ddWoodhandling', scored:false},
+  {key:'dd012Pulp1Accept222295', col:1054, th:'Pulp 1 Accept 2, 22.2-9.5', unit:'', dec:2, grp:'ddWoodhandling', scored:false},
+  {key:'dd013Pulp1Accept1286222', col:1055, th:'Pulp 1 Accept 1, 28.6-22.2', unit:'', dec:2, grp:'ddWoodhandling', scored:false},
+  {key:'dd014Pulp1OverThick450286', col:1056, th:'Pulp 1 Over Thick, 45.0-28.6', unit:'', dec:2, grp:'ddWoodhandling', scored:false},
+  {key:'dd015Pulp1OverSize450Mm', col:1057, th:'Pulp 1 Over size >45.0 mm', unit:'', dec:2, grp:'ddWoodhandling', scored:false},
+  {key:'dd016Pulp1Acc12Pin28648', col:1058, th:'Pulp 1 Acc1+2+Pin, 28.6-4.8', unit:'', dec:2, grp:'ddWoodhandling', scored:false},
+  {key:'dd017Pulp1Bark', col:1059, th:'Pulp 1 Bark', unit:'', dec:2, grp:'ddWoodhandling', scored:false},
   {key:'dd018ChipFlow', col:573, th:'Chip flow', unit:'GT/min', dec:2, grp:'ddCookChipFill', scored:false},
   {key:'dd019PackingSteamRatio', col:569, th:'Packing Steam ratio', unit:'', dec:2, grp:'ddCookChipFill', scored:false},
   {key:'dd020PressurePackingSteamCal', col:570, th:'Pressure packing steam (Cal.)', unit:'bar', dec:2, grp:'ddCookChipFill', scored:false},
@@ -9593,6 +9591,11 @@ function rpkWire(instId, state, onApply){
 const CHIP_MON_STATE = { bulk:null, screen:null };       // selected metric key per group
 const CHIP_MON_RANGE = {}; // detail-chart window per group: {preset, custom:{start,end}}
 const CHIP_MON_VIEW = {};  // detail body per group: 'chart' or 'table'
+// Whether the shared chip-monitoring detail chart (chipMonDrawDetailChart, used by every "mon-
+// detail" panel across the dashboard — Daily data, Yield, Woodhandling, Cooking, etc.) shows its
+// per-point value labels. One global switch, not per-group, since it's a personal reading
+// preference ("don't clutter the chart with numbers") rather than something tied to one metric.
+let CHIP_MON_SHOW_VALUES = true;
 const chipMonCharts = {};                                 // detail chart per group
 const chipMonSparks = {};                                 // sparkline chart per tile key
 const chipMonYearlyCharts = {};                           // year-over-year monthly trend chart per group
@@ -14125,6 +14128,15 @@ function initChipMonAvgPick(grpId, key, m){
   chipMonAvgPickRender(grpId, key, m);
 }
 /* ---- detail panel ---- */
+// Re-renders every currently-open "mon-detail" panel — used after flipping the global
+// CHIP_MON_SHOW_VALUES toggle, since more than one group's panel can be expanded at once and all
+// of them need to pick up the new setting immediately, not just the one whose button was clicked.
+function chipMonRefreshOpenDetails(){
+  document.querySelectorAll('.mon-detail:not([hidden])').forEach(function(panel){
+    const grpId = panel.id.replace(/^chipDetail_/, '');
+    if(CHIP_MON_STATE[grpId]) chipMonRenderDetail(grpId);
+  });
+}
 function chipMonRenderDetail(grpId){
   const grp = CHIP_MON_GROUPS.find(g=> g.id===grpId);
   const key = CHIP_MON_STATE[grpId];
@@ -14202,6 +14214,7 @@ function chipMonRenderDetail(grpId){
         ${rpkBarHtml('chipRange_'+grpId, CHIP_MON_RANGE[grpId])}
         <button type="button" class="md-viewbtn" data-view="chart">${currentLang==='en'?'Chart':'กราฟ'}</button>
         <button type="button" class="md-viewbtn" data-view="table">${currentLang==='en'?'Table':'ตาราง'}</button>
+        <button type="button" class="md-valuesbtn" id="mdValuesBtn_${grpId}">🔢 ${CHIP_MON_SHOW_VALUES ? (currentLang==='en'?'Hide values':'ซ่อนค่า') : (currentLang==='en'?'Show values':'แสดงค่า')}</button>
         <span class="md-avgpick" id="mdAvgPick_${grpId}">
           <span class="md-avglbl">${currentLang==='en'?'Average':'ค่าเฉลี่ย'}</span>
           <select id="chipAvgMode_${grpId}">
@@ -14283,6 +14296,8 @@ function chipMonRenderDetail(grpId){
   }
   rpkWire('chipRange_'+grpId, CHIP_MON_RANGE[grpId], (next)=>{ CHIP_MON_RANGE[grpId] = next; chipMonRenderDetail(grpId); });
   panel.querySelectorAll('.md-viewbtn').forEach(b=> b.addEventListener('click', ()=>{ CHIP_MON_VIEW[grpId] = b.dataset.view; chipMonRenderDetailBody(grpId, m, a, chipMonTarget(key)); }));
+  const valuesBtn = document.getElementById('mdValuesBtn_'+grpId);
+  if(valuesBtn) valuesBtn.addEventListener('click', ()=>{ CHIP_MON_SHOW_VALUES = !CHIP_MON_SHOW_VALUES; chipMonRefreshOpenDetails(); });
   initChipMonAvgPick(grpId, key, m);
 
   chipMonRenderDetailBody(grpId, m, a, tgt);
@@ -15141,7 +15156,7 @@ function chipMonDrawDetailChart(grpId, m, a, tgt){
   // and bury the trend line they're meant to annotate, so they're switched off entirely once the
   // range gets that dense (the line itself, tooltip-on-hover, and the table view stay available).
   const nBars = vals.filter(v=> v!=null).length;
-  const showPointLabels = nBars <= 30;
+  const showPointLabels = CHIP_MON_SHOW_VALUES && nBars <= 30;
   // Yield Balance Tank's own values show on the chart (unlike other pairKey overlays, e.g. Wood
   // species' Pulp mill 2 line, which stay label-free to avoid cluttering a 5-series stacked view).
   const yieldExtraLabels = isYieldPair
@@ -15189,7 +15204,7 @@ function chipMonDrawDetailChart(grpId, m, a, tgt){
         spanGaps:true, order:2, datalabels:primaryLineLabels }
     : { type:'bar', label:actualLbl, data:vals, backgroundColor:grp.rail, borderColor:c.surface, borderWidth:0.5,
         borderRadius:2, barPercentage:0.9, categoryPercentage:0.9, order:2,
-        datalabels:{ display:(x)=> x.dataset.data[x.dataIndex]!=null, anchor:'end', align:'end', offset:2,
+        datalabels:{ display:(x)=> CHIP_MON_SHOW_VALUES && x.dataset.data[x.dataIndex]!=null, anchor:'end', align:'end', offset:2,
           rotation: nBars > 14 ? -90 : 0, color:c.ink2,
           font:{ family:'IBM Plex Mono', size:10.5, weight:'600' },
           formatter:(v)=> v==null ? '' : v.toLocaleString('en-US', {minimumFractionDigits:0, maximumFractionDigits:m.dec}) } };
