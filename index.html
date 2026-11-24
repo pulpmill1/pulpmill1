@@ -610,6 +610,7 @@
   .md-title{font-size:15px;font-weight:800;color:var(--ink);}
   .md-title .u{color:var(--ink-2);font-weight:600;}
   .md-statpick{display:inline-flex;align-items:center;gap:5px;}
+  .md-target .md-statpick{margin-left:auto;}  /* sits at the right end of the Y-axis row */
   /* Values / SD / %CV / SD & %CV segmented pill — one rounded outline, thin dividers, filled active segment */
   .md-seg{--seg-on:#3E6B57;--seg-on-ink:#fff;display:inline-flex;align-items:stretch;border:1px solid var(--border);border-radius:999px;overflow:hidden;background:var(--surface);}
   .md-seg button{font:inherit;font-size:11px;font-weight:600;color:var(--ink-2);background:transparent;border:0;border-left:1px solid var(--border);padding:4px 12px;cursor:pointer;white-space:nowrap;line-height:1.35;}
@@ -14358,7 +14359,7 @@ function chipMonRenderDetail(grpId){
         ${rpkBarHtml('chipRange_'+grpId, CHIP_MON_RANGE[grpId])}
         <button type="button" class="md-viewbtn" data-view="chart">${currentLang==='en'?'Chart':'กราฟ'}</button>
         <button type="button" class="md-viewbtn" data-view="table">${currentLang==='en'?'Table':'ตาราง'}</button>
-        <button type="button" class="md-valuesbtn" id="mdValuesBtn_${grpId}">🔢 ${CHIP_MON_SHOW_VALUES ? (currentLang==='en'?'Hide values':'ซ่อนค่า') : (currentLang==='en'?'Show values':'แสดงค่า')}</button>${statSelHtml}
+        <button type="button" class="md-valuesbtn" id="mdValuesBtn_${grpId}">🔢 ${CHIP_MON_SHOW_VALUES ? (currentLang==='en'?'Hide values':'ซ่อนค่า') : (currentLang==='en'?'Show values':'แสดงค่า')}</button>
         <span class="md-avgpick" id="mdAvgPick_${grpId}">
           <span class="md-avglbl">${currentLang==='en'?'Average':'ค่าเฉลี่ย'}</span>
           <select id="chipAvgMode_${grpId}">
@@ -14390,7 +14391,7 @@ function chipMonRenderDetail(grpId){
     <div class="md-target">
       <span class="lbl">${yAxisLbl}</span>
       <span class="fld">MIN <input type="number" step="any" id="chipYLo_${grpId}" value="${yScale.lo??''}" placeholder="auto"> ${yUnit}</span>
-      <span class="fld">MAX <input type="number" step="any" id="chipYHi_${grpId}" value="${yScale.hi??''}" placeholder="auto"> ${yUnit}</span>
+      <span class="fld">MAX <input type="number" step="any" id="chipYHi_${grpId}" value="${yScale.hi??''}" placeholder="auto"> ${yUnit}</span>${statSelHtml}
       <span class="note">ปรับ Scale แกน Y ของกราฟนี้ (เก็บไว้ในเบราว์เซอร์นี้ แยกตามโหมด Values / SD / %CV) · เว้นว่างไว้เพื่อใช้ค่าอัตโนมัติ${statMode==='sdcv' ? ' · ใช้กับแกนซ้าย (SD) แกนขวา (%CV) ปรับอัตโนมัติ' : ''}</span>
     </div>` : ''}
 
