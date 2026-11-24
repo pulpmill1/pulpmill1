@@ -583,6 +583,16 @@
   .md-title{font-size:15px;font-weight:800;color:var(--ink);}
   .md-title .u{color:var(--ink-2);font-weight:600;}
   .md-statpick{display:inline-flex;align-items:center;gap:5px;}
+  /* Values / SD / %CV / SD & %CV segmented pill — one rounded outline, thin dividers, filled active segment */
+  .md-seg{--seg-on:#3E6B57;--seg-on-ink:#fff;display:inline-flex;align-items:stretch;border:1px solid var(--border);border-radius:999px;overflow:hidden;background:var(--surface);}
+  .md-seg button{font:inherit;font-size:11px;font-weight:600;color:var(--ink-2);background:transparent;border:0;border-left:1px solid var(--border);padding:4px 12px;cursor:pointer;white-space:nowrap;line-height:1.35;}
+  .md-seg button:first-child{border-left:0;}
+  .md-seg button:hover:not(.on){background:var(--surface-2);color:var(--ink);}
+  .md-seg button.on{background:var(--seg-on);color:var(--seg-on-ink);font-weight:700;}
+  .md-seg button.on + button{border-left-color:transparent;}
+  .md-seg button:focus-visible{outline:2px solid var(--accent);outline-offset:-2px;}
+  @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .md-seg{--seg-on:#5E9C80;--seg-on-ink:#0f1a15;} }
+  :root[data-theme="dark"] .md-seg{--seg-on:#5E9C80;--seg-on-ink:#0f1a15;}
   .md-pills{margin-left:auto;display:flex;gap:6px;flex-wrap:wrap;min-width:0;max-width:100%;}
   .md-pill{font-size:10.5px;font-weight:600;color:var(--ink-2);background:var(--surface-2);border:1px solid var(--border);border-radius:20px;padding:4px 10px;}
   .md-range{font:inherit;font-size:10.5px;font-weight:600;color:var(--ink);background:var(--surface-2);border:1px solid var(--border);border-radius:20px;padding:4px 24px 4px 10px;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6'><path d='M0 0L5 6L10 0Z' fill='%2384949A'/></svg>");background-repeat:no-repeat;background-position:right 9px center;}
@@ -14211,13 +14221,10 @@ function chipMonRenderDetail(grpId){
   const EN_ = currentLang==='en';
   const statSelHtml = `
         <span class="md-statpick">
-          <span class="md-avglbl">${EN_?'Show':'แสดง'}</span>
-          <select class="md-range" id="chipStat_${grpId}">
-            <option value="values"${statMode==='values'?' selected':''}>Values</option>
-            <option value="sd"${statMode==='sd'?' selected':''}>SD</option>
-            <option value="cv"${statMode==='cv'?' selected':''}>%CV</option>
-            <option value="sdcv"${statMode==='sdcv'?' selected':''}>SD &amp; %CV</option>
-          </select>
+          <span class="md-seg" id="chipStat_${grpId}" role="group" aria-label="${EN_?'Show':'แสดง'}">${
+            [['values','Values'],['sd','SD'],['cv','%CV'],['sdcv','SD &amp; %CV']].map(([v,l])=>
+              `<button type="button" data-stat="${v}" class="${statMode===v?'on':''}" aria-pressed="${statMode===v}">${l}</button>`).join('')
+          }</span>
           <select class="md-range" id="chipStatBucket_${grpId}"${statMode==='values'?' hidden':''} title="${EN_?'Compute SD / %CV per':'คำนวณ SD / %CV ต่อ'}">
             <option value="day"${statBucket==='day'?' selected':''}>${EN_?'per day':'ต่อวัน'}</option>
             <option value="week"${statBucket==='week'?' selected':''}>${EN_?'per week':'ต่อสัปดาห์'}</option>
@@ -14366,9 +14373,13 @@ function chipMonRenderDetail(grpId){
     yLoEl.addEventListener('change', onYScale);
     yHiEl.addEventListener('change', onYScale);
   }
-  const statSel = document.getElementById('chipStat_'+grpId), bucketSel = document.getElementById('chipStatBucket_'+grpId);
-  statSel.addEventListener('change', ()=> { CHIP_MON_STAT[grpId] = {mode:statSel.value, bucket:(CHIP_MON_STAT[grpId]||{}).bucket||null}; chipMonRenderDetail(grpId); });
-  bucketSel.addEventListener('change', ()=> { CHIP_MON_STAT[grpId] = {mode:statSel.value, bucket:bucketSel.value}; chipMonRenderDetailBody(grpId, m, a, chipMonTarget(key)); });
+  const bucketSel = document.getElementById('chipStatBucket_'+grpId);
+  document.querySelectorAll('#chipStat_'+grpId+' button').forEach(b=> b.addEventListener('click', ()=> {
+    if(b.dataset.stat === statMode) return;
+    CHIP_MON_STAT[grpId] = {mode:b.dataset.stat, bucket:(CHIP_MON_STAT[grpId]||{}).bucket||null};
+    chipMonRenderDetail(grpId);
+  }));
+  bucketSel.addEventListener('change', ()=> { CHIP_MON_STAT[grpId] = {mode:statMode, bucket:bucketSel.value}; chipMonRenderDetailBody(grpId, m, a, chipMonTarget(key)); });
   rpkWire('chipRange_'+grpId, CHIP_MON_RANGE[grpId], (next)=>{ CHIP_MON_RANGE[grpId] = next; chipMonRenderDetail(grpId); });
   panel.querySelectorAll('.md-viewbtn').forEach(b=> b.addEventListener('click', ()=>{ CHIP_MON_VIEW[grpId] = b.dataset.view; chipMonRenderDetailBody(grpId, m, a, chipMonTarget(key)); }));
   initChipMonAvgPick(grpId, key, m);
