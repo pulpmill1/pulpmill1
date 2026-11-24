@@ -375,11 +375,38 @@
      reuses its inner part classes so all the same idle animations (sway, breathe, blink, gaze,
      cheek/mouth pulse) apply automatically, but NOT the .dash-mascot class itself, so none of the
      run-cycle or gesture rules (which only key off [data-action="..."] on that class) ever
-     trigger: this one just stands and breathes beside the page title, exactly as asked ("no need
-     for it to run"). It also skips position:fixed entirely, sitting in the toolbar's own normal
+     trigger: this one never runs, it stays beside the page title and plays its own in-place
+     gestures (the .tb-title-mascot[data-action] rules below). It also skips position:fixed entirely, sitting in the toolbar's own normal
      flex flow instead of floating over the page. */
-  .tb-title-mascot{flex:0 0 auto; width:28px;}
+  .tb-title-mascot{flex:0 0 auto; width:34px; margin:-8px 0 -6px; position:relative;}
   .tb-title-mascot svg{display:block; width:100%; height:auto; overflow:visible;}
+  /* In-place gestures for the toolbar mascot -- initToolbarMascot() sets data-action on
+     .tb-title-mascot, cycling smile / blink / wave / raiseLeft / raiseRight / dance with short idle
+     pauses between them (the idle sway / breathe / blink / gaze keep running underneath). It never
+     leaves its spot. "Left" / "right" are as seen on screen. */
+  .tb-title-mascot[data-action="smile"] .dash-mascot-mouth{animation:dmSmileMouth 2s ease-in-out 1;}
+  .tb-title-mascot[data-action="smile"] .dash-mascot-cheek{animation:dmSmileCheek 2s ease-in-out 1;}
+  .tb-title-mascot[data-action="smile"] .dash-mascot-lid{animation:dmSmileLid 2s ease-in-out 1;}
+  .tb-title-mascot[data-action="blink"] .dash-mascot-lid{animation:dmBlinkTwice 1.1s ease-in-out 1;}
+  .tb-title-mascot[data-action="wave"] .dash-mascot-arm-left{animation:dmWave 0.7s ease-in-out 3;}
+  .tb-title-mascot[data-action="raiseLeft"] .dash-mascot-arm-left{animation:dmRaiseTwoLeft 2s ease-in-out 1;}
+  .tb-title-mascot[data-action="raiseRight"] .dash-mascot-arm-right{animation:dmRaiseOne 2s ease-in-out 1;}
+  .tb-title-mascot[data-action="dance"] .dash-mascot-upper{animation:dmDanceBody 0.6s ease-in-out 4;}
+  .tb-title-mascot[data-action="dance"] .dash-mascot-breathe{animation:dmRunBounce 0.3s ease-in-out 8;}
+  .tb-title-mascot[data-action="dance"] .dash-mascot-leg{animation:dmDanceLeg 0.6s ease-in-out 4;}
+  .tb-title-mascot[data-action="dance"] .dash-mascot-leg-r{animation-delay:-0.3s;}
+  .tb-title-mascot[data-action="dance"] .dash-mascot-arm-left{animation:dmDanceArmL 0.6s ease-in-out 4;}
+  .tb-title-mascot[data-action="dance"] .dash-mascot-arm-right{animation:dmDanceArmR 0.6s ease-in-out 4;}
+  .tb-title-mascot[data-action="dance"] .dash-mascot-mouth{animation:dmSmileMouth 2.4s ease-in-out 1;}
+  @keyframes dmSmileMouth{ 0%,100%{transform:scaleY(1) scaleX(1);} 20%,80%{transform:scaleY(1.35) scaleX(1.08);} }
+  @keyframes dmSmileCheek{ 0%,100%{opacity:.55;} 20%,80%{opacity:.95;} }
+  @keyframes dmSmileLid{ 0%,100%{transform:scaleY(0);} 20%,80%{transform:scaleY(.38);} }
+  @keyframes dmBlinkTwice{ 0%,100%{transform:scaleY(0);} 12%,22%{transform:scaleY(1);} 34%,52%{transform:scaleY(0);} 64%,74%{transform:scaleY(1);} 86%{transform:scaleY(0);} }
+  @keyframes dmDanceBody{ 0%,100%{transform:rotate(-8deg);} 50%{transform:rotate(8deg);} }
+  @keyframes dmDanceLeg{ 0%,100%{transform:rotate(-14deg);} 50%{transform:rotate(14deg);} }
+  @keyframes dmDanceArmL{ 0%,100%{transform:rotate(-4deg);} 50%{transform:rotate(-50deg);} }
+  @keyframes dmDanceArmR{ 0%,100%{transform:rotate(-70deg);} 50%{transform:rotate(-3deg);} }
+  @media (prefers-reduced-motion:reduce){ .tb-title-mascot *{animation:none!important;} }
   .tb-title-sub .dot{width:5px; height:5px; border-radius:50%; background:var(--good); display:inline-block; margin-right:5px;}
   .tb-live-badge{display:inline-flex; align-items:center; gap:4px; background:rgba(0,169,39,.14); color:#0a8a26;
     font-weight:800; font-size:9px; letter-spacing:.05em; padding:2px 7px 2px 6px; border-radius:20px; margin-right:7px; vertical-align:middle;}
@@ -3622,6 +3649,29 @@ function initDashMascot(){
   runTo(pickTarget());
 }
 initDashMascot();
+/* Toolbar mascot beside the page title: stays in place and every few seconds performs one random
+   gesture (CSS rules keyed off .tb-title-mascot[data-action]), never the same one twice in a row,
+   with a short idle pause between gestures. */
+function initToolbarMascot(){
+  const el = document.querySelector('.tb-title-mascot');
+  if(!el) return;
+  if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const HOLD_MS = { smile:2000, blink:1100, wave:2100, raiseLeft:2000, raiseRight:2000, dance:2400 };
+  const ACTIONS = Object.keys(HOLD_MS);
+  let last = null;
+  function next(){
+    let g;
+    do { g = ACTIONS[Math.floor(Math.random()*ACTIONS.length)]; } while(g === last);
+    last = g;
+    el.dataset.action = g;
+    setTimeout(()=> {
+      delete el.dataset.action;
+      setTimeout(next, 1200 + Math.random()*1800);
+    }, HOLD_MS[g]);
+  }
+  setTimeout(next, 1500);
+}
+initToolbarMascot();
 /* Mobile off-canvas sidebar drawer (see the max-width:760px rules above .main/.shell) -- the
    sidebar/overlay/toggle button all exist in the DOM at every width, this just drives the
    .sb-open class that the CSS keys off of. Runs unconditionally at script-eval time (not inside
