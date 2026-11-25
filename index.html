@@ -3789,8 +3789,12 @@ function sheetDaysInMonth(y, mi){ return mi===1 && sheetIsLeapYear(y) ? 29 : DAY
 function parseDailySheet(rows, opts){
   // row 5+ (index 4+), col A = date "D/M/YYYY" (source sheet is day-first, verified against
   // raw values e.g. "31/8/2026" which is only valid as 31 Aug — NOT "M/D/YYYY"), col B = value
+  // The tab can hold several years (e.g. "Daily (Act)" now runs 2024 → 2027, with the future
+  // year's rows still blank), so the dashboard's year is the year of the LATEST row that actually
+  // has a value — not the first date row, which would pin the page to the oldest year and leave
+  // it without that year's Budget/Plan (transparent bars, no target/budget lines).
   const numeric = opts.numeric;
-  let year = null;
+  let firstYear = null, lastFilledYear = null;
   const entries = [];
   for(let i=4; i<rows.length; i++){
     const r = rows[i];
@@ -3798,14 +3802,15 @@ function parseDailySheet(rows, opts){
     const m = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(String(r[0]).trim());
     if(!m) continue;
     const d = +m[1], mi = (+m[2]) - 1, y = +m[3];
-    if(year == null) year = y;
+    if(firstYear == null) firstYear = y;
     const raw = r[1];
     let val;
     if(numeric){ val = parseSheetNum(raw); }
     else { val = (raw==null || raw==='') ? '' : String(raw).replace(/\r\n/g,'\n'); }
+    if(numeric ? (val!=null && val!==0) : val!=='') lastFilledYear = y;
     entries.push({mi, d, y, val});
   }
-  return { year, entries };
+  return { year: lastFilledYear ?? firstYear, entries };
 }
 function buildMonthArrays(entries, year, fillEmpty){
   const arr = DAYS_IN_MONTH.map((_,mi)=> Array(sheetDaysInMonth(year,mi)).fill(fillEmpty));
