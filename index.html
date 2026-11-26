@@ -7,6 +7,7 @@
     --bg:#F2F5F6; --surface:#FFFFFF; --surface-2:#EAF0F1; --border:#DBE3E5;
     --ink:#122226; --ink-2:#51636A; --ink-3:#84949A;
     --accent:#0E7C86; --accent-ink:#075A62; --accent-soft:#E1F0F1;
+    --limit-line:#4A4A4A;  /* Target Low / High reference lines */
     --grid:#E6ECED; --box-border:#999999;
     --shadow:0 1px 2px rgba(18,34,38,.06), 0 8px 22px rgba(18,34,38,.05);
     --good:#0B7A28; --good-soft:#E4F5E8;
@@ -25,6 +26,7 @@
       --bg:#0D1416; --surface:#141C1F; --surface-2:#1A2326; --border:#293438;
       --ink:#E8EEF0; --ink-2:#A7B5B9; --ink-3:#748387;
       --accent:#3BCBD6; --accent-ink:#8CE3EA; --accent-soft:rgba(59,203,214,.14);
+      --limit-line:#B4BABD;
       --grid:#263134; --box-border:#8A8A8A;
       --shadow:0 1px 2px rgba(0,0,0,.35), 0 10px 26px rgba(0,0,0,.4);
       --good:#4ADE80; --good-soft:rgba(74,222,128,.14);
@@ -35,6 +37,7 @@
     --bg:#0D1416; --surface:#141C1F; --surface-2:#1A2326; --border:#293438;
     --ink:#E8EEF0; --ink-2:#A7B5B9; --ink-3:#748387;
     --accent:#3BCBD6; --accent-ink:#8CE3EA; --accent-soft:rgba(59,203,214,.14);
+    --limit-line:#B4BABD;
     --grid:#263134; --box-border:#8A8A8A;
     --shadow:0 1px 2px rgba(0,0,0,.35), 0 10px 26px rgba(0,0,0,.4);
     --good:#4ADE80; --good-soft:rgba(74,222,128,.14);
@@ -9693,8 +9696,8 @@ let CHIP_MON_SHOW_VALUES = true;
    'sd' (STDEV per bucket, bars), 'cv' (%CV = SD / Average × 100 per bucket, bars), or 'sdcv' (SD bars
    on the left axis + %CV line on the right axis). bucket = 'day' | 'week' | 'month' | null (auto). */
 const CHIP_MON_STAT = {};
-// Target Low / High share one colour and each carries its own "Low x" / "High y" label on the chart.
-const CHIP_MON_LIMIT_COL = '#d4342c';
+// Target Low / High share one dark-grey colour (--limit-line) and each carries its own "Low x" / "High y" label on the chart.
+function chipMonLimitCol(){ return cssVar('--limit-line') || '#4A4A4A'; }
 const chipMonLimitLabelPlugin = {
   id:'chipMonLimitLabel',
   afterDatasetsDraw(chart){
@@ -15524,8 +15527,8 @@ function chipMonDrawDetailChart(grpId, m, a, tgt){
     borderWidth:1.8, pointRadius:2, pointBackgroundColor:pairCol, tension:.25, fill:false, spanGaps:true, order:1, datalabels:yieldExtraLabels });
   // Low and High limits share one colour; chipMonLimitLabelPlugin writes "Low x" / "High y" at the
   // left end of each line, just above it.
-  if(tgt.lo!=null) refs.push(Object.assign(flat(tgt.lo, CHIP_MON_LIMIT_COL, `Target Low ${tgt.lo}`), {_limitLabel:`Low ${tgt.lo}`, _limitValue:tgt.lo}));
-  if(tgt.hi!=null) refs.push(Object.assign(flat(tgt.hi, CHIP_MON_LIMIT_COL, `Target High ${tgt.hi}`), {_limitLabel:`High ${tgt.hi}`, _limitValue:tgt.hi}));
+  if(tgt.lo!=null) refs.push(Object.assign(flat(tgt.lo, chipMonLimitCol(), `Target Low ${tgt.lo}`), {_limitLabel:`Low ${tgt.lo}`, _limitValue:tgt.lo}));
+  if(tgt.hi!=null) refs.push(Object.assign(flat(tgt.hi, chipMonLimitCol(), `Target High ${tgt.hi}`), {_limitLabel:`High ${tgt.hi}`, _limitValue:tgt.hi}));
 
   const allVals = yieldExtra ? vals.concat(yieldExtra) : vals;
   const scaleVals = allVals.concat(refs.flatMap(r=> r.data)).filter(v=> v!=null);
@@ -15592,8 +15595,8 @@ function chipMonDrawDetailChart(grpId, m, a, tgt){
   if(leg){
     const items = [`<span class="item"><span class="box" style="background:${grp.rail}"></span>${actualLbl}</span>`];
     if(yieldExtra) items.push(`<span class="item"><span class="box" style="background:${pairCol}"></span>${pairLbl}</span>`);
-    if(tgt.lo!=null) items.push(`<span class="item"><span class="sw dashed" style="border-color:${CHIP_MON_LIMIT_COL}"></span>Target Low ${tgt.lo}</span>`);
-    if(tgt.hi!=null) items.push(`<span class="item"><span class="sw dashed" style="border-color:${CHIP_MON_LIMIT_COL}"></span>Target High ${tgt.hi}</span>`);
+    if(tgt.lo!=null) items.push(`<span class="item"><span class="sw dashed" style="border-color:${chipMonLimitCol()}"></span>Target Low ${tgt.lo}</span>`);
+    if(tgt.hi!=null) items.push(`<span class="item"><span class="sw dashed" style="border-color:${chipMonLimitCol()}"></span>Target High ${tgt.hi}</span>`);
     leg.innerHTML = items.join('');
   }
 }
@@ -16204,8 +16207,8 @@ function wsdDrawChart(metric, dig, rows, tgt, alertSet){
   const flat = (v,col,lab)=> ({ type:'line', label:lab, data:labels.map(()=> v), borderColor:col, borderWidth:1.6,
     borderDash:[7,3], pointRadius:0, fill:false, tension:0, order:5, datalabels:{display:false} });
   const refs = [];
-  if(tgt.lo!=null) refs.push(flat(tgt.lo, '#12a150', 'Target Low '+tgt.lo));
-  if(tgt.hi!=null) refs.push(flat(tgt.hi, '#d4342c', 'Target High '+tgt.hi));
+  if(tgt.lo!=null) refs.push(flat(tgt.lo, chipMonLimitCol(), 'Target Low '+tgt.lo));
+  if(tgt.hi!=null) refs.push(flat(tgt.hi, chipMonLimitCol(), 'Target High '+tgt.hi));
   const allVals = vals.concat(refs.flatMap(r=> r.data)).filter(v=> v!=null);
   let lo = allVals.length ? Math.min(...allVals) : -10, hi = allVals.length ? Math.max(...allVals) : 10;
   const pad = (hi-lo)*0.18 || 2;
@@ -16243,8 +16246,8 @@ function wsdDrawChart(metric, dig, rows, tgt, alertSet){
   const leg = document.getElementById('wsdLegend_'+metric.id);
   if(leg){
     const items = ['<span class="item"><span class="box" style="background:#0A2E55"></span>'+metric.th+'</span>'];
-    items.push('<span class="item"><span class="sw dashed" style="border-color:#12a150"></span>Target Low '+tgt.lo+'</span>');
-    items.push('<span class="item"><span class="sw dashed" style="border-color:#d4342c"></span>Target High '+tgt.hi+'</span>');
+    items.push('<span class="item"><span class="sw dashed" style="border-color:'+chipMonLimitCol()+'"></span>Target Low '+tgt.lo+'</span>');
+    items.push('<span class="item"><span class="sw dashed" style="border-color:'+chipMonLimitCol()+'"></span>Target High '+tgt.hi+'</span>');
     if(alertIdx.length) items.push('<span class="item"><span class="box" style="background:#d4342c"></span>'+alertIdx.length+' จุดนอกเป้าต่อเนื่อง ≥3 batch (กระพริบ)</span>');
     leg.innerHTML = items.join('');
   }
