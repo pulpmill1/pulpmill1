@@ -3856,6 +3856,32 @@ function openSidebarDrawer(){
 /* initial page render happens at the bottom of this script, after the
    header-toolbar (i18n / search / export) definitions exist */
 
+/* ---- Auto-refresh when the Google Sheet changes ----
+   Each tab's CSV text is fingerprinted (length + FNV-1a hash) as boot() loads it. While the page
+   stays open, initSheetAutoRefresh() below re-downloads the frequently-updated tabs every few
+   minutes; if any fingerprint differs, the dashboard reloads itself (all data is built once at
+   boot, so a reload is the one reliable way to rebuild every page), then reopens the same page at
+   the same scroll position. */
+window.__pm1SheetSig = {};
+function sheetTextSig(text){
+  let h = 0x811c9dc5;
+  for(let i = 0; i < text.length; i++){ h ^= text.charCodeAt(i); h = Math.imul(h, 0x01000193); }
+  return text.length + ':' + (h >>> 0).toString(16);
+}
+function sheetRefreshToast(msg, ms){
+  let el = document.getElementById('sheetRefreshToast');
+  if(!el){
+    el = document.createElement('div'); el.id = 'sheetRefreshToast'; el.setAttribute('role', 'status');
+    el.style.cssText = 'position:fixed;right:18px;bottom:18px;z-index:9000;max-width:340px;padding:10px 14px;border-radius:10px;'
+      + 'background:var(--surface,#fff);color:var(--ink,#122226);border:1px solid var(--border,#dde3e5);box-shadow:0 8px 24px rgba(0,0,0,.18);'
+      + 'font-size:12.5px;line-height:1.5;transition:opacity .3s;';
+    document.body.appendChild(el);
+  }
+  el.textContent = msg; el.style.opacity = '1';
+  clearTimeout(el._t);
+  if(ms) el._t = setTimeout(()=> { el.style.opacity = '0'; }, ms);
+}
+const SHEET_RESUME_KEY = 'pm1_autorefresh_resume';
 async function boot(){
 try{
 /* ===================== DATA (live-fetched from Google Sheets "Data Base Fiberline 1") ===================== */
@@ -3870,6 +3896,7 @@ const DAYS_IN_MONTH = [31,28,31,30,31,30,31,31,30,31,30,31];
 const SHEET_ID = '1dStWwliEd6YhSOL3oT8JNyWHZOuII5F-QVeubIrBS50';
 const SHEET_GIDS = { dailyAct:0, dailyBg:1682718600, dailyPlan:3664159, dailyLoss:786133815, monthlyAct:1448795576, monthlyBudget:1872828527, chipWood:632351488, cookingCond:1561629878, weightScaleDig:1177773637, cookingLog:937055806, brownStock:1668226684, bleaching:1596215251, morningLog:1162647187, qcLabFl1:1353468044, dataAnalysis:530791002 };
 function sheetCsvUrl(gid){ return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${gid}`; }
+window.__pm1Sheet = { gids:SHEET_GIDS, url:sheetCsvUrl };   // for initSheetAutoRefresh (outside boot)
 
 // robust CSV parser: handles quoted fields, embedded commas, embedded newlines, doubled-quote escaping
 function parseSheetCSV(text){
@@ -3905,6 +3932,7 @@ function parseSheetNum(s){
 async function fetchSheetCsv(gid){
   const res = await fetch(sheetCsvUrl(gid));
   const text = await res.text();
+  window.__pm1SheetSig[gid] = sheetTextSig(text);   // fingerprint for the auto-refresh check
   return parseSheetCSV(text);
 }
 /* Shared KPI Target (Low/High) values, saved by anyone via the Save button on a KPI Card's
@@ -17768,7 +17796,16 @@ if(moreNotifBtnEl2) moreNotifBtnEl2.addEventListener('click', ()=>{ const mm = d
 })();
 
 applyLang(currentLang);
-showPage('production-pm1');
+let resume = null;
+try{ resume = JSON.parse(sessionStorage.getItem(SHEET_RESUME_KEY) || 'null'); sessionStorage.removeItem(SHEET_RESUME_KEY); }catch(e){}
+if(resume && Date.now() - resume.t < 3*60*1000 && document.querySelector('.page[data-page="'+resume.page+'"]')){
+  showPage(resume.page);
+  requestAnimationFrame(()=> requestAnimationFrame(()=> window.scrollTo(0, resume.y || 0)));
+  const now = new Date();
+  sheetRefreshToast('อัปเดตข้อมูลล่าสุดจาก Google Sheets แล้ว (' + String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0') + ' น.)', 5000);
+} else {
+  showPage('production-pm1');
+}
 }catch(err){
   console.error('Dashboard data load error', err);
   const overlay = document.getElementById('dashLoadingOverlay');
@@ -17778,6 +17815,46 @@ showPage('production-pm1');
 }
 }
 boot();
+(function initSheetAutoRefresh(){
+  const POLL_MS = 5 * 60 * 1000;           // check every 5 minutes while the page is open
+  const IDLE_MS = 20 * 1000;               // don't reload while someone is typing / just interacted
+  // tabs that change during the day (hourly logsheets, lab results, daily data)
+  const WATCH = ['dailyAct', 'cookingLog', 'brownStock', 'bleaching', 'qcLabFl1', 'morningLog', 'dataAnalysis'];
+  let lastCheck = Date.now(), lastInput = Date.now(), checking = false, pending = false;
+  ['keydown', 'input', 'pointerdown', 'wheel'].forEach(ev=> document.addEventListener(ev, ()=> { lastInput = Date.now(); }, {passive:true, capture:true}));
+  const busy = ()=> {
+    const a = document.activeElement;
+    return (a && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)) || Date.now() - lastInput < IDLE_MS;
+  };
+  function reloadWhenIdle(){
+    if(busy()){ setTimeout(reloadWhenIdle, 5000); return; }
+    try{ sessionStorage.setItem(SHEET_RESUME_KEY, JSON.stringify({ page:currentPageId, y:window.scrollY, t:Date.now() })); }catch(e){}
+    location.reload();
+  }
+  async function check(){
+    const sig = window.__pm1SheetSig, sh = window.__pm1Sheet;
+    if(checking || pending || document.hidden || !sh || !sig || !Object.keys(sig).length) return;   // boot not finished yet
+    checking = true; lastCheck = Date.now();
+    try{
+      for(const name of WATCH){
+        const gid = sh.gids[name];
+        if(gid == null || sig[gid] == null) continue;
+        const res = await fetch(sh.url(gid) + '&_=' + Date.now(), {cache:'no-store'});
+        if(!res.ok) continue;
+        if(sheetTextSig(await res.text()) !== sig[gid]){
+          pending = true;
+          sheetRefreshToast('ข้อมูลใน Google Sheets มีการอัปเดต — กำลังโหลดข้อมูลใหม่…');
+          setTimeout(reloadWhenIdle, 1500);
+          return;
+        }
+      }
+    }catch(e){ /* offline / Google hiccup: try again next round */ }
+    finally{ checking = false; }
+  }
+  setInterval(check, POLL_MS);
+  // a tab left in the background skips checks; catch up as soon as it's looked at again
+  document.addEventListener('visibilitychange', ()=> { if(!document.hidden && Date.now() - lastCheck > POLL_MS) check(); });
+})();
 </script>
 
 </body></html>
