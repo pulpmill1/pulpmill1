@@ -706,6 +706,41 @@
      source sheet, reusing the same tokens/visual language as .ya-table but without the collapsible
      major/sub row nesting (there's no sub-breakdown here, just one averaged row per bin). */
   .hft-head{margin-bottom:4px;}
+  /* OPT Tuning > Control Consist St. pipe (Dilution Flow Calculator, screw conveyor 431C001) */
+  section[data-page="opt-consist-stpipe"] .hft-head p{max-width:none;}
+  .csp-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);gap:14px;margin:14px 0;}
+  @media (max-width:900px){ .csp-grid{grid-template-columns:1fr;} }
+  .csp-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px;box-shadow:var(--shadow);margin-bottom:14px;}
+  .csp-grid .csp-card{margin-bottom:0;}
+  .csp-fields{display:flex;flex-direction:column;gap:9px;}
+  .csp-fld{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:12.5px;color:var(--ink-2);}
+  .csp-lbl{font-weight:600;}
+  .csp-in{display:inline-flex;align-items:center;gap:6px;}
+  .csp-in input{font:inherit;font-family:"IBM Plex Mono",monospace;font-size:13px;width:96px;text-align:right;color:var(--ink);background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:5px 8px;}
+  .csp-in input:focus-visible{outline:2px solid var(--accent);outline-offset:1px;}
+  .csp-u{font-size:11px;color:var(--ink-3);min-width:40px;}
+  .csp-src{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:10.5px;color:var(--ink-3);margin:-3px 0 2px;}
+  .csp-err{margin-top:10px;font-size:12px;font-weight:700;color:#d4342c;}
+  .csp-tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;}
+  .csp-hero{grid-column:1 / -1;background:var(--accent-soft);border-color:var(--accent-soft);}
+  .csp-hero .t-val{font-size:26px;color:var(--accent-ink);}
+  .csp-tune-row{display:flex;align-items:center;gap:18px;flex-wrap:wrap;}
+  .csp-tune-row .csp-fld{flex:0 0 auto;}
+  .csp-tune-out{flex:1 1 320px;font-size:12.5px;color:var(--ink-2);line-height:1.7;}
+  .csp-tune-out b{color:var(--ink);font-family:"IBM Plex Mono",monospace;}
+  .csp-tune-out .up{color:#0E7C86;font-weight:700;} .csp-tune-out .down{color:#B25C00;font-weight:700;}
+  .csp-chart-wrap{position:relative;height:340px;}
+  .csp-tbl-sub{font-weight:500;color:var(--ink-3);font-size:11px;}
+  .csp-tbl-wrap{max-height:60vh;}
+  table.csp-table{width:100%;border-collapse:collapse;font-size:12px;}
+  table.csp-table thead{position:sticky;top:0;z-index:2;}
+  table.csp-table th{background:var(--accent-soft);color:var(--accent-ink);font-size:10.5px;font-weight:700;padding:7px 8px;border:1px solid var(--border);text-align:center;line-height:1.35;}
+  table.csp-table td{padding:6px 10px;border:1px solid var(--border);text-align:right;font-family:"IBM Plex Mono",monospace;color:var(--ink-2);white-space:nowrap;}
+  table.csp-table td.csp-prodcell{font-weight:700;color:var(--ink);}
+  table.csp-table tr.csp-hit td{background:rgba(14,124,134,.08);}
+  table.csp-table td.csp-col-hit{background:rgba(14,124,134,.10);color:var(--ink);font-weight:700;}
+  table.csp-table tr.csp-hit td.csp-col-hit{background:var(--accent);color:#fff;}
+  table.csp-table tr.csp-grp td{border-top:2px solid var(--border);}
   .hft-head h2{margin:0 0 4px;font-size:18px;color:var(--ink);}
   .hft-head p{margin:0;color:var(--ink-2);font-size:12.5px;max-width:72ch;}
   /* These pages' own descriptions read better using the full available width on a desktop screen
@@ -1301,6 +1336,7 @@
         <div class="nav-children">
           <button class="nav-item" data-page="opt-fix-ea-charge"><span class="nav-label" data-i18n-nav="navOptFixEaCharge">Res. Acc (Fix Ton EA)</span></button>
           <button class="nav-item" data-page="h-factor-tuning"><span class="nav-label" data-i18n-nav="navHFactorTuning">Set point H Factor</span></button>
+          <button class="nav-item" data-page="opt-consist-stpipe"><span class="nav-label" data-i18n-nav="navOptConsistStpipe">Control Consist St. pipe</span></button>
         </div>
       </div>
       <button class="nav-item" data-page="data-analysis"><span style="display:flex; align-items:center; min-width:0;"><span class="nav-ico">📊</span><span class="nav-label" data-i18n-nav="navDataAnalysis">Data for analysis</span></span></button>
@@ -2937,6 +2973,61 @@
             <div class="hft-note hft-reco-box" id="hftRecoBox"></div>
           </details>
         </section>
+        <section class="page" data-page="opt-consist-stpipe" hidden>
+          <div class="hft-head">
+            <h2>Control Consist St. pipe</h2>
+            <p>Dilution Flow Calculator — คำนวณ Dilution flow (FC 031) ที่ต้องเติมใน Screw conveyor 431C001 เพื่อควบคุม Consistency ของเยื่อหลัง Conveyor ที่ลง Stand pipe ให้ได้ตามเป้า จาก Production และ Consistency หลัง Wash press · Model สร้างจากตาราง "Dilution in screw conveyor, 431C001" (Sunds Defibrator) และให้ค่าตรงกับตารางทุกช่อง</p>
+          </div>
+
+          <div class="csp-grid">
+            <div class="csp-card">
+              <div class="sens-dash-h"><span class="sq"></span>ข้อมูลนำเข้า (Input)</div>
+              <div class="csp-fields">
+                <label class="csp-fld"><span class="csp-lbl">Production</span><span class="csp-in"><input type="number" id="cspProd" step="1" min="0"><span class="csp-u">t/d AD</span></span></label>
+                <div class="csp-src"><button type="button" class="md-viewbtn" id="cspProdLatestBtn">ใช้ Production ล่าสุด</button><span id="cspProdSrc"></span></div>
+                <label class="csp-fld"><span class="csp-lbl">Consistency after wash press</span><span class="csp-in"><input type="number" id="cspCin" step="0.1" min="0" max="100"><span class="csp-u">%</span></span></label>
+                <label class="csp-fld"><span class="csp-lbl">Target consistency after conveyor (St. pipe)</span><span class="csp-in"><input type="number" id="cspCt" step="0.1" min="0" max="100"><span class="csp-u">%</span></span></label>
+                <label class="csp-fld"><span class="csp-lbl">Dryness ของเยื่อ AD</span><span class="csp-in"><input type="number" id="cspDry" step="0.1" min="0" max="100"><span class="csp-u">%</span></span></label>
+              </div>
+              <div class="csp-err" id="cspErr" hidden></div>
+            </div>
+            <div class="csp-card">
+              <div class="sens-dash-h"><span class="sq"></span>ผลการคำนวณ</div>
+              <div class="csp-tiles">
+                <div class="sens-tile csp-hero"><div class="t-lbl">Dilution flow FC 031 (Set point)</div><div class="t-val" id="cspFlow">—</div><div class="t-sub" id="cspFlowM3h"></div></div>
+                <div class="sens-tile"><div class="t-lbl">Production BD</div><div class="t-val" id="cspBdTh">—</div><div class="t-sub" id="cspBdKgs"></div></div>
+                <div class="sens-tile"><div class="t-lbl">น้ำในเยื่อ หลัง Wash press → หลัง Conveyor</div><div class="t-val" id="cspWater">—</div><div class="t-sub">kg/s (น้ำ 1 kg = 1 l)</div></div>
+                <div class="sens-tile"><div class="t-lbl">ความไวของ Consistency</div><div class="t-val" id="cspSens">—</div><div class="t-sub" id="cspSensSub"></div></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="csp-card csp-tune">
+            <div class="sens-dash-h"><span class="sq"></span>ปรับจูนจากค่าที่เดินจริง</div>
+            <div class="csp-tune-row">
+              <label class="csp-fld"><span class="csp-lbl">Dilution flow FC 031 ที่เดินอยู่</span><span class="csp-in"><input type="number" id="cspActFlow" step="0.1" min="0" placeholder="—"><span class="csp-u">l/s</span></span></label>
+              <div class="csp-tune-out" id="cspTuneOut">ใส่ค่า FC 031 ที่เดินอยู่ เพื่อดู Consistency ที่คาดว่าจะได้ และต้องปรับ Flow เท่าไรให้ถึงเป้า</div>
+            </div>
+          </div>
+
+          <div class="hft-note">
+            <b>Model:</b> Production BD (t/h) = Production (t/d AD) × Dryness ÷ 24 · Production BD (kg/s) = t/h ÷ 3.6<br>
+            <b>Dilution flow FC 031 (l/s)</b> = BD (kg/s) × (100 ÷ Consistency หลัง Conveyor − 100 ÷ Consistency หลัง Wash press)<br>
+            <b>Consistency ที่คาดว่าจะได้ (%)</b> = 100 ÷ (FC 031 ÷ BD (kg/s) + 100 ÷ Consistency หลัง Wash press)<br>
+            สมมติฐาน: เป็น Mass balance ของน้ำล้วน ๆ (น้ำเติม 1 l = 1 kg, ไม่มีเยื่อหายระหว่างทาง) · Dryness AD = 90% ตามมาตรฐาน Air-dry ซึ่งทำให้ได้ค่าตรงกับตาราง Sunds Defibrator ทุกช่อง (เช่น 600 t/d, 32% → 10% = 42.97 l/s)
+          </div>
+
+          <div class="csp-card">
+            <div class="sens-dash-h"><span class="sq"></span>Dilution flow เทียบ Production ที่ Consistency หลัง Conveyor ต่าง ๆ</div>
+            <div class="csp-chart-wrap"><canvas id="cspChart"></canvas></div>
+            <div class="legend-row" id="cspLegend"></div>
+          </div>
+
+          <div class="csp-card">
+            <div class="sens-dash-h"><span class="sq"></span>ตาราง Dilution flow FC 031 (l/s) <span class="csp-tbl-sub" id="cspTblSub"></span></div>
+            <div class="hft-wrap csp-tbl-wrap"><table class="csp-table" id="cspTable"></table></div>
+          </div>
+        </section>
         <section class="page" data-page="opt-fix-ea-charge" hidden>
           <div class="fea-flow" id="feaFlowDiagram">
             <div class="fea-title-bar">แนวทางการ Control Residual Alkaline Acc. กรณีใช้วิธีการ Fix Ton EA Charge<div class="fea-title-sub">เพื่อควบคุม Residual Alkaline Acc. ให้ได้ตามเป้าหมาย ด้วยวิธีการปรับแบบ Fix Ton EA Charge</div></div>
@@ -3583,6 +3674,9 @@ function showPage(pageId){
      dashboard), while its page is still hidden — Chart.js lays the canvas out at 0x0 then and never
      recovers on its own once the page becomes visible. Re-rendering it on every navigation here
      (after layout has settled, hence the rAF) is cheap and sidesteps that entirely. */
+  if(pageId === 'opt-consist-stpipe' && typeof window.cspRender === 'function'){
+    requestAnimationFrame(()=> window.cspRender());
+  }
   if(pageId === 'cost-sensitivity' && typeof sensRenderChart === 'function'){
     requestAnimationFrame(()=> sensRenderChart());
   }
@@ -6461,6 +6555,7 @@ const PAGE_META = {
   'yield-weightscale':{th:'Weight scale digester', en:'Weight scale digester', hasData:false},
   'h-factor-tuning':{th:'Set point H Factor', en:'Set point H Factor', hasData:true},
   'opt-fix-ea-charge':{th:'Res. Acc (Fix Ton EA)', en:'Res. Acc (Fix Ton EA)', hasData:true},
+  'opt-consist-stpipe':{th:'Control Consist St. pipe', en:'Control Consist St. pipe', hasData:true},
   'data-analysis':{th:'Data for analysis', en:'Data for analysis', hasData:true},
   'cost-sensitivity':{th:'Sensitivity', en:'Sensitivity', hasData:true},
   'process-rawmaterial':{th:'Raw material', en:'Raw material', hasData:false},
@@ -6472,7 +6567,7 @@ const PAGE_META = {
 
 const I18N = {
   th:{
-    navProduction:'Production', navProductionPm1:'Pulp mill 1', navProductionPm2:'Pulp mill 2', navProductionPm12:'Pulp mill 1+2', navYield:'Yield', navYieldWeightScale:'Weight scale digester', navCostSensitivity:'Sensitivity', navOptTuning:'OPT Tuning', navHFactorTuning:'Set point H Factor', navOptFixEaCharge:'Res. Acc (Fix Ton EA)', navDataAnalysis:'Data for analysis',
+    navProduction:'Production', navProductionPm1:'Pulp mill 1', navProductionPm2:'Pulp mill 2', navProductionPm12:'Pulp mill 1+2', navYield:'Yield', navYieldWeightScale:'Weight scale digester', navCostSensitivity:'Sensitivity', navOptTuning:'OPT Tuning', navHFactorTuning:'Set point H Factor', navOptConsistStpipe:'Control Consist St. pipe', navOptFixEaCharge:'Res. Acc (Fix Ton EA)', navDataAnalysis:'Data for analysis',
     navProcessArea:'Process area', navProcessRawMaterial:'Raw material', navProcessCooking:'Cooking', navProcessBrownStock:'Brown stock', navProcessBleaching:'Bleaching', navProcessDailyData:'Daily data',
     searchPlaceholder:'ค้นหา KPI (Search metrics)',
     lastDataAt:'ข้อมูลล่าสุด ณ', noDataYet:'ยังไม่เชื่อมต่อแหล่งข้อมูล',
@@ -6488,7 +6583,7 @@ const I18N = {
     avg7Label:'ค่าเฉลี่ย 7 วันย้อนหลัง (Adt/day)', daysUnit:'วัน',
   },
   en:{
-    navProduction:'Production', navProductionPm1:'Pulp mill 1', navProductionPm2:'Pulp mill 2', navProductionPm12:'Pulp mill 1+2', navYield:'Yield', navYieldWeightScale:'Weight scale digester', navCostSensitivity:'Sensitivity', navOptTuning:'OPT Tuning', navHFactorTuning:'Set point H Factor', navOptFixEaCharge:'Res. Acc (Fix Ton EA)', navDataAnalysis:'Data for analysis',
+    navProduction:'Production', navProductionPm1:'Pulp mill 1', navProductionPm2:'Pulp mill 2', navProductionPm12:'Pulp mill 1+2', navYield:'Yield', navYieldWeightScale:'Weight scale digester', navCostSensitivity:'Sensitivity', navOptTuning:'OPT Tuning', navHFactorTuning:'Set point H Factor', navOptConsistStpipe:'Control Consist St. pipe', navOptFixEaCharge:'Res. Acc (Fix Ton EA)', navDataAnalysis:'Data for analysis',
     navProcessArea:'Process area', navProcessRawMaterial:'Raw material', navProcessCooking:'Cooking', navProcessBrownStock:'Brown stock', navProcessBleaching:'Bleaching', navProcessDailyData:'Daily data',
     searchPlaceholder:'Search metrics',
     lastDataAt:'Latest data as of', noDataYet:'No data source connected yet',
@@ -17385,6 +17480,146 @@ if(notifListEl){
 if(document.getElementById('chipMonHost')) renderNotifCentre();
 const moreNotifBtnEl2 = document.getElementById('moreNotifBtn');
 if(moreNotifBtnEl2) moreNotifBtnEl2.addEventListener('click', ()=>{ const mm = document.getElementById('tbMoreMenu'); if(mm) mm.hidden = true; if(notifBtnEl2) notifBtnEl2.click(); });
+
+/* ==================================================================================
+   OPT Tuning > Control Consist St. pipe — Dilution Flow Calculator, screw conveyor 431C001.
+   Model (water mass balance, reproduces the Sunds Defibrator "Dilution in screw conveyor,
+   431C001" table exactly):
+     BD t/h  = Production (t/d AD) × dryness ÷ 24      (dryness 90% → 300 t/d = 11.25 t/h)
+     BD kg/s = BD t/h ÷ 3.6
+     FC 031 (l/s) = BD kg/s × (100/C_after_conveyor − 100/C_after_wash_press)
+   and its inverse, used for tuning from the flow actually running:
+     C_after_conveyor = 100 ÷ (FC 031 ÷ BD kg/s + 100/C_after_wash_press)
+   Inputs persist per browser (localStorage); nothing is written to the shared store. ========= */
+(function initConsistStpipe(){
+  const LS_KEY = 'pm1_csp_inputs';
+  const DEF = { prod:600, cin:32, ct:10, dry:90 };
+  const TABLE_CONS = [9, 10, 11, 12];       // the manual's own columns
+  const $ = id => document.getElementById(id);
+  if(!$('cspProd')) return;
+  let chart = null;
+  const f2 = v => v==null || !isFinite(v) ? '—' : v.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+  const bdKgs = (prod, dry) => prod * (dry/100) / 24 / 3.6;
+  const flowFor = (prod, cin, ct, dry) => bdKgs(prod, dry) * (100/ct - 100/cin);
+  const consFor = (prod, cin, flow, dry) => { const b = bdKgs(prod, dry); return b > 0 ? 100 / (flow / b + 100/cin) : null; };
+
+  let saved = {};
+  try{ saved = JSON.parse(localStorage.getItem(LS_KEY) || '{}') || {}; }catch(e){}
+  $('cspProd').value = saved.prod ?? DEF.prod;
+  $('cspCin').value = saved.cin ?? DEF.cin;
+  $('cspCt').value = saved.ct ?? DEF.ct;
+  $('cspDry').value = saved.dry ?? DEF.dry;
+  if(saved.act != null) $('cspActFlow').value = saved.act;
+
+  function read(){
+    const num = id => { const v = $(id).value.trim(); return v==='' ? null : +v; };
+    return { prod:num('cspProd'), cin:num('cspCin'), ct:num('cspCt'), dry:num('cspDry'), act:num('cspActFlow') };
+  }
+  function latestProduction(){
+    // Bleaching production (Daily data) is the line that runs through 431C001; fall back to the
+    // Pulp mill 1 daily actual from the Production page if that series isn't loaded.
+    const ser = (CHIP_MON_SERIES.dd005BleachingProduction || []).filter(x=> x.v!=null && x.v>0);
+    if(ser.length){ const x = ser[ser.length-1]; return {v:x.v, lbl:'Bleaching Production (Daily data) '+x.d+'/'+(x.mi+1)+'/'+x.y}; }
+    if(typeof LAST_DATA !== 'undefined' && LAST_DATA && LAST_DATA.v!=null) return {v:LAST_DATA.v, lbl:'Pulp mill 1 Production ล่าสุด'};
+    return null;
+  }
+  $('cspProdLatestBtn').addEventListener('click', ()=> {
+    const lp = latestProduction();
+    if(!lp){ $('cspProdSrc').textContent = 'ไม่พบข้อมูล Production ล่าสุด'; return; }
+    $('cspProd').value = Math.round(lp.v);
+    $('cspProdSrc').textContent = 'จาก ' + lp.lbl + ' = ' + f2(lp.v) + ' t/d';
+    render();
+  });
+
+  function renderTable(v, ok){
+    const cols = TABLE_CONS.slice();
+    if(ok && !cols.some(c=> Math.abs(c - v.ct) < 1e-9)) cols.push(v.ct);
+    cols.sort((a,b)=> a-b);
+    const hitRow = ok ? Math.min(780, Math.max(300, Math.round(v.prod/20)*20)) : null;
+    let h = '<thead><tr><th rowspan="2">Production<br>t/d AD</th><th rowspan="2">t/h BD</th><th rowspan="2">kg/s BD</th><th colspan="'+cols.length+'">Pulp consistency after conveyor, % (Consistency after wash press '+(ok?v.cin:'—')+'%)</th></tr><tr>'
+      + cols.map(c=> '<th>'+c.toLocaleString('en-US',{maximumFractionDigits:2})+'%'+(ok && Math.abs(c-v.ct)<1e-9?' ◀':'')+'</th>').join('') + '</tr></thead><tbody>';
+    for(let prod = 300; prod <= 780; prod += 20){
+      const b = bdKgs(prod, ok ? v.dry : DEF.dry);
+      h += '<tr class="'+(prod===hitRow?'csp-hit ':'')+(prod>300 && prod%100===0?'csp-grp':'')+'"><td class="csp-prodcell">'+prod+'</td><td>'+f2(b*3.6)+'</td><td>'+f2(b)+'</td>'
+        + cols.map(c=> '<td class="'+(ok && Math.abs(c-v.ct)<1e-9?'csp-col-hit':'')+'">'+(ok ? f2(flowFor(prod, v.cin, c, v.dry)) : '—')+'</td>').join('') + '</tr>';
+    }
+    $('cspTable').innerHTML = h + '</tbody>';
+    $('cspTblSub').textContent = ok ? '· แถวที่ไฮไลต์ = Production ใกล้ '+v.prod+' t/d ที่สุด · คอลัมน์ ◀ = Target consistency' : '';
+  }
+
+  function renderChart(v, ok){
+    const cv = $('cspChart');
+    if(!cv || cv.offsetParent === null) return;   // page hidden — drawn when shown (showPage hook)
+    const c = { ink:cssVar('--ink'), ink2:cssVar('--ink-2'), grid:cssVar('--grid'), surface:cssVar('--surface'), border:cssVar('--border'), accent:cssVar('--accent') };
+    const COLS = { 9:'#3069a6', 10:'#2A8C6E', 11:'#C9A227', 12:'#a63057' };
+    const xs = []; for(let x = 300; x <= 800; x += 20) xs.push(x);
+    const sets = TABLE_CONS.map(cons=> ({ type:'line', label:cons+'%', data: ok ? xs.map(x=> ({x, y:flowFor(x, v.cin, cons, v.dry)})) : [],
+      borderColor:COLS[cons], backgroundColor:COLS[cons], borderWidth:1.6, pointRadius:0, tension:0, datalabels:{display:false} }));
+    if(ok && !TABLE_CONS.some(cn=> Math.abs(cn-v.ct)<1e-9)) sets.push({ type:'line', label:'Target '+v.ct+'%', data:xs.map(x=> ({x, y:flowFor(x, v.cin, v.ct, v.dry)})),
+      borderColor:c.ink, borderWidth:2, borderDash:[6,4], pointRadius:0, tension:0, datalabels:{display:false} });
+    if(ok) sets.push({ type:'scatter', label:'จุดทำงาน', data:[{x:v.prod, y:flowFor(v.prod, v.cin, v.ct, v.dry)}], pointRadius:7, pointHoverRadius:8,
+      backgroundColor:c.accent, borderColor:c.surface, borderWidth:2,
+      datalabels:{ display:true, align:'top', anchor:'end', offset:6, color:c.ink, font:{family:'IBM Plex Mono', size:11, weight:'700'}, formatter:(p)=> f2(p.y)+' l/s' } });
+    if(ok && v.act!=null) sets.push({ type:'scatter', label:'FC 031 ที่เดินอยู่', data:[{x:v.prod, y:v.act}], pointRadius:6, pointStyle:'rectRot',
+      backgroundColor:'#B25C00', borderColor:c.surface, borderWidth:2, datalabels:{display:false} });
+    const cfg = { data:{ datasets:sets },
+      options:{ responsive:true, maintainAspectRatio:false, animation:false, layout:{padding:{top:16, right:8}},
+        interaction:{mode:'nearest', intersect:false},
+        scales:{
+          x:{ type:'linear', min:300, max:800, title:{display:true, text:'Production (t/d AD)', color:c.ink2}, grid:{color:c.grid}, ticks:{stepSize:50, color:c.ink2, font:{family:'IBM Plex Mono', size:10.5}} },
+          y:{ min:0, title:{display:true, text:'Dilution flow FC 031 (l/s)', color:c.ink2}, grid:{color:c.grid}, ticks:{color:c.ink2, font:{family:'IBM Plex Mono', size:10.5}} } },
+        plugins:{ legend:{display:false},
+          tooltip:{ backgroundColor:c.surface, titleColor:c.ink, bodyColor:c.ink2, borderColor:c.border, borderWidth:1, padding:9,
+            callbacks:{ title:(it)=> it[0].parsed.x+' t/d AD', label:(x)=> x.dataset.label+': '+f2(x.parsed.y)+' l/s' } } } } };
+    if(chart) chart.destroy();
+    chart = new Chart(cv.getContext('2d'), cfg);
+    $('cspLegend').innerHTML = TABLE_CONS.map(cn=> '<span class="item"><span class="sw" style="border-color:'+COLS[cn]+'"></span>'+cn+'% หลัง Conveyor</span>').join('')
+      + (ok && !TABLE_CONS.some(cn=> Math.abs(cn-v.ct)<1e-9) ? '<span class="item"><span class="sw dashed" style="border-color:'+c.ink+'"></span>Target '+v.ct+'%</span>' : '')
+      + '<span class="item"><span class="box" style="background:'+c.accent+';border-radius:50%"></span>จุดทำงาน (Set point)</span>'
+      + (ok && v.act!=null ? '<span class="item"><span class="box" style="background:#B25C00"></span>FC 031 ที่เดินอยู่</span>' : '');
+  }
+
+  function render(){
+    const v = read();
+    try{ localStorage.setItem(LS_KEY, JSON.stringify(v)); }catch(e){}
+    let err = '';
+    if([v.prod, v.cin, v.ct, v.dry].some(x=> x==null || !isFinite(x))) err = 'กรอกข้อมูลให้ครบทุกช่อง';
+    else if(v.prod <= 0) err = 'Production ต้องมากกว่า 0';
+    else if(v.dry <= 0 || v.dry > 100) err = 'Dryness ต้องอยู่ระหว่าง 0–100%';
+    else if(v.cin <= 0 || v.cin > 100) err = 'Consistency หลัง Wash press ต้องอยู่ระหว่าง 0–100%';
+    else if(v.ct <= 0 || v.ct >= v.cin) err = 'Target consistency หลัง Conveyor ต้องมากกว่า 0 และน้อยกว่า Consistency หลัง Wash press ('+v.cin+'%)';
+    const ok = !err;
+    $('cspErr').hidden = ok; $('cspErr').textContent = err;
+    if(ok){
+      const b = bdKgs(v.prod, v.dry), F = flowFor(v.prod, v.cin, v.ct, v.dry);
+      $('cspFlow').textContent = f2(F) + ' l/s';
+      $('cspFlowM3h').textContent = '= ' + f2(F*3.6) + ' m³/h';
+      $('cspBdTh').textContent = f2(b*3.6) + ' t/h';
+      $('cspBdKgs').textContent = '= ' + f2(b) + ' kg/s BD';
+      const wIn = b*(100/v.cin - 1), wOut = b*(100/v.ct - 1);
+      $('cspWater').textContent = f2(wIn) + ' → ' + f2(wOut);
+      const step = 0.5, Fdn = v.ct - step > 0 ? flowFor(v.prod, v.cin, v.ct - step, v.dry) : null, Fup = flowFor(v.prod, v.cin, v.ct + step, v.dry);
+      $('cspSens').textContent = Fdn==null ? '—' : '±' + f2((Fdn - Fup)/2) + ' l/s';
+      $('cspSensSub').textContent = 'ต่อ Consistency ±' + step + '% (ลด Consistency ' + step + '% ต้องเพิ่ม ' + (Fdn==null?'—':f2(Fdn - F)) + ' l/s)';
+      if(v.act != null && isFinite(v.act) && v.act >= 0){
+        const cAct = consFor(v.prod, v.cin, v.act, v.dry), d = F - v.act;
+        const dir = Math.abs(d) < 0.005 ? 'ตรงเป้าแล้ว' : (d > 0 ? '<span class="up">เพิ่ม FC 031 อีก ' + f2(d) + ' l/s</span>' : '<span class="down">ลด FC 031 ลง ' + f2(-d) + ' l/s</span>');
+        $('cspTuneOut').innerHTML = 'ที่ FC 031 = <b>' + f2(v.act) + ' l/s</b> และ Production ' + v.prod + ' t/d → Consistency หลัง Conveyor ที่คาดว่าจะได้ <b>' + f2(cAct) + '%</b>'
+          + '<br>ให้ได้ Target <b>' + v.ct + '%</b> ต้องเดิน FC 031 = <b>' + f2(F) + ' l/s</b> → ' + dir;
+      } else {
+        $('cspTuneOut').textContent = 'ใส่ค่า FC 031 ที่เดินอยู่ เพื่อดู Consistency ที่คาดว่าจะได้ และต้องปรับ Flow เท่าไรให้ถึงเป้า';
+      }
+    } else {
+      ['cspFlow','cspBdTh','cspWater','cspSens'].forEach(id=> $(id).textContent = '—');
+      ['cspFlowM3h','cspBdKgs','cspSensSub'].forEach(id=> $(id).textContent = '');
+    }
+    renderTable(v, ok);
+    renderChart(v, ok);
+  }
+  ['cspProd','cspCin','cspCt','cspDry','cspActFlow'].forEach(id=> $(id).addEventListener('input', render));
+  window.cspRender = render;
+  render();
+})();
 
 applyLang(currentLang);
 showPage('production-pm1');
