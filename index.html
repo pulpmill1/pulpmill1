@@ -741,6 +741,31 @@
   table.csp-table td.csp-col-hit{background:rgba(14,124,134,.10);color:var(--ink);font-weight:700;}
   table.csp-table tr.csp-hit td.csp-col-hit{background:var(--accent);color:#fff;}
   table.csp-table tr.csp-grp td{border-top:2px solid var(--border);}
+  .csp-cond-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px;}
+  .csp-cond-head .sens-dash-h{margin-bottom:0;font-size:14px;}
+  .csp-cond-actions{display:flex;align-items:center;gap:8px;}
+  .csp-cond-actions .save-btn{font:inherit;font-size:11.5px;font-weight:800;color:#fff;background:var(--accent);border:1px solid var(--accent);border-radius:7px;padding:5px 13px;cursor:pointer;}
+  .csp-cond-msg{font-size:11px;font-weight:700;color:#12a150;}
+  .csp-cond-wrap{max-height:none;}
+  table.csp-cond-table{width:100%;min-width:1080px;border-collapse:collapse;font-size:12.5px;}
+  table.csp-cond-table th{background:#1F4E8C;color:#fff;font-size:11.5px;font-weight:700;padding:6px 8px;border:1px solid rgba(255,255,255,.35);text-align:center;line-height:1.3;}
+  table.csp-cond-table th.g-act{background:#C9DCF3;color:#12233A;}
+  table.csp-cond-table th.g-calc{background:#CDEFC4;color:#12331A;}
+  table.csp-cond-table th.c-calc{background:#118A2E;}
+  table.csp-cond-table th.g-tgt{background:#C9DCF3;color:#12233A;}
+  table.csp-cond-table td{padding:6px 9px;border:1px solid var(--border);text-align:right;font-family:"IBM Plex Mono",monospace;color:var(--ink);background:var(--surface);vertical-align:middle;}
+  table.csp-cond-table td.loop{text-align:left;font-family:inherit;font-weight:700;white-space:nowrap;}
+  table.csp-cond-table td .ts{display:block;font-size:9.5px;color:var(--ink-3);font-family:inherit;margin-top:1px;white-space:nowrap;}
+  table.csp-cond-table td.calc{background:rgba(17,138,46,.07);font-weight:800;}
+  table.csp-cond-table td.calc.ok{color:#118A2E;} table.csp-cond-table td.calc.hi,table.csp-cond-table td.calc.lo{color:#C0392B;}
+  table.csp-cond-table td.tgt{text-align:center;}
+  table.csp-cond-table td.tgt input{font:inherit;font-weight:700;width:62px;text-align:center;color:var(--ink);background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:3px 4px;}
+  table.csp-cond-table td.tgt input:focus-visible{outline:2px solid var(--accent);outline-offset:1px;}
+  table.csp-cond-table td.reco{text-align:left;font-family:inherit;font-size:12px;line-height:1.5;min-width:300px;}
+  table.csp-cond-table td.reco b{font-family:"IBM Plex Mono",monospace;}
+  table.csp-cond-table td.reco .r-ok{color:#118A2E;font-weight:700;} table.csp-cond-table td.reco .r-up{color:#0E7C86;font-weight:700;} table.csp-cond-table td.reco .r-down{color:#B25C00;font-weight:700;} table.csp-cond-table td.reco .r-na{color:var(--ink-3);}
+  table.csp-cond-table td.use{text-align:center;}
+  .csp-cond-note{font-size:11px;color:var(--ink-3);margin-top:8px;line-height:1.6;}
   .csp-th-cin{display:block;margin-top:4px;white-space:nowrap;font-weight:600;text-transform:none;}  /* own line so the wide header doesn't force a horizontal scroll */
   .csp-th-cin input{font:inherit;font-family:"IBM Plex Mono",monospace;font-size:11px;font-weight:700;width:58px;text-align:right;color:var(--ink);background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:2px 5px;margin:0 3px;}
   .csp-th-cin input:focus-visible{outline:2px solid var(--accent);outline-offset:1px;}
@@ -2980,6 +3005,18 @@
           <div class="hft-head">
             <h2>Control Consist St. pipe</h2>
             <p>Dilution Flow Calculator — คำนวณ Dilution flow ที่ต้องเติมใน Screw conveyor เพื่อควบคุม Consistency ของเยื่อหลัง Conveyor ที่ลง Stand pipe ให้ได้ตามเป้า จาก Production และ Consistency หลัง Wash press · Model สร้างจากตาราง "Dilution in screw conveyor" (Sunds Defibrator) และให้ค่าตรงกับตาราง</p>
+          </div>
+
+          <div class="csp-card csp-cond">
+            <div class="csp-cond-head">
+              <div class="sens-dash-h"><span class="sq"></span>Condition Consist Stand Pipe ล่าสุด</div>
+              <div class="csp-cond-actions">
+                <button type="button" class="save-btn" id="cspTgtSave">บันทึก Target</button>
+                <span class="csp-cond-msg" id="cspTgtMsg" hidden>✓ บันทึกแล้ว — ทุกคนเห็นค่านี้</span>
+              </div>
+            </div>
+            <div class="hft-wrap csp-cond-wrap"><table class="csp-cond-table" id="cspCondTable"></table></div>
+            <div class="csp-cond-note" id="cspCondNote"></div>
           </div>
 
           <div class="csp-grid">
@@ -17625,7 +17662,114 @@ if(moreNotifBtnEl2) moreNotifBtnEl2.addEventListener('click', ()=>{ const mm = d
     }
     renderTable(v, ok);
     renderChart(v, ok);
+    renderCond(v.dry);
   }
+
+  /* ---- Condition Consist Stand Pipe ล่าสุด ----
+     Per loop: latest Production (adt/day) and screw-conveyor dilution flow (l/s) from the Brown
+     Stock / Bleaching logsheets (hourly rows: date col C, hour col D — the latest row where BOTH
+     are filled, so the pair is from the same hour), and the latest Consistency out of the wash
+     press from QC Lab FL1 (date col B, hour col C). Stand-pipe consistency is then back-solved
+     with the same model as the calculator below:  C = 100 ÷ (F ÷ BD + 100 ÷ C_press).
+     Targets live in the shared /api/targets store (key "csp_<loop>", value in .lo) so a saved
+     Target is what every viewer sees until someone saves a new one. */
+  const COND_LOOPS = [
+    { id:'wp1',    name:'Wash Press 1',       src:'bs', prod:'BK', dil:'BM', qc:'S',  def:6 },
+    { id:'preo2',  name:'Pre O2 Wash Press',  src:'bs', prod:'Q',  dil:'BO', qc:'T',  def:12 },
+    { id:'posto2', name:'Post O2 Wash Press', src:'bs', prod:'E',  dil:'BQ', qc:'AA', def:10 },
+    { id:'pb',     name:'PB Wash Press',      src:'bl', prod:'E',  dil:'CP', qc:'AN', def:10 },
+    { id:'d0',     name:'D0 Wash Press',      src:'bl', prod:'CQ', dil:'CS', qc:'AV', def:10 },
+    { id:'eop',    name:'EOP Wash Press',     src:'bl', prod:'CV', dil:'CX', qc:'BF', def:10 },
+    { id:'d1',     name:'D1 Wash Press',      src:'bl', prod:'CY', dil:'DA', qc:'BK', def:10 },
+  ];
+  const COND_TOL = 0.2;   // |calc − target| within ±0.2 %-point counts as on target
+  const colIdx = L => L.split('').reduce((a,c)=> a*26 + c.charCodeAt(0) - 64, 0) - 1;
+  const numAt = (r, L) => { if(!r) return null; const v = parseSheetNum(r[colIdx(L)]); return v==null || !isFinite(v) ? null : v; };
+  const tsLbl = (d, h) => { const hh = h==null || h==='' ? '' : ' ' + String(Math.floor(+h)).padStart(2,'0') + ':00'; return String(d||'').trim() + hh; };
+  function latestPair(rows, a, b){           // latest logsheet row with both columns filled
+    for(let i = rows.length - 1; i > 6; i--){
+      const r = rows[i]; if(!r || !/^\d{1,2}\/\d{1,2}\/\d{4}/.test(String(r[2]||'').trim())) continue;
+      const va = numAt(r, a), vb = numAt(r, b);
+      if(va!=null && vb!=null && va>0) return { a:va, b:vb, ts:tsLbl(r[2], r[3]) };
+    }
+    return null;
+  }
+  function latestQc(L){                       // latest QC Lab FL1 sample in that column
+    const rows = qcLabFl1Rows || [];
+    for(let i = rows.length - 1; i > 4; i--){
+      const r = rows[i]; if(!r || !/^\d{1,2}\/\d{1,2}\/\d{4}/.test(String(r[1]||'').trim())) continue;
+      const v = numAt(r, L); if(v!=null && v>0) return { v, ts:tsLbl(r[1], r[2]) };
+    }
+    return null;
+  }
+  const condData = COND_LOOPS.map(l=> {
+    const pair = latestPair(l.src==='bs' ? (brownStockRows||[]) : (bleachingRows||[]), l.prod, l.dil);
+    const qc = latestQc(l.qc);
+    return { l, prod:pair ? pair.a : null, dil:pair ? pair.b : null, pts:pair ? pair.ts : '', cin:qc ? qc.v : null, cts:qc ? qc.ts : '' };
+  });
+  const tgtOf = l => { const t = chipMonTarget('csp_' + l.id); return t.lo!=null ? t.lo : l.def; };
+
+  function renderCond(dry){
+    const tbl = $('cspCondTable'); if(!tbl) return;
+    const D = dry && dry > 0 && dry <= 100 ? dry : DEF.dry;
+    // keep a Target box the user is typing in focused across this re-render
+    const act = document.activeElement && document.activeElement.dataset && document.activeElement.dataset.cspTgt ? document.activeElement.dataset.cspTgt : null;
+    let h = '<thead><tr><th rowspan="3">Loop</th><th class="g-act" colspan="3">Actual (ข้อมูลล่าสุด)</th><th class="g-calc">Calculation</th><th class="g-tgt">Target</th><th rowspan="3">คำแนะนำ</th><th rowspan="3"></th></tr>'
+      + '<tr><th>Production</th><th>Consist Out Wash Press</th><th>Dilute Screw Dilution</th><th class="c-calc">Consist Stand pipe</th><th>Consist Stand pipe</th></tr>'
+      + '<tr><th>adt/day</th><th>%</th><th>l/s</th><th class="c-calc">%</th><th>%</th></tr></thead><tbody>';
+    condData.forEach(d=> {
+      const tgt = tgtOf(d.l);
+      const tIn = act===d.l.id ? $('cspTgtIn_'+d.l.id) : null;
+      const tShown = tIn ? tIn.value : tgt;
+      const tNum = tShown==='' || tShown==null ? null : +tShown;
+      let calc = null, reco = '<span class="r-na">ข้อมูลไม่ครบ — ยังคำนวณไม่ได้</span>', cls = '';
+      if(d.prod!=null && d.dil!=null && d.cin!=null && d.prod>0 && d.cin>0){
+        calc = consFor(d.prod, d.cin, d.dil, D);
+        if(tNum==null || !(tNum>0)) reco = '<span class="r-na">ใส่ Target เพื่อดูคำแนะนำ</span>';
+        else if(tNum >= d.cin) reco = '<span class="r-na">Target ต้องต่ำกว่า Consist Out Wash Press ('+f2(d.cin)+'%)</span>';
+        else {
+          const need = flowFor(d.prod, d.cin, tNum, D), dF = need - d.dil, gap = calc - tNum;
+          if(Math.abs(gap) <= COND_TOL){ cls = 'ok'; reco = '<span class="r-ok">✓ ได้ตาม Target</span> (ต่างกัน '+(gap>=0?'+':'')+f2(gap)+'%)'; }
+          else if(gap > 0){ cls = 'hi'; reco = 'Consist สูงกว่า Target <b>'+f2(gap)+'%</b> → <span class="r-up">เพิ่ม Dilution flow '+f2(dF)+' l/s</span> (จาก '+f2(d.dil)+' เป็น <b>'+f2(need)+' l/s</b>)'; }
+          else { cls = 'lo'; reco = 'Consist ต่ำกว่า Target <b>'+f2(-gap)+'%</b> → <span class="r-down">ลด Dilution flow '+f2(-dF)+' l/s</span> (จาก '+f2(d.dil)+' เป็น <b>'+f2(need)+' l/s</b>)'
+            + (need < 0 ? ' — แม้ไม่เติมน้ำเลยก็ยังได้ Consist ไม่ถึง Target ควรตรวจ Consist หลัง Wash press' : ''); }
+        }
+      }
+      h += '<tr><td class="loop">'+d.l.name+'</td>'
+        + '<td>'+(d.prod==null?'—':f2(d.prod))+'<span class="ts">'+d.pts+'</span></td>'
+        + '<td>'+(d.cin==null?'—':f2(d.cin))+'<span class="ts">QC Lab '+d.cts+'</span></td>'
+        + '<td>'+(d.dil==null?'—':f2(d.dil))+'<span class="ts">'+d.pts+'</span></td>'
+        + '<td class="calc '+cls+'">'+(calc==null?'—':f2(calc))+'</td>'
+        + '<td class="tgt"><input type="number" step="0.1" min="0" max="100" id="cspTgtIn_'+d.l.id+'" data-csp-tgt="'+d.l.id+'" value="'+(tShown==null?'':tShown)+'" aria-label="Target '+d.l.name+'"></td>'
+        + '<td class="reco">'+reco+'</td>'
+        + '<td class="use"><button type="button" class="md-viewbtn" data-csp-use="'+d.l.id+'" title="นำค่าของ Loop นี้ไปใส่ในตัวคำนวณด้านล่าง"'+(calc==null?' disabled':'')+'>คำนวณ</button></td></tr>';
+    });
+    tbl.innerHTML = h + '</tbody>';
+    tbl.querySelectorAll('input[data-csp-tgt]').forEach(inp=> inp.addEventListener('input', ()=> renderCond(read().dry)));
+    tbl.querySelectorAll('button[data-csp-use]').forEach(b=> b.addEventListener('click', ()=> {
+      const d = condData.find(x=> x.l.id === b.dataset.cspUse); if(!d) return;
+      $('cspProd').value = Math.round(d.prod*100)/100; $('cspCin').value = d.cin; $('cspActFlow').value = d.dil;
+      const t = $('cspTgtIn_'+d.l.id).value; if(t!=='') $('cspCt').value = t;
+      $('cspProdSrc').textContent = 'ค่าจาก ' + d.l.name + ' (Condition ล่าสุด)';
+      render(); $('cspProd').scrollIntoView({behavior:'smooth', block:'center'});
+    }));
+    if(act){ const el = $('cspTgtIn_'+act); if(el){ const len = el.value.length; el.focus(); try{ el.setSelectionRange(len, len); }catch(e){} } }
+    $('cspCondNote').innerHTML = 'Consist Stand pipe (Calculation) = 100 ÷ (Dilution ÷ BD (kg/s) + 100 ÷ Consist Out Wash Press) · BD (kg/s) = Production × Dryness '+D+'% ÷ 24 ÷ 3.6 · '
+      + 'ได้ตาม Target เมื่อต่างกันไม่เกิน ±'+COND_TOL+'% · Production และ Dilution มาจากแถวล่าสุดที่มีทั้งสองค่าใน Brown Stock / Bleaching Logsheet ส่วน Consist Out Wash Press มาจาก QC Lab FL1 ผลล่าสุด · '
+      + 'แก้ Target แล้วกด "บันทึก Target" เพื่อให้ทุกคนเห็นค่าใหม่ (ค่าที่บันทึกล่าสุดจะถูกใช้จนกว่าจะมีการบันทึกใหม่)';
+  }
+  let tgtMsgTimer = null;
+  $('cspTgtSave').addEventListener('click', ()=> {
+    COND_LOOPS.forEach(l=> {
+      const el = $('cspTgtIn_'+l.id); if(!el) return;
+      const v = el.value.trim()==='' ? null : +el.value;
+      if(v==null || !isFinite(v)) return;
+      const cur = chipMonTarget('csp_' + l.id).lo;
+      if(cur !== v) chipMonSetTarget('csp_' + l.id, v, null);
+    });
+    renderCond(read().dry);
+    $('cspTgtMsg').hidden = false; clearTimeout(tgtMsgTimer); tgtMsgTimer = setTimeout(()=> { $('cspTgtMsg').hidden = true; }, 2500);
+  });
   ['cspProd','cspCin','cspCt','cspDry','cspActFlow'].forEach(id=> $(id).addEventListener('input', render));
   window.cspRender = render;
   render();
