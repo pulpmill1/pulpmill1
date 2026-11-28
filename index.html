@@ -8013,6 +8013,16 @@ const DA_ROWS_RAW = (function(){
   return out.sort(function(a,b){ return a.ts-b.ts; });
 })();
 const DA_YEARS = Array.from(new Set(DA_ROWS_RAW.map(function(d){ return d.y; }))).sort();
+/* Default date for a newly added snapshot column: YESTERDAY (calendar), not the sheet's last row —
+   the tab is pre-filled with dated rows far into the future (to 31/12/2027), so "last row" landed on
+   an empty future day. If yesterday has no row, use the latest row dated on/before yesterday. */
+function daDefaultDateStr(){
+  const t = new Date(); const y = new Date(t.getFullYear(), t.getMonth(), t.getDate()-1).getTime();
+  let pick = null;
+  for(let i = DA_ROWS_RAW.length-1; i >= 0; i--){ if(DA_ROWS_RAW[i].ts <= y){ pick = DA_ROWS_RAW[i]; break; } }
+  if(!pick) pick = DA_ROWS_RAW.length ? DA_ROWS_RAW[0] : null;
+  return pick ? (pick.y+'-'+String(pick.mi+1).padStart(2,'0')+'-'+String(pick.d).padStart(2,'0')) : null;
+}
 function daFieldValue(field, day){ return parseSheetNum(day.r[field.col]); }
 /* {mode:'date'|'week'|'month'|'quarter'|'year', value:string} -- identical shape to HFT_COND_STATE /
    YAD_STATE elsewhere in this file; yaWeekRange/yaQuarterRange/yaHeaderLabel (defined further down,
@@ -16050,8 +16060,7 @@ function daBindControls(){
   }
   if(addBtn){
     addBtn.addEventListener('click', function(){
-      const latest = DA_ROWS_RAW.length ? DA_ROWS_RAW[DA_ROWS_RAW.length-1] : null;
-      const latestDateStr = latest ? (latest.y+'-'+String(latest.mi+1).padStart(2,'0')+'-'+String(latest.d).padStart(2,'0')) : null;
+      const latestDateStr = daDefaultDateStr();   // new column opens on yesterday's data
       DA_NEXT_ID += 1;
       DA_COLUMNS.push({ id:DA_NEXT_ID, mode:'date', value:latestDateStr, prodMin:null, prodMax:null, saved:false });
       daSaveColumns();
@@ -16071,8 +16080,7 @@ function initDataAnalysisPage(){
   const wrap = document.getElementById('daTableWrap');
   if(!wrap) return;
   if(!DA_ROWS_RAW.length){ wrap.innerHTML = '<div class="hft-empty">ไม่มีข้อมูล</div>'; return; }
-  const latest = DA_ROWS_RAW[DA_ROWS_RAW.length-1];
-  const latestDateStr = latest.y+'-'+String(latest.mi+1).padStart(2,'0')+'-'+String(latest.d).padStart(2,'0');
+  const latestDateStr = daDefaultDateStr();
   if(DA_SAVED_COLUMNS_REMOTE.length){
     DA_COLUMNS = DA_SAVED_COLUMNS_REMOTE.map(function(c){
       const id = (typeof c.id === 'number') ? c.id : (DA_NEXT_ID++);
