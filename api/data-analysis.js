@@ -18,6 +18,11 @@
 // defaults to CommonJS in Vercel's Node runtime with zero config.
 
 const COLUMNS_KEY = 'pm1:data-analysis-cols';
+// Edited Unit / KPI cells: one Redis hash, field "<group>|<subgroup>|<label>::unit" (or "::spec"),
+// value = the text last saved for that cell. Per-cell HSET means two people editing different
+// cells never overwrite each other; for the same cell the latest save wins.
+const META_KEY = 'pm1:data-analysis-meta';
+const MAX_META_FIELD = 300, MAX_META_VALUE = 200;
 const MAX_BODY_CHARS = 200000; // generous ceiling against an abusive payload; real column lists are a few KB
 
 module.exports = async function handler(req, res) {
@@ -36,22 +41,27 @@ module.exports = async function handler(req, res) {
       const r = await fetch(url + '/pipeline', {
         method: 'POST',
         headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' },
-        body: JSON.stringify([['GET', COLUMNS_KEY]]),
+        body: JSON.stringify([['GET', COLUMNS_KEY], ['HGETALL', META_KEY]]),
       });
       if (!r.ok) {
-        res.status(200).json({ columns: [], error: 'upstash_error' });
+        res.status(200).json({ columns: [], meta: {}, error: 'upstash_error' });
         return;
       }
       const data = await r.json();
-      const last = Array.isArray(data) ? data[data.length - 1] : null;
+      const colRes = Array.isArray(data) ? data[0] : null;
+      const metaRes = Array.isArray(data) ? data[1] : null;
       let columns = [];
-      if (last && typeof last.result === 'string') {
+      if (colRes && typeof colRes.result === 'string') {
         try {
-          const parsed = JSON.parse(last.result);
+          const parsed = JSON.parse(colRes.result);
           columns = Array.isArray(parsed) ? parsed : [];
         } catch (e) { columns = []; }
       }
-      res.status(200).json({ columns });
+      const meta = {};
+      if (metaRes && Array.isArray(metaRes.result)) {
+        for (let i = 0; i + 1 < metaRes.result.length; i += 2) meta[metaRes.result[i]] = metaRes.result[i + 1];
+      }
+      res.status(200).json({ columns, meta });
     } catch (e) {
       res.status(200).json({ columns: [], error: 'fetch_failed' });
     }
@@ -64,6 +74,27 @@ module.exports = async function handler(req, res) {
       body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : (req.body || {});
     } catch (e) {
       body = {};
+    }
+    // {meta: {"<field>::unit": "text", ...}} — save edited Unit / KPI cells only
+    if (body.meta && typeof body.meta === 'object' && !Array.isArray(body.meta)) {
+      const cmd = ['HSET', META_KEY];
+      for (const k of Object.keys(body.meta)) {
+        const v = body.meta[k];
+        if (typeof v !== 'string' || k.length > MAX_META_FIELD || v.length > MAX_META_VALUE || !/::(unit|spec)$/.test(k)) continue;
+        cmd.push(k, v);
+      }
+      if (cmd.length < 4) { res.status(400).json({ ok: false, error: 'bad_request' }); return; }
+      try {
+        const r = await fetch(url + '/pipeline', {
+          method: 'POST',
+          headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' },
+          body: JSON.stringify([cmd]),
+        });
+        res.status(200).json(r.ok ? { ok: true } : { ok: false, error: 'upstash_error' });
+      } catch (e) {
+        res.status(200).json({ ok: false, error: 'fetch_failed' });
+      }
+      return;
     }
     const columns = Array.isArray(body.columns) ? body.columns : null;
     const serialized = columns ? JSON.stringify(columns) : null;

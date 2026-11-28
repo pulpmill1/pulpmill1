@@ -1019,6 +1019,10 @@
   .da-col-unsaved{font-size:10px;font-weight:700;color:#a15c00;background:rgba(255,166,0,.14);border-radius:12px;padding:2px 8px;text-align:center;}
   .da-col-ctrl-row,.da-col-prod-row,.da-col-btn-row{display:flex;flex-wrap:wrap;gap:4px;align-items:center;justify-content:center;}
   .da-col-head select,.da-col-head input[type="date"],.da-col-head input[type="week"],.da-col-head input[type="month"]{font:inherit;font-size:10.5px;color:var(--ink);background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:3px 5px;min-width:0;max-width:100%;}
+  .da-meta-in{font:inherit;font-size:inherit;color:inherit;text-align:inherit;width:100%;box-sizing:border-box;background:transparent;border:1px solid transparent;border-radius:5px;padding:2px 4px;}
+  .da-meta-in:hover{border-color:var(--border);}
+  .da-meta-in:focus{outline:none;border-color:var(--accent);background:var(--surface);}
+  .da-meta-in.da-meta-saved{border-color:#2e9e5b;background:rgba(46,158,91,.10);transition:background .3s;}
   .da-col-range-row{display:flex;flex-direction:column;gap:3px;align-items:stretch;}
   .da-col-range-row label{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--ink-2);}
   .da-col-range-row label span{width:20px;flex:none;text-align:right;}
@@ -4049,6 +4053,15 @@ CHIP_LAYOUT.tileOrder = CHIP_LAYOUT.tileOrder || {};
 /* Shared/pinned Data-for-analysis snapshot columns -- see fetchDaColumns() above. Each entry is
    {id, mode, value, prodMin, prodMax}; consumed by initDataAnalysisPage() below. */
 const DA_SAVED_COLUMNS_REMOTE = (daColumnsResp && Array.isArray(daColumnsResp.columns)) ? daColumnsResp.columns : [];
+/* Edited Unit / KPI cells ({"<grp>|<sub>|<label>::unit"|"::spec": text}) -- the shared store's copy
+   wins; the localStorage copy only fills in when the store isn't reachable (e.g. local preview). */
+const DA_META_LS_KEY = 'pm1_da_meta';
+const DA_FIELD_META = (function(){
+  let local = {};
+  try{ local = JSON.parse(localStorage.getItem(DA_META_LS_KEY) || '{}') || {}; }catch(e){}
+  const remote = (daColumnsResp && daColumnsResp.meta && typeof daColumnsResp.meta === 'object') ? daColumnsResp.meta : {};
+  return Object.assign({}, local, remote);
+})();
 
 const dailyActParsed = parseDailySheet(dailyActRows, {numeric:true});
 const YEAR = dailyActParsed.year;
@@ -15967,8 +15980,8 @@ function daRenderTable(){
     if(grpSpan) html += '<td class="da-fixed da-fixed-grp" rowspan="'+grpSpan+'" style="left:'+daColLeft('grp')+'px">'+f.grp+'</td>';
     if(subSpan) html += '<td class="da-fixed da-fixed-sub" rowspan="'+subSpan+'" style="left:'+daColLeft('sub')+'px">'+(f.sub||'')+'</td>';
     html += '<td class="da-fixed da-fixed-label" style="left:'+daColLeft('label')+'px">'+f.label+'</td>'
-      + '<td class="da-plain">'+(f.unit||'')+'</td>'
-      + '<td class="da-plain">'+(f.spec||'')+'</td>';
+      + '<td class="da-plain"><input type="text" class="da-meta-in" data-fkey="'+daEscAttr(daFieldKey(f))+'" data-meta="unit" value="'+daEscAttr(daFieldMetaText(f,'unit'))+'" aria-label="หน่วย '+daEscAttr(f.label)+'"></td>'
+      + '<td class="da-plain"><input type="text" class="da-meta-in" data-fkey="'+daEscAttr(daFieldKey(f))+'" data-meta="spec" value="'+daEscAttr(daFieldMetaText(f,'spec'))+'" aria-label="KPI '+daEscAttr(f.label)+'"></td>';
     colDaySets.forEach(function(days){
       const v = daFieldAverage(f, days);
       html += '<td class="da-val">'+(v==null?'—':hftFmt(v,2))+'</td>';
@@ -16031,6 +16044,18 @@ function daSaveColumns(){
   });
   fetch('/api/data-analysis', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({columns:toSave}) }).catch(function(){});
 }
+function daFieldKey(f){ return f.grp + '|' + (f.sub||'') + '|' + f.label; }
+function daFieldMetaText(f, which){
+  const k = daFieldKey(f) + '::' + which;
+  return Object.prototype.hasOwnProperty.call(DA_FIELD_META, k) ? DA_FIELD_META[k] : (f[which] || '');
+}
+function daEscAttr(t){ return String(t).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+function daSaveFieldMeta(key, text){
+  DA_FIELD_META[key] = text;
+  try{ localStorage.setItem(DA_META_LS_KEY, JSON.stringify(DA_FIELD_META)); }catch(e){}
+  const patch = {}; patch[key] = text;
+  fetch('/api/data-analysis', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({meta:patch}) }).catch(function(){});
+}
 function daFindCol(id){ return DA_COLUMNS.find(function(c){ return String(c.id)===String(id); }); }
 function daBindControls(){
   const wrap = document.getElementById('daTableWrap');
@@ -16038,6 +16063,13 @@ function daBindControls(){
   if(wrap){
     daBindColumnResize(wrap);
     wrap.addEventListener('change', function(e){
+      if(e.target.classList.contains('da-meta-in')){   // edited Unit / KPI cell
+        daSaveFieldMeta(e.target.dataset.fkey + '::' + e.target.dataset.meta, e.target.value.trim());
+        e.target.value = e.target.value.trim();
+        e.target.classList.add('da-meta-saved');
+        setTimeout(function(){ e.target.classList.remove('da-meta-saved'); }, 900);
+        return;
+      }
       const th = e.target.closest('[data-col-id]');
       if(!th) return;
       const col = daFindCol(th.dataset.colId);
@@ -16070,6 +16102,9 @@ function daBindControls(){
       }
       daSaveColumns();
       daRenderTable();
+    });
+    wrap.addEventListener('keydown', function(e){
+      if(e.key === 'Enter' && e.target.classList.contains('da-meta-in')) e.target.blur();
     });
     wrap.addEventListener('click', function(e){
       const th = e.target.closest('[data-col-id]');
